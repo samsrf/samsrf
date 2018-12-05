@@ -1,0 +1,105 @@
+function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
+%
+% Srf = samsrf_fieldsign(InSrf, [radius=2, roi='', thrsh=0.1])
+%
+% Calculates a field sign map from the retinotopic maps in InSrf.
+% The function determines the neighbours (and thus the gradient) for each vertex. 
+% All vertices within radius (geodesic steps) of a given vertex are considered 
+% a neighbour. Only vertices with R^2>=thrsh (default = 0.1) are included. 
+%
+% This can and probably should be limited to a ROI.
+%
+% Adds the field sign map to Srf.Data as the bottom row. 
+%
+% 09/08/2018 - SamSrf 6 version (DSS)
+%
+
+%% Default parameters
+if nargin < 2
+    radius = 2;
+    roi = '';
+    thrsh = 0.1;
+elseif nargin < 3
+    roi = '';
+    thrsh = 0.1;
+elseif nargin < 4
+    thrsh = 0.1;
+end
+% Check if waitbar is to be used
+wb = samsrf_waitbarstatus;
+
+% Expand Srf if necessary
+InSrf = samsrf_expand_srf(InSrf);
+
+% Load data
+Srf = InSrf;
+D = Srf.Data;
+fsD = zeros(1,size(D,2));
+nver = size(D,2);
+aVs = 1:nver;
+
+% Calculate retinotopy
+E = sqrt(D(2,:).^2 + D(3,:).^2);
+P = atan2(D(3,:), D(2,:));
+
+% Load region of interest
+if ~isempty(roi)
+    Vs = samsrf_loadlabel(roi);
+    si = 1;
+else
+    si = ceil(nver/50000);  % Smoothing iterations so we don't run out of memory
+end
+
+if isfield(Srf, 'Sphere')
+    % Load sphere surface
+    sphV = Srf.Sphere;
+    
+    % Calculate field sign
+    if wb h = waitbar(0, 'Calculating field signs...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+    for j = 1:si
+        if wb waitbar(0, h); end
+        i = 0;
+        if isempty(roi)
+            if j == si
+                Vs = ((j-1)*50000+1:nver)';
+            else
+                Vs = ((j-1)*50000+1:j*50000)';
+            end
+            if wb waitbar(0, h, ['Calculating field signs... (Block #' num2str(j) ')']); end
+        end
+        for v = Vs'
+            i = i + 1;
+            % Vertices in geodesic ROI within radius 
+            Nv = samsrf_georoi(v, radius, Srf.Vertices, Srf.Faces);
+            Nv = Nv(Srf.Data(1,Nv) >= thrsh);
+            cE = E(Nv);
+            cP = P(Nv);
+            cX = sphV(Nv,1)';
+            cZ = sphV(Nv,3)';
+
+            % Only if there are viable neighbours 
+            if length(Nv) > 1 && ~isnan(mean(cE))
+                % Determine gradients
+                Efx = polyfit(cX, cE, 1); % Slope of eccentricity in left-right axis
+                Efz = polyfit(cZ, cE, 1); % Slope of eccentricity in inferior-superior axis
+                Pfx = polyfit(cX, cP, 1); % Slope of polar angle in left-right axis
+                Pfz = polyfit(cZ, cP, 1); % Slope of polar angle in inferior-superior axis
+                E_vec = [Efx(1) Efz(1) 0]; % Eccentricity vector
+                P_vec = [Pfx(1) Pfz(1) 0]; % Polar angle vector
+
+                % Field sign
+                fsD(1,v) = sign(sum(cross(E_vec, P_vec)));
+            end
+            if wb waitbar(i/length(Vs), h); end
+        end
+    end
+    if wb close(h); end
+
+    % Save field sign data
+    Srf.Data = [Srf.Data; fsD];
+    Srf.Values{end+1} = 'Field Sign';
+else
+    % No sphere data in Srf
+    warning('Skipping field sign calculation: no sphere data in Srf'); 
+end
+    

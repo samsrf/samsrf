@@ -1,0 +1,331 @@
+function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, nsceil, anatpath)
+% 
+% samsrf_vol2srf(funimg, strimg, hemsurf, [ctxsteps=0.5, rule='Mean', nrmls=true, avrgd=true, nsceil=true, anatpath='../anatomy/'])
+%
+% Converts NII functional files to a SamSrf surface file and saves it.
+%
+%   funimg:     Name of functional NII files (without extension)
+%                 If this a cell array, files are averaged or concatenated (see avgconsep) 
+%                 In that case you should probably normalise! (see nrmls)
+%   strimg:     Name of structural NII file (without extension)
+%   hemsurf:    Hemisphere of surfaces (& folder if needed)
+%   ctxsteps:   Vector with proportional steps through the grey matter 
+%                   to check which functional voxel contains a vertex
+%                   (Optional, defaults to [0.5])
+% 	rule:       Method how multiple voxels per vertex are interpreted:
+%                   'Mean':     Arithmetic mean (default) 
+%                   'Maximum':  Maximum
+%                   'Minimum':  Minimum
+%                   'Median':   Median
+%                   'Sum':      Sum
+%                   'Geomean':  Geometric mean
+%               (anything else will retain the individual steps - this is not advised for large data sets!)
+%   nrmls:      If true, it will detrend & z-score the time series in each vertex.
+%   avrgd:      If true, runs will be averaged into one SamSrf file (default).
+%               If false, runs will be concatenated into one SamSrf file.
+%   nsceil:     If true, calculates the noise ceiling by splitting data into odd and even runs.
+%                 The noise ceiling is stored in the vector Srf.Noise_Ceiling.
+%                 This option only works when averaging runs - otherwise it is ignored 
+%                   (this may change in future versions)
+%   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
+%
+% A text file called Coregistration.txt must be present in the surface
+% folder. If it isn't the transformation between native space and
+% FreeSurfer may not work. At BUCNI or in the FIL this has not been an
+% issue but it may be an issue in other centres and it will be a problem 
+% if your structural NII is not in standard 1mm^3 resolution.
+%
+% If multiple ctxsteps are requested and no collapsing rule is specified, 
+% final output will consists of timepoints x vertices x ctxsteps.
+% Note that normalisation is applied independently to each cortex step.
+%
+% IMPORTANT DIFFERENCE FROM PRIOR VERSIONS OF SAMSRF:
+% The anatomical meshes are automatically split from the functional data
+% and are then stored in ../anatomy/ (see samsrf_anatomy_srf) unless you 
+% change the default path. If this file with anatomical meshes already exists 
+% this step is skipped. 
+% IT IS YOUR RESPONSIBILITY TO CHECK YOU'RE USING THE RIGHT ANATOMICAL DATA!
+%
+% 10/08/2018 - SamSrf 6 version (DSS)
+% 11/08/2018 - Fixed bug with rule switch (DSS)
+% 30/10/2018 - Corrected help section (DSS)
+% 14/11/2018 - Added option to calculate noise ceiling
+%              Added optional input to determine anatomy path (DSS)
+% 28/11/2018 - Added some additional command line statements 
+%              Noise ceiling is now stored as R^2 (DSS)
+%
+
+%% Default parameters
+if nargin < 4
+    ctxsteps = 0.5;
+end
+if nargin < 5
+    rule = 'Mean';
+end
+if nargin < 6
+    nrmls = true;
+end
+if nargin < 7
+    avrgd = 1;
+end
+if nargin < 8
+    nsceil = true;
+end
+if nargin < 9
+    anatpath = ['..' filesep 'anatomy' filesep];
+end
+% Check if waitbar is to be used
+wb = samsrf_waitbarstatus;
+
+% If input functional is a string, turn into cell array
+if isa(funimg, 'char')
+    funimg = {funimg};
+end
+
+%% If using the registration matrices from FreeSurfer
+if exist([hemsurf(1:end-2) 'Coregistration.txt'], 'file')
+    fs2nii = dlmread([hemsurf(1:end-2) 'Coregistration.txt']);
+    Tmov = fs2nii(1:4,:);
+    Reg = fs2nii(5:8,:);
+    useRegDat = true;
+else
+    warning([hemsurf(1:end-2) 'Coregistration.txt does not exist. Ensure that registration between SamSrf and FreeSurfer is good!']);
+    useRegDat = false;
+end
+
+%% Load structural header
+% Use native NIFTI reader, if available
+if ~verLessThan('matlab', '9.3')
+    % Header
+    hdr = niftiinfo(strimg);
+    hdr.mat = hdr.Transform.T';
+    m = sum(abs(hdr.mat(:,1:3)), 2);
+    hdr.mat(:,4) = hdr.mat(:,4) + m .* sign(hdr.mat(:,4));     
+    % Nifti origin
+    nii_orig = hdr.mat(1:3,4);
+    nii_orig(nii_orig > 0) = nii_orig(nii_orig > 0) + 1;
+    nii_orig(nii_orig < 0) = nii_orig(nii_orig < 0) - 1;
+    % Origin in the actual structural
+    fs_orig = hdr.ImageSize' / 2;
+    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
+else
+    % Use SPM
+    if strcmp(strimg(end-3:end), '.nii') % Trim file name if neccesary
+        strimg = strimg(1:end-4);
+    end
+    hdr = spm_vol([strimg '.nii']);
+    % Origin in the actual structural
+    nii_orig = hdr.mat(1:3,4);
+    % Origin in Freesurfer space (1/2 dimensions)
+    fs_orig = hdr.dim' / 2;
+    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig); 
+end
+    
+%% Load functional image
+% Use native NIFTI reader, if available
+if ~verLessThan('matlab', '9.3')
+    fhdr = niftiinfo(funimg{1});
+    fhdr.dim = fhdr.ImageSize;
+    fhdr.mat = fhdr.Transform.T';
+    m = sum(abs(fhdr.mat(:,1:3)), 2);
+    fhdr.mat(:,4) = fhdr.mat(:,4) + m .* sign(fhdr.mat(:,4));    
+    fimg = nan([fhdr(1).ImageSize length(funimg)]);
+    for fi = 1:length(funimg)
+        fimg(:,:,:,:,fi) = niftiread(funimg{fi});
+    end    
+else
+    % Use SPM
+    for fi = 1:length(funimg) % Trim file names if neccesary
+        if strcmp(funimg{fi}(end-3:end), '.nii')
+            funimg{fi} = funimg{fi}(1:end-4);
+        end
+    end
+    fhdr = spm_vol([funimg{1} '.nii']);
+    fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
+    for fi = 1:length(funimg)
+        fhdr = spm_vol([funimg{fi} '.nii']);
+        fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
+    end
+    fhdr(1).dim(4) = length(fhdr);
+end
+
+%% Adjust transformation matrix
+mov = nii_orig - fs_orig;
+mat = fhdr.mat;
+if useRegDat
+    smat = hdr.mat;
+else
+    mat(1:3,4) = mat(1:3,4) - mov;
+end
+
+%% Load surface vertices
+[V0 F] = fs_read_surf([hemsurf '.white']); % Grey-white surface
+P = fs_read_surf([hemsurf '.pial']); % Pial surface
+I = fs_read_surf([hemsurf '.inflated']); % Inflated surface
+S = fs_read_surf([hemsurf '.sphere']); % Spherical surface
+C = fs_read_curv([hemsurf '.curv']); % Cortical curvature 
+A = fs_read_curv([hemsurf '.area']); % Cortical surface area
+T = fs_read_curv([hemsurf '.thickness']); % Cortical thickness
+N = P - V0; % Cortical vectors for each vertex 
+[psurf hemsurf] = fileparts(hemsurf);   % Remove folder from hemsurf
+
+%% Create surface structure
+Srf = struct;
+Srf.Version = samsrf_version;
+Srf.Structural = strimg;
+Srf.Functional = funimg;
+Srf.Hemisphere = hemsurf;
+Srf.Cortex_Steps = ctxsteps;
+Srf.Vertices = V0;
+Srf.Pial = P;
+Srf.Inflated = I;
+Srf.Sphere = S;
+Srf.Faces = F;
+Srf.Normals = N;
+Srf.Curvature = C';
+Srf.Area = A';
+Srf.Thickness = T';
+Srf.Data = NaN(length(ctxsteps), fhdr(1).dim(4), size(V0,1), length(funimg));
+Srf.Rule = rule;
+
+%% Transform the vertices 
+cs = 0;
+for cl = ctxsteps
+    cs = cs + 1;
+    % Step through cortex layers
+    V = V0 + N*cl;
+    
+    % Transformation into voxel space
+    if useRegDat
+        tV = Tmov \ Reg * [V'; ones(1,size(V,1))]; 
+        if ~strcmpi(funimg{1}, strimg)
+            tV = smat * tV;
+            tV = mat \ tV; 
+        end
+        tV = round(tV);
+    else
+        tV = round(mat \ [V'; ones(1,size(V,1))]); 
+    end
+    tV = tV(1:3,:)';
+
+    % Find voxels for each vertex
+    if wb h = waitbar(0, ['Vertices @ ' num2str(cl) '...'], 'Units', 'pixels', 'Position', [100 100 360 70]); end
+    for i = 1:size(tV,1) 
+        for fi = 1:length(funimg)
+            if tV(i,1)>0 && tV(i,2)>0 && tV(i,3)>0 && tV(i,1)<fhdr(1).dim(1) && tV(i,2)<fhdr(1).dim(2) && tV(i,3)<fhdr(1).dim(3) 
+                Srf.Data(cs, :, i, fi) = squeeze(fimg(tV(i,1), tV(i,2), tV(i,3), :, fi))'; 
+            else
+                Srf.Data(cs, :, i, fi) = NaN; 
+            end
+        end
+        if wb waitbar(i/size(tV,1), h); end
+    end
+    if wb close(h); end
+end
+
+%% Calculate one value per vertex
+if strcmpi(rule, 'Mean')
+    disp('Using mean of steps through cortex.');
+    Srf.Data = squeeze(nanmean(Srf.Data,1));
+elseif strcmpi(rule, 'Maximum')
+    disp('Using maximum of steps through cortex.');
+    Srf.Data = squeeze(nanmax(Srf.Data,[],1));
+elseif strcmpi(rule, 'Minimum')
+    disp('Using minimum of steps through cortex.');
+    Srf.Data = squeeze(nanmin(Srf.Data,[],1));
+elseif strcmpi(rule, 'Median')
+    disp('Using median of steps through cortex.');
+    Srf.Data = squeeze(nanmedian(Srf.Data,1));
+elseif strcmpi(rule, 'Sum')
+    disp('Using sum of steps through cortex.');
+    Srf.Data = squeeze(nansum(Srf.Data,1));
+elseif strcmpi(rule, 'Geomean')
+    disp('Using geometric mean of steps through cortex.');
+    Srf.Data = squeeze(exp(nanmean(log(Srf.Data,1))));
+else
+    % Unless this happens
+    disp('Retaining individual steps through cortex.');
+    Srf.Data = permute(Srf.Data, [2 3 4 1]);
+end
+
+% Far fewer columns than rows? Something went wrong above & vertices are in rows 
+if size(Srf.Data, 2) < size(Srf.Data,1) 
+    Srf.Data = Srf.Data';
+end
+
+%% Normalise data
+if nrmls
+    % Only if more than 1 timepoint
+    if size(Srf.Data, 1) > 1
+
+        % Number of cortical steps
+        if ndims(Srf.Data) < 4
+            cs = 1;
+        else
+            cs = length(ctxsteps);
+        end
+        
+        % Normalise each image, at each cortical step
+        for fi = 1:length(funimg)
+            for cl = 1:cs
+                Srf.Data(:,:,fi,cl) = detrend(Srf.Data(:,:,fi,cl)); % Linear detrending to remove drift
+                Srf.Data(:,:,fi,cl) = zscore(Srf.Data(:,:,fi,cl)); % Normalize time series to z-score
+            end
+        end
+    else
+        new_line;
+        disp('Only one volume so won''t perform normalization!');
+    end
+end
+
+%% Combine separate runs into one file
+if length(funimg) > 1
+    new_line;
+    if avrgd
+        % Average runs 
+        disp('Averaging runs.');
+        % Calculate noise ceiling?
+        if nsceil && size(Srf.Data, 3) > 1
+            disp('Calculating noise ceiling.');
+            OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
+            EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
+            % Loop thru vertices
+            Srf.Noise_Ceiling = NaN(1, size(Srf.Data,2));
+            for v = 1:size(Srf.Data, 2)
+                Rho_xxp = corr(OddRuns(:,v), EvenRuns(:,v)); % Correlation between odd & even runs
+                Srf.Noise_Ceiling(v) = (2*Rho_xxp) / (1+Rho_xxp); % Spearman-Brown prediction formula 
+                Srf.Noise_Ceiling(v) = Srf.Noise_Ceiling(v).^2; % Transform into R-squared (loses sign!)
+            end
+        end
+        % Calculate mean across runs
+        Srf.Data = nanmean(Srf.Data, 3);
+    else
+        % Concatenate runs
+        disp('Concatenating runs.');
+        if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
+            nSrf = Srf;
+            nSrf.Data = [];
+            for fi = 1:length(funimg)
+                nSrf.Data = [nSrf.Data; Srf.Data(:,:,fi)];
+            end
+            Srf = nSrf;
+            clear nSrf
+        end
+    end
+end
+% Srf.Data: (volume, vertex, [ctxsteps, if >1])
+Srf.Data = squeeze(Srf.Data);
+
+%% Add values field
+Srf.Values = {};
+for r = 1:size(Srf.Data,1)
+    Srf.Values{r,1} = ['Volume #' num2str(r)];
+end
+
+%% Save surface data
+[p f e] = fileparts(funimg{1});
+save([hemsurf '_' f], 'Srf', '-v7.3');
+disp(['Saved ' hemsurf '_' f '.mat']);
+samsrf_anatomy_srf([hemsurf '_' f], anatpath);
+new_line;
+

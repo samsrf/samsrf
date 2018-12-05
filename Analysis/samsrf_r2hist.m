@@ -1,0 +1,43 @@
+function [p90, med, r2h] = samsrf_r2hist(Srf, Roi)
+%
+% [p90, med, r2h] = samsrf_r2hist(Srf, [Roi=''])
+%
+% Returns in p90 the 90th percentile and in med the median of the R^2 values 
+% in Srf and plots the histogram of all reasonable vertices (data in r2h). 
+% Can be restricted to region of interest Roi. It doesn't check if the
+% values are in fact R^2 values but simply takes Srf.Data(1,:).
+%
+% 09/08/2018 - SamSrf 6 version (DSS)
+%
+
+if nargin < 2
+    Roi = '';
+end
+
+% Expand Srf if necessary
+Srf = samsrf_expand_srf(Srf);
+
+% Load ROI
+if isempty(Roi)
+    Vs = 1:size(Srf.Vertices,1);
+else
+    Vs = samsrf_loadlabel(Roi);
+end
+
+% R^2 values
+r2h = Srf.Data(1,Vs);
+
+% Remove rubbish
+r2h = r2h(r2h > 0.01 & ~isnan(r2h));
+
+% 90th percentile & median
+p90 = prctile(r2h, 90);
+med = median(r2h);
+
+% Plot histogram
+hist(r2h, 100);
+hold on
+h1 = line([med med], ylim, 'color', 'r');
+h2 = line([p90 p90], ylim, 'color', 'r', 'linestyle', '--');
+legend([h1 h2], {'Median' '90^t^h %ile'});
+title(Roi);
