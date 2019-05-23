@@ -3,12 +3,15 @@ function cmap = fscol(res)
 % cmap = fscol([res=360])
 %
 % Returns the FreeSurfer colour map (like MatLab colour maps) with the
-% resolution res, which must be a multiple of 4. By default res is 360. 
+% resolution res, which must be a multiple of 4. By default res is 360.
+%
+% 19/12/2018 - Cosmetic changes (DSS)
+%
 
 if nargin == 0
-    res = 360;   % steps from one colour to the next
+    res = 360;  
 end
-steps = res / 4;
+steps = res / 4; % Steps from one colour to the next
 
 % Colour peaks
 R = [1 0 0];

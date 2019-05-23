@@ -1,6 +1,6 @@
-function [Bp, X, Y, Wt, Nr, Cleaned_pRF_Data, Cleaned_Response, Used_pRFs] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold, Resolution, Mode)
+function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold, Resolution, Mode)
 %
-% [Bp, X, Y, Wt, Nr, Cleaned_pRF_Data, Cleaned_Response, Used_pRFs] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, [Threshold=[0, 0, Inf], Resolution=[0.1 1], Mode=['Mean'])
+% [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, [Threshold=[0, 0, Inf], Resolution=[0.1 1], Mode=['Mean'])
 %
 % Projects the activity values in Response back into visual space using the
 %  pRF parameters in pRF_Data (a Srf.Data field with the vertices you want
@@ -15,8 +15,8 @@ function [Bp, X, Y, Wt, Nr, Cleaned_pRF_Data, Cleaned_Response, Used_pRFs] = sam
 %
 % Eccentricity defines the maximum eccentricity of the mapping stimulus.
 %  This is used for defining the extent of the graph for example when mapping
-%  the full square area of the screen and also for normalizing summary weights 
-%  in the nearest neighbour mode (see below). As discussed below, you can 
+%  the full square area of the screen and also for normalizing summary weights
+%  in the nearest neighbour mode (see below). As discussed below, you can
 %  further restrict the eccentricity range of included *data* in Threshold(3).
 %
 % The 1st input in Threshold defines the minimal R^2 of the pRFs to be projected.
@@ -51,44 +51,48 @@ function [Bp, X, Y, Wt, Nr, Cleaned_pRF_Data, Cleaned_Response, Used_pRFs] = sam
 %
 % X and Y contain the coordinate matrix (for contour or surf plot etc).
 %
-% Wt contains the sum of distances of pRFs in the searchlight to its centre.
+% Weights contains the sum of distances of pRFs in the searchlight to its centre.
 %  The 1st level along the 3rd dimension contains a matrix filtered in a manner
 %  identical to the chosen summary statistic (e.g., if the t-statistic is Inf
 %  in a given searchlight, the corresponding weight will be set to 0). The
-%  second level along the 3rd dimension contains an unfiltered matrix (i.e., 
-%  if the t-statistic is Inf in a given searchlight, the corresponding 
+%  second level along the 3rd dimension contains an unfiltered matrix (i.e.,
+%  if the t-statistic is Inf in a given searchlight, the corresponding
 %  weight will be positive and non-zero).
 %
-% Nr contains the number of pRFs in a given searchlight (could be used as
-%  weights). As with Wt, the 1st level along the 3rd dimension contains the
-%  filtered matrix and the 2nd level the unfiltered one. When using the
+% Numbers contains the number of pRFs in a given searchlight (could be used 
+%  as weights). As with Weights, the 1st level along the 3rd dimension contains 
+%  the filtered matrix and the 2nd level the unfiltered one. When using the
 %  nearest neighbour mode, this has a 3rd level with a matrix containing the
-%  maximum distance from the searchlight centre. This martix is filtered in
-%  the same fashion as the chosen summary statistic. An unfilterd matrix is
+%  maximum distance from the searchlight centre. This matrix is filtered in
+%  the same fashion as the chosen summary statistic. An unfiltered matrix is
 %  currently not available.
 %
-% Cleaned_pRF_Data and Cleaned_Response contain the pRF_Data and Response inputs
-%  after filtering pRFs with a poor R^2 or outside the eccentricity range, and
-%  after removing rubbish NaN values.
+% Good_Vertices contains and index of good vertices allowing you to filter 
+%  out pRFs with a poor R^2 or outside the eccentricity range, and after 
+%  removing NaN values in pRF_Data and Response. This is helpful for subsequent
+%  analyses and if you would like to apply the filtering here to another
+%  experimental condition or when projecting data on the corticAL surface.
 %
 % Used_pRFs count for each pRF in pRF_Data (i.e. each column) how often it
 %  was included in a searchlight. This is more useful for nearest neighbour
 %  mode (when Resolution(2)<0) than it is for the standard searchlight mode.
 %  Similar to Wt and Nr, the first row contains a filtered and the
-%  second row an unfiltered count. 
+%  second row an unfiltered count.
 
 % 10/08/2018 - SamSrf 6 version (DSS & SuSt)
 % 11/08/2018 - Fixed bug with method switch (DSS)
 % 24/11/2018 - Added filtered weight matrices
 %            - Removed NaN substitution outside loop as loop itself checks for this (SuSt)
-% 26/11/2018 - Added warning message if NaN detected when summing up weights 
+% 26/11/2018 - Added warning message if NaN detected when summing up weights
 %              Simplified code for filtered weight matrices & storage of current summary statistic
 %              Adapted calculation of used pRFs (filtered and unfiltered)
 %              Maximum distance from searchlight centre now filtered like summary statistic
 %              Fixed bug when calculating count weight matrix
 %              Fixed bug when checking for standard mode (SuSt)
 % 27/11/2018 - Nearest neighbour mode: distances are now normalized using 2*Eccentricity (SuSt)
-%              
+% 21/05/2019 - Now outputs one variable instead of Cleaned_Response and Cleaned_pRF_Data (SuSt)
+% 22/05/2019 - Changed output variable names to be more descriptive (DSS)
+%
 
 %% Default inputs
 if nargin == 3
@@ -117,8 +121,8 @@ sigma = pRF_Data(4,:); % pRF size
 %% Whole time course
 [X,Y] = meshgrid(-Eccentricity:Resolution(1):Eccentricity, -Eccentricity:Resolution(1):Eccentricity);
 Y = flipud(Y);
-Bp = zeros(size(X,1), size(X,2), size(Response,1));
-Wt = zeros(size(X,1), size(X,2),2); % Weights based on number & distance to searchlight centre
+Backprojections = zeros(size(X,1), size(X,2), size(Response,1));
+Weights = zeros(size(X,1), size(X,2),2); % Weights based on number & distance to searchlight centre
 if Resolution(2) < 0
     % When using nearest neighbour mode
     Nr_Dim = 3;
@@ -126,15 +130,15 @@ else
     Nr_Dim = 2;
 end
 
-Nr = zeros(size(X,1), size(X,2), Nr_Dim); % Number of pRFs within the searchlight
+Numbers = zeros(size(X,1), size(X,2), Nr_Dim); % Number of pRFs within the searchlight
 
 %% Filter vertices
 nanprf = sum(isnan(pRF_Data)) > 0; % Shouldn't happen but just in case...
 nanresp = sum(isnan(Response)) > 0; % Determine NaNs in response
 % Retrieve only good vertices
-gvx = gof > Threshold(1) & ecc > Threshold(2) & ecc < Threshold(3) & sigma > 0 & nanresp == 0 & nanprf == 0;
-Cleaned_Response = Response(:, gvx);
-Cleaned_pRF_Data = pRF_Data(:, gvx);
+Good_Vertices = gof > Threshold(1) & ecc > Threshold(2) & ecc < Threshold(3) & sigma > 0 & nanresp == 0 & nanprf == 0;
+Cleaned_Response = Response(:, Good_Vertices);
+Cleaned_pRF_Data = pRF_Data(:, Good_Vertices);
 Used_pRFs = zeros(2,size(Cleaned_Response,2));
 
 %% Feasibility check-ups
@@ -222,26 +226,26 @@ for x = 1:size(X,2)
                 end
                 %% Store current stat in pixel
                 if ~isempty(curstat) && ~isinf(curstat) && ~isnan(curstat)
-                    Bp(y,x,v) = curstat;
+                    Backprojections(y,x,v) = curstat;
                 end
                 %% Store distances & numbers (only need to do once)
                 if v == 1
                     % Calculated across all pRFs inside the searchlight
                     if ~isempty(curstat) && ~isinf(curstat) && ~isnan(curstat)
-                        Wt(y,x,1) = nansum(dc); % Filtered weights based on inverse distances to searchlight centre
-                        Nr(y,x,1) = nansum(vx); % Filtered count of pRFs in searchlight
+                        Weights(y,x,1) = nansum(dc); % Filtered weights based on inverse distances to searchlight centre
+                        Numbers(y,x,1) = nansum(vx); % Filtered count of pRFs in searchlight
                         Used_pRFs(1,vx) = Used_pRFs(1,vx) + 1; % Filtered count of how often pRFs were used
                         
                         % When using nearest neighbour mode
                         if Resolution(2) < 0
                             % Filtered max distance of vertices from searchlight center
-                            Nr(y,x,3) = nanmax(ed(vx));
+                            Numbers(y,x,3) = nanmax(ed(vx));
                         end
                         
                     end
                     
-                    Wt(y,x,2) = nansum(dc); % Unfiltered weights based on inverse distances to searchlight centre
-                    Nr(y,x,2) = nansum(vx); % Unfiltered count of pRFs in searchlight
+                    Weights(y,x,2) = nansum(dc); % Unfiltered weights based on inverse distances to searchlight centre
+                    Numbers(y,x,2) = nansum(vx); % Unfiltered count of pRFs in searchlight
                     Used_pRFs(2,vx) = Used_pRFs(2,vx) + 1; % Unfiltered count of how often pRFs were used
                     
                     if sum(isnan(dc)) > 0 || sum(isnan(vx)) > 0

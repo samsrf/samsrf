@@ -1,15 +1,18 @@
 function cmap = redgreenblue(res)
 %
-% cmap = redgreenblue([res=360])
+% cmap = redgreenblue([res=256])
 %
 % Returns a colour map going from hot colours (yellow-orange-red) to green 
 % and from there to cold colours (blue-cyan). The input res defines the 
 % number of steps, which must be a multiple of 4. By default res is 256. 
+%
+% 19/12/2018 - Cosmetic changes (DSS)
+%
 
 if nargin == 0
-    res = 256;   % steps from one colour to the next
+    res = 256;   
 end
-steps = res / 4;
+steps = res / 4; % Steps from one colour to the next
 
 % Colour peaks
 Y = [1 1 0];

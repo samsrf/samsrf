@@ -26,6 +26,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 % Optionally returns the image matrix Img, in which case plotting is turned off.
 %
 % 08/08/2018 - SamSrf 6 version (DSS)
+% 12/12/2018 - Tick labels of color bar now rounded to 2 decimal places (SuSt)
 %
 
 %% Default inputs
@@ -144,15 +145,15 @@ if nargout == 0
     cb = colorbar;
     if Clipping(3)
         % If retaining sign for clipping
-        set(cb, 'xtick', 0:.5:1, 'xticklabel', [Clipping(1) (Clipping(1)+Clipping(2))/2 Clipping(2)]);
+        set(cb, 'xtick', 0:.5:1, 'xticklabel', round([Clipping(1) (Clipping(1)+Clipping(2))/2 Clipping(2)],2));
     else
         % If ignoring sign for clipping
         if Clipping(1) == 0
             % Centre of colour scale is zero
-            set(cb, 'xtick', 0:.5:1, 'xticklabel', [-Clipping(2) 0 +Clipping(2)]);
+            set(cb, 'xtick', 0:.5:1, 'xticklabel', round([-Clipping(2) 0 +Clipping(2)],2));
         else
             % Colour scale starts at lower clipping level
-            set(cb, 'xtick', [0 .47 .53 1], 'xticklabel', [-Clipping(2) -Clipping(1) +Clipping(1) +Clipping(2)]);
+            set(cb, 'xtick', [0 .47 .53 1], 'xticklabel', round([-Clipping(2) -Clipping(1) +Clipping(1) +Clipping(2)],2));
         end
     end
     axis square

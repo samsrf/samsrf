@@ -17,6 +17,7 @@ function Srf = samsrf_cortmagn(Srf, Roi)
 % (Surface area is already stored in the anatomical data)
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
+% 18/02/2019 - Fixed bug when no ROI is used (DSS)
 %
 
 %% Default parameters
@@ -36,7 +37,7 @@ Ctx = Srf.Area;
 if ~isempty(Roi)
     mver = samsrf_loadlabel(Roi);
 else
-    mver = 1:size(Srf.Vertices,1);
+    mver = (1:size(Srf.Vertices,1))';
 end
 
 % Determine visual area for each vertex

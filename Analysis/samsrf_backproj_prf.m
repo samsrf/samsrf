@@ -1,6 +1,6 @@
-function [Visual_Space, Tc, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrfFcn, Eccentricity, Threshold, Stimulus, ColourMap, NormaliseByDensity)
+function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrfFcn, Eccentricity, Threshold, Stimulus, ColourMap, NormaliseByDensity)
 %
-% [Visual_Space, Tc, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrcFcn, Eccentricity, [Threshold=[0 Inf 0 Inf], Stimulus=[], ColourMap='hotcold', NormaliseByDensity=true])
+% [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrcFcn, Eccentricity, [Threshold=[0 Inf 0 Inf], Stimulus=[], ColourMap='hotcold', NormaliseByDensity=true])
 %
 % Projects the activity values in Response back into visual space using the
 % pRF parameters in pRF_Data. Effectively, this is a sum of all pRF profiles 
@@ -36,10 +36,11 @@ function [Visual_Space, Tc, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrfF
 %
 % Returns a movie of the time series plotted back into visual space as a
 % matrix of 100 x 100 x NumberOfVolumes. The second output contains the
-% same movie but in intensity image format. The third output contains in
-% rows the X and Y coordinates, the Sigma and the Response for each vertex.  
+% same movie but in intensity image format. The third output contains in 
+% rows the X and Y coordinates, the Sigma and the Response for each vertex.
 %
 % 03/08/2018 - SamSrf 6 version (DSS)
+% 22/05/2019 - Made output name Timecourses more descriptive (DSS)
 %
 
 if nargin == 4
@@ -69,7 +70,7 @@ end
 wf = figure;
 
 % Whole time course
-Tc = zeros(200, 200, size(Response,1)); % Backprojected responses
+Timecourses = zeros(200, 200, size(Response,1)); % Backprojected responses
 Ds = zeros(200, 200, size(Response,1)); % pRF densities
 
 % Filter vertices
@@ -102,7 +103,7 @@ for t = 1:size(Response,1)
         Dcur = Dcur + Rfp;
     end
     % Store current frame
-    Tc(:,:,t) = Curr;
+    Timecourses(:,:,t) = Curr;
     Ds(:,:,t) = Dcur;
     waitbar(t/size(Response,1),h);
 end
@@ -110,13 +111,13 @@ close(h);
 
 % Normalize backprojected response by pRF density?
 if NormaliseByDensity
-    Tc = Tc ./ Ds;
+    Timecourses = Timecourses ./ Ds;
 end
 
 % Clip images
-Tc = Tc / max(Tc(:));
-Tc(abs(Tc(:)) >= Threshold(2)) = sign(Tc(abs(Tc(:)) >= Threshold(2))) * Threshold(2);
-Tc = Tc / max(abs(Tc(:)));
+Timecourses = Timecourses / max(Timecourses(:));
+Timecourses(abs(Timecourses(:)) >= Threshold(2)) = sign(Timecourses(abs(Timecourses(:)) >= Threshold(2))) * Threshold(2);
+Timecourses = Timecourses / max(abs(Timecourses(:)));
 
 % Pseudocolour code
 if ColourMap(1) == '-'
@@ -129,7 +130,7 @@ cm = colormap([ColourMap '(200)']);
 if InvCmap
     cm = flipud(cm);
 end
-fTc = round(Tc / (max(abs(Tc(:)))*0.5) * 50) + 100;
+fTc = round(Timecourses / (max(abs(Timecourses(:)))*0.5) * 50) + 100;
 fTc(fTc==0) = 1;
 fTc(isnan(fTc)) = 100; 
 Visual_Space = zeros(200, 200, 3, size(Response,1));
@@ -148,7 +149,7 @@ end
 
 % Remove outside region
 Visual_Space = Visual_Space(50:149,50:149,:,:);
-Tc = Tc(50:149,50:149,:);
+Timecourses = Timecourses(50:149,50:149,:);
 
 % Close working figure
 close(wf); 

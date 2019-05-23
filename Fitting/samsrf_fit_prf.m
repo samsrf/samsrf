@@ -20,6 +20,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 28/11/2018 - Added support for noise ceiling, if calculated (DSS)
 % 02/12/2018 - Added back an option for smoothed coarse-fit as in versions < 6 
 %              Added option for only running the coarse-fit (DSS)
+% 10/12/2018 - Fixed bug when coarse-fit only flag was undefined (DSS)
 %
 
 %% Defaults & constants
@@ -43,6 +44,9 @@ if ~isfield(Model, 'Replace_Bad_Fits')
 end
 if ~isfield(Model, 'Smoothed_Coarse_Fit')
     Model.Smoothed_Coarse_Fit = 0;
+end
+if ~isfield(Model, 'Coarse_Fit_Only')
+     Model.Coarse_Fit_Only = false;
 end
 
 %% MatLab R2012a or higher can do fast coarse-fit

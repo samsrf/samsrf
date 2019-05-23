@@ -11,6 +11,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %               voxel.
 %
 % 07/08/2018 - SamSrf 6 version (DSS)
+% 05/04/2019 - Explicitly stores NIFTI header information (IA)
 %
 
 %% Default parameters
@@ -58,13 +59,14 @@ if ~isempty(roi)
     % Use native NIFTI reader, if available
     if ~verLessThan('matlab', '9.3')
         mimg = niftiread(roi);
-        mimg = logical(mimg);
     else
         % Use SPM
         mhdr = spm_vol([roi '.nii']);
         mimg = spm_read_vols(mhdr);
-        mimg = logical(mimg);
     end
+    
+    % Enforce binary mask
+    mimg = logical(mimg);
 end
 
 %% Create SamSrf structure
@@ -72,6 +74,7 @@ Srf = struct;
 Srf.Version = samsrf_version;
 Srf.Functional = funimg;
 Srf.Hemisphere = 'both';
+Srf.NiiHeader = fhdr;
 Srf.Roi = [];
 
 %% Indexing
