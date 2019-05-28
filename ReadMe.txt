@@ -21,32 +21,43 @@ versions of SamSrf. Please refer to the cookbook for more information.
 ---------------------------------------------------------------------------------------
 IMPORTANT NOTE: VERSIONS PRIOR TO 6.0 ARE NOT PROPERLY COMPATIBLE & MAY NOT WORK!
 ---------------------------------------------------------------------------------------
-You may be able to use data analysed with previous versions (at least 5.0 upwards) 
+You can however use data analysed with previous versions (at least 5.0 upwards) 
 by converting the SamSrf data files using samsrf_convert_old_srf.m
+
+Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 6 for 
+your analysis after the model fitting.
 ---------------------------------------------------------------------------------------
 
                                   LATEST UPDATES 
 ---------------------------------------------------------------------------------------
-Version 6.01 (11-08-2018) 
+Version 6.17 (28-05-2019)
 
-Some bug fixes where switch didn't work as intended. (DSS)
+Inverted the chronological order of updates in this Read Me file (DSS)
+Fixed thresholding bug in smoothing functions when using already smoothed data (DSS)
 ---------------------------------------------------------------------------------------
-Version 6.02 (13-08-2018) 
+Version 6.16 (22-05-2019) 
 
-Fixed bug with default thresholding in DisplayMaps when loading a new map. (DSS)
+Added Delaunay backprojection procedure samsrf_backproj_del (DSS)
+Consolidated some outputs of samsrf_backproj_srclt into one (SuSt)
+Output names in samsrf_backproj_srclt & samsrf_backproj_prf now more descriptive (DSS)
+Made samsrf_backproj_prf eccentricity range consistent with other methods (DSS)
+Fixed bug with samsrf_cortmagn when no ROI is used (DSS)
+Cosmetic changes to colour map files (DSS)
+Added NIFTI header info to volumetric Srf structure in samsrf_vol2mat (IA)
 ---------------------------------------------------------------------------------------
-Version 6.03 (13-08-2018) 
+Version 6.15 (14-12-2018)
 
-Fixed minor bug with samsrf_anatomy_srf. (DSS)
+Cosmetic change to legend in samsrf_heatmap (SuSt)
 ---------------------------------------------------------------------------------------
-Version 6.04 (12-09-2018) 
+Version 6.14 (10-12-2018) 
 
-Fixed minor bug with SurfaceProjection tool (DSS)
-Added time stamps in help sections that missed them. (DSS)
+Fixed minor but stupid bug with no default for coarse-fit only fitting (DSS)
 ---------------------------------------------------------------------------------------
-Version 6.05 (16-09-2018) 
+Version 6.13 (02-12-2018) 
 
-Fixed bug samsrf_colourcode & eccentricity wheel image - fovea isn't purple! (DSS)
+Added back the option to use smoothing in the coarse-fitting stage (DSS)
+Added option to only run the coarse-fit instead of the full fit (DSS)
+Initial commit to GitHub (IA)
 ---------------------------------------------------------------------------------------
 Version 6.12 (01-12-2018) 
 *** WARNING: Versions 6.1 & 6.11 had a bug with HRF convolution! DO NOT USE! ***
@@ -62,29 +73,26 @@ Fixed minor bug with defaults in SurfaceProjection tool (DSS)
 Fixed show-stopping bug with noise ceiling in samsrf_expand_srf (DSS)
 Fixed problem when using anatomical meshes on different OS platforms (DSS)
 ---------------------------------------------------------------------------------------
-Version 6.13 (02-12-2018) 
+Version 6.05 (16-09-2018) 
 
-Added back the option to use smoothing in the coarse-fitting stage (DSS)
-Added option to only run the coarse-fit instead of the full fit (DSS)
-Initial commit to GitHub (IA)
+Fixed bug samsrf_colourcode & eccentricity wheel image - fovea isn't purple! (DSS)
 ---------------------------------------------------------------------------------------
-Version 6.14 (10-12-2018) 
+Version 6.04 (12-09-2018) 
 
-Fixed minor but stupid bug with no default for coarse-fit only fitting (DSS)
+Fixed minor bug with SurfaceProjection tool (DSS)
+Added time stamps in help sections that missed them. (DSS)
 ---------------------------------------------------------------------------------------
-Version 6.15 (14-12-2018)
+Version 6.03 (13-08-2018) 
 
-Cosmetic change to legend in samsrf_heatmap (SuSt)
+Fixed minor bug with samsrf_anatomy_srf. (DSS)
 ---------------------------------------------------------------------------------------
-Version 6.16 (22-05-2019) 
+Version 6.02 (13-08-2018) 
 
-Added Delaunay backprojection procedure samsrf_backproj_del (DSS)
-Consolidated some outputs of samsrf_backproj_srclt into one (SuSt)
-Output names in samsrf_backproj_srclt & samsrf_backproj_prf now more descriptive (DSS)
-Made samsrf_backproj_prf eccentricity range consistent with other methods (DSS)
-Fixed bug with samsrf_cortmagn when no ROI is used (DSS)
-Cosmetic changes to colour map files (DSS)
-Added NIFTI header info to volumetric Srf structure in samsrf_vol2mat (IA)
+Fixed bug with default thresholding in DisplayMaps when loading a new map. (DSS)
+---------------------------------------------------------------------------------------
+Version 6.01 (11-08-2018) 
+
+Some bug fixes where switch didn't work as intended. (DSS)
 ---------------------------------------------------------------------------------------
   
                              Questions/Comments? 

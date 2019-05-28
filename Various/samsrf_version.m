@@ -6,5 +6,5 @@ function [v,d] = samsrf_version
 % The second output d contains a string with the date of the version.
 %
 
-v = 6.16;
-d = '22-05-2019';
+v = 6.17;
+d = '28-05-2019'; 

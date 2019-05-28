@@ -19,6 +19,8 @@ function Srf = samsrf_smooth_georoi(InSrf, fwhm, roi, thrsh)
 % Stores the smoothed data in Srf.Data. The original raw data are stored 
 % inside Srf.Raw_Data.
 %
+% 27/05/2019 - Fixed bug with thresholding when using already smoothed data (DSS)
+%
 
 %% Default parameters
 if nargin == 2
@@ -36,12 +38,12 @@ InSrf = samsrf_expand_srf(InSrf);
 % Load data
 Srf = InSrf;
 if isfield(Srf, 'Raw_Data')
-    D = Srf.Raw_Data;
+    Data = Srf.Raw_Data;
 else
-    D = Srf.Data;
+    Data = Srf.Data;
 end
-sD = zeros(size(Srf.Data));
-nver = size(D,2);
+SmoothedData = zeros(size(Data));
+nver = size(Data,2);
 aVs = 1:nver; % All vertex indices
 
 % Remove smoothing string if it exists
@@ -76,12 +78,12 @@ end
 % Is R^2 present in data?
 if isfield(Srf, 'Values')
     if strcmpi(Srf.Values{1}, 'R^2')
-        Rsq = Srf.Data(1,:);
+        Rsq = Data(1,:);
     else
-        Rsq = ones(1,size(Srf.Data,2));
+        Rsq = ones(1,size(Data,2));
     end
 else
-    Rsq = ones(1,size(Srf.Data,2));
+    Rsq = ones(1,size(Data,2));
 end
 
 % Load region of interest
@@ -90,7 +92,7 @@ if ~isempty(roi)
     si = 1;
     roistr = [' in RoI: ' roi ')'];
     % Set R^2 of vertices outside ROI to 0
-    RoiVx = zeros(1, size(Srf.Data,2));
+    RoiVx = zeros(1, size(Data,2));
     RoiVx(Vs) = 1;
     Rsq = Rsq .* RoiVx;
 else
@@ -124,7 +126,7 @@ for j = 1:si
 
             % Weight vertices by distance
             W = exp(-(Dd.^2)/(2*stdev.^2));  
-            sD(:,v) = sum(repmat(W,size(D,1),1) .* D(:,Nv),2) / sum(W);
+            SmoothedData(:,v) = sum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / sum(W);
         end
         if wb waitbar(i/length(Vs), h); end
     end
@@ -132,8 +134,8 @@ end
 if wb close(h); end;
 
 % Store smoothed data
-Srf.Data = sD;
-Srf.Raw_Data = D;
+Srf.Data = SmoothedData;
+Srf.Raw_Data = Data;
 if iscellstr(Srf.Functional)
     for iStr = 1:length(Srf.Functional)
         Srf.Functional{iStr} = [Srf.Functional{iStr} ' (Smoothed with geodesic FWHM=' num2str(fwhm) roistr];

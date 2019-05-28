@@ -15,11 +15,12 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms, NegB
 %                'Sphere':      Distance determined on the spherical surface (SamSrf standard)
 %                'Geodeosic':   Distance determined by geodesic steps (FreeSurfer standard)
 %                'Dijkstra':    Distance determined by Dijkstra's geodesic distance (best method, but slow)
-%   Fwhms:      Smoothing kernals (1x2 vector, first kernel is for field sign, second is for everything else)
-%   NegBetas:   Toggles whether negative betas are allowed
+%   Fwhms:      Smoothing kernels (1x2 vector, first kernel is for field sign, second is for everything else)
+%   NegBetas:   Toggles whether negative betas are allowed in field sign calculation
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
 % 11/08/2018 - Updated help description (DSS)
+% 28/05/2019 - Added some clarifications in the help section (DSS)
 %
 
 if nargin < 2
