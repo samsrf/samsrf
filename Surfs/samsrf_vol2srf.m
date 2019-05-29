@@ -66,7 +66,7 @@ if nargin < 6
     nrmls = true;
 end
 if nargin < 7
-    avrgd = 1;
+    avrgd = true;
 end
 if nargin < 8
     nsceil = true;
