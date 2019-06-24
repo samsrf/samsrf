@@ -21,7 +21,7 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.2 (22-06-2019)
+### Version 6.20 (22-06-2019)
 Complete overhaul of samsrf_surf colouring code & added transparency option (DSS)
 
 ### Version 6.19 (18-06-2019)
