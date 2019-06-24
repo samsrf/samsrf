@@ -21,6 +21,16 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.2 (22-06-2019)
+Complete overhaul of samsrf_surf colouring code & added transparency option (DSS)
+
+### Version 6.19 (18-06-2019)
+Changed thresholding in samsrf_surf so values below threshold removed from map (DSS)
+
+### Version 6.18 (07-06-2019)
+Fixed bug where noise ceiling was errorenously squared in samsrf_vol2srf (DSS)
+Added normalised goodness-of-fit (relative to noise ceiling) to samsrf_plot (DSS)
+
 ### Version 6.17 (28-05-2019)
 Inverted the chronological order of updates in this Read Me file (DSS)  
 Fixed thresholding bug in smoothing functions when using already smoothed data (DSS)  

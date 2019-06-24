@@ -41,6 +41,8 @@ function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mod
 %                Defaults to '' and data isn't restricted to any ROI.
 %
 % Threshold:    The R^2 threshold for the IV to be included (defaults to 0.01).
+%                When plotting normalised R^2 this threshold is first applied 
+%                to the noise ceiling and then again to the normalised R^2)
 %               If this is a vector, the second & third entry define the
 %                range of data values in SrfDv to be included (excluding
 %                the values given). Defaults to [-Inf Inf] unless the data
@@ -65,6 +67,7 @@ function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mod
 %
 % 10/08/2018 - SamSrf 6 version (DSS & SS)
 % 11/08/2018 - Fixed bug with method switch (DSS)
+% 04/06/2019 - Added option to plot normalised goodness-of-fit (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -146,6 +149,16 @@ for i_var = 1:2
     elseif strcmpi(Val, 'Curvature')
         % Curvature
         Data = Srf.Curvature;
+    elseif strcmpi(Val, 'nR^2')
+        if sum(strcmpi(Srf.Values, 'Noise Ceiling'))
+            % Normalised goodness-of-fit
+            Nc = Srf.Data(strcmpi(Srf.Values, 'Noise Ceiling'),:); % Extract noise ceiling
+            Data = Srf.Data(1,:) ./ Nc; % R^2 relative to noise ceiling
+            Data(Nc <= Threshold(1)) = 0; % Threshold vertices under a noise ceiling level
+        else
+            warning('No Noise Ceiling in input Srf! Using R^2...');
+            Data = Srf.Data(1,:);
+        end
     else
         %% Anything else
         loc = strcmpi(Srf.Values, Val);

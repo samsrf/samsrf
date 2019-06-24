@@ -51,8 +51,8 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 30/10/2018 - Corrected help section (DSS)
 % 14/11/2018 - Added option to calculate noise ceiling
 %              Added optional input to determine anatomy path (DSS)
-% 28/11/2018 - Added some additional command line statements 
-%              Noise ceiling is now stored as R^2 (DSS)
+% 28/11/2018 - Added some additional command line statements (DSS)
+% 07/06/2019 - Fixed error with noise ceiling calculation (DSS)
 %
 
 %% Default parameters
@@ -293,8 +293,9 @@ if length(funimg) > 1
             Srf.Noise_Ceiling = NaN(1, size(Srf.Data,2));
             for v = 1:size(Srf.Data, 2)
                 Rho_xxp = corr(OddRuns(:,v), EvenRuns(:,v)); % Correlation between odd & even runs
-                Srf.Noise_Ceiling(v) = (2*Rho_xxp) / (1+Rho_xxp); % Spearman-Brown prediction formula 
-                Srf.Noise_Ceiling(v) = Srf.Noise_Ceiling(v).^2; % Transform into R-squared (loses sign!)
+                Srf.Noise_Ceiling(v) = (2*Rho_xxp) / (1+Rho_xxp); % Spearman-Brown prediction formula
+                % For observable correlation we would need to take 
+                % square root so without the square root this is R^2!
             end
         end
         % Calculate mean across runs

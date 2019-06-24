@@ -3,39 +3,52 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % PatchHandle = samsrf_surf(Srf, Mesh, [Thrsh, Paths, CamView, MapType, PatchHandle])
 %
 % Displays a cortical mesh (e.g. 'inflated') overlaid with the pRF 
-% statistics from Srf. A GUI is used to select the data type to be displayed. 
-% If the surface mesh can't be located in the Srf, the function simply takes 
-% the WM-GM surface which should already be in the Srf. 
+%  statistics from Srf. A GUI is used to select the data type to be displayed. 
+%  If the surface mesh can't be located in the Srf, the function simply takes 
+%  the WM-GM surface which should already be in the Srf. 
 %
-% Thrsh defines the thresholds for cutting off the colour map. 
-%   Thrsh(1) is always the minimum R^2. 
+% Thrsh defines the thresholds, clipping and transparency parameters.
+% All these inputs are optional and if undefined a default is chosen:
+%
+%   Thrsh(1) is always the minimum R^2. If that doesn't exist this is ignored.
+%
 %   Thrsh(2:3) are the minimum and maximum point of whatever measure is used.
-%       For eccentricity and sigma this means anything outside this range is coloured the same.
-%   Thrsh(4:5) restrict the eccentricity range irrespective of what kind of map it is).
-% All these inputs are optional and if undefined a default is chosen.       
+%    For eccentricity, mu, and sigma-like measures any values outside the range are clipped to that level.
+%    For other measures, values below Thrsh(2) are removed, while values above Thrsh(3) are clipped to maximum.
+%
+%   Thrsh(4:5) restrict the eccentricity range irrespective of what kind of map it is.
+%    (Obviously, this only works if there is actually a 2D visual map present in the data).
+%   
+%   Thrhs(6) defines the proporion of the range beyond which the map is scaled to be transparent.
+%    If R^2 is present, this proportion is relative to the range between Thrsh(1) and 1.
+%    If no R^2 is present, this proportion refers to the range between Thrsh(2) and Thrsh(3).
+%   To turn off transparency, set Thrsh(6) to zero.
 %
 % Paths defines the filename of the paths to be displayed. If this is
-% undefined a dialog box opens allowing you to select the file. Simply
-% close it if you don't wish to load any paths.
+%  undefined a dialog box opens allowing you to select the file. Simply
+%  close it if you don't wish to load any paths.
 %
 % If Srf.Data contains more than one subject in the third dimension then
-% another dialog box is opened to select the subject you want to display.
+%  another dialog box is opened to select the subject you want to display.
 %
 % CamView is a two-element vector defining the camera position. Uses the
-% default values defined in SamSrf_defaults. If they aren't included there, 
-% it defaults to pointing to early visual cortex (assuming a FreeSurfer mesh).
+%  default values defined in SamSrf_defaults. If they aren't included there, 
+%  it defaults to pointing to early visual cortex (assuming a FreeSurfer mesh).
 %
 % MapType is a string containing the name of the data entry to display
-% (e.g. 'Polar', 'Eccentricity', 'R^2', etc.). It can also be a scalar in
-% which case it will use this as the index for Srf.Data and Srf.Values.
+%  (e.g. 'Polar', 'Eccentricity', 'R^2', etc.). It can also be a scalar in
+%  which case it will use this as the index for Srf.Data and Srf.Values.
 %
 % PatchHandle is the handle to the patch with the mesh returned by the function.
-% By adding this to the input arguments the figure will simply update the
-% maps instead of opening a whole new figure.
+%  By adding this to the input arguments the figure will simply update the
+%  maps instead of opening a whole new figure.
 %
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
 % 10/08/2018 - SamSrf 6 version (DSS)
+% 18/06/2019 - Values below Thrsh(2) are now removed unless it's sigma or eccentricity (DSS)
+% 22/06/2019 - Changed how colours are assigned (DSS)
+%              Added transparency option (DSS)
 %
 
 %% Create global variables
@@ -56,6 +69,10 @@ for i = length(Thrsh)+1:5
         % Even thresholds set to 0
         Thrsh(i) = 0;
     end
+end
+% Default transparency
+if length(Thrsh) < 6
+    Thrsh(6) = 0.3;
 end
 
 %% Figure handle
@@ -127,6 +144,7 @@ end
 %% Remove rubbish
 if strcmpi(Srf.Values{1}, 'R^2')
     r = Srf.Data(1,:) <= Thrsh(1) | isnan(Srf.Data(1,:));
+    Alpha = CalcAlphas(Srf.Data(1,:), [Thrsh(1) Thrsh(1) + (1-Thrsh(1))*Thrsh(6)]); % Transparency based on R^2
 else 
     r = isnan(Srf.Data(1,:));
 end
@@ -203,14 +221,14 @@ if strcmpi(Type, 'Polar')
         Pha = mod(ceil(Pha + 90), 360) + 1;
     end
     Pha(Pha == 0) = 360;
-    Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
-
+    Pha(r) = 360;
+    
     % Colourmap
-    cstr = ['[colormap(' def_cmap_angle '(360)); CurvGrey];'];
+    cstr = ['colormap(' def_cmap_angle '(360));'];
     Cmap = eval(cstr);        
     
     % Determine colours
-    Colours = Cmap(Pha,:);
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     PathColour = [1 1 1];
     
 elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi') 
@@ -222,14 +240,19 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     end
     Pha = mod(ceil(Pha + 270), 360) + 1;
     Pha(Pha == 0) = 360;
-    Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
-
+    Pha(r) = 360;
+    
+    % If no R^2 present
+    if ~strcmpi(Srf.Values{1}, 'R^2')
+        Alpha = CalcAlphas(Pha, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on Pha
+    end
+    
     % Colourmap
     cstr = ['[colormap(' def_cmap_angle '(360)); CurvGrey];'];
     Cmap = eval(cstr);        
     
     % Determine colours
-    Colours = Cmap(Pha,:);
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     Thrsh = [Thrsh Inf];
     PathColour = [1 1 1];
     
@@ -237,12 +260,13 @@ elseif strcmpi(Type, 'Eccentricity')
     % Eccentricity map
     Rho = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
     Data = Rho;
-    
+    Rho(r) = 0;
+        
     % Set all below minimum to minimum
     Rho(Rho < Thrsh(2)) = Thrsh(2);
     % Adjust minimum
     AdjThr = Thrsh(3) - Thrsh(2);  
-    Rho = Rho - Thrsh(2)*.95;
+    Rho = Rho - Thrsh(2);
     Rho(Rho < 0) = 0;
     % Set all above maximum to maximum
     Rho = Rho / AdjThr;
@@ -257,22 +281,23 @@ elseif strcmpi(Type, 'Eccentricity')
     % Determine colours
     Pha = mod(Pha, 360);
     Pha(Pha==0) = 360;
-    Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
-    Colours = Cmap(Pha,:);
+    Pha(r|isnan(Pha)) = 360;
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     PathColour = [0 0 0];
     
 elseif strcmpi(Type, 'Mu') 
     % Mu map
     Mu = Srf.Data(dt,:);
     Data = Mu;
+    Mu(r) = 0;
     
     % Set all below minimum to minimum
     Mu(Mu>0 & Mu<+Thrsh(2)) = +Thrsh(2);
     Mu(Mu<0 & Mu>-Thrsh(2)) = -Thrsh(2);
     % Adjust minimum
     AdjThr = Thrsh(3) - Thrsh(2);  
-    Mu(Mu>0) = Mu(Mu>0) - Thrsh(2)*0.95;
-    Mu(Mu<0) = Mu(Mu<0) + Thrsh(2)*0.95;
+    Mu(Mu>0) = Mu(Mu>0) - Thrsh(2);
+    Mu(Mu<0) = Mu(Mu<0) + Thrsh(2);
     % Set all above maximum to maximum
     Mu(Mu>0 & Mu>+Thrsh(3)) = +AdjThr;
     Mu(Mu<0 & Mu<-Thrsh(3)) = -AdjThr;
@@ -280,13 +305,13 @@ elseif strcmpi(Type, 'Mu')
     Pha = round(Mu / AdjThr * 100) + 100;
     
     % Colourmap
-    cstr = ['[colormap(' def_cmap_angle '(200)); CurvGrey];'];
+    cstr = ['colormap(' def_cmap_angle '(200));'];
     Cmap = eval(cstr);        
         
     % Determine colours
     Pha(Pha==0) = 1;
-    Pha(r|isnan(Pha)|isinf(Pha)|Pha==100) = 200 + Curv(r|isnan(Pha)|isinf(Pha)|Pha==100);
-    Colours = Cmap(Pha,:);
+    Pha(r|isnan(Pha)|isinf(Pha)) = 200;
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     PathColour = [0 0 0];  
     
 elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual Area') || strcmpi(Type, 'Spread') ...
@@ -294,12 +319,13 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     % pRF size map
     Sigma = Srf.Data(dt,:);
     Data = Sigma;
-
+    Sigma(r) = 0;
+    
     % Set all below minimum to minimum
     Sigma(Sigma < Thrsh(2)) = Thrsh(2);
     % Adjust minimum
     AdjThr = Thrsh(3) - Thrsh(2);
-    Sigma = Sigma - Thrsh(2)*.95;
+    Sigma = Sigma - Thrsh(2);
     Sigma(Sigma < 0) = 0;
     % Set all above maximum to maximum
     Sigma = Sigma / AdjThr;
@@ -314,7 +340,7 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Pha(Pha > 200) = 200;
     Pha(Pha <= 0) = 1;
     Pha(r|isnan(Pha)) = 200 + Curv(r|isnan(Pha));
-    Colours = Cmap(Pha,:);
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     PathColour = [1 0 1];
     
 else
@@ -331,14 +357,20 @@ else
         X(X < 0) = 0;
     end
     Data = X;
+    X(r) = 0;
+    
+    % If no R^2 present
+    if ~strcmpi(Srf.Values{1}, 'R^2')
+        Alpha = CalcAlphas(X, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on X
+    end
     
     % Set all below minimum to minimum
-    X(X>0 & X<+Thrsh(2)) = +Thrsh(2);
-    X(X<0 & X>-Thrsh(2)) = -Thrsh(2);
+    X(X>0 & X<+Thrsh(2)) = NaN;
+    X(X<0 & X>-Thrsh(2)) = NaN;
     % Adjust minimum
     AdjThr = Thrsh(3) - Thrsh(2);
-    X(X>0) = X(X>0) - Thrsh(2)*0.95;
-    X(X<0) = X(X<0) + Thrsh(2)*0.95;
+    X(X>0) = X(X>0) - Thrsh(2);
+    X(X<0) = X(X<0) + Thrsh(2);
     % Set all above maximum to maximum
     X(X>0 & X>+AdjThr) = +AdjThr;
     X(X<0 & X<-AdjThr) = -AdjThr;
@@ -346,13 +378,13 @@ else
     Pha = round(X / AdjThr * 100) + 100;
     
     % Colormap
-    cstr = ['[colormap(' def_cmap_other '(200)); CurvGrey];'];
+    cstr = ['colormap(' def_cmap_other '(200));'];
     Cmap = eval(cstr);
     
     % Determine colours
     Pha(Pha==0) = 1;
-    Pha(r|isnan(Pha)|isinf(Pha)|Pha==100) = 200 + Curv(r|isnan(Pha)|isinf(Pha)|Pha==100);
-    Colours = Cmap(Pha,:);
+    Pha(r|isnan(Pha)|isinf(Pha)) = 100;
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     PathColour = [0 1 1];
 end
 
@@ -400,6 +432,17 @@ set(dcm_obj, 'UpdateFcn', @getvertexfun)
 %% Close request function
 crfcn = @closereq;
 set(fh, 'CloseRequestFcn', crfcn);
+
+
+% Return transparency levels 
+function Alpha = CalcAlphas(VxData, Levels)
+Alpha = abs(VxData) - Levels(1); % Set opaqueness below threshold to 0
+Alpha = Alpha / (Levels(2)-Levels(1)); % Clip upper level to 1
+Alpha(Alpha > 1) = 1;
+Alpha(Alpha < 0) = 0;
+Alpha(isnan(Alpha)) = 0;
+% Replicate into matrix
+Alpha = repmat(Alpha',1,3);
 
 
 function txt = getvertexfun(empt, event_obj)
