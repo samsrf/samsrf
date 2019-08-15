@@ -7,4 +7,4 @@ function [v,d] = samsrf_version
 %
 
 v = 6.2;
-d = '??-??-2019'; % Unpublished! 
+d = '15-08-2019'; 

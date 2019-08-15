@@ -34,7 +34,7 @@ global Srf RoiName Pval
 
 %% Default parameters (Feel free to edit)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
-RoiName = 'occ'; % ROI name to limit the mesh (without hemisphere prefix)
+RoiName = NaN; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
 Pval = 0.00000001; % Starting p-value with which to threshold maps
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 
@@ -46,7 +46,7 @@ disp('     Welcome to the Seriously Annoying MatLab Surfer Map Display Tool!');
 disp('     by D. S. Schwarzkopf from the University of Auckland, New Zealand');
 new_line;
 disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-disp('      (see SamSrf/ReadMe.txt for what is new in this version)');
+disp('      (see SamSrf/ReadMe.md for what is new in this version)');
 disp('****************************************************************************');
 new_line;
 
@@ -78,11 +78,18 @@ global Srf Pval R2Thrsh
 %% Load surface data file
 [fn,pn] = uigetfile('*.mat', 'Load Srf');
 load([pn filesep fn]);
-Srf = samsrf_expand_srf(Srf);
-vx = samsrf_loadlabel([pn filesep Srf.Hemisphere '_' RoiName]);
+[Srf,vx] = samsrf_expand_srf(Srf);
+if isnan(RoiName)
+    disp('Using ROI from Srf if it exists');
+elseif ischar(RoiName)
+    % If ROI was named, load that instead
+    vx = samsrf_loadlabel([pn filesep Srf.Hemisphere '_' RoiName]);
+    disp(['Only displaying ROI ' Srf.Hemisphere '_' RoiName]);   
+else
+    disp('No ROI defined!');
+end
 % Remove non-ROI vertices if desired
 if ~isnan(vx)
-    disp(['Only displaying ROI ' Srf.Hemisphere '_' RoiName '!']);
     roivx = true(size(Srf.Vertices,1),1);
     roivx(vx) = false;
     Srf.Vertices(roivx,:) = NaN;
@@ -225,6 +232,7 @@ delete(src);
 function pushbutton1_Callback(hObject, eventdata, handles)
 global Paths
 
+% Load paths
 [pf, pn] = uigetfile('*.label; *path*; del_*.mat', 'MultiSelect', 'on');
 if isscalar(pf) && pf == 0
     pf = {};
@@ -240,6 +248,7 @@ else
     end
     Paths = Paths';
 end
+% Draw paths
 RedrawMaps(handles, false);
 
 
@@ -406,3 +415,22 @@ set(handles.edit4, 'String', '');
 set(handles.edit2, 'String', '0 1');
 LoadMapData(handles, RoiName);
 RedrawMaps(handles, true);
+
+
+%% Toggles transparent or old-style path colours
+function togglebutton3_Callback(hObject, eventdata, handles)
+global Paths
+
+% Change button string
+if get(hObject, 'Value')
+    % Turn on transparent paths
+    set(hObject, 'String', 'Old-Style Paths'); % Button is now for going to old-style paths
+    if isnan(Paths{end})
+        Paths = Paths(1:end-1); % Remove NaN from end if it exists
+    end
+else
+    % Turn on old-style paths
+    set(hObject, 'String', 'Transparent Paths'); % Button is now for going back to transparent paths
+    Paths{end+1} = NaN;
+end
+RedrawMaps(handles, false);

@@ -21,8 +21,13 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.20 (22-06-2019)
+### Version 6.20 (15-08-2019)
 Complete overhaul of samsrf_surf colouring code & added transparency option (DSS)
+Path colour in samsrf_surf can now be defined & defaults to opposite polarity (DSS)
+Overhaul of DisplayMaps GUI & added path colouring toggle button (DSS)
+Added option for uniform transparency in samsrf_surf (DSS)
+DisplayMaps by default now restricts view to the ROI in the Srf (DSS)
+Delaunay backprojection procedure were missing from previous versions! (DSS)
 
 ### Version 6.19 (18-06-2019)
 Changed thresholding in samsrf_surf so values below threshold removed from map (DSS)

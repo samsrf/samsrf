@@ -168,7 +168,7 @@ disp('   Welcome to the Seriously Annoying MatLab Surfer Map Delineation Tool!')
 disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
 new_line;
 disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-disp('      (see SamSrf/ReadMe.txt for what is new in this version)');
+disp('      (see SamSrf/ReadMe.md for what is new in this version)');
 disp('****************************************************************************');
 new_line;
 

@@ -22,11 +22,15 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %   Thrhs(6) defines the proporion of the range beyond which the map is scaled to be transparent.
 %    If R^2 is present, this proportion is relative to the range between Thrsh(1) and 1.
 %    If no R^2 is present, this proportion refers to the range between Thrsh(2) and Thrsh(3).
+%   If Thrsh(6) is negative, the same transparency level is used uniformly for the whole map.
 %   To turn off transparency, set Thrsh(6) to zero.
 %
-% Paths defines the filename of the paths to be displayed. If this is
-%  undefined a dialog box opens allowing you to select the file. Simply
-%  close it if you don't wish to load any paths.
+% Paths is a cell array that defines the filenames of the paths to be displayed. If this is 
+%   undefined a dialog box opens allowing you to select the file (close it if none needed).
+%  If the last entry in this array is a 1x3 vector, this defines the path colour.
+%  If the last entry in this array is NaN, then a default path colour is used.
+%  If this is empty, or the last entry is a filename, then the path colour
+%   is automatically defined as the opposite polarity of the underlying colour.
 %
 % If Srf.Data contains more than one subject in the third dimension then
 %  another dialog box is opened to select the subject you want to display.
@@ -49,6 +53,9 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 18/06/2019 - Values below Thrsh(2) are now removed unless it's sigma or eccentricity (DSS)
 % 22/06/2019 - Changed how colours are assigned (DSS)
 %              Added transparency option (DSS)
+% 03/07/2019 - Path colour is now by default complementary colour (DSS)
+%              Added option to define path colour in Paths (DSS)
+% 14/07/2019 - Added option to have uniform transparency level (DSS)
 %
 
 %% Create global variables
@@ -73,6 +80,15 @@ end
 % Default transparency
 if length(Thrsh) < 6
     Thrsh(6) = 0.3;
+end
+% If uniform alpha desired
+if Thrsh(6) < 0
+    % All good data have equal alpha
+    UniformAlpha = true;
+    Thrsh(6) = 1 + Thrsh(6); % Convert opaqueness to transparency
+else
+    % By default alphas depend on R^2 or value range
+    UniformAlpha = false; 
 end
 
 %% Figure handle
@@ -145,6 +161,10 @@ end
 if strcmpi(Srf.Values{1}, 'R^2')
     r = Srf.Data(1,:) <= Thrsh(1) | isnan(Srf.Data(1,:));
     Alpha = CalcAlphas(Srf.Data(1,:), [Thrsh(1) Thrsh(1) + (1-Thrsh(1))*Thrsh(6)]); % Transparency based on R^2
+    % If uniform alpha desired
+    if UniformAlpha
+        Alpha(Alpha > 0) = Thrsh(6);
+    end
 else 
     r = isnan(Srf.Data(1,:));
 end
@@ -192,16 +212,31 @@ if nargin < 4
         Paths = {};
     end
 end
+
+%% Load paths
+if ~iscell(Paths)
+    Paths = {Paths};
+end
+PathColour = Inf; % Default path colour is opposite polarity 
 if ~isempty(Paths) 
     Vs_paths = [];
     for i = 1:length(Paths)
-        if strfind(Paths{i}, '.label')
-            % Load label
-            Label = samsrf_loadlabel(Paths{i}(1:end-6));
-            Vs_paths = [Vs_paths; samsrf_borderpath(Srf, Label)];
-        else
-            % Load paths
-            Vs_paths = [Vs_paths; samsrf_loadpaths(Paths{i})];
+        % Is a path colour defined?
+        if i == length(Paths) && ~ischar(Paths{i})
+            if isnan(Paths{i})
+                PathColour = NaN;
+            else
+                PathColour = Paths{i};
+            end
+        else % No path colour defined
+            if strfind(Paths{i}, '.label')
+                % Load label
+                Label = samsrf_loadlabel(Paths{i}(1:end-6));
+                Vs_paths = [Vs_paths; samsrf_borderpath(Srf, Label)];
+            else
+                % Load paths
+                Vs_paths = [Vs_paths; samsrf_loadpaths(Paths{i})];
+            end
         end
     end
 else
@@ -229,7 +264,9 @@ if strcmpi(Type, 'Polar')
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
-    PathColour = [1 1 1];
+    if isnan(PathColour) 
+        PathColour = [1 1 1];
+    end
     
 elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi') 
     % Phase map
@@ -245,6 +282,10 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     % If no R^2 present
     if ~strcmpi(Srf.Values{1}, 'R^2')
         Alpha = CalcAlphas(Pha, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on Pha
+        % If uniform alpha desired
+        if UniformAlpha
+            Alpha(Alpha > 0) = Thrsh(6);
+        end
     end
     
     % Colourmap
@@ -254,7 +295,9 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     Thrsh = [Thrsh Inf];
-    PathColour = [1 1 1];
+    if isnan(PathColour) 
+        PathColour = [1 1 1];
+    end
     
 elseif strcmpi(Type, 'Eccentricity')
     % Eccentricity map
@@ -283,7 +326,9 @@ elseif strcmpi(Type, 'Eccentricity')
     Pha(Pha==0) = 360;
     Pha(r|isnan(Pha)) = 360;
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
-    PathColour = [0 0 0];
+    if isnan(PathColour) 
+        PathColour = [0 0 0];
+    end
     
 elseif strcmpi(Type, 'Mu') 
     % Mu map
@@ -312,7 +357,9 @@ elseif strcmpi(Type, 'Mu')
     Pha(Pha==0) = 1;
     Pha(r|isnan(Pha)|isinf(Pha)) = 200;
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
-    PathColour = [0 0 0];  
+    if isnan(PathColour) 
+        PathColour = [0 0 0];  
+    end
     
 elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual Area') || strcmpi(Type, 'Spread') ...
         || strcmpi(Type, 'Centre') || strcmpi(Type, 'Surround') || strcmpi(Type, 'Sigma1') || strcmpi(Type, 'Sigma2')
@@ -341,7 +388,9 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Pha(Pha <= 0) = 1;
     Pha(r|isnan(Pha)) = 200 + Curv(r|isnan(Pha));
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
-    PathColour = [1 0 1];
+    if isnan(PathColour) 
+        PathColour = [1 0 1];
+    end
     
 else
     % Any generic data
@@ -362,6 +411,10 @@ else
     % If no R^2 present
     if ~strcmpi(Srf.Values{1}, 'R^2')
         Alpha = CalcAlphas(X, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on X
+        % If uniform alpha desired
+        if UniformAlpha
+            Alpha(Alpha > 0) = Thrsh(6);
+        end
     end
     
     % Set all below minimum to minimum
@@ -385,11 +438,17 @@ else
     Pha(Pha==0) = 1;
     Pha(r|isnan(Pha)|isinf(Pha)) = 100;
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
-    PathColour = [0 1 1];
+    if isnan(PathColour) 
+        PathColour = [0 1 1];
+    end
 end
 
 %% Draw paths
-Colours(Vs_paths,:) = repmat(PathColour, length(Vs_paths), 1);
+if isinf(PathColour)
+    Colours(Vs_paths,:) = 1 - Colours(Vs_paths,:);
+else
+    Colours(Vs_paths,:) = repmat(PathColour, length(Vs_paths), 1);
+end
 
 %% Display the mesh
 set(fh, 'name', [Type ' (' num2str(Thrsh(2)) ' -> ' num2str(Thrsh(3)) ')'], 'color', 'w');

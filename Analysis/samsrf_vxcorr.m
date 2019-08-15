@@ -9,7 +9,7 @@ function [p, r, df] = samsrf_vxcorr(A, B, tcA, tcB, IsCirc)
 % as are used in A and B. Each column is a vertex and rows are volumes. 
 % This is used to calculate the inter-correlation between vertices in each 
 % data vector. Summing the correlation coefficients across the correlation 
-% matrix (treaing r<0 as 0) gives the degrees of freedom for the test.
+% matrix (treating r<0 as 0) gives the degrees of freedom for the test.
 %
 % IMPORTANT: This concept assumes that the inter-correlation of time
 % courses in tcA and tcB and vertex data in A and B, respectively, is
