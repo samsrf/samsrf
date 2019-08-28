@@ -41,18 +41,19 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 %
 % 03/08/2018 - SamSrf 6 version (DSS)
 % 22/05/2019 - Made output name Timecourses more descriptive (DSS)
+% 19/08/2019 - Fixed bug with assignment of default inputs (DSS)
 %
 
-if nargin == 4
+if nargin <= 5
     Threshold = [];
 end
-if nargin <= 5
+if nargin <= 6
     Stimulus = [];
 end  
-if nargin <= 6
+if nargin <= 7
     ColourMap = 'hotcold';
 end
-if nargin <= 7
+if nargin <= 8
     NormaliseByDensity = true;
 end
 

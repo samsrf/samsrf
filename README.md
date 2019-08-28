@@ -21,6 +21,10 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.21 (??-??-2019)
+Added prf_contour back as it had been missing since version 6.04 (DSS)
+Fixed incorrect assignment of default inputs in samsrf_backproj_prf (DSS)
+
 ### Version 6.20 (15-08-2019)
 Complete overhaul of samsrf_surf colouring code & added transparency option (DSS)  
 Path colour in samsrf_surf can now be defined & defaults to opposite polarity (DSS)  

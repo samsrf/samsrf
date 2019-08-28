@@ -62,6 +62,7 @@ end
 
 %% Create surface structure
 Srf = struct;
+Srf.Version = samsrf_version;
 Srf.Structural = strimg;
 Srf.Functional = mghimg;
 Srf.Hemisphere = hemis;
