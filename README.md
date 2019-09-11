@@ -22,6 +22,7 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 ## LATEST UPDATES 
 
 ### Version 6.21 (??-??-2019)
+Started on SamoaSrf add-on for Octave support (DSS)
 Added prf_contour back as it had been missing since version 6.04 (DSS)
 Fixed incorrect assignment of default inputs in samsrf_backproj_prf (DSS)
 

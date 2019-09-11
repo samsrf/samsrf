@@ -68,6 +68,7 @@ function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mod
 % 10/08/2018 - SamSrf 6 version (DSS & SS)
 % 11/08/2018 - Fixed bug with method switch (DSS)
 % 04/06/2019 - Added option to plot normalised goodness-of-fit (DSS)
+% 09/09/2019 - Octave 5 support added (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -269,18 +270,34 @@ else % Binning analysis
         CurN = length(CurDat); % Number of vertices
         
         %% Summary statistic & confidence interval
-        if length(CurDat) > 1
+        if length(CurDat) > 1 
             if strcmpi(Mode, 'Mean')
-                Bs = bootstrp(BootParams(1), @nanmean, CurDat); % Bootstrap distribution
+                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
+                  Bs = bootstrp(BootParams(1), @nanmean, CurDat); % Bootstrap distribution
+                else
+                  Bs = 0;
+                end
                 CurDat = nanmean(CurDat); % Mean
             elseif strcmpi(Mode, 'Median')
-                Bs = bootstrp(BootParams(1), @nanmedian, CurDat); % Bootstrap distribution
+                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
+                  Bs = bootstrp(BootParams(1), @nanmedian, CurDat); % Bootstrap distribution
+                else
+                  Bs = 0;
+                end
                 CurDat = nanmedian(CurDat); % Median
             elseif strcmpi(Mode, 'Sum')
-                Bs = bootstrp(BootParams(1), @nansum, CurDat); % Bootstrap distribution
+                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!                
+                  Bs = bootstrp(BootParams(1), @nansum, CurDat); % Bootstrap distribution
+                else
+                  Bs = 0;
+                end
                 CurDat = nansum(CurDat); % Sum
             elseif strcmpi(Mode, 'Geomean')
-                Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDat))); % Bootstrap distribution
+                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
+                  Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDat))); % Bootstrap distribution
+                else
+                  Bs = 0;
+                end
                 CurDat = exp(nanmean(log(CurDat))); % Mean
             else
                 error('Invalid summary statistic specified!');
