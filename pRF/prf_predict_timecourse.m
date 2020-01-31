@@ -8,6 +8,7 @@ function Y = prf_predict_timecourse(Rfp, ApFrm, DispTc, Hrf)
 %   convolved with the HRF (but in model fitting this is done separately).
 %
 % 20/08/2018 - SamSrf 6 version (data added - no changes from v6) (DSS)
+% 25/11/2019 - Fixed bug with missing widerthantall function for displaying (DSS)
 %
 
 if nargin < 3
@@ -23,7 +24,9 @@ if DispTc
             linspace(1,1,10) linspace(1,0,10) linspace(0,0,10) linspace(0,0,10) linspace(0,0,10) linspace(0,1,10)]';      % Blue
 
     % Plot apertures    
-    figure; widerthantall; 
+    figure; 
+    pos = get(gcf, 'Position');
+    set(gcf, 'Position', [pos(1)-pos(3)*0.4 pos(2) pos(3)*1.6 pos(4)]);
     subplot(2,3,1); 
     imshow(Rfp/2+.5);
     colormap(gca, cmap);
@@ -88,3 +91,4 @@ if DispTc
         legend('Neuronal only','Convolved with HRF');
     end
 end
+

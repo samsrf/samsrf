@@ -56,19 +56,19 @@ Sph(:,2) = -Sph(:,2); % Invert to match visual field maps
 Srf.Data = [Srf.Data; Sph']; % Add coordinates to Srf
 
 %% Remove unnecessary fields
-if isfield(Srf.Data, 'Raw_Data')
+if isfield(Srf, 'Raw_Data')
     Srf = rmfield(Srf, 'Raw_Data');
 end
-if isfield(Srf.Data, 'X')
+if isfield(Srf, 'X')
     Srf = rmfield(Srf, 'Y');
 end
-if isfield(Srf.Data, 'Y')
+if isfield(Srf, 'Y')
     Srf = rmfield(Srf, 'Y');
 end
-if isfield(Srf.Data, 'Rmaps')
+if isfield(Srf, 'Rmaps')
     Srf = rmfield(Srf, 'Rmaps');
 end
-if isfield(Srf.Data, 'ConFlds')
+if isfield(Srf, 'ConFlds')
     Srf = rmfield(Srf, 'ConFlds');
 end
 

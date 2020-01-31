@@ -69,6 +69,7 @@ function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mod
 % 11/08/2018 - Fixed bug with method switch (DSS)
 % 04/06/2019 - Added option to plot normalised goodness-of-fit (DSS)
 % 09/09/2019 - Octave 5 support added (DSS)
+% 18/01/2020 - Fixed bug with confidence intervals in Octave (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -303,6 +304,10 @@ else % Binning analysis
                 error('Invalid summary statistic specified!');
             end
             CurCi = prctile(Bs, BootParams(2:3)); % 95% confidence interval
+            % Octave compatibility
+            if size(CurCi,1) > 1
+              CurCi = CurCi';
+            end
             CurCi = CurCi - CurDat; % CIs relative to mean
         else
             CurCi = [NaN NaN]; %% No CI for single or zero entry

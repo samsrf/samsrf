@@ -53,6 +53,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %              Added optional input to determine anatomy path (DSS)
 % 28/11/2018 - Added some additional command line statements (DSS)
 % 07/06/2019 - Fixed error with noise ceiling calculation (DSS)
+% 29/01/2020 - For SamoaSrf, Nifti origin is now included in header (DSS)
 %
 
 %% Default parameters
@@ -102,12 +103,12 @@ if ~verLessThan('matlab', '9.3')
     m = sum(abs(hdr.mat(:,1:3)), 2);
     hdr.mat(:,4) = hdr.mat(:,4) + m .* sign(hdr.mat(:,4));     
     % Nifti origin
-    nii_orig = hdr.mat(1:3,4);
-    nii_orig(nii_orig > 0) = nii_orig(nii_orig > 0) + 1;
-    nii_orig(nii_orig < 0) = nii_orig(nii_orig < 0) - 1;
+    hdr.nii_orig = hdr.mat(1:3,4);
+    hdr.nii_orig(hdr.nii_orig > 0) = hdr.nii_orig(hdr.nii_orig > 0) + 1;
+    hdr.nii_orig(hdr.nii_orig < 0) = hdr.nii_orig(hdr.nii_orig < 0) - 1;
     % Origin in the actual structural
     fs_orig = hdr.ImageSize' / 2;
-    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
+    fs_orig = fs_orig([3 1 2]) .* sign(hdr.nii_orig);
 else
     % Use SPM
     if strcmp(strimg(end-3:end), '.nii') % Trim file name if neccesary
@@ -115,10 +116,10 @@ else
     end
     hdr = spm_vol([strimg '.nii']);
     % Origin in the actual structural
-    nii_orig = hdr.mat(1:3,4);
+    hdr.nii_orig = hdr.mat(1:3,4);
     % Origin in Freesurfer space (1/2 dimensions)
     fs_orig = hdr.dim' / 2;
-    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig); 
+    fs_orig = fs_orig([3 1 2]) .* sign(hdr.nii_orig); 
 end
     
 %% Load functional image
@@ -129,7 +130,7 @@ if ~verLessThan('matlab', '9.3')
     fhdr.mat = fhdr.Transform.T';
     m = sum(abs(fhdr.mat(:,1:3)), 2);
     fhdr.mat(:,4) = fhdr.mat(:,4) + m .* sign(fhdr.mat(:,4));    
-    fimg = nan([fhdr(1).ImageSize length(funimg)]);
+    fimg = NaN([fhdr(1).ImageSize length(funimg)]);
     for fi = 1:length(funimg)
         fimg(:,:,:,:,fi) = niftiread(funimg{fi});
     end    
@@ -150,7 +151,7 @@ else
 end
 
 %% Adjust transformation matrix
-mov = nii_orig - fs_orig;
+mov = hdr.nii_orig - fs_orig;
 mat = fhdr.mat;
 if useRegDat
     smat = hdr.mat;

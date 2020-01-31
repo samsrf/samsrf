@@ -9,7 +9,7 @@ function Circular_Tuning_Curve(SrfFiles, Roi)
 % adapt the model parameters to suit your personal needs and desires.
 %
 
-%% Standard 2D Gaussian pRF
+%% Circular tuning function 
 Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(cosd(P(1))/2, sind(P(1))/2, P(2), ApWidth); % Which pRF model function? 
 Model.Name = 'pTC_cir'; % File name to indicate type of pRF model
 Model.Param_Names = {'Phi'; 'Sigma'}; % Names of parameters to be fitted
