@@ -6,7 +6,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %  pRF parameters in pRF_Data (a Srf.Data field with the vertices you want
 %  and assuming the first four values produced by samsrf_fit_prf).
 %  It then uses a searchlight procedure to calculate a summary statistic
-%  within the search light radius at each visual field position.
+%  within a searchlight (circular or square) at each visual field position.
 %
 % IMPORTANTLY, if the rows in Response arise from different experiments or
 %  GLMs, these should be passed through the function iteratively. The reason
@@ -23,12 +23,24 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %  The 2nd and 3rd input define the inner and outer eccentricity to be used.
 %  Defaults to the most inclusive criteria, i.e. all R^2 and all eccentricities.
 %
-% Resolution defines the granularity of the searchlight grid (1st value)
-%  & the searchlight radius (2nd value). If the second value is negative
-%  the searchlight instead determines the pRFs which are the nearest N
-%  Euclidean neighbours to the searchlight centre (Note that this can
-%  result in some pRFs not being used at all if the granularity of the
-%  searchlight grid is not fine enough).
+% Resolution defines the granularity of the searchlight grid, i.e. the
+%  inter-grid-point distance (1st value), & the size of the searchlight(2nd value).
+%  If the 2nd value is
+%     - positive, a circular searchlight is used and the 2nd value
+%        represents the circle's radius.
+%     - is negative, the searchlight instead determines the pRFs which are
+%        the nearest N Euclidean neighbours to the searchlight centre. The
+%        2nd value therefore represents N.
+%     - is a complex number (i.e., 0.5i), a square searchlight is used and
+%        the absolute value (i.e., the modulus) of the 2nd value (i.e., 0.5)
+%        represents half of the square's side length.
+%
+%  Note suboptimal choices for the granularity of the searchlight grid and the
+%  searchlight size can result in missing pRFs (see below for Used_pRFs). 
+%  Moreover, since the size of the searchlight grid is determined by the 
+%  maximum eccentrity of the mapping stimulus, the maximum eccentricity should
+%  be divisible by the chosen granularity value. With suboptimal granularities,
+%  the serachlight grid might not fully cover the eccentricity range.
 %
 % Mode defines the summary statistic for the searchlight:
 %  Central tendency estimates
@@ -45,9 +57,9 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %   'MeanAbsDev'    Mean absolute deviation
 %   'MedAbsDev'     Median absolutre deviation
 %
-% Returns a matrix in intensity image format where each level (that is,
-%  along the 3rd dimension) is the backprojection for one row of Response.
-%  This intensity image can be plotted as a contour graph or a 3D surface.
+% Returns a matrix in intensity image format where each level along the 3rd 
+%  dimension) is the backprojection for one row of Response. This intensity 
+%  image can be plotted as a contour graph or a 3D surface.
 %
 % X and Y contain the coordinate matrix (for contour or surf plot etc).
 %
@@ -59,25 +71,23 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %  if the t-statistic is Inf in a given searchlight, the corresponding
 %  weight will be positive and non-zero).
 %
-% Numbers contains the number of pRFs in a given searchlight (could be used 
-%  as weights). As with Weights, the 1st level along the 3rd dimension contains 
+% Numbers contains the number of pRFs in a given searchlight (could be used
+%  as weights). As with Weights, the 1st level along the 3rd dimension contains
 %  the filtered matrix and the 2nd level the unfiltered one. When using the
 %  nearest neighbour mode, this has a 3rd level with a matrix containing the
 %  maximum distance from the searchlight centre. This matrix is filtered in
 %  the same fashion as the chosen summary statistic. An unfiltered matrix is
 %  currently not available.
 %
-% Good_Vertices contains and index of good vertices allowing you to filter 
-%  out pRFs with a poor R^2 or outside the eccentricity range, and after 
+% Good_Vertices contains an index of good vertices allowing you to filter
+%  out pRFs with a poor R^2 or outside the eccentricity range, and after
 %  removing NaN values in pRF_Data and Response. This is helpful for subsequent
 %  analyses and if you would like to apply the filtering here to another
-%  experimental condition or when projecting data on the corticAL surface.
+%  experimental condition or when projecting data on the cortical surface.
 %
-% Used_pRFs count for each pRF in pRF_Data (i.e. each column) how often it
-%  was included in a searchlight. This is more useful for nearest neighbour
-%  mode (when Resolution(2)<0) than it is for the standard searchlight mode.
-%  Similar to Wt and Nr, the first row contains a filtered and the
-%  second row an unfiltered count.
+% Used_pRFs counts for each pRF in pRF_Data (i.e., each column) how often it
+%  was included in a searchlight. Similar to Wt and Nr, the first row contains
+%  a filtered and the second row an unfiltered count.
 
 % 10/08/2018 - SamSrf 6 version (DSS & SuSt)
 % 11/08/2018 - Fixed bug with method switch (DSS)
@@ -92,6 +102,10 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 % 27/11/2018 - Nearest neighbour mode: distances are now normalized using 2*Eccentricity (SuSt)
 % 21/05/2019 - Now outputs one variable instead of Cleaned_Response and Cleaned_pRF_Data (SuSt)
 % 22/05/2019 - Changed output variable names to be more descriptive (DSS)
+% 27/01/2020 - Implemented square tessellation
+%              Expanded eccentricity range to omit missing vertices due to edge effects
+%              Updated descriptions/comments (SuSt)
+% 14/02/2020 - Added to the toolbox & minor cosmetic changes (DSS)
 %
 
 %% Default inputs
@@ -113,14 +127,25 @@ elseif length(Threshold) == 2
     Threshold = [Threshold Inf];
 end
 
-% pRF map data
+% pRF mapping data
 gof = pRF_Data(1,:); % Goodness of fit
 ecc = sqrt(pRF_Data(2,:).^2 + pRF_Data(3,:).^2); % Eccentricity
 sigma = pRF_Data(4,:); % pRF size
 
 %% Whole time course
+% Grid points (i.e. searchlight midpoints)
 [X,Y] = meshgrid(-Eccentricity:Resolution(1):Eccentricity, -Eccentricity:Resolution(1):Eccentricity);
 Y = flipud(Y);
+
+% If square searchlight selected
+if ~isreal(Resolution(2))
+    % Generate edges of searchlight square
+    XEdgesLo = X-abs(Resolution(2));
+    XEdgesUp = X+abs(Resolution(2));
+    YEdgesLo = Y-abs(Resolution(2));
+    YEdgesUp = Y+abs(Resolution(2));
+end
+
 Backprojections = zeros(size(X,1), size(X,2), size(Response,1));
 Weights = zeros(size(X,1), size(X,2),2); % Weights based on number & distance to searchlight centre
 if Resolution(2) < 0
@@ -146,37 +171,54 @@ if strcmpi(Mode, 'Geomean') && sum(Cleaned_Response(:) <= 0) > 0
     error('Geometric mean won''t be defined for non-positive numbers.')
 end
 
-% Backprojection with searchlight
+%% Backprojection with searchlight
 h = waitbar(0, 'Backprojecting volumes...');
-% Loop through X-coordinates
+
+%% Loop through X-coordinates
 for x = 1:size(X,2)
-    % Loop through Y-coordinates
+
+    %% Loop through Y-coordinates
     for y = 1:size(Y,1)
-        % Only searchlight within eccentricity range
-        if sqrt(X(y,x)^2 + Y(y,x)^2) <= Eccentricity
+        % Only searchlight within eccentricity range (expansion by 1 inter-grid-point distance to omit missing vertices because of edge
+        % effects (i.e. interaction of a square-shaped grid with a circular region of interest)
+        if sqrt(X(y,x)^2 + Y(y,x)^2) <= Eccentricity + Resolution(1)
             % Euclidean distances from current searchlight centre
             ed = sqrt((Cleaned_pRF_Data(2,:)-X(y,x)).^2  + (Cleaned_pRF_Data(3,:)-Y(y,x)).^2);
-            % When using nearest neighbour mode
-            if Resolution(2) < 0
-                % Find nearest fixed number of pRFs from searchlight centre
-                [sed,sx] = sort(ed); % Sort by distance to centre
-                svx = find(sed) <= -Resolution(2); % Find nearest pRFs
-                
-                % Check whether enough pRFs have been identified
-                if sum(svx) < -Resolution(2)
-                    error('Could not find enough pRFs. Adjust Resolution(2) or skip analysis.') % Really bad visual fied coverage
+            % If searchlight size is valid
+            if abs(Resolution(2)) ~= 0
+                % If circular searchlight selected
+                if isreal(Resolution(2))
+                    % If nearest neighbour mode selected
+                    if Resolution(2) < 0
+                        % Find nearest fixed number of pRFs from searchlight centre
+                        [sed,sx] = sort(ed); % Sort by distance to centre
+                        svx = find(sed) <= -Resolution(2); % Find nearest pRFs
+                        
+                        % Check whether enough pRFs have been identified
+                        if sum(svx) < -Resolution(2)
+                            error('Could not find enough pRFs. Adjust Resolution(2) or skip analysis.') % Really bad visual fied coverage
+                        end
+                        
+                        vx = sx(svx); % Sequential indices for nearest neighbours
+                        vx = ismember(ed, ed(vx)); % Logical indices for nearest neighbours
+                        % Inverse distances from searchlight centre
+                        dc = 1 - ed(vx)/(2*Eccentricity); % Normalised to 2*eccentricity (i.e. mapping area)
+                        
+                    elseif Resolution(2) > 0 % If standard mode selected
+                        % Find all pRFs within searchlight circle
+                        vx = ed < Resolution(2);
+                        % Inverse distances from searchlight centre
+                        dc = 1 - ed(vx)/Resolution(2); % Normalised to searchlight radius
+                    end
+                    
+                else % If square searchlight selected
+                    % Find all pRFs within searchlight square
+                    vx = (Cleaned_pRF_Data(2,:) >= XEdgesLo(y,x) & Cleaned_pRF_Data(2,:) < XEdgesUp(y,x)) & ...
+                        (Cleaned_pRF_Data(3,:) >= YEdgesLo(y,x) & Cleaned_pRF_Data(3,:) < YEdgesUp(y,x));
+                    % Inverse distances from searchlight centre
+                    dc = 1 - ed(vx)/sqrt(abs(Resolution(2))^2+abs(Resolution(2))^2); % Normalised to half of square diagonal (aka square radius)
                 end
-                
-                vx = sx(svx); % Sequential indeces for nearest neighbours
-                vx = ismember(ed, ed(vx)); % Logical indeces for nearest neighbours
-                % Inverse distances from searchlight centre
-                dc = 1 - ed(vx)/(2*Eccentricity); % Normalised to 2*eccentricity (i.e. mapping area)
-            elseif Resolution(2) > 0
-                % Find all pRFs within searchlight radius
-                vx = ed < Resolution(2);
-                % Inverse distances from searchlight centre
-                dc = 1 - ed(vx)/Resolution(2); % Normalised to searchlight radius
-            else
+            else % If searchlight size invalid
                 error('Resolution(2) must not be zero!');
             end
             
@@ -185,43 +227,43 @@ for x = 1:size(X,2)
                 
                 %% Central tendency estimates
                 if strcmpi(Mode, 'Mean')
-                    %% Arithmetic mean of values
+                    % Arithmetic mean of values
                     curstat = mean(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'Median')
-                    %% Median of values
+                    % Median of values
                     curstat = median(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'Mode')
-                    %% Median of values
+                    % Median of values
                     curstat = mode(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'Maximum')
-                    %% Maximum of values
+                    % Maximum of values
                     curstat = max(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'Minimum')
-                    %% Minimum of values
+                    % Minimum of values
                     curstat = min(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'Geomean')
-                    %% Geometric mean of values
+                    % Geometric mean of values
                     curstat = geomean(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'Sum')
-                    %% Geometric mean of values
+                    % Geometric mean of values
                     curstat = sum(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 't-test')
-                    %% Calculate t-test vs zero
+                    % Calculate t-test vs zero
                     [~,~,~,TestStats] = ttest(Cleaned_Response(v,vx), 0);
                     curstat = TestStats.tstat;
                     
                     %% Dispersion estimates
                 elseif strcmpi(Mode, 'StdDev')
-                    %% Standard deviation
+                    % Standard deviation
                     curstat = std(Cleaned_Response(v,vx));
                 elseif strcmpi(Mode, 'MeanAbsDev')
-                    %% Mean absolute deviation
+                    % Mean absolute deviation
                     curstat = mad(Cleaned_Response(v,vx), 0);
                 elseif strcmpi(Mode, 'MedAbsDev')
-                    %% Median absolute deviation
+                    % Median absolute deviation
                     curstat = mad(Cleaned_Response(v,vx), 1);
                 else
-                    %% Unknown mode defined
+                    % Unknown mode defined
                     error(['Unknown summary statistic ' Mode ' specified.']);
                 end
                 %% Store current stat in pixel

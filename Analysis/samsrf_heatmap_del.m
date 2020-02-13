@@ -14,6 +14,7 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
 %
 % 21/05/2019 - Created this function (DSS)
+% 14/02/2020 - Made axis square (again) (DSS)
 %
 
 %% Default inputs
@@ -114,9 +115,10 @@ else
     end
 end
 view([0 90]);
-%     axis square
+axis square
 xlabel('Horizontal position (deg)');
 ylabel('Vertical position (deg)');
 axis([-1 1 -1 1]*max(X(:)));
+
 hold on
 caxis([0 1]);

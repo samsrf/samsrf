@@ -22,11 +22,13 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 ## LATEST UPDATES 
 
 ### Version 6.21 (??-??-2019)
-Started on SamoaSrf add-on for Octave support (DSS)
 Added prf_contour back as it had been missing since version 6.04 (DSS)
+Added square tesselation to searchlight backprojection (SuSt)
 Fixed incorrect assignment of default inputs in samsrf_backproj_prf (DSS)
 Fixed bug with display functionality in prf_predict_timecourse (DSS)
 Fixed bug with loading paths when no file is defined (DSS)
+Fixed bug with samsrf_heatmap_del not having square axes (DSS)
+Started on SamoaSrf add-on for Octave support (DSS)
 TESTING GITHUB LINK!!! (DSS)
 
 ### Version 6.20 (15-08-2019)

@@ -304,7 +304,7 @@ else % Binning analysis
                 error('Invalid summary statistic specified!');
             end
             CurCi = prctile(Bs, BootParams(2:3)); % 95% confidence interval
-            % Octave compatibility
+            % Octave 4 compatibility
             if size(CurCi,1) > 1
               CurCi = CurCi';
             end
