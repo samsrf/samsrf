@@ -19,9 +19,11 @@ Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentric
 Model.TR = 1; % Repetition time (TR) of pulse sequence
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pTC_hor'; % Aperture file
+Model.Seed_Fine_Fit = ''; % (Optional) Define a Srf file to use as seed map
 Model.Replace_Bad_Fits = false; % (Optional) If true, uses coarse fit for bad slow fits
 Model.Smoothed_Coarse_Fit = 0; % (Optional) If > 0, smoothes data for coarse fit
 Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
+Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
 
 % Search grid for coarse fit
 Model.Param1 = -1.05 : 0.05 : 1.05; % Mu search grid

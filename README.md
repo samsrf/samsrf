@@ -22,14 +22,15 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 ## LATEST UPDATES 
 
 ### Version 6.21 (??-??-2019)
+Added option to use a seed map to samsrf_fit_prf (DSS)
+Added model parameter to threshold what goes into fine fit (DSS) 
 Added prf_contour back as it had been missing since version 6.04 (DSS)
 Added square tesselation to searchlight backprojection (SuSt)
 Fixed incorrect assignment of default inputs in samsrf_backproj_prf (DSS)
 Fixed bug with display functionality in prf_predict_timecourse (DSS)
 Fixed bug with loading paths when no file is defined (DSS)
 Fixed bug with samsrf_heatmap_del not having square axes (DSS)
-Started on SamoaSrf add-on for Octave support (DSS)
-TESTING GITHUB LINK!!! (DSS)
+Started work on SamoaSrf for Octave support... (DSS)
 
 ### Version 6.20 (15-08-2019)
 Complete overhaul of samsrf_surf colouring code & added transparency option (DSS)  

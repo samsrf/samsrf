@@ -7,6 +7,11 @@ function MakeOccRoi(MeshFolder, Y)
 % The optional second input Y defines the border of the ROI in 
 %  anterior-posterior coordinates (default = -35).
 %
+% Note that the vertex coordinates saved in the label file are 
+%  from the spherical mesh, -not- the white matter mesh as normally.
+%
+% 17/02/2020 - Added clarification to help section (DSS)
+%
 
 if nargin < 2
     Y = -35;

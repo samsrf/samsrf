@@ -21,6 +21,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 02/12/2018 - Added back an option for smoothed coarse-fit as in versions < 6 
 %              Added option for only running the coarse-fit (DSS)
 % 10/12/2018 - Fixed bug when coarse-fit only flag was undefined (DSS)
+% 17/02/2020 - Added option for thresholding for what goes into fine fit (DSS)
+% 18/02/2020 - Added option to use a seed map for fine fit (DSS)
 %
 
 %% Defaults & constants
@@ -39,14 +41,20 @@ bo = strfind(PrfFcnName, '(');
 PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 
 %% Default model parameters
+if ~isfield(Model, 'Seed_Fine_Fit')
+    Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
+end
 if ~isfield(Model, 'Replace_Bad_Fits')
-    Model.Replace_Bad_Fits = false;
+    Model.Replace_Bad_Fits = false; % Don't replace bad fine fits with coarse fit
 end
 if ~isfield(Model, 'Smoothed_Coarse_Fit')
-    Model.Smoothed_Coarse_Fit = 0;
+    Model.Smoothed_Coarse_Fit = 0; % No smoothing on coarse fit
 end
 if ~isfield(Model, 'Coarse_Fit_Only')
-     Model.Coarse_Fit_Only = false;
+    Model.Coarse_Fit_Only = false; % Only run coarse fit & then save
+end
+if ~isfield(Model, 'Fine_Fit_Threshold')
+    Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
 end
 
 %% MatLab R2012a or higher can do fast coarse-fit
@@ -164,54 +172,69 @@ for p = 1:size(X,2)
 end
 new_line; 
 
-%% Coarse fit for each vertex
-disp('Coarse fitting...');
-if wb h = waitbar(0, ['Coarse fitting... ' strrep(OutFile,'_','-')], 'Units', 'pixels', 'Position', [100 100 360 70]); end
-Srf.X = zeros(size(Tc));  % Matrix with predictions
-Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
-Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
-% If only running coarse fit
-if Model.Coarse_Fit_Only
-    Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
-end
+%% Coarse fit / Load seed map
+if ~isempty(Model.Seed_Fine_Fit)
+  % Load a previous map as seeds for fine fit
+  disp('Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
+  SeedMap = load(Model.Seed_Fine_Fit);
+  Pimg = SeedMap.Srf.Data(2:length(Model.Scaled_Param)+1,:); % Fitted parameter maps
+  Rimg = SeedMap.Srf.Data(1,:); % R^2 map
+  % Renormalise the data
+  for i = 1:size(Pimg,1)
+      if Model.Scaled_Param(i)
+          Pimg(i,:) = Pimg(i,:) / Model.Scaling_Factor;  % Renormalise this parameter
+      end
+  end  
+else
+  % Coarse fitting procedure
+  disp('Coarse fitting...');
+  if wb h = waitbar(0, ['Coarse fitting... ' strrep(OutFile,'_','-')], 'Units', 'pixels', 'Position', [100 100 360 70]); end
+  Srf.X = zeros(size(Tc));  % Matrix with predictions
+  Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
+  Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
+  % If only running coarse fit
+  if Model.Coarse_Fit_Only
+      Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
+  end
 
-% Loop through mask vertices (in blocks if Matlab R2012a or higher)
-for vs = 1:cfvb:length(mver)
-    % Starting index of current vertex block
-    ve = vs + cfvb - 1;
-    if ve > length(mver)
-        ve = length(mver);
-    end
-    vx = mver(vs:ve);
-    % Find best prediction
-    Y = Tc(:,vx);  % Time course of current vertex
-    R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
-    mR = max(R,[],2); % Find best fit
-    for v = 1:length(vx)
-        rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
-        if ~isempty(rx)
-            rx = rx(1); % Only first instance 
-            % Store prediction
-            Srf.X(:,vx(v)) = X(:,rx);  % Best fitting prediction
-            % Store parameters
-            for p = 1:length(Model.Param_Names)
-                Pimg(p,vx(v)) = S(p,rx); % Add the pth fitted parameter
-            end
-            Rimg(1,vx(v)) = mR(v);  % Variance explained
-            % If running coarse fit only determine betas now
-            if Model.Coarse_Fit_Only 
-                % Fit betas for amplitude & intercept
-                B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
-                Bimg(1,vx(v)) = B(2); % Amplitude
-                Bimg(2,vx(v)) = B(1); % Intercept
-            end            
-        end
-        if wb waitbar((vs+v-1)/length(mver),h); end
-    end
+  % Loop through mask vertices (in blocks if Matlab R2012a or higher)
+  for vs = 1:cfvb:length(mver)
+      % Starting index of current vertex block
+      ve = vs + cfvb - 1;
+      if ve > length(mver)
+          ve = length(mver);
+      end
+      vx = mver(vs:ve);
+      % Find best prediction
+      Y = Tc(:,vx);  % Time course of current vertex
+      R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
+      mR = max(R,[],2); % Find best fit
+      for v = 1:length(vx)
+          rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
+          if ~isempty(rx)
+              rx = rx(1); % Only first instance 
+              % Store prediction
+              Srf.X(:,vx(v)) = X(:,rx);  % Best fitting prediction
+              % Store parameters
+              for p = 1:length(Model.Param_Names)
+                  Pimg(p,vx(v)) = S(p,rx); % Add the pth fitted parameter
+              end
+              Rimg(1,vx(v)) = mR(v);  % Variance explained
+              % If running coarse fit only determine betas now
+              if Model.Coarse_Fit_Only 
+                  % Fit betas for amplitude & intercept
+                  B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
+                  Bimg(1,vx(v)) = B(2); % Amplitude
+                  Bimg(2,vx(v)) = B(1); % Intercept
+              end            
+          end
+         if wb waitbar((vs+v-1)/length(mver),h); end
+      end
+  end
+  if wb close(h); end
+  t2 = toc(t0); 
+  disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
 end
-if wb close(h); end
-t2 = toc(t0); 
-disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
 new_line;
 
 %% Run fine-fit or break now?
@@ -239,7 +262,7 @@ else
         % Index of current vertex
         vx = mver(v);
 
-        if Fitted(vx) == 0 && Rimg(vx) >= 0.01 % Only non-redundant & reasonable coarse fits
+        if Fitted(vx) == 0 && Rimg(vx) >= Model.Fine_Fit_Threshold % Only non-redundant & reasonable coarse fits
             % Find redundant vertices
             rd = samsrf_find_redundancy(Tc,vx);  
             % Mark all redundant vertices
@@ -343,7 +366,7 @@ Srf.Values = Srf.Values'; % So it is the same as Srf.Data
 % Compress to save space
 Srf = samsrf_compress_srf(Srf, mver);
 % Save fine fit map files
-disp('Saving fine fitting results...');
+disp('Saving pRF fitting results...');
 save(OutFile, 'Model', 'Srf', '-v7.3');
 disp(['Saved ' OutFile '.mat']); 
 
