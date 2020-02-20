@@ -23,6 +23,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 10/12/2018 - Fixed bug when coarse-fit only flag was undefined (DSS)
 % 17/02/2020 - Added option for thresholding for what goes into fine fit (DSS)
 % 18/02/2020 - Added option to use a seed map for fine fit (DSS)
+% 20/02/2020 - If only coarse fit is run the file name is suffixed with '_cf' (DSS)
 %
 
 %% Defaults & constants
@@ -55,6 +56,11 @@ if ~isfield(Model, 'Coarse_Fit_Only')
 end
 if ~isfield(Model, 'Fine_Fit_Threshold')
     Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
+end
+
+%% If coarse fit only suffix filename
+if Model.Coarse_Fit_Only 
+    PrfFcnName = [PrfFcnName '_cf'];
 end
 
 %% MatLab R2012a or higher can do fast coarse-fit
@@ -175,7 +181,7 @@ new_line;
 %% Coarse fit / Load seed map
 if ~isempty(Model.Seed_Fine_Fit)
   % Load a previous map as seeds for fine fit
-  disp('Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
+  disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
   SeedMap = load(Model.Seed_Fine_Fit);
   Pimg = SeedMap.Srf.Data(2:length(Model.Scaled_Param)+1,:); % Fitted parameter maps
   Rimg = SeedMap.Srf.Data(1,:); % R^2 map
