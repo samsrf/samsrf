@@ -23,7 +23,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 10/12/2018 - Fixed bug when coarse-fit only flag was undefined (DSS)
 % 17/02/2020 - Added option for thresholding for what goes into fine fit (DSS)
 % 18/02/2020 - Added option to use a seed map for fine fit (DSS)
-% 20/02/2020 - If only coarse fit is run the file name is suffixed with '_cf' (DSS)
+% 20/02/2020 - Turned off searchspace generation when using seed map (DSS)
+% 21/02/2020 - If only coarse fit is run the file name is suffixed with '_CrsFit' (DSS)
 %
 
 %% Defaults & constants
@@ -60,7 +61,9 @@ end
 
 %% If coarse fit only suffix filename
 if Model.Coarse_Fit_Only 
-    PrfFcnName = [PrfFcnName '_cf'];
+    if ~isempty(Model.Seed_Fine_Fit) % In case stupid choices were made
+        error('No point running only coarse fit when seeding the fine fit!');
+    end
 end
 
 %% MatLab R2012a or higher can do fast coarse-fit
@@ -153,36 +156,39 @@ end
 new_line; 
 
 %% Generate prediction matrix
-if ~exist([pwd filesep SearchspaceFile], 'file') 
-    disp('Generating predictions...');
-    [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, wb);    
-    save(SearchspaceFile, 'X', 'S', '-v7.3');
-    t1 = toc(t0); 
-    disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
-else
-    disp('Loading pre-defined predictions...');
-    load([pwd filesep SearchspaceFile]);
-    disp([' Loading ' SearchspaceFile]);
-    % Does length of search space match apertures?
-    if size(ApFrm,3) ~= size(X,1)
-        error('Mismatch between length of search space and apertures!');
+if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
+    if ~exist([pwd filesep SearchspaceFile], 'file') 
+        disp('Generating predictions...');
+        [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, wb);    
+        save(SearchspaceFile, 'X', 'S', '-v7.3');
+        t1 = toc(t0); 
+        disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
+    else
+        disp('Loading pre-defined predictions...');
+        load([pwd filesep SearchspaceFile]);
+        disp([' Loading ' SearchspaceFile]);
+        % Does length of search space match apertures?
+        if size(ApFrm,3) ~= size(X,1)
+            error('Mismatch between length of search space and apertures!');
+        end
     end
-end
-new_line; 
+    new_line; 
 
-%% Convolution with HRF
-disp('Convolving predictions with HRF...');
-for p = 1:size(X,2)
-    cX = conv(X(:,p), Model.Hrf);
-    X(:,p) = cX(1:size(Tc,1)); % Truncate back to original length
+    %% Convolution with HRF
+    disp('Convolving predictions with HRF...');
+    for p = 1:size(X,2)
+        cX = conv(X(:,p), Model.Hrf);
+        X(:,p) = cX(1:size(Tc,1)); % Truncate back to original length
+    end
+    new_line; 
 end
-new_line; 
 
 %% Coarse fit / Load seed map
 if ~isempty(Model.Seed_Fine_Fit)
   % Load a previous map as seeds for fine fit
   disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
   SeedMap = load(Model.Seed_Fine_Fit);
+  SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
   Pimg = SeedMap.Srf.Data(2:length(Model.Scaled_Param)+1,:); % Fitted parameter maps
   Rimg = SeedMap.Srf.Data(1,:); % R^2 map
   % Renormalise the data
@@ -251,6 +257,7 @@ if Model.Coarse_Fit_Only
     fPimg = Pimg; % Coarse fitted parameter maps
     fRimg = Rimg; % R^2 map
     fBimg = Bimg; % Beta map
+    OutFile = [OutFile '_CrsFit']; % Suffix to indicate coarse fit only 
 else
     %% Run fine fit for each vertex
     warning off % Because of rank deficiency warnings in GLM for artifactual vertices
