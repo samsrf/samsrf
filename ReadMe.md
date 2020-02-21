@@ -62,7 +62,8 @@ Added NIFTI header info to volumetric Srf structure in samsrf_vol2mat (IA)
 
 ### Version 6.15 (14-12-2018)
 Cosmetic change to legend in samsrf_heatmap (SuSt)  
-Version 6.14 (10-12-2018)  
+
+### Version 6.14 (10-12-2018)  
 Fixed minor but stupid bug with no default for coarse-fit only fitting (DSS)  
 
 ### Version 6.13 (02-12-2018)
