@@ -20,6 +20,7 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 % your structural NII is not in standard 1mm^3 resolution.
 %
 % 09/08/2018 - SamSrf 6 version (DSS) 
+% 21/02/2020 - Added matlab-native NIFTI support (IA)
 
 if nargin < 5
     ctxsteps = 0.5;
@@ -39,25 +40,55 @@ else
 end
 
 %% Load structural header 
-hdr = spm_vol([strimg '.nii']);
-hdr = hdr(1);
-% Origin in the actual structural
-nii_orig = hdr.mat(1:3,4);
-% Origin in Freesurfer space (1/2 dimensions)
-fs_orig = hdr.dim' / 2;
-fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
 
+% If using an old version of MATLAB, use SPM
+if verLessThan('matlab', '9.3')
+    hdr = spm_vol([strimg '.nii']);
+    hdr = hdr(1);
+    % Origin in the actual structural
+    nii_orig = hdr.mat(1:3,4);
+    % Origin in Freesurfer space (1/2 dimensions)
+    fs_orig = hdr.dim' / 2;
+    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
+else
+    % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
+    hdr = niftiinfo(strimg);
+    % Origin in the actual structural
+    nii_orig = hdr.Transform.T(4, 1:3)';
+    % Offset by 1, as header information counts from zero
+    nii_orig = nii_orig + sign(nii_orig); 
+    % Origin in Freesurfer space (1/2 dimensions)
+    fs_orig = hdr.ImageSize' / 2;
+    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
+end
+    
 %% Load functional image
-fhdr = spm_vol([funimg '.nii']);
-fhdr = fhdr(1);
-% Empty functional image
-fimg = zeros(fhdr.dim);
 
+% If using an old version of MATLAB, use SPM
+if verLessThan('matlab', '9.3')
+    fhdr = spm_vol([funimg '.nii']);
+    fhdr = fhdr(1);
+    % Empty functional image
+    fimg = zeros(fhdr.dim);
+    % Extract transformation matrix
+    mat = fhdr.mat;
+    % Extract matrix dimensions
+    funcdim = fhdr.dim(1:3);
+else
+    % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
+    fhdr = niftiinfo(funimg);
+    % Empty functional image
+    fimg = zeros(fhdr.ImageSize(1:3));
+    % Extract transformation matrix
+    mat = fhdr.Transform.T';
+    % Extract matrix dimensions
+    funcdim = fhdr.ImageSize(1:3);
+end
+    
 %% Adjust transformation matrix
 mov = nii_orig - fs_orig;
-mat = fhdr.mat;
 if useRegDat
-    smat = hdr.mat;
+    smat = mat;
 else
     mat(1:3,4) = mat(1:3,4) - mov;
 end
@@ -77,9 +108,6 @@ N = N(R,:);
 % What value to store
 if scalar
     M = double(labeldata(:,5));
-    if fhdr.dt(1) < 16
-        fhdr.dt = [16 0]; % Enforce float32 type
-    end
 else
     M = ones([size(labeldata, 1), 1]);
 end
@@ -104,9 +132,9 @@ for cl = ctxsteps
     tV(tV(:,1) <= 0,:) = [];
     tV(tV(:,2) <= 0,:) = [];
     tV(tV(:,3) <= 0,:) = [];
-    tV(tV(:,1) > fhdr.dim(1),:) = [];
-    tV(tV(:,2) > fhdr.dim(2),:) = [];
-    tV(tV(:,3) > fhdr.dim(3),:) = [];
+    tV(tV(:,1) > funcdim(1),:) = [];
+    tV(tV(:,2) > funcdim(2),:) = [];
+    tV(tV(:,3) > funcdim(3),:) = [];
 
     % Mark voxels for each vertex
     for i = 1:size(tV,1) 
@@ -115,6 +143,34 @@ for cl = ctxsteps
 end
 
 %% Save new image 
-fhdr.fname = [labelfile '.nii'];
-spm_write_vol(fhdr, fimg);
+
+% If using an old version of MATLAB, use SPM
+if verLessThan('matlab', '9.3')
+
+    % Enforce data type
+    if fhdr.dt(1) < 16
+        fhdr.dt = [16 0]; % Enforce float32 type
+    end
+    
+    % Write
+    fhdr.fname = [labelfile '.nii'];
+    spm_write_vol(fhdr, fimg);    
+else
+    % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
+    
+    % Match matrix size
+    fhdr.ImageSize = size(fimg);
+    fhdr.PixelDimensions = fhdr.PixelDimensions(1:3);
+    
+    % Enforce data type
+    fimg = cast(fimg, fhdr.Datatype);
+    
+    % Write
+    niftiwrite(fimg, labelfile, fhdr);
+end
+
+% Message
 disp(['Saved ' labelfile '.nii.']);
+
+% Done
+%

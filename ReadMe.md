@@ -21,7 +21,12 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.21 (21-02-2019)
+### Version 6.22 (24-02-2020)
+Fixed incorrect year in date for version 6.21... *facepalm* (DSS)  
+Updated samsrf_label2nii to allow native Matlab NII writer (IA)  
+Ensured that prf_contour plots square axes (DSS)  
+
+### Version 6.21 (21-02-2020)
 Added option to use a seed map to samsrf_fit_prf (DSS)  
 Added model parameter to threshold what goes into fine fit (DSS)  
 Added prf_contour back as it had been missing mysteriously since v6.04... (DSS)  

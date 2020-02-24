@@ -10,6 +10,8 @@ function R = prf_contour(Srf, v, X, Y)
 %
 % This function requires a Srf analysed with reverse correlation.
 %
+% 24/02/2020 - Ensured axes are square now (DSS)
+%
 
 Rmap = Srf.Rmaps(:,v);
 % Reshape vector into a map
@@ -17,6 +19,7 @@ R = reshape(Rmap, sqrt(size(Rmap,1)), sqrt(size(Rmap,1)));
 
 if nargout == 0
     contourf(X, Y, R, 50, 'linestyle', 'none');
+    axis square
     set(gca, 'fontsize', 12);
     xlabel('Horizontal coordinate (deg)');
     ylabel('Vertical coordinate (deg)');
