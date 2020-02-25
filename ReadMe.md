@@ -21,6 +21,9 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.23 (25-02-2020)
+Fixed bug with native Matlab NIfTI saving incorrect filenames (DSS)  
+
 ### Version 6.22 (24-02-2020)
 Fixed incorrect year in date for version 6.21... *facepalm* (DSS)  
 Updated samsrf_label2nii to allow native Matlab NII writer (IA)  

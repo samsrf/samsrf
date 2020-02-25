@@ -20,7 +20,8 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 % your structural NII is not in standard 1mm^3 resolution.
 %
 % 09/08/2018 - SamSrf 6 version (DSS) 
-% 21/02/2020 - Added matlab-native NIFTI support (IA)
+% 21/02/2020 - Added Matlab-native NIfTI support (IA)
+% 25/02/2020 - Fixed bug with Matlab-native NIfTI dropping filename extension (DSS)
 
 if nargin < 5
     ctxsteps = 0.5;
@@ -166,7 +167,7 @@ else
     fimg = cast(fimg, fhdr.Datatype);
     
     % Write
-    niftiwrite(fimg, labelfile, fhdr);
+    niftiwrite(fimg, [labelfile '.nii'], fhdr);
 end
 
 % Message
