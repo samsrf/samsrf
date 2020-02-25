@@ -52,8 +52,8 @@ if verLessThan('matlab', '9.3')
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
 else
-    % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
-    hdr = niftiinfo(strimg);
+    % If using MATLAB R2017b (9.3) or later, use native NIfTI tools
+    hdr = niftiinfo([strimg '.nii']);
     % Origin in the actual structural
     nii_orig = hdr.Transform.T(4, 1:3)';
     % Offset by 1, as header information counts from zero
@@ -77,7 +77,7 @@ if verLessThan('matlab', '9.3')
     funcdim = fhdr.dim(1:3);
 else
     % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
-    fhdr = niftiinfo(funimg);
+    fhdr = niftiinfo([funimg '.nii']);
     % Empty functional image
     fimg = zeros(fhdr.ImageSize(1:3));
     % Extract transformation matrix

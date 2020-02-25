@@ -4,10 +4,10 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %
 % Converts NII functional files to a SamSrf surface file and saves it.
 %
-%   funimg:     Name of functional NII files (without extension)
+%   funimg:     Name of functional NII files (without extension!)
 %                 If this a cell array, files are averaged or concatenated (see avgconsep) 
 %                 In that case you should probably normalise! (see nrmls)
-%   strimg:     Name of structural NII file (without extension)
+%   strimg:     Name of structural NII file (without extension!)
 %   hemsurf:    Hemisphere of surfaces (& folder if needed)
 %   ctxsteps:   Vector with proportional steps through the grey matter 
 %                   to check which functional voxel contains a vertex
@@ -54,6 +54,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 28/11/2018 - Added some additional command line statements (DSS)
 % 07/06/2019 - Fixed error with noise ceiling calculation (DSS)
 % 20/02/2020 - Some minor changes (DSS)
+% 25/02/2020 - Fixed bugs with native Matlab NIfTI loading (DSS)
 %
 
 %% Default parameters
@@ -82,6 +83,17 @@ wb = samsrf_waitbarstatus;
 if isa(funimg, 'char')
     funimg = {funimg};
 end
+% Trim functional file names if neccesary
+for fi = 1:length(funimg) 
+    if strcmp(funimg{fi}(end-3:end), '.nii')
+        funimg{fi} = funimg{fi}(1:end-4);
+    end
+end
+
+% Trim T1 file name if neccesary
+if strcmp(strimg(end-3:end), '.nii') 
+    strimg = strimg(1:end-4);
+end
 
 %% If using the registration matrices from FreeSurfer
 if exist([hemsurf(1:end-2) 'Coregistration.txt'], 'file')
@@ -95,10 +107,10 @@ else
 end
 
 %% Load structural header
-% Use native NIFTI reader, if available
+% Use native NIfTI reader, if available
 if ~verLessThan('matlab', '9.3')
     % Header
-    hdr = niftiinfo(strimg);
+    hdr = niftiinfo([strimg '.nii']);
     hdr.mat = hdr.Transform.T';
     m = sum(abs(hdr.mat(:,1:3)), 2);
     hdr.mat(:,4) = hdr.mat(:,4) + m .* sign(hdr.mat(:,4));     
@@ -111,9 +123,6 @@ if ~verLessThan('matlab', '9.3')
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
 else
     % Use SPM
-    if strcmp(strimg(end-3:end), '.nii') % Trim file name if neccesary
-        strimg = strimg(1:end-4);
-    end
     hdr = spm_vol([strimg '.nii']);
     % Origin in the actual structural
     nii_orig = hdr.mat(1:3,4);
@@ -123,24 +132,19 @@ else
 end
     
 %% Load functional image
-% Use native NIFTI reader, if available
+% Use native NIfTI reader, if available
 if ~verLessThan('matlab', '9.3')
-    fhdr = niftiinfo(funimg{1});
+    fhdr = niftiinfo([funimg{1} '.nii']);
     fhdr.dim = fhdr.ImageSize;
     fhdr.mat = fhdr.Transform.T';
     m = sum(abs(fhdr.mat(:,1:3)), 2);
     fhdr.mat(:,4) = fhdr.mat(:,4) + m .* sign(fhdr.mat(:,4));    
     fimg = NaN([fhdr(1).ImageSize length(funimg)]);
     for fi = 1:length(funimg)
-        fimg(:,:,:,:,fi) = niftiread(funimg{fi});
+        fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
     end    
 else
     % Use SPM
-    for fi = 1:length(funimg) % Trim file names if neccesary
-        if strcmp(funimg{fi}(end-3:end), '.nii')
-            funimg{fi} = funimg{fi}(1:end-4);
-        end
-    end
     fhdr = spm_vol([funimg{1} '.nii']);
     fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
     for fi = 1:length(funimg)
