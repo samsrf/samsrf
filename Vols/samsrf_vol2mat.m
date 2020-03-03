@@ -6,12 +6,13 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %   funimg:     name of functional NII file (without extension)
 %                 This can be a cell array if more than one file is to be
 %                 averaged. In that case you should probably normalise!
-%   roi:        name of binary mask, in NII format
+%   roi:        name of binary mask, in NII format (without extension)
 %   nrmls:      if true, it will detrend & z-score the time series in each
 %               voxel.
 %
 % 07/08/2018 - SamSrf 6 version (DSS)
 % 05/04/2019 - Explicitly stores NIFTI header information (IA)
+% 04/03/2020 - Fixed bug with .nii file extensions for native Matlab reader (DSS)
 %
 
 %% Default parameters
@@ -29,23 +30,29 @@ end
 if isa(funimg, 'char')
     funimg = {funimg};
 end
+% Trim file names if neccesary
+for fi = 1:length(funimg) 
+    if strcmp(funimg{fi}(end-3:end), '.nii')
+        funimg{fi} = funimg{fi}(1:end-4);
+    end
+end
+
+% Trim ROI file name if necessary
+if strcmp(roi(end-3:end), '.nii')
+    roi = roi(1:end-4);
+end
 
 %% Load functional image
 % Use native NIFTI reader, if available
 if ~verLessThan('matlab', '9.3')
-    fhdr = niftiinfo(funimg{1});
+    fhdr = niftiinfo([funimg{1} '.nii']);
     fhdr.dim = fhdr.ImageSize;
     fimg = nan([fhdr.dim length(funimg)]);
     for fi = 1:length(funimg)
-        fimg(:,:,:,:,fi) = niftiread(funimg{fi});
+        fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
     end
 else
     % Use SPM
-    for fi = 1:length(funimg) % Trim file names if neccesary
-        if strcmp(funimg{fi}(end-3:end), '.nii')
-            funimg{fi} = funimg{fi}(1:end-4);
-        end
-    end
     fhdr = spm_vol([funimg{1} '.nii']);
     fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
     for fi = 1:length(funimg)
@@ -58,7 +65,7 @@ end
 if ~isempty(roi)
     % Use native NIFTI reader, if available
     if ~verLessThan('matlab', '9.3')
-        mimg = niftiread(roi);
+        mimg = niftiread([roi '.nii']);
     else
         % Use SPM
         mhdr = spm_vol([roi '.nii']);

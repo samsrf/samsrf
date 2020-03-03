@@ -21,6 +21,9 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.232 (04-03-2020)
+Added native Matlab reading to samsrf_vol2mat (DSS)  
+
 ### Version 6.231 (25-02-2020)
 Fixed bug with native Matlab NIfTI saving & loading incorrect filenames (DSS)  
 
