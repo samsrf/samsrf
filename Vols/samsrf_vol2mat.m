@@ -13,6 +13,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 % 07/08/2018 - SamSrf 6 version (DSS)
 % 05/04/2019 - Explicitly stores NIFTI header information (IA)
 % 04/03/2020 - Fixed bug with .nii file extensions for native Matlab reader (DSS)
+% 09/03/2020 - SPM NIfTI loading is now default if SPM is on path (DSS)
 %
 
 %% Default parameters
@@ -43,22 +44,24 @@ if strcmp(roi(end-3:end), '.nii')
 end
 
 %% Load functional image
-% Use native NIFTI reader, if available
-if ~verLessThan('matlab', '9.3')
-    fhdr = niftiinfo([funimg{1} '.nii']);
-    fhdr.dim = fhdr.ImageSize;
-    fimg = nan([fhdr.dim length(funimg)]);
-    for fi = 1:length(funimg)
-        fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
-    end
-else
-    % Use SPM
+if exist('spm', 'file') % Use SPM 
     fhdr = spm_vol([funimg{1} '.nii']);
     fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
     for fi = 1:length(funimg)
         fhdr = spm_vol([funimg{fi} '.nii']);
         fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
     end
+    disp('Using SPM for loading NII files.');
+elseif ~verLessThan('matlab', '9.3') % Native Matlab functions if no SPM
+    fhdr = niftiinfo([funimg{1} '.nii']);
+    fhdr.dim = fhdr.ImageSize;
+    fimg = nan([fhdr.dim length(funimg)]);
+    for fi = 1:length(funimg)
+        fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
+    end
+    disp('Using native MatLab functions for loading NII files.');
+else 
+    error('No NII reading functionality installed!');
 end
 
 %% Load Roi

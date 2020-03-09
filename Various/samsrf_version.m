@@ -7,6 +7,6 @@ function [v,d,o] = samsrf_version
 % The third output o is the SamOaSrf version for Octave support.
 %
 
-v = 6.232; % SamSrf version number
-d = '04-03-2020'; % Release date 
+v = 6.233; % SamSrf version number
+d = '09-03-2020'; % Release date 
 o = 0.1; % SamOaSrf version number

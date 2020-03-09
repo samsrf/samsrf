@@ -55,6 +55,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 07/06/2019 - Fixed error with noise ceiling calculation (DSS)
 % 20/02/2020 - Some minor changes (DSS)
 % 25/02/2020 - Fixed bugs with native Matlab NIfTI loading (DSS)
+% 09/03/2020 - SPM NIfTI loading is now default if SPM is on path (DSS)
 %
 
 %% Default parameters
@@ -107,8 +108,15 @@ else
 end
 
 %% Load structural header
-% Use native NIfTI reader, if available
-if ~verLessThan('matlab', '9.3')
+if exist('spm', 'file') % Use SPM
+    hdr = spm_vol([strimg '.nii']);
+    % Origin in the actual structural
+    nii_orig = hdr.mat(1:3,4);
+    % Origin in Freesurfer space (1/2 dimensions)
+    fs_orig = hdr.dim' / 2;
+    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig); 
+    disp('Using SPM for loading NII files.');
+elseif ~verLessThan('matlab', '9.3') % Native Matlab functions if no SPM
     % Header
     hdr = niftiinfo([strimg '.nii']);
     hdr.mat = hdr.Transform.T';
@@ -121,19 +129,21 @@ if ~verLessThan('matlab', '9.3')
     % Origin in the actual structural
     fs_orig = hdr.ImageSize' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
-else
-    % Use SPM
-    hdr = spm_vol([strimg '.nii']);
-    % Origin in the actual structural
-    nii_orig = hdr.mat(1:3,4);
-    % Origin in Freesurfer space (1/2 dimensions)
-    fs_orig = hdr.dim' / 2;
-    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig); 
+    disp('Using native MatLab functions for loading NII files.');
+else % Sadly no way to load NIIs
+    error('No NII loading functionality installed!');
 end
     
 %% Load functional image
-% Use native NIfTI reader, if available
-if ~verLessThan('matlab', '9.3')
+if exist('spm', 'file') % Use SPM
+    fhdr = spm_vol([funimg{1} '.nii']);
+    fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
+    for fi = 1:length(funimg)
+        fhdr = spm_vol([funimg{fi} '.nii']);
+        fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
+    end
+    fhdr(1).dim(4) = length(fhdr);
+elseif ~verLessThan('matlab', '9.3') % Native Matlab functions if no SPM
     fhdr = niftiinfo([funimg{1} '.nii']);
     fhdr.dim = fhdr.ImageSize;
     fhdr.mat = fhdr.Transform.T';
@@ -143,15 +153,6 @@ if ~verLessThan('matlab', '9.3')
     for fi = 1:length(funimg)
         fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
     end    
-else
-    % Use SPM
-    fhdr = spm_vol([funimg{1} '.nii']);
-    fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
-    for fi = 1:length(funimg)
-        fhdr = spm_vol([funimg{fi} '.nii']);
-        fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
-    end
-    fhdr(1).dim(4) = length(fhdr);
 end
 
 %% Adjust transformation matrix

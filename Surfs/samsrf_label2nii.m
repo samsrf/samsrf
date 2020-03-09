@@ -22,6 +22,7 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 % 09/08/2018 - SamSrf 6 version (DSS) 
 % 21/02/2020 - Added Matlab-native NIfTI support (IA)
 % 25/02/2020 - Fixed bug with Matlab-native NIfTI dropping filename extension (DSS)
+% 09/03/2020 - If SPM is installed, it is now default for writing NII files (DSS)
 
 if nargin < 5
     ctxsteps = 0.5;
@@ -41,9 +42,8 @@ else
 end
 
 %% Load structural header 
-
 % If using an old version of MATLAB, use SPM
-if verLessThan('matlab', '9.3')
+if exist('spm', 'file')
     hdr = spm_vol([strimg '.nii']);
     hdr = hdr(1);
     % Origin in the actual structural
@@ -51,7 +51,8 @@ if verLessThan('matlab', '9.3')
     % Origin in Freesurfer space (1/2 dimensions)
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
-else
+    disp('Using SPM for loading NII files.');
+elseif ~verLessThan('matlab', '9.3') 
     % If using MATLAB R2017b (9.3) or later, use native NIfTI tools
     hdr = niftiinfo([strimg '.nii']);
     % Origin in the actual structural
@@ -61,12 +62,14 @@ else
     % Origin in Freesurfer space (1/2 dimensions)
     fs_orig = hdr.ImageSize' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
+    disp('Using native MatLab functions for loading NII files.');
+else
+    error('No NII loading functionality installed!');
 end
     
 %% Load functional image
-
 % If using an old version of MATLAB, use SPM
-if verLessThan('matlab', '9.3')
+if exist('spm', 'file')
     fhdr = spm_vol([funimg '.nii']);
     fhdr = fhdr(1);
     % Empty functional image
@@ -75,7 +78,7 @@ if verLessThan('matlab', '9.3')
     mat = fhdr.mat;
     % Extract matrix dimensions
     funcdim = fhdr.dim(1:3);
-else
+elseif ~verLessThan('matlab', '9.3')
     % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
     fhdr = niftiinfo([funimg '.nii']);
     % Empty functional image
@@ -144,30 +147,27 @@ for cl = ctxsteps
 end
 
 %% Save new image 
-
-% If using an old version of MATLAB, use SPM
-if verLessThan('matlab', '9.3')
-
+if exist('spm', 'file') % If SPM is installed
     % Enforce data type
     if fhdr.dt(1) < 16
         fhdr.dt = [16 0]; % Enforce float32 type
     end
-    
     % Write
     fhdr.fname = [labelfile '.nii'];
-    spm_write_vol(fhdr, fimg);    
-else
-    % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
-    
+    spm_write_vol(fhdr, fimg);  
+    disp('Using SPM to write NII files.');
+elseif ~verLessThan('matlab', '9.3') % Use native NIFTI tools unless SPM is installed
     % Match matrix size
     fhdr.ImageSize = size(fimg);
     fhdr.PixelDimensions = fhdr.PixelDimensions(1:3);
-    
     % Enforce data type
-    fimg = cast(fimg, fhdr.Datatype);
-    
+    fimg = cast(fimg, fhdr.Datatype);    
     % Write
     niftiwrite(fimg, [labelfile '.nii'], fhdr);
+    disp('Using native MatLab functions to write NII files.');
+else
+    % Shouldn't ever happen since already ruled out by loading but you never know
+    error('No NII writing functionality installed!');
 end
 
 % Message
