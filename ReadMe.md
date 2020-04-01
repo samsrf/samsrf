@@ -21,7 +21,7 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.2999 (01-04-2020) * BETA VERSION - USE AT YOUR OWN RISK! * 
+### Version 6.29991 (02-04-2020) * BETA VERSION - USE AT YOUR OWN RISK! * 
 #### IMPORTANT UPATE: Removed the use of Coregistration.txt file! CHECK YOUR DATA!  
 *Due to rounding errors, a handful of vertices (~20 per hemisphere?) may differ between projections  
 done with this version and those from prior versions, so beware of combining them...*  

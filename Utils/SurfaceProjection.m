@@ -7,6 +7,7 @@ function SurfaceProjection
 % 10/08/2018 - SamSrf 6 version (DSS)
 % 12/09/2018 - Fixed bug with Rule switch (DSS)
 % 19/09/2018 - Fixed bug with default cortical steps (DSS)
+% 02/04/2020 - Added new line after default cortical sampling steps (DSS)
 %
 
 %% Select paths 
@@ -50,6 +51,7 @@ ctxsteps = eval(['[' cell2mat(ctxsteps) ']']); % Cortical sampling steps
 if isempty(ctxsteps)
     disp('Choosing default cortex sampling of 0.5.');
     ctxsteps = 0.5;
+    new_line;
 end
 
 %% Normalise data?

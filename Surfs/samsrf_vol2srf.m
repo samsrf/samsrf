@@ -50,6 +50,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 20/02/2020 - Some minor changes (DSS)
 % 11/03/2020 - Removed native Matlab NIfTI loading (DSS)
 % 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! (DSS)
+% 02/04/2020 - Removed a few unnnecessary new lines (DSS)
 %
 
 %% Default parameters
@@ -227,14 +228,12 @@ if nrmls
             end
         end
     else
-        new_line;
         disp('Only one volume so won''t perform normalization!');
     end
 end
 
 %% Combine separate runs into one file
 if length(funimg) > 1
-    new_line;
     if avrgd
         % Average runs 
         disp('Averaging runs.');
