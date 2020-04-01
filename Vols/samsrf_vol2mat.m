@@ -11,9 +11,8 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %               voxel.
 %
 % 07/08/2018 - SamSrf 6 version (DSS)
-% 05/04/2019 - Explicitly stores NIFTI header information (IA)
-% 04/03/2020 - Fixed bug with .nii file extensions for native Matlab reader (DSS)
-% 09/03/2020 - SPM NIfTI loading is now default if SPM is on path (DSS)
+% 05/04/2019 - Explicitly stores NIfTI header information (IA)
+% 11/03/2020 - Removed native Matlab NIfTI loading (DSS)
 %
 
 %% Default parameters
@@ -51,29 +50,15 @@ if exist('spm', 'file') % Use SPM
         fhdr = spm_vol([funimg{fi} '.nii']);
         fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
     end
-    disp('Using SPM for loading NII files.');
-elseif ~verLessThan('matlab', '9.3') % Native Matlab functions if no SPM
-    fhdr = niftiinfo([funimg{1} '.nii']);
-    fhdr.dim = fhdr.ImageSize;
-    fimg = nan([fhdr.dim length(funimg)]);
-    for fi = 1:length(funimg)
-        fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
-    end
-    disp('Using native MatLab functions for loading NII files.');
 else 
-    error('No NII reading functionality installed!');
+    error('Sorry but I need SPM to load NII files :(');
 end
 
 %% Load Roi
 if ~isempty(roi)
-    % Use native NIFTI reader, if available
-    if ~verLessThan('matlab', '9.3')
-        mimg = niftiread([roi '.nii']);
-    else
-        % Use SPM
-        mhdr = spm_vol([roi '.nii']);
-        mimg = spm_read_vols(mhdr);
-    end
+    % Use SPM
+    mhdr = spm_vol([roi '.nii']);
+    mimg = spm_read_vols(mhdr);
     
     % Enforce binary mask
     mimg = logical(mimg);
@@ -120,7 +105,6 @@ Srf.Vertices = 1:size(Srf.Data, 2);
 Srf.Vertices = Srf.Vertices';
 
 %% Normalise
-
 if nrmls
     if size(Srf.Data, 1) > 1       
         % Normalise each run

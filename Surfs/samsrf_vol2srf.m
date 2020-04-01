@@ -29,12 +29,6 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %                   (this may change in future versions)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
 %
-% A text file called Coregistration.txt must be present in the surface
-% folder. If it isn't the transformation between native space and
-% FreeSurfer may not work. At BUCNI or in the FIL this has not been an
-% issue but it may be an issue in other centres and it will be a problem 
-% if your structural NII is not in standard 1mm^3 resolution.
-%
 % If multiple ctxsteps are requested and no collapsing rule is specified, 
 % final output will consists of timepoints x vertices x ctxsteps.
 % Note that normalisation is applied independently to each cortex step.
@@ -54,8 +48,8 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 28/11/2018 - Added some additional command line statements (DSS)
 % 07/06/2019 - Fixed error with noise ceiling calculation (DSS)
 % 20/02/2020 - Some minor changes (DSS)
-% 25/02/2020 - Fixed bugs with native Matlab NIfTI loading (DSS)
-% 09/03/2020 - SPM NIfTI loading is now default if SPM is on path (DSS)
+% 11/03/2020 - Removed native Matlab NIfTI loading (DSS)
+% 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! (DSS)
 %
 
 %% Default parameters
@@ -96,17 +90,6 @@ if strcmp(strimg(end-3:end), '.nii')
     strimg = strimg(1:end-4);
 end
 
-%% If using the registration matrices from FreeSurfer
-if exist([hemsurf(1:end-2) 'Coregistration.txt'], 'file')
-    fs2nii = dlmread([hemsurf(1:end-2) 'Coregistration.txt']);
-    Tmov = fs2nii(1:4,:);
-    Reg = fs2nii(5:8,:);
-    useRegDat = true;
-else
-    warning([hemsurf(1:end-2) 'Coregistration.txt does not exist. Ensure that registration between SamSrf and FreeSurfer is good!']);
-    useRegDat = false;
-end
-
 %% Load structural header
 if exist('spm', 'file') % Use SPM
     hdr = spm_vol([strimg '.nii']);
@@ -115,54 +98,22 @@ if exist('spm', 'file') % Use SPM
     % Origin in Freesurfer space (1/2 dimensions)
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig); 
-    disp('Using SPM for loading NII files.');
-elseif ~verLessThan('matlab', '9.3') % Native Matlab functions if no SPM
-    % Header
-    hdr = niftiinfo([strimg '.nii']);
-    hdr.mat = hdr.Transform.T';
-    m = sum(abs(hdr.mat(:,1:3)), 2);
-    hdr.mat(:,4) = hdr.mat(:,4) + m .* sign(hdr.mat(:,4));     
-    % Nifti origin
-    nii_orig = hdr.mat(1:3,4);
-    nii_orig(nii_orig > 0) = nii_orig(nii_orig > 0) + 1;
-    nii_orig(nii_orig < 0) = nii_orig(nii_orig < 0) - 1;
-    % Origin in the actual structural
-    fs_orig = hdr.ImageSize' / 2;
-    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
-    disp('Using native MatLab functions for loading NII files.');
 else % Sadly no way to load NIIs
-    error('No NII loading functionality installed!');
+    error('Sorry but I need SPM to load NII files :(');
 end
     
 %% Load functional image
-if exist('spm', 'file') % Use SPM
-    fhdr = spm_vol([funimg{1} '.nii']);
-    fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
-    for fi = 1:length(funimg)
-        fhdr = spm_vol([funimg{fi} '.nii']);
-        fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
-    end
-    fhdr(1).dim(4) = length(fhdr);
-elseif ~verLessThan('matlab', '9.3') % Native Matlab functions if no SPM
-    fhdr = niftiinfo([funimg{1} '.nii']);
-    fhdr.dim = fhdr.ImageSize;
-    fhdr.mat = fhdr.Transform.T';
-    m = sum(abs(fhdr.mat(:,1:3)), 2);
-    fhdr.mat(:,4) = fhdr.mat(:,4) + m .* sign(fhdr.mat(:,4));    
-    fimg = NaN([fhdr(1).ImageSize length(funimg)]);
-    for fi = 1:length(funimg)
-        fimg(:,:,:,:,fi) = niftiread([funimg{fi} '.nii']);
-    end    
+fhdr = spm_vol([funimg{1} '.nii']);
+fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
+for fi = 1:length(funimg)
+    fhdr = spm_vol([funimg{fi} '.nii']);
+    fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
 end
+fhdr(1).dim(4) = length(fhdr);
 
-%% Adjust transformation matrix
-mov = nii_orig - fs_orig;
-mat = fhdr.mat;
-if useRegDat
-    smat = hdr.mat;
-else
-    mat(1:3,4) = mat(1:3,4) - mov;
-end
+%% Transformation matrices
+fs_mat = [hdr.mat(1:3,1:3)' hdr.dim'/2; 0 0 0 1]; % FreeSurfer matrix
+mat = fhdr.mat; % Functional matrix
 
 %% Load surface vertices
 [V0 F] = fs_read_surf([hemsurf '.white']); % Grey-white surface
@@ -173,7 +124,7 @@ C = fs_read_curv([hemsurf '.curv']); % Cortical curvature
 A = fs_read_curv([hemsurf '.area']); % Cortical surface area
 T = fs_read_curv([hemsurf '.thickness']); % Cortical thickness
 N = P - V0; % Cortical vectors for each vertex 
-[psurf hemsurf] = fileparts(hemsurf);   % Remove folder from hemsurf
+[~,hemsurf] = fileparts(hemsurf);   % Remove folder from hemsurf
 
 %% Create surface structure
 Srf = struct;
@@ -202,16 +153,13 @@ for cl = ctxsteps
     V = V0 + N*cl;
     
     % Transformation into voxel space
-    if useRegDat
-        tV = Tmov \ Reg * [V'; ones(1,size(V,1))]; 
-        if ~strcmpi(funimg{1}, strimg)
-            tV = smat * tV;
-            tV = mat \ tV; 
-        end
-        tV = round(tV);
-    else
-        tV = round(mat \ [V'; ones(1,size(V,1))]); 
+    tV = fs_mat * [V'; ones(1,size(V,1))]; % Transform FreeSurfer into T1 voxel space
+    % Transform into functional space?
+    if ~strcmpi(funimg{1}, strimg)
+        tV = hdr.mat * tV; % Transform with T1 matrix
+        tV = mat \ tV; % Now transform with functional matrix
     end
+    tV = round(tV);
     tV = tV(1:3,:)';
 
     % Find voxels for each vertex

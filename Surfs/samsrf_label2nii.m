@@ -21,8 +21,9 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 %
 % 09/08/2018 - SamSrf 6 version (DSS) 
 % 21/02/2020 - Added Matlab-native NIfTI support (IA)
-% 25/02/2020 - Fixed bug with Matlab-native NIfTI dropping filename extension (DSS)
-% 09/03/2020 - If SPM is installed, it is now default for writing NII files (DSS)
+% 11/03/2020 - Removed MatLab-native NIfTI support again because too complex (DSS)
+% 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! 
+%              Fixed bug with native reader still being present for functional image *sigh* (DSS)
 
 if nargin < 5
     ctxsteps = 0.5;
@@ -31,18 +32,7 @@ if nargin < 6
     scalar = false;
 end
 
-%% If using the registration matrices from FreeSurfer
-if exist([hemsurf(1:end-2) 'Coregistration.txt'], 'file')
-    fs2nii = dlmread([hemsurf(1:end-2) 'Coregistration.txt']);
-    Tmov = fs2nii(1:4,:);
-    Reg = fs2nii(5:8,:);
-    useRegDat = true;
-else
-    useRegDat = false;
-end
-
 %% Load structural header 
-% If using an old version of MATLAB, use SPM
 if exist('spm', 'file')
     hdr = spm_vol([strimg '.nii']);
     hdr = hdr(1);
@@ -51,51 +41,21 @@ if exist('spm', 'file')
     % Origin in Freesurfer space (1/2 dimensions)
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
-    disp('Using SPM for loading NII files.');
-elseif ~verLessThan('matlab', '9.3') 
-    % If using MATLAB R2017b (9.3) or later, use native NIfTI tools
-    hdr = niftiinfo([strimg '.nii']);
-    % Origin in the actual structural
-    nii_orig = hdr.Transform.T(4, 1:3)';
-    % Offset by 1, as header information counts from zero
-    nii_orig = nii_orig + sign(nii_orig); 
-    % Origin in Freesurfer space (1/2 dimensions)
-    fs_orig = hdr.ImageSize' / 2;
-    fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
-    disp('Using native MatLab functions for loading NII files.');
 else
-    error('No NII loading functionality installed!');
+    error('Sorry but I need SPM to load NII files :(');
 end
     
 %% Load functional image
-% If using an old version of MATLAB, use SPM
-if exist('spm', 'file')
-    fhdr = spm_vol([funimg '.nii']);
-    fhdr = fhdr(1);
-    % Empty functional image
-    fimg = zeros(fhdr.dim);
-    % Extract transformation matrix
-    mat = fhdr.mat;
-    % Extract matrix dimensions
-    funcdim = fhdr.dim(1:3);
-elseif ~verLessThan('matlab', '9.3')
-    % If using MATLAB R2017b (9.3) or later, use native NIFTI tools
-    fhdr = niftiinfo([funimg '.nii']);
-    % Empty functional image
-    fimg = zeros(fhdr.ImageSize(1:3));
-    % Extract transformation matrix
-    mat = fhdr.Transform.T';
-    % Extract matrix dimensions
-    funcdim = fhdr.ImageSize(1:3);
-end
-    
-%% Adjust transformation matrix
-mov = nii_orig - fs_orig;
-if useRegDat
-    smat = mat;
-else
-    mat(1:3,4) = mat(1:3,4) - mov;
-end
+fhdr = spm_vol([funimg '.nii']);
+fhdr = fhdr(1);
+% Empty functional image
+fimg = zeros(fhdr.dim);
+% Image matrix dimensions
+funcdim = fhdr.dim(1:3);
+
+%% Transformation matrices
+fs_mat = [hdr.mat(1:3,1:3)' hdr.dim'/2; 0 0 0 1]; % FreeSurfer matrix
+mat = fhdr.mat; % Functional matrix
 
 %% Load surface vertices
 V0 = fs_read_surf([hemsurf '.white']); % Grey-white surface
@@ -122,16 +82,13 @@ for cl = ctxsteps
     V = V0 + N*cl;
     
     % Transformation into voxel space
-    if useRegDat
-        tV = Tmov \ Reg * [V'; ones(1,size(V,1))]; 
-        if ~strcmpi(funimg, strimg)
-            tV = smat * tV;
-            tV = mat \ tV; 
-        end
-        tV = round(tV);
-    else
-        tV = round(mat \ [V'; ones(1,size(V,1))]); 
+    tV = fs_mat * [V'; ones(1,size(V,1))]; % Transform FreeSurfer into T1 voxel space
+    % Transform into functional space?
+    if ~strcmpi(funimg, strimg)
+        tV = hdr.mat * tV; % Transform with T1 matrix
+        tV = mat \ tV; % Now transform with functional matrix
     end
+    tV = round(tV);
     tV = tV(1:3,:)';
     tV(tV(:,1) <= 0,:) = [];
     tV(tV(:,2) <= 0,:) = [];
@@ -147,31 +104,13 @@ for cl = ctxsteps
 end
 
 %% Save new image 
-if exist('spm', 'file') % If SPM is installed
-    % Enforce data type
-    if fhdr.dt(1) < 16
-        fhdr.dt = [16 0]; % Enforce float32 type
-    end
-    % Write
-    fhdr.fname = [labelfile '.nii'];
-    spm_write_vol(fhdr, fimg);  
-    disp('Using SPM to write NII files.');
-elseif ~verLessThan('matlab', '9.3') % Use native NIFTI tools unless SPM is installed
-    % Match matrix size
-    fhdr.ImageSize = size(fimg);
-    fhdr.PixelDimensions = fhdr.PixelDimensions(1:3);
-    % Enforce data type
-    fimg = cast(fimg, fhdr.Datatype);    
-    % Write
-    niftiwrite(fimg, [labelfile '.nii'], fhdr);
-    disp('Using native MatLab functions to write NII files.');
-else
-    % Shouldn't ever happen since already ruled out by loading but you never know
-    error('No NII writing functionality installed!');
+% Enforce data type
+if fhdr.dt(1) < 16
+    fhdr.dt = [16 0]; % Enforce float32 type
 end
-
+% Write
+fhdr.fname = [labelfile '.nii'];
+spm_write_vol(fhdr, fimg);  
 % Message
 disp(['Saved ' labelfile '.nii.']);
 
-% Done
-%

@@ -56,6 +56,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 03/07/2019 - Path colour is now by default complementary colour (DSS)
 %              Added option to define path colour in Paths (DSS)
 % 14/07/2019 - Added option to have uniform transparency level (DSS)
+% 10/03/2020 - Fixed bug with transparency of negative R^2 when using this
+%               function directly rather than via DisplayMaps (DSS)
 %
 
 %% Create global variables
@@ -160,6 +162,7 @@ end
 %% Remove rubbish
 if strcmpi(Srf.Values{1}, 'R^2')
     r = Srf.Data(1,:) <= Thrsh(1) | isnan(Srf.Data(1,:));
+    Srf.Data(1,r) = NaN; % Set rubbish to NaN
     Alpha = CalcAlphas(Srf.Data(1,:), [Thrsh(1) Thrsh(1) + (1-Thrsh(1))*Thrsh(6)]); % Transparency based on R^2
     % If uniform alpha desired
     if UniformAlpha
