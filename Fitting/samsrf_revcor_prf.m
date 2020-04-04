@@ -27,6 +27,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 03/08/2018 - SamSrf 6 version (DSS)
+% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
+%              MAJOR UPDATE: Changed from correlation to left division!! (DSS)
 %
 
 %% Defaults & constants
@@ -110,7 +112,7 @@ else
         disp([' Subject-specific HRF: ' Model.Hrf]);
         load([pwd filesep Model.Hrf]);
          % HRF based on loaded parameters but TR defined here
-        Model.Hrf = spm_hrf(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
+        Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
     else
         disp(' Using Subject-specific HRF provided');
     end
@@ -157,50 +159,43 @@ Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));
 % Parameters for pRFs
 fXimg = zeros(1,size(Srf.Vertices,1)); % X-coordinate map
 fYimg = zeros(1,size(Srf.Vertices,1)); % Y-coordinate map
+fSimg = zeros(1,size(Srf.Vertices,1)); % Sigma map
 fBimg = zeros(1,size(Srf.Vertices,1)); % Beta map
 fRimg = zeros(1,size(Srf.Vertices,1)); % R^2 map
 % Keep track of redundancies
 Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
-for vs = 1:cfvb:length(mver)
-    % Starting index of current vertex block
-    ve = vs + cfvb - 1;
-    if ve > length(mver)
-        ve = length(mver);
-    end
-    vx = mver(vs:ve);
+for v = 1:length(mver)
+    vx = mver(v); % Current vertex
     % Calculate r-map
     Y = Tc(:,vx);  % Time course of current vertex
-    [R,P] = corr(Y,X); % Correlation of time courses with regressors
-    for v = 1:length(vx)
-        if Fitted(vx(v)) == 0 % Only non-redundant vertices
-            cR = R(v,:); % Current correlation coefficient
-            cP = P(v,:); % Current correlation coefficient
-            cM = mean(repmat(Y(:,v),1,10000) .* X); % Current activation map
-            ns = cP > Model.Alpha; % Significantly correlated pixels
-            cM(ns) = 0;  % Remove collinearity artifacts
-            mM = max(cM); % Find peak activation in each map
-            mM = mM(1); % Ensure only one value
-            m = find(cM==mM,1); % Find peak coordinate
-            mR = cR(m); % Correlation coefficient at peak
-            rd = samsrf_find_redundancy(Tc,vx(v)); % Find redundant vertices
-            if ~isempty(mR) && ~isnan(mR) && mR >= 0.1
-                cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
-                cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
-                cM = cM(:); % Vectorise again
-                Fitted(rd) = 1; % Mark all redundant vertices
-                % Store pRF profile
-                Srf.Rmaps(:,rd) = repmat(cM, 1, length(rd)); % Activation map as vector 
-                fXimg(rd) = xc(m);  % X-coordinate
-                fYimg(rd) = yc(m);  % Y-coordinate
-                fBimg(rd) = mM;  % Activation peak
-                fRimg(rd) = mR^2;  % Variance explained
-            else
-                Fitted(rd) = 1; % Mark all redundant vertices
-            end
+    if Fitted(vx) == 0 % Only non-redundant vertices
+        cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
+        cM = cM(1,:); % Remove intercept beta
+        gp = cM > Model.Alpha; % Above baseline pixels
+%         cM(~gp) = 0;  % Remove collinearity artifacts
+        mM = max(cM); % Find peak activation in each map
+        mM = mM(1); % Ensure only one value
+        m = find(cM==mM,1); % Find peak coordinate
+        mR = corr(Y, X(:,m)); % Correlation coefficient at peak
+        rd = samsrf_find_redundancy(Tc,vx); % Find redundant vertices
+        if ~isempty(mR) && ~isnan(mR) && mR >= 0.1
+            cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
+            cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
+            cM = cM(:); % Vectorise again
+            Fitted(rd) = 1; % Mark all redundant vertices
+            % Store pRF profile
+            Srf.Rmaps(:,rd) = repmat(cM, 1, length(rd)); % Activation map as vector 
+            fXimg(rd) = xc(m);  % X-coordinate
+            fYimg(rd) = yc(m);  % Y-coordinate
+            fSimg(rd) = mean(gp);  % Activation spread
+            fBimg(rd) = mM;  % Activation peak
+            fRimg(rd) = mR^2;  % Variance explained
+        else
+            Fitted(rd) = 1; % Mark all redundant vertices
         end
-        if wb waitbar((vs+v-1)/length(mver),h); end
     end
+    if wb waitbar(v/length(mver),h); end
 end
 if wb close(h); end
 t2 = toc(t0); 
@@ -214,13 +209,13 @@ Srf.Y_coords = Yc;
 
 % Save as surface structure
 Srf.Functional = 'Reverse correlation';
-Srf.Data = [fRimg; fXimg; fYimg; fBimg];
-Srf.Values = {'R^2'; 'x0'; 'y0'; 'Beta'};
+Srf.Data = [fRimg; fXimg; fYimg; fSimg; fBimg];
+Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'};
 
 % Save map files
 disp('Saving pRF results...');
 Srf = samsrf_compress_srf(Srf, mver);
-OutFile = [OutFile '_RevCorr'];
+OutFile = [OutFile '_Rcp'];
 save(OutFile, 'Model', 'Srf', '-v7.3');
 disp(['Saved ' OutFile '.mat']); 
 

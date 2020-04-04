@@ -25,6 +25,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 18/02/2020 - Added option to use a seed map for fine fit (DSS)
 % 20/02/2020 - Turned off searchspace generation when using seed map (DSS)
 % 21/02/2020 - If only coarse fit is run the file name is suffixed with '_CrsFit' (DSS)
+% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
 %
 
 %% Defaults & constants
@@ -148,7 +149,7 @@ else
         disp([' Subject-specific HRF: ' Model.Hrf]);
         load([pwd filesep Model.Hrf]);
          % HRF based on loaded parameters but TR defined here
-        Model.Hrf = spm_hrf(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
+        Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
     else
         disp(' Using Subject-specific HRF provided');
     end

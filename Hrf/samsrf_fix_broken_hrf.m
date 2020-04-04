@@ -8,6 +8,8 @@ function samsrf_fix_broken_hrf(fname, BadVols)
 %
 % Saves the fixed data file under the same name suffixed by '_fixed'.
 %
+% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
+%
 
 if nargin < 1
     [fname, pname] = uigetfile('*.mat');
@@ -39,11 +41,11 @@ Raw_avg(BadVols) = NaN;
 close(gcf);
 
 % Fit a function 
-can = spm_hrf(tr);
+can = samsrf_doublegamma(tr);
 fP = fminsearch(@(P)hrf_errfun(tr, P, Raw_avg), [6 16 6 1]);
-Hrf = spm_hrf(tr, [fP(1:2) 1 1 fP(3) 0 32]) * fP(4);
+Hrf = samsrf_doublegamma(tr, [fP(1:2) 1 1 fP(3) 0 32]) * fP(4);
 Hrf = max(can) / max(Hrf) * Hrf;
-sHrf = spm_hrf(.1, [fP(1:2) 1 1 fP(3) 0 32]) * fP(4);
+sHrf = samsrf_doublegamma(.1, [fP(1:2) 1 1 fP(3) 0 32]) * fP(4);
 if mean(sHrf(1:floor(length(sHrf)/2))) < 0
     sHrf = -sHrf;
 end
@@ -70,7 +72,7 @@ save([f '_fixed'], 'Hrf', 'sHrf', 'fP', 'Raw_avg', 'Raw_err', 'tr', '-v7.3');
 
 % Error function to fit HRF
 function err = hrf_errfun(TR,P,Y)
-X = spm_hrf(TR, [P(1:2) 1 1 P(3) 0 32])' * P(4); 
+X = samsrf_doublegamma(TR, [P(1:2) 1 1 P(3) 0 32])' * P(4); 
 X = X';
 X = X(~isnan(Y));
 Y = Y(~isnan(Y));

@@ -21,12 +21,14 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.29991 (02-04-2020) * BETA VERSION - USE AT YOUR OWN RISK! * 
+### Version 6.29993 (04-04-2020) * BETA VERSION - USE AT YOUR OWN RISK! * 
 #### IMPORTANT UPATE: Removed the use of Coregistration.txt file! CHECK YOUR DATA!  
-*Due to rounding errors, a handful of vertices (~20 per hemisphere?) may differ between projections  
-done with this version and those from prior versions, so beware of combining them...*  
+*Due to rounding errors, a handful of vertices (~20-30 per hemisphere?) -may- differ between 
+projections done with this version and those from prior versions, so beware of combining them...*  
 - Also fixed bug with samsrf_label2nii still containing native Matlab-reader code (DSS)  
 - Prettified the markdown code in this file a bit more (DSS)  
+- Either removed dependencies on SPM or added error message if SPM not installed (DSS)  
+- Added overlay of functional voxels to SurfaceProjection tool (DSS)  
 
 ##
 

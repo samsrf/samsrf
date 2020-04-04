@@ -51,6 +51,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 11/03/2020 - Removed native Matlab NIfTI loading (DSS)
 % 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! (DSS)
 % 02/04/2020 - Removed a few unnnecessary new lines (DSS)
+% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
 %
 
 %% Default parameters

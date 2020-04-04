@@ -19,6 +19,7 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 % 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! 
 %              Fixed bug with native reader still being present for functional image *sigh* (DSS)
 %              Corrected the help section in this function (DSS)
+% 02/04/2020 - Removed inconsequential line from code (DSS)
 %
 
 if nargin < 5
@@ -60,8 +61,7 @@ N = P - V0; % Cortical vectors for each vertex
 
 % Load ROI label
 labeldata = Read_FreeSurfer([labelfile '.label']);
-V = labeldata(:,1)+1;
-R = samsrf_loadlabel(labelfile);
+R = samsrf_loadlabel(labelfile); % Should be equal to labeldata(:,1)+1
 V0 = V0(R,:);
 N = N(R,:);
 

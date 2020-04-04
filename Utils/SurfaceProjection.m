@@ -8,6 +8,7 @@ function SurfaceProjection
 % 12/09/2018 - Fixed bug with Rule switch (DSS)
 % 19/09/2018 - Fixed bug with default cortical steps (DSS)
 % 02/04/2020 - Added new line after default cortical sampling steps (DSS)
+% 04/04/2020 - Added overlay for the functional data (DSS)
 %
 
 %% Select paths 
@@ -53,6 +54,21 @@ if isempty(ctxsteps)
     ctxsteps = 0.5;
     new_line;
 end
+
+%% Overlay for functional scans
+% Get current figure handle
+fig = gcf;
+if ~verLessThan('matlab', '8.5')
+    fig = fig.Number;
+end
+% Convert label into functional voxel mask
+samsrf_label2nii([SubjPath filesep 'label' filesep 'lh.cortex'], ef{1}, strimg, [hemfolder 'lh'], ctxsteps);
+samsrf_label2nii([SubjPath filesep 'label' filesep 'rh.cortex'], ef{1}, strimg, [hemfolder 'rh'], ctxsteps);
+% Overlay functional voxels
+spm_orthviews('RemoveBlobs', fig); % Remove previous overlay to avoid display error
+spm_orthviews('AddColouredImage', fig, [SubjPath filesep 'label' filesep 'lh.cortex.nii'], [0 1 0]); % Left hemisphere
+spm_orthviews('AddColouredImage', fig, [SubjPath filesep 'label' filesep 'rh.cortex.nii'], [0 1 0]); % Right hemisphere
+spm_orthviews('Redraw'); % Redraw so the overlay appears
 
 %% Normalise data?
 nrmls = questdlg('Normalise time series?', '', 'Yes', 'No', 'Yes'); 

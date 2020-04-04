@@ -57,6 +57,9 @@ disp(['Using ' fs(1).name ' as template.'])
 new_line;
 
 % Call check registration with the structural
+if ~exist('spm', 'file')
+    error('Sorry but I need SPM to show you these brains :(');
+end
 spm_check_registration(strf);
 strf = strf(1:end-4); % Truncate extension
 

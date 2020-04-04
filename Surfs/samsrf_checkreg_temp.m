@@ -57,6 +57,9 @@ end
 % Convert label into nifty mask
 samsrf_label2nii([labp labf], [tmpp tmpf], [strp strf], [srfp filesep hem], ctxsmp);
 % Call check registration with the structural
+if ~exist('spm', 'file')
+    error('Sorry but I need SPM to show you these brains :(');
+end
 spm_check_registration([strp strf '.nii']);
 
 % Get current figure handle
