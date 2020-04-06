@@ -46,7 +46,7 @@ end
 
 %% Plot data
 if Mode == 'C'
-    contourf(Xc, Yc, Mat);
+    contourf(Xc, Yc, Mat, 100, 'EdgeColor', 'none');
     axis square
 elseif Mode == 'S'
     surf(Xc, Yc, Mat, 'EdgeColor', 'none', 'FaceColor', 'interp');

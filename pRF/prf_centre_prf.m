@@ -4,7 +4,7 @@ function cR = prf_centre_prf(R)
 %
 % Centres the pRF in the r-map R on zero. It also sets all NaNs to zero. 
 %
-% This function requires a Srf analysed with reverse correlation.
+% Note: This function requires a Srf analysed with reverse correlation.
 %
 % 20/08/2018 - SamSrf 6 version (data added - no changes from v6) (DSS)
 %

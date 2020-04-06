@@ -7,7 +7,7 @@ function AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, Thr)
 %
 % Thr is optional and defines the R^2 threshold for vertices to include.
 %
-% This function requires Srf's analysed with reverse correlation!
+% Note: This function requires Srf's analysed with reverse correlation!
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
 % 18/08/2019 - Corrected variable names in the help section (DSS) 
@@ -47,7 +47,7 @@ dims = sqrt(size(SrfDv.Rmaps,1));
 Prf = NaN(dims, dims, size(SrfDv.Rmaps,2));
 [x,y] = meshgrid(1:dims, 1:dims);
 for i = 1:size(SrfDv.Rmaps,2)
-    R = prf_contour(SrfDv, i, x, y); %% CURRENTLY DOESN'T WORK!!!
+    R = prf_contour(SrfDv, i); 
     if sum(double(R(:) ~= 0)) > 0
         cR = prf_centre_prf(R);
         Prf(:,:,i) = cR;

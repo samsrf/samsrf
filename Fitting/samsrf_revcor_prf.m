@@ -28,7 +28,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %
 % 03/08/2018 - SamSrf 6 version (DSS)
 % 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
-%              MAJOR UPDATE: Changed from correlation to left division!! (DSS)
+% 06/04/2020 - MAJOR UPDATE: Changed from correlation to left division!! (DSS)  
+%              Added calculation of full-width-at-half-maximum (DSS)
 %
 
 %% Defaults & constants
@@ -37,14 +38,6 @@ wb = samsrf_waitbarstatus;
 % If no ROI defined, analyse whole brain...
 if nargin < 3
     Roi = ''; 
-end
-
-%% MatLab R2012a or higher can do fast correlations
-if verLessThan('matlab','7.13')
-    cfvb = 1;
-else
-    % Coarse-fit vertex block size
-    cfvb = 1000;
 end
 
 %% Start time of analysis
@@ -170,12 +163,13 @@ for v = 1:length(mver)
     % Calculate r-map
     Y = Tc(:,vx);  % Time course of current vertex
     if Fitted(vx) == 0 % Only non-redundant vertices
+        warning off
         cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
+        warning on
         cM = cM(1,:); % Remove intercept beta
-        gp = cM > Model.Alpha; % Above baseline pixels
-%         cM(~gp) = 0;  % Remove collinearity artifacts
         mM = max(cM); % Find peak activation in each map
         mM = mM(1); % Ensure only one value
+        gp = cM > mM/2; % Full area at half maximum
         m = find(cM==mM,1); % Find peak coordinate
         mR = corr(Y, X(:,m)); % Correlation coefficient at peak
         rd = samsrf_find_redundancy(Tc,vx); % Find redundant vertices
@@ -188,7 +182,7 @@ for v = 1:length(mver)
             Srf.Rmaps(:,rd) = repmat(cM, 1, length(rd)); % Activation map as vector 
             fXimg(rd) = xc(m);  % X-coordinate
             fYimg(rd) = yc(m);  % Y-coordinate
-            fSimg(rd) = mean(gp);  % Activation spread
+            fSimg(rd) = sqrt(mean(gp) * (Model.Scaling_Factor*2)^2); % Full width at half maximum
             fBimg(rd) = mM;  % Activation peak
             fRimg(rd) = mR^2;  % Variance explained
         else
@@ -210,7 +204,7 @@ Srf.Y_coords = Yc;
 % Save as surface structure
 Srf.Functional = 'Reverse correlation';
 Srf.Data = [fRimg; fXimg; fYimg; fSimg; fBimg];
-Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'};
+Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
 
 % Save map files
 disp('Saving pRF results...');
