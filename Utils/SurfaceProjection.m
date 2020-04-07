@@ -9,6 +9,7 @@ function SurfaceProjection
 % 19/09/2018 - Fixed bug with default cortical steps (DSS)
 % 02/04/2020 - Added new line after default cortical sampling steps (DSS)
 % 04/04/2020 - Added overlay for the functional data (DSS)
+% 08/04/2020 - Now allows user to skip out at file selection & normalisation dialog (DSS)
 %
 
 %% Select paths 
@@ -22,8 +23,8 @@ strimg = samsrf_checkreg;
 cd(CurrPath);
 
 %% Welcome message
-[vn vd] = samsrf_version;
-clc; 
+[vn vd] = samsrf_version; 
+new_line;
 disp('****************************************************************************');
 disp('     Welcome to the Seriously Annoying MatLab Surfer Projection Tool!');
 disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
@@ -36,7 +37,8 @@ new_line;
 %% Select functional data files
 [ef,ep] = uigetfile('*.nii', 'Select 4D-Nifty files', 'MultiSelect', 'on');
 if isnumeric(ef) && ef == 0
-    error('No functional scans selected.');
+    disp('No functional scans selected.');
+    return
 end
 if ischar(ef)
     ef = {ef};
@@ -72,6 +74,10 @@ spm_orthviews('Redraw'); % Redraw so the overlay appears
 
 %% Normalise data?
 nrmls = questdlg('Normalise time series?', '', 'Yes', 'No', 'Yes'); 
+if isempty(nrmls)
+    disp('Surface projection aborted by user.');
+    return
+end
 nrmls = strcmpi(nrmls, 'Yes'); 
 
 %% How to handle multiple runs?

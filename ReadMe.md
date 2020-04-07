@@ -21,7 +21,11 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.3 (07-04-2020)  
+### Version 6.31 (08-04-2020)
+- Added patch for native Matlab reader that works independently of SamSrf (DSS)  
+- Surface Projection tool now allows skipping out after both overlays (DSS) 
+
+### Version 6.30 (07-04-2020)  
 #### IMPORTANT UPATE: Removed the use of Coregistration.txt file! CHECK YOUR DATA!  
 *Due to rounding errors, a handful of vertices (~20-30 per hemisphere?) -may- differ between 
 projections done with this version and those from prior versions, so beware of combining them...*  
