@@ -27,6 +27,7 @@ function strf = samsrf_checkreg(labpath)
 %            of the FreeSurfer subject you want to analyse!
 %
 % 03/07/2018 - SamSrf 6 version (DSS)
+% 08/04/2020 - If SPM unavailable, now simply doesn't continue (DSS)
 %
 
 % Check whether you are in a 'label' folder
@@ -58,7 +59,8 @@ new_line;
 
 % Call check registration with the structural
 if ~exist('spm', 'file')
-    error('Sorry but I need SPM to show you these brains :(');
+    disp('Sorry but I need SPM to show you these brains :(');
+    return
 end
 spm_check_registration(strf);
 strf = strf(1:end-4); % Truncate extension

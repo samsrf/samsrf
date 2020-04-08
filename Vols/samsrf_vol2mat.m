@@ -32,13 +32,13 @@ if isa(funimg, 'char')
 end
 % Trim file names if neccesary
 for fi = 1:length(funimg) 
-    if strcmp(funimg{fi}(end-3:end), '.nii')
+    if strcmpi(funimg{fi}(end-3:end), '.nii')
         funimg{fi} = funimg{fi}(1:end-4);
     end
 end
 
 % Trim ROI file name if necessary
-if strcmp(roi(end-3:end), '.nii')
+if strcmpi(roi(end-3:end), '.nii')
     roi = roi(1:end-4);
 end
 

@@ -52,6 +52,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! (DSS)
 % 02/04/2020 - Removed a few unnnecessary new lines (DSS)
 % 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
+% 08/04/2020 - Trimming NII extension should now be case-insensitive (DSS)
 %
 
 %% Default parameters
@@ -82,13 +83,13 @@ if isa(funimg, 'char')
 end
 % Trim functional file names if neccesary
 for fi = 1:length(funimg) 
-    if strcmp(funimg{fi}(end-3:end), '.nii')
+    if strcmpi(funimg{fi}(end-3:end), '.nii')
         funimg{fi} = funimg{fi}(1:end-4);
     end
 end
 
 % Trim T1 file name if neccesary
-if strcmp(strimg(end-3:end), '.nii') 
+if strcmpi(strimg(end-3:end), '.nii') 
     strimg = strimg(1:end-4);
 end
 
