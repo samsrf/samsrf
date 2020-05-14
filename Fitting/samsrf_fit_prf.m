@@ -46,7 +46,7 @@ PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 %% Default model parameters
 if ~isfield(Model, 'Seed_Fine_Fit')
     Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
-end
+end 
 if ~isfield(Model, 'Replace_Bad_Fits')
     Model.Replace_Bad_Fits = false; % Don't replace bad fine fits with coarse fit
 end

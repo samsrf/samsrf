@@ -103,12 +103,14 @@ else
 end
 
 %% Update map list
-% If polar & eccentricity need to be calculated
+Values = Srf.Values;
+% Does file contain connective field profiles?
+if isfield(Srf, 'ConFlds')
+    Values{end+1} = 'Connective Field';
+end
+% Does file contain retinotopic maps?
 if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0') && strcmpi(Srf.Values{3}, 'y0')
-    Values = Srf.Values;
     Values(end+1:end+2) = {'Polar'; 'Eccentricity'};
-else
-    Values = Srf.Values;
 end
 % Set to first item in the list
 set(handles.popupmenu2, 'String', Values, 'Value', 1); 
@@ -186,7 +188,7 @@ else
     CamView = [get(gca, 'View') 1];
 end
 % Draw the map
-if get(handles.popupmenu2,'Value') <= size(Srf.Data,1) || strcmpi(MapType, 'Polar') || strcmpi(MapType, 'Eccentricity')
+if get(handles.popupmenu2,'Value') <= size(Srf.Data,1) || strcmpi(MapType, 'Polar') || strcmpi(MapType, 'Eccentricity') || strcmpi(MapType, 'Connective Field')
     figure(FigHdl);
     if IsNewFig
         % Draw new mesh
@@ -267,11 +269,14 @@ else
     set(hObject, 'String', 'Unsmoothed Maps');
 end
 % Update map list
+Values = Srf.Values;
+% Does file contain connective field profiles?
+if isfield(Srf, 'ConFlds')
+    Values{end+1} = 'Connective Field';
+end
+% Does file contain retinotopic maps?
 if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0')
-    Values = Srf.Values;
     Values(end+1:end+2) = {'Polar'; 'Eccentricity'};
-else
-    Values = Srf.Values;
 end
 set(handles.popupmenu2, 'String', Values);
 RedrawMaps(handles, false);

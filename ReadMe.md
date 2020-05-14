@@ -21,10 +21,15 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.319 (13-05-2020)  
+- Added option to view connective field profiles in samsrf_surf & DisplayMaps (DSS)  
+- Added function for rotating pRF profiles from reverse correlation (DSS)
+- Added option for smoothing connectivity profile to connective field maps (DSS)  
+
 ### Version 6.31 (08-04-2020)  
-- You can now read MGH files for functional data projected by mri_vol2surf directly in FreeSurfer (DSS  
+- You can now read MGH files for functional data projected by mri_vol2surf directly in FreeSurfer (DSS)  
 - Added patch for native Matlab reader that works independently of SamSrf (DSS)  
-- Surface Projection tool now allows skipping out after both overlays (DSS) 
+- Surface Projection tool now allows skipping out after both overlays (DSS)  
 
 ### Version 6.30 (07-04-2020)  
 #### IMPORTANT UPATE: Removed the use of Coregistration.txt file! CHECK YOUR DATA!  

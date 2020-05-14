@@ -23,6 +23,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
+% 05/05/2020 - Added option to smooth connectivity profiles (DSS)
 %
 
 %% Defaults & constants
@@ -70,6 +71,12 @@ svx = samsrf_loadlabel(Model.SeedRoi);
 Srf.SeedVx = svx; % Store for posterity
 X = Tc(:,svx); % Time courses in seed ROI
 
+%% Calculate cortical distances within seed ROI
+if Model.Smoothing > 0 % No point when not smoothing
+    Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
+    Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
+end
+
 %% Load template map
 Temp = load(Model.Template);
 Temp.Srf = samsrf_expand_srf(Temp.Srf);
@@ -92,10 +99,15 @@ for v = 1:length(mver)
     % Index of current vertex
     vx = mver(v);
 
-    % Calculate r-map
-    Y = Tc(:,vx);  % Time course of current vertex
-    R = corr(Y,X); % Correlation of time courses with regressors
-    if Fitted(vx) == 0 % Only non-redundant vertices
+    if Fitted(vx) == 0 % Only non-redundant vertices    
+        % Calculate r-map
+        Y = Tc(:,vx);  % Time course of current vertex
+        R = corr(Y,X); % Correlation of time courses with regressors
+        % Smooth profile if needed
+        if Model.Smoothing > 0
+            sR = repmat(R,length(svx),1) .* Ws; % Smoothed profiles for each seed vertex 
+            R = sum(sR,2) ./ sum(Ws,2); % Smoothed seed ROI    
+        end
         % Determine parameters
         mR = max(R); % Find peak activation in each map
         mR = mR(1); % Ensure only one value

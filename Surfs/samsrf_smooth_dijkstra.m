@@ -161,7 +161,7 @@ if isfield(Srf, 'Sphere')
             if wb waitbar(i/length(Vs), h); end
         end
     end
-    if wb close(h); end;
+    if wb close(h); end
 
     % Store smoothed data
     Srf.Data = SmoothedData;

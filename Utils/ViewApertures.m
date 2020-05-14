@@ -70,10 +70,15 @@ end
 
 % Plot first frame
 subplot(handles.axes1);
-image(ApFrm(:,:,1)*255);
+% image(ApFrm(:,:,1)*255);
+contourf(ApFrm(:,:,1), 'edgecolor', 'none');
 axis square
 axis off
-colormap hot
+if nanmin(ApFrm(:)) < 0
+    colormap hotcold
+else
+    colormap hot
+end
 set(handles.slider1, 'Value', 1/size(ApFrm,3), 'SliderStep', [1/(1+size(ApFrm,3)) 1/(1+size(ApFrm,3))]);
 text(80, 10, '1', 'color', [.5 .5 .5], 'fontsize', 15);
 
@@ -108,10 +113,15 @@ v = get(hObject,'Value');
 f = ceil(v*size(ApFrm,3));
 if f == 0 f = 1; end
 subplot(handles.axes1);
-image(ApFrm(:,:,f)*255);
+% image(ApFrm(:,:,f)*255);
+contourf(ApFrm(:,:,f), 'edgecolor', 'none');
 axis square
 axis off
-colormap hot
+if nanmin(ApFrm(:)) < 0
+    colormap hotcold
+else
+    colormap hot
+end
 text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
 
 
@@ -150,10 +160,15 @@ try
 
         % Plot next frame
         subplot(handles.axes1);
-        image(ApFrm(:,:,f)*255);
+%         image(ApFrm(:,:,f)*255);
+        contourf(ApFrm(:,:,f), 'edgecolor', 'none');
         axis square
         axis off
-        colormap hot
+        if nanmin(ApFrm(:)) < 0
+            colormap hotcold
+        else
+            colormap hot
+        end
         text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
         pause(0.1);
     end

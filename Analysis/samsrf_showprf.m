@@ -16,6 +16,7 @@ function samsrf_showprf(Srf, Idx, Mode)
 %   Mode:   Whether to plot a contour plot ('C') or a surface plot ('S').
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
+% 13/05/2020 - Now gives clearer error when using pRF matrix (DSS)
 %
 
 if nargin < 3
@@ -24,6 +25,9 @@ end
 Mode = upper(Mode);
 
 if ~isstruct(Srf) 
+    if ~isscalar(Srf)
+        error('If plotting pRF profile directly, first input must be scalaer with mapping eccentricity!');
+    end
     % pRF profile matrix
     Mat = Idx; 
     % Half width of matrix

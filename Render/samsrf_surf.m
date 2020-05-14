@@ -58,6 +58,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 14/07/2019 - Added option to have uniform transparency level (DSS)
 % 10/03/2020 - Fixed bug with transparency of negative R^2 when using this
 %               function directly rather than via DisplayMaps (DSS)
+% 06/05/2020 - Added option to display connective field profiles (DSS)
 %
 
 %% Create global variables
@@ -173,21 +174,43 @@ else
 end
 
 %% Select data type
+Values = Srf.Values;
+% Does file contain connective field profiles?
+if isfield(Srf, 'ConFlds')
+    Values{end+1} = 'Connective Field';
+end
+% Does file contain retinotopic maps?
 if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0') && strcmpi(Srf.Values{3}, 'y0')
-    Values = Srf.Values;
     Values(end+1:end+2) = {'Polar'; 'Eccentricity'};
-else
-    Values = Srf.Values;
 end
 if nargin < 6
     dt = listdlg('ListString', Values, 'SelectionMode', 'single');
     if isempty(dt)
         return
     end
+    CfVx = 0;
 else
     if isscalar(MapType)
+        % Map type given by number
         dt = MapType;
+        % CF profiles present?
+        if isfield(Srf, 'ConFlds')
+            CfVx = 0;
+        end
     else
+        % Map type given by name
+        if contains(MapType, 'Connective Field')
+            hash = strfind(MapType,'#');
+            if ~isempty(hash)
+                CfVx = str2double(MapType(hash+1:end));
+                if isnan(CfVx)
+                    error('Invalid vertex number provided!');
+                end
+            else
+                CfVx = 0;
+            end
+            MapType = MapType(1:16);
+        end
         dt = find(strcmpi(Values, MapType));
     end
 end
@@ -196,6 +219,23 @@ if isempty(dt)
     error('Invalid map type specified!');
 end
 Type = Values{dt};
+
+%% If CF profile selected
+if strcmpi(Type, 'Connective Field')
+    % Select vertex?
+    if CfVx == 0
+        CfVx = inputdlg('Vertex #', ['Which vertex? (1-' num2str(size(Srf.Data,2)) ')']);
+        CfVx = str2double(cell2mat(CfVx));
+        if isnan(CfVx)
+            error('Invalid vertex number provided!');
+        end
+    end
+    % Overlay connective field profile onto cortex
+    Srf.Data(end+1,:) = zeros(1,size(Srf.Data,2)); % Empty surface
+    Srf.Data(end,Srf.SeedVx) = Srf.ConFlds(:,CfVx)'; % Fill in seed ROI with CF profile
+    Srf.Values{1} = ''; % Remove R^2 value label
+    Srf.Values{end+1} = 'Connective Field'; % Remove values field
+end
 
 %% Select paths if desired
 if nargin < 4
