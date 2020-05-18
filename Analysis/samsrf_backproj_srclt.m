@@ -1,6 +1,6 @@
-function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold, Resolution, Mode)
+function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, SrclID, VtxInSrcl] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold, Resolution, Mode, SkipVtxInSrcl)
 %
-% [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, [Threshold=[0, 0, Inf], Resolution=[0.1 1], Mode=['Mean'])
+% [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, SrclID, VtxInSrcl] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold=[0, 0, Inf, 0, 360], Resolution=[0.1 1], Mode='Mean', SkipVtxInSrcl=true)
 %
 % Projects the activity values in Response back into visual space using the
 %  pRF parameters in pRF_Data (a Srf.Data field with the vertices you want
@@ -8,10 +8,8 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %  It then uses a searchlight procedure to calculate a summary statistic
 %  within a searchlight (circular or square) at each visual field position.
 %
-% IMPORTANTLY, if the rows in Response arise from different experiments or
-%  GLMs, these should be passed through the function iteratively. The reason
-%  for this is that the function does not expect that the filter criteria
-%  (for e.g., summary statistics) differ across rows.
+% IMPORTANTLY, if the rows in Response arise from different experiments or GLMs, 
+%  you can define different summary statistics for each (see below).
 %
 % Eccentricity defines the maximum eccentricity of the mapping stimulus.
 %  This is used for defining the extent of the graph for example when mapping
@@ -21,7 +19,9 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %
 % The 1st input in Threshold defines the minimal R^2 of the pRFs to be projected.
 %  The 2nd and 3rd input define the inner and outer eccentricity to be used.
-%  Defaults to the most inclusive criteria, i.e. all R^2 and all eccentricities.
+%  The 4th and 5th input define the lower and upper polar angle to be used.
+%  Defaults to the most inclusive criteria, i.e. all R^2, all eccentricities, 
+%  and all polar angles.
 %
 % Resolution defines the granularity of the searchlight grid, i.e. the
 %  inter-grid-point distance (1st value), & the size of the searchlight(2nd value).
@@ -36,8 +36,8 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %        represents half of the square's side length.
 %
 %  Note suboptimal choices for the granularity of the searchlight grid and the
-%  searchlight size can result in missing pRFs (see below for Used_pRFs). 
-%  Moreover, since the size of the searchlight grid is determined by the 
+%  searchlight size can result in missing pRFs (see below for Used_pRFs).
+%  Moreover, since the size of the searchlight grid is determined by the
 %  maximum eccentrity of the mapping stimulus, the maximum eccentricity should
 %  be divisible by the chosen granularity value. With suboptimal granularities,
 %  the serachlight grid might not fully cover the eccentricity range.
@@ -56,9 +56,26 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %   'StdDev'        Standard deviation
 %   'MeanAbsDev'    Mean absolute deviation
 %   'MedAbsDev'     Median absolutre deviation
+%   'CircMean'      Mean direction for circular data 
+%   'CircMedian'    Median direction for circular data 
 %
-% Returns a matrix in intensity image format where each level along the 3rd 
-%  dimension) is the backprojection for one row of Response. This intensity 
+%  You can apply a different mode for each row of Response, 
+%   using a cell array as input, e.g. {'Mean' 'Median' 'Maximum'} 
+%
+%  Moreover, if you would like to use 'CircMean' or 'CircMedian' you need to 
+%   download the circular statistics toolbox (c.f. relevant documentation): 
+%     https://github.com/circstat/circstat-matlab
+%   Alternatively, you could override these functions with custom functions
+%   for circular statistics.
+%
+% SkipVtxInSrcl toggles whether indidces flagging the vertices falling within
+%  a given searchlight shall be produced. Defaults to false.
+%
+%
+% *** OUTPUTS ***
+%
+% Returns a matrix in intensity image format where each level along the 3rd
+%  dimension) is the backprojection for one row of Response. This intensity
 %  image can be plotted as a contour graph or a 3D surface.
 %
 % X and Y contain the coordinate matrix (for contour or surf plot etc).
@@ -88,7 +105,13 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 % Used_pRFs counts for each pRF in pRF_Data (i.e., each column) how often it
 %  was included in a searchlight. Similar to Wt and Nr, the first row contains
 %  a filtered and the second row an unfiltered count.
-
+% 
+% SrclID contains an identifier for each searchlight.
+% 
+% VtxInSrcl contains indices flagging vertices falling in a specific
+%  searchlight. The row number corresponds to the identifier in SrclID.
+%
+%
 % 10/08/2018 - SamSrf 6 version (DSS & SuSt)
 % 11/08/2018 - Fixed bug with method switch (DSS)
 % 24/11/2018 - Added filtered weight matrices
@@ -106,31 +129,47 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs] = s
 %              Expanded eccentricity range to omit missing vertices due to edge effects
 %              Updated descriptions/comments (SuSt)
 % 14/02/2020 - Added to the toolbox & minor cosmetic changes (DSS)
+% 17/05/2020 - Simplified default inputs and updated feasibility check-ups (SuSt)
+%              Now allows restricting polar angle range (SuSt)
+%              Now allows specifying a separate mode for each row of Response (SuSt)
+%              Added circular mean and median (SuSt)
+%              Now outputs searchlight IDs and indices for vertices falling in a given searchlight (SuSt)
+% 18/05/2020 - Added error if using circular stats without a toolbox (DSS)
 %
 
 %% Default inputs
 if nargin == 3
     Threshold = [];
 end
+
 if nargin <= 4
     Resolution = [0.1 1];
 end
+
 if nargin <= 5
     Mode = 'Mean';
 end
 
-if isempty(Threshold)
-    Threshold = [0 0 Inf];
-elseif length(Threshold) == 1
-    Threshold = [Threshold 0 Inf];
-elseif length(Threshold) == 2
-    Threshold = [Threshold Inf];
+if nargin <= 6
+    SkipVtxInSrcl = true;
 end
+
+if ~iscell(Mode)
+    Mode = repmat({Mode}, 1, size(Response,1));
+end
+
+InputThreshold = Threshold;
+Threshold = [0 0 Inf 0 360];
+Threshold(1:length(InputThreshold)) = InputThreshold;
 
 % pRF mapping data
 gof = pRF_Data(1,:); % Goodness of fit
 ecc = sqrt(pRF_Data(2,:).^2 + pRF_Data(3,:).^2); % Eccentricity
 sigma = pRF_Data(4,:); % pRF size
+
+pol_theta = cart2pol(pRF_Data(2,:),pRF_Data(3,:));
+pol_theta = rad2deg(pol_theta);
+pol_theta(pol_theta < 0) = pol_theta(pol_theta < 0)+360;
 
 %% Whole time course
 % Grid points (i.e. searchlight midpoints)
@@ -156,27 +195,41 @@ else
 end
 
 Numbers = zeros(size(X,1), size(X,2), Nr_Dim); % Number of pRFs within the searchlight
+SrclID = Numbers(:, :, 1);
 
 %% Filter vertices
 nanprf = sum(isnan(pRF_Data)) > 0; % Shouldn't happen but just in case...
 nanresp = sum(isnan(Response)) > 0; % Determine NaNs in response
 % Retrieve only good vertices
-Good_Vertices = gof > Threshold(1) & ecc > Threshold(2) & ecc < Threshold(3) & sigma > 0 & nanresp == 0 & nanprf == 0;
+Good_Vertices = gof > Threshold(1) & ecc > Threshold(2) & ecc < Threshold(3) & sigma > 0 & nanresp == 0 & nanprf == 0 & ...
+    (pol_theta >= Threshold(4) & pol_theta <= Threshold(5));
 Cleaned_Response = Response(:, Good_Vertices);
 Cleaned_pRF_Data = pRF_Data(:, Good_Vertices);
 Used_pRFs = zeros(2,size(Cleaned_Response,2));
 
+%% Vertices in searchlights
+if SkipVtxInSrcl
+    VtxInSrcl = [];
+else
+    % Matrix with searchlight-vertex index
+    VtxInSrcl = nan(sum(sum(sqrt(X.^2 + Y.^2) <= Eccentricity + Resolution(1))), size(Cleaned_Response,2));
+end
+
 %% Feasibility check-ups
-if strcmpi(Mode, 'Geomean') && sum(Cleaned_Response(:) <= 0) > 0
+IdxGeomean = strcmpi(Mode, 'Geomean');
+if sum(IdxGeomean) > 0 && sum(sum(Cleaned_Response(IdxGeomean,:) <= 0)) > 0
     error('Geometric mean won''t be defined for non-positive numbers.')
 end
 
 %% Backprojection with searchlight
 h = waitbar(0, 'Backprojecting volumes...');
 
+%% Id counter
+c_id = 1;
+
 %% Loop through X-coordinates
 for x = 1:size(X,2)
-
+    
     %% Loop through Y-coordinates
     for y = 1:size(Y,1)
         % Only searchlight within eccentricity range (expansion by 1 inter-grid-point distance to omit missing vertices because of edge
@@ -225,46 +278,62 @@ for x = 1:size(X,2)
             %% Loop through volumes
             for v = 1:size(Cleaned_Response,1)
                 
+                CurrMode = Mode(1, v);
+                
                 %% Central tendency estimates
-                if strcmpi(Mode, 'Mean')
+                if strcmpi(CurrMode, 'Mean')
                     % Arithmetic mean of values
                     curstat = mean(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'Median')
+                elseif strcmpi(CurrMode, 'Median')
                     % Median of values
                     curstat = median(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'Mode')
+                elseif strcmpi(CurrMode, 'Mode')
                     % Median of values
                     curstat = mode(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'Maximum')
+                elseif strcmpi(CurrMode, 'Maximum')
                     % Maximum of values
                     curstat = max(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'Minimum')
+                elseif strcmpi(CurrMode, 'Minimum')
                     % Minimum of values
                     curstat = min(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'Geomean')
+                elseif strcmpi(CurrMode, 'Geomean')
                     % Geometric mean of values
                     curstat = geomean(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'Sum')
+                elseif strcmpi(CurrMode, 'Sum')
                     % Geometric mean of values
                     curstat = sum(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 't-test')
+                elseif strcmpi(CurrMode, 't-test')
                     % Calculate t-test vs zero
                     [~,~,~,TestStats] = ttest(Cleaned_Response(v,vx), 0);
                     curstat = TestStats.tstat;
+                elseif sum(strcmpi(CurrMode, {'CircMean' 'CircMedian'})) > 0
+                    if ~exist('circ_mean.m','file') || ~exist('circ_median.m','file')
+                        error('Circular statistics tools not installed! (see ''help samsrf_backproj_srclt'')');
+                    end
+                    % Circular mean
+                    if strcmpi(CurrMode, 'CircMean')
+                        curstat = circ_mean(deg2rad(Cleaned_Response(v,vx))');
+                    else % Circular median
+                        curstat = circ_median(deg2rad(Cleaned_Response(v,vx))');
+                    end
+                    curstat = rad2deg(curstat);
+                    if curstat < 0
+                        curstat = curstat+360;
+                    end
                     
                     %% Dispersion estimates
-                elseif strcmpi(Mode, 'StdDev')
+                elseif strcmpi(CurrMode, 'StdDev')
                     % Standard deviation
                     curstat = std(Cleaned_Response(v,vx));
-                elseif strcmpi(Mode, 'MeanAbsDev')
+                elseif strcmpi(CurrMode, 'MeanAbsDev')
                     % Mean absolute deviation
                     curstat = mad(Cleaned_Response(v,vx), 0);
-                elseif strcmpi(Mode, 'MedAbsDev')
+                elseif strcmpi(CurrMode, 'MedAbsDev')
                     % Median absolute deviation
                     curstat = mad(Cleaned_Response(v,vx), 1);
                 else
                     % Unknown mode defined
-                    error(['Unknown summary statistic ' Mode ' specified.']);
+                    error(['Unknown summary statistic ' CurrMode ' specified.']);
                 end
                 %% Store current stat in pixel
                 if ~isempty(curstat) && ~isinf(curstat) && ~isnan(curstat)
@@ -278,13 +347,23 @@ for x = 1:size(X,2)
                         Numbers(y,x,1) = nansum(vx); % Filtered count of pRFs in searchlight
                         Used_pRFs(1,vx) = Used_pRFs(1,vx) + 1; % Filtered count of how often pRFs were used
                         
+                        if SkipVtxInSrcl == false
+                            VtxInSrcl(c_id,:) = vx; % Store searchlight-vertex index
+                        end
+                        
                         % When using nearest neighbour mode
                         if Resolution(2) < 0
                             % Filtered max distance of vertices from searchlight center
                             Numbers(y,x,3) = nanmax(ed(vx));
                         end
-                        
+                    else
+                        if ~SkipVtxInSrcl
+                            VtxInSrcl(c_id,:) = zeros(1, size(VtxInSrcl,2)); % Zero out searchlight-vertex index
+                        end
                     end
+                    
+                    SrclID(y,x)       = c_id; % Store srcl id
+                    c_id              = c_id +1; % Update id counter
                     
                     Weights(y,x,2) = nansum(dc); % Unfiltered weights based on inverse distances to searchlight centre
                     Numbers(y,x,2) = nansum(vx); % Unfiltered count of pRFs in searchlight

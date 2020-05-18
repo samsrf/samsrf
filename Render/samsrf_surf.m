@@ -59,6 +59,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 10/03/2020 - Fixed bug with transparency of negative R^2 when using this
 %               function directly rather than via DisplayMaps (DSS)
 % 06/05/2020 - Added option to display connective field profiles (DSS)
+% 15/05/2020 - Fixed bug when paths are defined by vertex indeces (DSS)
 %
 
 %% Create global variables
@@ -264,21 +265,28 @@ PathColour = Inf; % Default path colour is opposite polarity
 if ~isempty(Paths) 
     Vs_paths = [];
     for i = 1:length(Paths)
-        % Is a path colour defined?
-        if i == length(Paths) && ~ischar(Paths{i})
-            if isnan(Paths{i})
-                PathColour = NaN;
+        if ~ischar(Paths{i}) && ~isnan(Paths{i}(1))            
+            % If paths contain vertices
+            Vs_paths = [Vs_paths; Paths{i}];
+        else
+            % If paths contain strings
+            if i == length(Paths) && ~ischar(Paths{i})
+                % Is a path colour defined?
+                if isnan(Paths{i})
+                    PathColour = NaN;
+                else
+                    PathColour = Paths{i};
+                end
             else
-                PathColour = Paths{i};
-            end
-        else % No path colour defined
-            if strfind(Paths{i}, '.label')
-                % Load label
-                Label = samsrf_loadlabel(Paths{i}(1:end-6));
-                Vs_paths = [Vs_paths; samsrf_borderpath(Srf, Label)];
-            else
-                % Load paths
-                Vs_paths = [Vs_paths; samsrf_loadpaths(Paths{i})];
+                % No path colour defined
+                if strfind(Paths{i}, '.label')
+                    % Load label
+                    Label = samsrf_loadlabel(Paths{i}(1:end-6));
+                    Vs_paths = [Vs_paths; samsrf_borderpath(Srf, Label)];
+                else
+                    % Load paths
+                    Vs_paths = [Vs_paths; samsrf_loadpaths(Paths{i})];
+                end
             end
         end
     end
@@ -487,10 +495,12 @@ else
 end
 
 %% Draw paths
-if isinf(PathColour)
-    Colours(Vs_paths,:) = 1 - Colours(Vs_paths,:);
-else
-    Colours(Vs_paths,:) = repmat(PathColour, length(Vs_paths), 1);
+if ~isnan(Vs_paths) % Only if not a NaN
+    if isinf(PathColour)
+        Colours(Vs_paths,:) = 1 - Colours(Vs_paths,:);
+    else
+        Colours(Vs_paths,:) = repmat(PathColour, length(Vs_paths), 1);
+    end
 end
 
 %% Display the mesh

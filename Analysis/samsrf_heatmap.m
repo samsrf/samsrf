@@ -27,6 +27,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %
 % 08/08/2018 - SamSrf 6 version (DSS)
 % 12/12/2018 - Tick labels of color bar now rounded to 2 decimal places (SuSt)
+% 18/05/2020 - Fixed camera issue in Matlab R2020 (DSS)
 %
 
 %% Default inputs
@@ -162,6 +163,7 @@ if nargout == 0
     axis([-1 1 -1 1]*max(X(:)));
     hold on
     caxis([0 1]);
+    view(0,90); % Ensure camera views from the top down
 else
     close gcf
 end

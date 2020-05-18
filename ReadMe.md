@@ -21,10 +21,15 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.319 (13-05-2020)  
+### Version 6.319 (18-05-2020)  
 - Added option to view connective field profiles in samsrf_surf & DisplayMaps (DSS)  
-- Added function for rotating pRF profiles from reverse correlation (DSS)
 - Added option for smoothing connectivity profile to connective field maps (DSS)  
+- Added function for rotating pRF profiles from reverse correlation (DSS)  
+- Added function for fitting 2D pRF to reverse correlation profiles (DSS)  
+- Made changes to functions for analysing reverse correlation pRF profiles (DSS)  
+- Fixed bug in samsrf_surf when providing paths as vertices rather than strings (DSS)  
+- Added further functionality in samsrf_backproj_srclt (SuSt)  
+- Changed colour scheme scaling in samsrf_showprf (DSS)   
 
 ### Version 6.31 (08-04-2020)  
 - You can now read MGH files for functional data projected by mri_vol2surf directly in FreeSurfer (DSS)  

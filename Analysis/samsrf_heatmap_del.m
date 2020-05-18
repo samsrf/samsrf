@@ -15,6 +15,7 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %
 % 21/05/2019 - Created this function (DSS)
 % 14/02/2020 - Made axis square (again) (DSS)
+% 18/05/2020 - Fixed camera issue in Matlab R2020 (DSS)
 %
 
 %% Default inputs
@@ -119,6 +120,6 @@ axis square
 xlabel('Horizontal position (deg)');
 ylabel('Vertical position (deg)');
 axis([-1 1 -1 1]*max(X(:)));
-
 hold on
 caxis([0 1]);
+view(0,90); % Ensure camera views from the top down
