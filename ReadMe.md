@@ -21,6 +21,9 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.321 (20-05-2020)  
+- Fixed minor bug with samsrf_benson2srf (DSS)   
+
 ### Version 6.32 (19-05-2020)  
 - Added option to view connective field profiles in samsrf_surf & DisplayMaps (DSS)  
 - Added option for smoothing connectivity profile to connective field maps (DSS)  

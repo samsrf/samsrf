@@ -16,10 +16,14 @@ function samsrf_benson2srf(mghimg, surfdir)
 % and adds this to Srf.Structural.
 %
 % 07/08/2018 - SamSrf 6 version (DSS)
+% 20/05/2020 - Fixed bug when providing no path for mghimh (DSS)
 %
 
 %% Determine file parts 
 [pn, hemis, mghimg] = fileparts(mghimg);  % Split file name into components
+if isempty(pn)
+    pn = '.';
+end
 mghimg = mghimg(2:end);  % Remove dot from beginning
 
 %% Data labels
