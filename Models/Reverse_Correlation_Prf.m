@@ -12,7 +12,6 @@ Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentri
 Model.TR = 1; % Repetition time (TR) of pulse sequence
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pRF'; % Aperture file
-Model.Alpha = 10^-6; % Significant p-value for correlation maps
 Model.Rdim = 50; % Side length of correlation map
 
 %% Open dialogs if needed

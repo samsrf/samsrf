@@ -60,6 +60,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %               function directly rather than via DisplayMaps (DSS)
 % 06/05/2020 - Added option to display connective field profiles (DSS)
 % 15/05/2020 - Fixed bug when paths are defined by vertex indeces (DSS)
+% 20/05/2020 - Fixed critical bug when loading no paths (DSS)
 %
 
 %% Create global variables
@@ -258,12 +259,16 @@ if nargin < 4
 end
 
 %% Load paths
-if ~iscell(Paths)
-    Paths = {Paths};
-end
 PathColour = Inf; % Default path colour is opposite polarity 
+% If paths defined
 if ~isempty(Paths) 
+    % Ensure cell array
+    if ~iscell(Paths)
+        Paths = {Paths};
+    end
+    % Vector of path vertices
     Vs_paths = [];
+    % Loop thru paths
     for i = 1:length(Paths)
         if ~ischar(Paths{i}) && ~isnan(Paths{i}(1))            
             % If paths contain vertices
