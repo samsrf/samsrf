@@ -1,9 +1,10 @@
 function AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, Thrsh, Nrmls)
 %
-% AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, [Thrsh=0.01, Nrmls='None'])
+% AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, [Thrsh=0, Nrmls='None'])
 %
 % Calculates the mean pRF profile in SrfDv within the eccentricity band defined 
-%  by the 1x2 vector Eccs in region Roi, based on eccentricities in SrfIv. 
+%  by the 1x2 vector Eccs in region Roi, based on eccentricities in SrfIv.
+%  Both Roi and Eccs are optional and default to including all data.
 %
 % Thrsh is optional and defines the R^2 threshold for vertices to include.
 %  If this is a 1x2 vector, the second entry determines the proportion
@@ -24,10 +25,18 @@ function AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, Thrsh, Nrmls)
 % 14/05/2020 - Added alignment to 3 o'clock (DSS)
 %              Made centering of pRF profile optional (DSS)
 %              Now uses nanmean instead of mean (DSS)
+% 21/05/2020 - Empty ROI now includes all data (DSS)
+%              R^2 threshold now defaults to 0 (DSS)
 %
 
+if nargin < 3
+    Roi = '';
+end
+if nargin < 4
+    Eccs = [0 Inf];
+end
 if nargin < 5
-    Thrsh = 0.01;
+    Thrsh = 0;
 end
 if nargin < 6
   Nrmls = 'None';
@@ -38,13 +47,15 @@ SrfDv = samsrf_expand_srf(SrfDv);
 SrfIv = samsrf_expand_srf(SrfIv);
 
 %% Load ROI label
-rv = samsrf_loadlabel(Roi);
-if ~isnan(rv)
-    SrfDv.Data = SrfDv.Data(:,rv);
-    SrfDv.Rmaps = SrfDv.Rmaps(:,rv);
-    SrfIv.Data = SrfIv.Data(:,rv);
-else
-    error(['ROI ' Roi ' not found!']);
+if ~isempty(Roi)
+    rv = samsrf_loadlabel(Roi);
+    if ~isnan(rv)
+        SrfDv.Data = SrfDv.Data(:,rv);
+        SrfDv.Rmaps = SrfDv.Rmaps(:,rv);
+        SrfIv.Data = SrfIv.Data(:,rv);
+    else
+        error(['ROI ' Roi ' not found!']);
+    end
 end
 
 %% Remove rubbish & calculate measures
