@@ -64,4 +64,6 @@ Scale = max(abs([nanmin(IdxMat(:)) nanmax(IdxMat(:))]));
 set(gca, 'Clim', [-1 +1]*Scale);
 colormap hotcold
 colorbar 
+xlabel('Horizontal position (deg)');
+ylabel('Vertical position (deg)');
 

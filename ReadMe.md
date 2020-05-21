@@ -21,6 +21,10 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
+### Version 6.331 (21-05-2020)  
+- Fixed inconsequential duplicate lines in samsrf_benson2srf (DSS)  
+- Added function for backprojecting reverse correlation profiles (DSS)   
+
 ### Version 6.33 (20-05-2020)  
 - Fixed major bug with DisplayMaps failing to load (DSS)  
 - Fixed minor bug with samsrf_benson2srf (DSS)   

@@ -17,6 +17,7 @@ function samsrf_benson2srf(mghimg, surfdir)
 %
 % 07/08/2018 - SamSrf 6 version (DSS)
 % 20/05/2020 - Fixed bug when providing no path for mghimh (DSS)
+% 21/05/2020 - Removed erroneously duplicate lines (DSS)
 %
 
 %% Determine file parts 
@@ -31,7 +32,6 @@ valstrs = {'R^2'; 'x0'; 'y0'; 'ROIs'};
 
 %% Load surface vertices
 [V0 F] = fs_read_surf([surfdir filesep hemis '.white']); % Grey-white surface
-C = fs_read_curv([surfdir filesep hemis '.curv']); % Curvature 
 P = fs_read_surf([surfdir filesep hemis '.pial']); % Pial surface
 I = fs_read_surf([surfdir filesep hemis '.inflated']); % Inflated surface
 S = fs_read_surf([surfdir filesep hemis '.sphere']); % Spherical surface
@@ -72,7 +72,6 @@ Srf.Functional = mghimg;
 Srf.Hemisphere = hemis;
 Srf.Cortex_Steps = NaN;
 Srf.Vertices = V0;
-Srf.Curvature = C';
 Srf.Pial = P;
 Srf.Inflated = I;
 Srf.Sphere = S;
