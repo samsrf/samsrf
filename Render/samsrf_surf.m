@@ -61,6 +61,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 06/05/2020 - Added option to display connective field profiles (DSS)
 % 15/05/2020 - Fixed bug when paths are defined by vertex indeces (DSS)
 % 20/05/2020 - Fixed critical bug when loading no paths (DSS)
+% 27/05/2020 - Added default option to change path thickness (DSS)
+%              Added support for inverted colour schemes (DSS)
 %
 
 %% Create global variables
@@ -68,6 +70,19 @@ global Vertices Type Data
 
 %% Load default parameters?
 load('SamSrf_defaults.mat');
+% Ensure colour maps have sign
+if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
+    def_cmap_angle = ['+' def_cmap_angle];
+end
+if def_cmap_eccen(1) ~= '-' && def_cmap_eccen(1) ~= '+'
+    def_cmap_eccen = ['+' def_cmap_eccen];
+end
+if def_cmap_other(1) ~= '-' && def_cmap_other(1) ~= '+'
+    def_cmap_other = ['+' def_cmap_other];
+end
+if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
+    def_cmap_sigma = ['+' def_cmap_sigma];
+end
 
 %% Default thresholds
 if nargin < 3
@@ -295,6 +310,12 @@ if ~isempty(Paths)
             end
         end
     end
+    % Default path thickness defined?
+    if exist('def_pathwidth', 'var')
+        for i = 1:def_pathwidth-1
+            Vs_paths = [Vs_paths; samsrf_neighbours(Vs_paths, Srf.Faces)];
+        end
+    end
 else
     % No paths needed
     Vs_paths = [];
@@ -315,8 +336,11 @@ if strcmpi(Type, 'Polar')
     Pha(r) = 360;
     
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle '(360));'];
+    cstr = ['colormap(' def_cmap_angle(2:end) '(360));'];
     Cmap = eval(cstr);        
+    if def_cmap_angle(1) == '-'
+        Cmap = flipud(Cmap);
+    end
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -345,8 +369,11 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     end
     
     % Colourmap
-    cstr = ['[colormap(' def_cmap_angle '(360)); CurvGrey];'];
+    cstr = ['[colormap(' def_cmap_angle(2:end) '(360)); CurvGrey];'];
     Cmap = eval(cstr);        
+    if def_cmap_angle(1) == '-'
+        Cmap = flipud(Cmap);
+    end
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -374,8 +401,11 @@ elseif strcmpi(Type, 'Eccentricity')
     Pha = round(Rho * 360);
 
     % Colourmap
-    cstr = ['[colormap(' def_cmap_eccen '(360)); CurvGrey];'];
+    cstr = ['[colormap(' def_cmap_eccen(2:end) '(360)); CurvGrey];'];
     Cmap = eval(cstr);        
+    if def_cmap_eccen(1) == '-'
+        Cmap = flipud(Cmap);
+    end
     
     % Determine colours
     Pha = mod(Pha, 360);
@@ -406,8 +436,11 @@ elseif strcmpi(Type, 'Mu')
     Pha = round(Mu / AdjThr * 100) + 100;
     
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle '(200));'];
+    cstr = ['colormap(' def_cmap_angle(2:end) '(200));'];
     Cmap = eval(cstr);        
+    if def_cmap_angle(1) == '-'
+        Cmap = flipud(Cmap);
+    end
         
     % Determine colours
     Pha(Pha==0) = 1;
@@ -436,8 +469,11 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Pha = round(Sigma * 200);
     
     % Colourmap
-    cstr = ['[colormap(' def_cmap_sigma '(200)); CurvGrey];'];
+    cstr = ['[colormap(' def_cmap_sigma(2:end) '(200)); CurvGrey];'];
     Cmap = eval(cstr);        
+    if def_cmap_sigma(1) == '-'
+        Cmap = flipud(Cmap);
+    end
     
     % Determine colours
     Pha(Pha > 200) = 200;
@@ -487,8 +523,11 @@ else
     Pha = round(X / AdjThr * 100) + 100;
     
     % Colormap
-    cstr = ['colormap(' def_cmap_other '(200));'];
+    cstr = ['colormap(' def_cmap_other(2:end) '(200));'];
     Cmap = eval(cstr);
+    if def_cmap_other(1) == '-'
+        Cmap = flipud(Cmap);
+    end
     
     % Determine colours
     Pha(Pha==0) = 1;

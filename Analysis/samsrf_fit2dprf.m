@@ -14,8 +14,8 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 %   SeedParams: A row vector to seed the parameter optimisation procedure 
 %               Must have same number of parameters (ignoring betas which are always fit)
 %
-%               Important: This is in aperture space so you need divide any location 
-%                          or width parameters by your eccentricity/scaling factor!
+%               Important: Must be in visual space & is internally divided 
+%                           by your eccentricity or scaling factor!
 %
 %   EccScaPars: A vector where the first entry defines the eccentricity/scaling factor
 %               and the following entries are booleans toggling whether a

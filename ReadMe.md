@@ -21,8 +21,11 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.399 (27-05-2020)  
-- Improved precision of model fits (option to use old, poorer precision remains (DSS)  
+### Version 6.3991 (27-05-2020)  
+- Improved precision of model fits (option to use old, poorer precision remains) (DSS)  
+- Changed default eccentricity map colour scheme to inverted jet (DSS)  
+- Added option of wider paths in samsrf_surf in SamSrf_defaults (DSS)  
+- Added support for inverted colour schemes in samsrf_surf (DSS)  
 - Fixed bug in ViewApertures tool that inverted the Y-axis (DSS)  
 - Fixed bug in ViewApertures tool that gave a warning on empty frames (DSS)  
 - Fixed bug in ViewApertures tool where colour scheme was inconsistent across frames (DSS)  
