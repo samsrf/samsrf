@@ -1,11 +1,18 @@
-function [y overlaid stim_mask] = prf_predict_response(Stim, Rfp)
+function [y, overlaid, stim_mask] = prf_predict_response(Stim, Rfp)
 %
-% y = prf_predict_response(Stim, Rfp)
+% [y, overlaid, stim_mask] = prf_predict_response(Stim, Rfp)
 %
 % Returns the predicted response by overlaying the stimulus mask Stim
-% with the receptive field profile Rfp and summing.
+% with the receptive field profile Rfp and averaging across the frame.
+% This is expressed as a percentage (in previous versions this was 
+% calculated as the pixel sum instead - this shouldn't matter but it is
+% still somewhat awkward whereas a percentage of the active frame makes
+% more intuitive sense).
 %
-% 20/08/2018 - SamSrf 6 version (date added - no changes from v6) (DSS)
+% Also returns the stimulus aperture and the overlay of pRF and aperture.
+%
+% 20/08/2018 - SamSrf 6 version (date added - no changes from v5) (DSS)
+% 25/05/2020 - Response now quantified as frame percentage rather than sum (DSS)
 %
 
 if nargin < 2
@@ -29,4 +36,4 @@ end
 overlaid = Rfp .* stim_mask;
 
 % Predicted response
-y = sum(overlaid(:));
+y = mean(overlaid(:)) * 100; % 100% = whole frame is stimulated

@@ -28,6 +28,7 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
 % 27/05/2019 - Fixed bug with thresholding when using already smoothed data (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Default parameters
@@ -37,8 +38,6 @@ end
 if nargin <= 3
     thrsh = 0.01;
 end
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 
 % Expand Srf if necessary
 InSrf = samsrf_expand_srf(InSrf);
@@ -117,10 +116,10 @@ if isfield(Srf, 'Sphere')
 
     % Smoothing
     radius = stdev * 3;
-    if wb h = waitbar(0, 'Smoothing vertices...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+    h = samsrf_waitbar('Smoothing vertices...'); 
     disp('  Smoothing vertices...'); 
     for j = 1:si
-        if wb waitbar(0, h); end
+        samsrf_waitbar(0, h); 
         i = 0;
         if isempty(roi)
             if j == si
@@ -128,7 +127,7 @@ if isfield(Srf, 'Sphere')
             else
                 Vs = ((j-1)*50000+1:j*50000)';
             end
-            if wb waitbar(0, h, ['Smoothing vertices... (Block #' num2str(j) ')']); end
+            samsrf_waitbar(['Smoothing vertices... (Block #' num2str(j) ')'], h); 
         end
         for v = Vs'
             i = i + 1;
@@ -148,10 +147,10 @@ if isfield(Srf, 'Sphere')
                 W = exp(-(Nd.^2)/(2*stdev.^2))';  
                 SmoothedData(:,v) = sum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / sum(W);
             end
-            if wb waitbar(i/length(Vs), h); end
+            samsrf_waitbar(i/length(Vs), h); 
         end
     end
-    if wb close(h); end
+    samsrf_waitbar('', h); 
 
     % Store smoothed data
     Srf.Data = SmoothedData;

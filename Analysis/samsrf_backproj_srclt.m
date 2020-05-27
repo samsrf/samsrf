@@ -135,6 +135,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %              Added circular mean and median (SuSt)
 %              Now outputs searchlight IDs and indices for vertices falling in a given searchlight (SuSt)
 % 18/05/2020 - Added error if using circular stats without a toolbox (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Default inputs
@@ -222,7 +223,7 @@ if sum(IdxGeomean) > 0 && sum(sum(Cleaned_Response(IdxGeomean,:) <= 0)) > 0
 end
 
 %% Backprojection with searchlight
-h = waitbar(0, 'Backprojecting volumes...');
+h = samsrf_waitbar('Backprojecting volumes...');
 
 %% Id counter
 c_id = 1;
@@ -376,6 +377,6 @@ for x = 1:size(X,2)
             end
         end
     end
-    waitbar(x/size(X,2),h);
+    samsrf_waitbar(x/size(X,2), h);
 end
-close(h);
+samsrf_waitbar('', h);

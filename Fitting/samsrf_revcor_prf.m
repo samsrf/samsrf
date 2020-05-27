@@ -30,11 +30,10 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
 % 06/04/2020 - MAJOR UPDATE: Changed from correlation to left division!! (DSS)  
 %              Added calculation of full-width-at-half-maximum (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Defaults & constants
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 % If no ROI defined, analyse whole brain...
 if nargin < 3
     Roi = ''; 
@@ -145,7 +144,7 @@ new_line;
 
 %% Calculate reverse correlation map 
 disp('Calculating pRF profiles...');
-if wb h = waitbar(0, ['Calculating pRF profiles... ' strrep(OutFile,'_','-')]); end
+h = samsrf_waitbar(['Calculating pRF profiles... ' strrep(OutFile,'_','-')]);
 Srf.Regs = X;  % Design matrix (regressors per pixel)
 % R-map for each vertex 
 Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));  
@@ -189,9 +188,9 @@ for v = 1:length(mver)
             Fitted(rd) = 1; % Mark all redundant vertices
         end
     end
-    if wb waitbar(v/length(mver),h); end
+    samsrf_waitbar(v/length(mver), h); 
 end
-if wb close(h); end
+samsrf_waitbar('', h); 
 t2 = toc(t0); 
 disp(['Analysis completed in ' num2str(t2/60) ' minutes.']);
 

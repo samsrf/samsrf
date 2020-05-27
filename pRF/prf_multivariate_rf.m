@@ -8,7 +8,12 @@ function Rfp = prf_multivariate_rf(x0, y0, s1, s2, phi, screen_width)
 % The optional input screen_width determines the size of the stimulus model
 % screen in pixels. This should be twice the width of the apertures.
 %
-% 20/08/2018 - SamSrf 6 version (data added - no changes from v6) (DSS)
+% Note that if you use this pRF model you should add an unwrapping step to
+% the postprocessing of your model data (see e.g. Oriented_2d_Multivariate_Prf
+% or Circular_Tuning_Curve in SamSrf/Models).
+%
+% 20/08/2018 - SamSrf 6 version (date added - no changes from v5) (DSS)
+% 27/05/2020 - Added unwrapping of angles
 %
 
 if nargin < 6
@@ -22,8 +27,11 @@ y0 = y0 * eccentricity + screen_width / 2;
 s1 = s1 * eccentricity;
 s2 = s2 * eccentricity;
 
+% Unwrap orientation
+phi = mod(phi, 360);
+
 % Orientation from degrees to radians
-phi = phi / 360 * 2 * pi;
+phi = phi / 180 * pi;
 
 % As we'll flip the Y dimension (see below), flip the orientation index as well.
 phi = (2 * pi) - phi;

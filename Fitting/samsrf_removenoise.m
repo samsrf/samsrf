@@ -7,10 +7,8 @@ function cSrf = samsrf_removenoise(Srf, X)
 %  A global regressor is added automatically so do not include one.
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
-
-%% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 
 %% Expand Srf if necessary
 [Srf,vx] = samsrf_expand_srf(Srf);
@@ -23,16 +21,16 @@ X = zscore(X); % Standardise covariates
 X = [X ones(size(X,1),1)]; % Add global regressor
 
 % Loop thru vertices
-if wb h = waitbar(0, 'Regressing...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+h = samsrf_waitbar('Regressing...'); 
 for v = 1:Nv
     if ~isnan(sum(Y(:,v)))
         B = regress(Y(:,v), X);
         nY = X * B;
         cSrf.Data(:,v) = Y(:,v) - nY;
     end
-    if wb waitbar(v/Nv, h); end
+    samsrf_waitbar(v/Nv, h); 
 end
-if wb close(h); end
+samsrf_waitbar('', h); 
 
 %% Compress Srf again if needed
 cSrf = samsrf_compress_srf(cSrf,vx);

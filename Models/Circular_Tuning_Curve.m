@@ -56,5 +56,16 @@ end
 %% Fit pRF model
 MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 
+%% Post-processing
+load(MapFile);
+
+% Phi stays between -180 & +180
+Srf.Data(2,:) = mod(Srf.Data(2,:), 360); % Ensure nothing above 360 or below 0
+x = Srf.Data(2,:) > 180; % Index phi > 180 degrees
+Srf.Data(2,x) = Srf.Data(2,x) - 360; % Greater than 180 is now negative
+
+%% Save again
+save(MapFile, 'Srf', 'Model', '-v7.3'); 
+
 %% Return home
 cd(HomePath); 

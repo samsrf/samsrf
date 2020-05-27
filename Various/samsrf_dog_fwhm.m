@@ -5,23 +5,22 @@ function Srf = samsrf_dog_fwhm(Srf)
 % Calculates the parameters of a Difference-of-Gaussians pRF model into 
 % the full-width at half-maximum and adds this to the Srf.
 %
-
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+%
 
 % Expand Srf if necessary
 Srf = samsrf_expand_srf(Srf);
 
 % Calculate FWHM from DoG parameters
-if wb h = waitbar(0, 'Calculating FWHM...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+h = samsrf_waitbar('Calculating FWHM...'); 
 Fwhm = []; 
 for v = 1:size(Srf.Data,2)
    Fwhm = [Fwhm dog_fwhm(Srf.Data(4,v), Srf.Data(5,v), Srf.Data(6,v))];
-   if wb waitbar(v/size(Srf.Data,2),h); end
-end
+   samsrf_waitbar(v/size(Srf.Data,2), h); 
+end 
 Srf.Data = [Srf.Data; Fwhm];
 Srf.Values{end+1} = 'Fwhm';
-if wb close(h); end
+samsrf_waitbar('', h); 
 
 
 function fwhm = dog_fwhm(sigma1, sigma2, rat)

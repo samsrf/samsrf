@@ -15,7 +15,7 @@ function err = prf_errfun(PrfFcn, ApFrm, Hrf, P, Y)
 %
 
 Rfp = PrfFcn(P, size(ApFrm,1)*2); % pRF profile
-Yp = prf_predict_timecourse(Rfp, ApFrm, false); % Predict time course
+Yp = prf_predict_timecourse(Rfp, ApFrm, true); % Predict time course with z-normalisation
 Yp = conv(Yp, Hrf); % Convolve with HRF
 Yp = Yp(1:length(Y)); % Truncate back to original length
 R = corr(Yp, Y); % Correlate prediction with observed data

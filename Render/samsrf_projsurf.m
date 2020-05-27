@@ -16,6 +16,7 @@ function OutSrf = samsrf_projsurf(Srf, Mesh, Img, Eccen, Thrsh, CamView)
 % uses the pixel nearest to the pRF position rather than interpolating. 
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Expand Srf if necessary
@@ -81,7 +82,7 @@ else
 
     % Calculate overlay
     Colours = NaN(size(Vertices,3),3);
-    h = waitbar(0, 'Calculating vertex colours...');
+    h = samsrf_waitbar('Calculating vertex colours...');
     for v = 1:length(r)
         if ~r(v)
             % Convert image space into visual space
@@ -101,9 +102,9 @@ else
                 end
             end
         end
-        waitbar(v/length(r),h);
+        samsrf_waitbar(v/length(r), h);
     end
-    close(h);
+    samsrf_waitbar('', h);
 end
 % Set bad vertices to curvature only
 Colours(r&Curv<0,:) = repmat([.8 .8 .8],sum(r&Curv<0),1);

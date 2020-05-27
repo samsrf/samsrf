@@ -17,13 +17,18 @@ The pRF fitting process has considerable differences to that used in previous ve
 
 You can however use data analysed with previous versions (at least 5.0 upwards) by converting the SamSrf data files using samsrf_convert_old_srf.m  
 
-Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 6 for your analysis after the model fitting.  
+Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 6 for your analysis -after- the model fitting.  
 
 ## LATEST UPDATES 
 
-### Version 6.331 (21-05-2020)  
+### Version 6.339 (27-05-2020)  
+- Improved precision of model fits (option to use old, poorer precision remains (DSS)  
+- Fixed bug in ViewApertures tool that inverted the Y-axis (DSS)  
+- Fixed bug in ViewApertures tool that gave a warning on empty frames (DSS)  
+- Fixed bug in ViewApertures tool where colour scheme was inconsistent across frames (DSS)  
 - Fixed inconsequential duplicate lines in samsrf_benson2srf (DSS)  
-- Added function for backprojecting reverse correlation profiles (DSS)   
+- Added function for backprojecting reverse correlation profiles (DSS)  
+- Streamlined how waitbars are handled by SamSrf (DSS)   
 
 ### Version 6.33 (20-05-2020)  
 - Fixed major bug with DisplayMaps failing to load (DSS)  

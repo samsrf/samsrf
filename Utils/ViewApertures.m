@@ -70,14 +70,22 @@ end
 
 % Plot first frame
 subplot(handles.axes1);
-% image(ApFrm(:,:,1)*255);
-contourf(ApFrm(:,:,1), 'edgecolor', 'none');
+[x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
+y = flipud(y);
+curfrm = ApFrm(:,:,1);
+if var(curfrm(:)) == 0
+    imshow(curfrm); 
+else
+    contourf(x, y, curfrm, 'edgecolor', 'none');
+end
 axis square
 axis off
 if nanmin(ApFrm(:)) < 0
     colormap hotcold
+    set(gca, 'Clim', [-1 1]);
 else
     colormap hot
+    set(gca, 'Clim', [0 1]);
 end
 set(handles.slider1, 'Value', 1/size(ApFrm,3), 'SliderStep', [1/(1+size(ApFrm,3)) 1/(1+size(ApFrm,3))]);
 text(80, 10, '1', 'color', [.5 .5 .5], 'fontsize', 15);
@@ -113,14 +121,22 @@ v = get(hObject,'Value');
 f = ceil(v*size(ApFrm,3));
 if f == 0 f = 1; end
 subplot(handles.axes1);
-% image(ApFrm(:,:,f)*255);
-contourf(ApFrm(:,:,f), 'edgecolor', 'none');
+[x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
+y = flipud(y);
+curfrm = ApFrm(:,:,f);
+if var(curfrm(:)) == 0
+    imshow(curfrm); 
+else
+    contourf(x, y, curfrm, 'edgecolor', 'none');
+end
 axis square
 axis off
 if nanmin(ApFrm(:)) < 0
     colormap hotcold
+    set(gca, 'Clim', [-1 1]);
 else
     colormap hot
+    set(gca, 'Clim', [0 1]);
 end
 text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
 
@@ -160,14 +176,22 @@ try
 
         % Plot next frame
         subplot(handles.axes1);
-%         image(ApFrm(:,:,f)*255);
-        contourf(ApFrm(:,:,f), 'edgecolor', 'none');
+        [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
+        y = flipud(y);
+        curfrm = ApFrm(:,:,f);
+        if var(curfrm(:)) == 0
+            imshow(curfrm); 
+        else
+            contourf(x, y, curfrm, 'edgecolor', 'none');
+        end
         axis square
         axis off
         if nanmin(ApFrm(:)) < 0
             colormap hotcold
+            set(gca, 'Clim', [-1 1]);
         else
             colormap hot
+            set(gca, 'Clim', [0 1]);
         end
         text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
         pause(0.1);

@@ -42,6 +42,7 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % 03/08/2018 - SamSrf 6 version (DSS)
 % 22/05/2019 - Made output name Timecourses more descriptive (DSS)
 % 19/08/2019 - Fixed bug with assignment of default inputs (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 if nargin <= 5
@@ -93,7 +94,7 @@ pRF_Data(4,:) = pRF_Data(4,:) / Eccentricity;
 Response = Response / max(abs(Response(:)));
 
 % Loop through volumes
-h = waitbar(0, 'Backprojecting volumes...');
+h = samsrf_waitbar('Backprojecting volumes...');
 for t = 1:size(Response,1)
     % Loop through vertices
     Curr = zeros(200,200); % Current response
@@ -106,9 +107,9 @@ for t = 1:size(Response,1)
     % Store current frame
     Timecourses(:,:,t) = Curr;
     Ds(:,:,t) = Dcur;
-    waitbar(t/size(Response,1),h);
+    samsrf_waitbar(t/size(Response,1), h);
 end
-close(h);
+samsrf_waitbar('', h);
 
 % Normalize backprojected response by pRF density?
 if NormaliseByDensity

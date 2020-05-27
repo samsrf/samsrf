@@ -10,15 +10,17 @@ function A = samsrf_area(V, F, Vs)
 % cortical magnification. FreeSurfer already calculates the cortical surface 
 % area for each vertex (but see the note in samsrf_vertexarea.m about this!)
 %
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+%
 
 if nargin < 3
     Vs = 1:size(V,1);
 end
 
 A = 0; 
-h = waitbar(0,'Calculating area...'); 
+h = samsrf_waitbar('Calculating area...'); 
 for i = 1:length(Vs)
     A = A + samsrf_vertexarea(Vs(i),V,F); 
-    waitbar(i/length(Vs),h); 
+    samsrf_waitbar(i/length(Vs), h); 
 end
-close(h);
+samsrf_waitbar('', h);

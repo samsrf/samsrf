@@ -18,14 +18,13 @@ function Srf = samsrf_cortmagn(Srf, Roi)
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
 % 18/02/2019 - Fixed bug when no ROI is used (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Default parameters
 if nargin < 2
     Roi = '';
 end
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 
 % Expand Srf if necessary
 Srf = samsrf_expand_srf(Srf);
@@ -43,7 +42,7 @@ end
 % Determine visual area for each vertex
 Vis = zeros(size(Srf.Data,2), 1);
 Cmf = zeros(size(Srf.Data,2), 1);
-if wb h = waitbar(0, 'Calculating local CMF...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+h = samsrf_waitbar('Calculating local CMF...'); 
 for v = mver'
     if Srf.Data(1,v) >= 0.01  % No point doing this for crappy vertices
         % Calculate visual area (density)
@@ -56,9 +55,9 @@ for v = mver'
         % Calculate cortical magnification factors
         Cmf(v) = sqrt(Ctx(v)) / sqrt(Vis(v));
     end
-    if wb waitbar(v/length(mver), h); end
+    samsrf_waitbar(v/length(mver), h); 
 end
-if wb close(h); end
+samsrf_waitbar('', h); 
 
 % Store in structure
 Srf.Data = [Srf.Data; Cmf'; Vis'];

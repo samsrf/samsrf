@@ -24,11 +24,10 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
 % 05/05/2020 - Added option to smooth connectivity profiles (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Defaults & constants
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 % If no ROI defined, analyse whole brain...
 if nargin < 3
     Roi = ''; 
@@ -91,7 +90,7 @@ Srf.Data = NaN(length(svx),size(Srf.Vertices,1)); % Connective field profile for
 
 %% Calculate reverse correlation map 
 disp('Calculating CF profiles...');
-if wb h = waitbar(0, ['Calculating CF profiles... ' strrep(OutFile,'_','-')]); end
+h = samsrf_waitbar(['Calculating CF profiles... ' strrep(OutFile,'_','-')]); 
 % Keep track of redundancies
 Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
@@ -120,9 +119,8 @@ for v = 1:length(mver)
             Fitted(rd) = 1; % Mark all redundant vertices
         end
     end
-    if wb waitbar(v/length(mver),h); end
+    samsrf_waitbar(v/length(mver), h); 
 end
-if wb close(h); end
 t2 = toc(t0); 
 disp(['Correlation analysis completed in ' num2str(t2/60) ' minutes.']);
 
@@ -142,7 +140,7 @@ end
 Srf.ConFlds = Srf.Data; % Smoothed correlation profile
 Srf.Data = [];
 disp('Estimating CF parameters...');
-if wb h = waitbar(0, ['Estimating CF parameters... ' strrep(OutFile,'_','-')]); end
+samsrf_waitbar(['Estimating CF parameters... ' strrep(OutFile,'_','-')], h); 
 % Keep track of redundancies
 Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
@@ -168,9 +166,9 @@ for v = 1:length(mver)
     else
         Fitted(rd) = 1; % Mark all redundant vertices
     end
-    if wb waitbar(v/length(mver),h); end
+    samsrf_waitbar(v/length(mver), h); 
 end
-if wb close(h); end
+samsrf_waitbar('', h); 
 t3 = toc(t0); 
 disp(['Parameter estimates completed in ' num2str(t3/60) ' minutes.']);
 

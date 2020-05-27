@@ -4,6 +4,11 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Fits a pRF model using the slow fine-fitting procedure (fminsearch in Optimization toolbox).
 %
+% IMPORTANT NOTE: In version 6.4 the precision of the model fitting algorithm was improved!
+%                 Model fits using this version are -NOT- compatible with previous versions!
+%                 You can still use the old precision with the Model.Low_Precision_Fit flag
+%                 (but you wouldn't really want to unless you're pressed for time...)
+%
 %   Model:          Contains the parameters defining the eccentricity/scaling factor of the space.
 %   SrfFiles:       Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
 %                       Files will be concatenated in this order.
@@ -26,11 +31,11 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 20/02/2020 - Turned off searchspace generation when using seed map (DSS)
 % 21/02/2020 - If only coarse fit is run the file name is suffixed with '_CrsFit' (DSS)
 % 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+%              MAJOR UPDATE: Improved model fitting precision & added option for old precision (DSS)
 %
 
 %% Defaults & constants
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 % If no ROI defined, analyse whole brain...
 if nargin < 3
     Roi = ''; 
@@ -58,6 +63,9 @@ if ~isfield(Model, 'Coarse_Fit_Only')
 end
 if ~isfield(Model, 'Fine_Fit_Threshold')
     Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
+end
+if ~isfield(Model, 'Low_Precision_Fit')
+    Model.Low_Precision_Fit = false; % Use default tolerance in fminsearch algorithm.
 end
 
 %% If coarse fit only suffix filename
@@ -185,6 +193,7 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
 end
 
 %% Coarse fit / Load seed map
+h = samsrf_waitbar('Fitting pRFs...');
 if ~isempty(Model.Seed_Fine_Fit)
   % Load a previous map as seeds for fine fit
   disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
@@ -201,7 +210,7 @@ if ~isempty(Model.Seed_Fine_Fit)
 else
   % Coarse fitting procedure
   disp('Coarse fitting...');
-  if wb h = waitbar(0, ['Coarse fitting... ' strrep(OutFile,'_','-')], 'Units', 'pixels', 'Position', [100 100 360 70]); end
+  samsrf_waitbar(['Coarse fitting... ' strrep(OutFile,'_','-')], h); 
   Srf.X = zeros(size(Tc));  % Matrix with predictions
   Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
   Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
@@ -209,7 +218,7 @@ else
   if Model.Coarse_Fit_Only
       Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
   end
-
+  
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
   for vs = 1:cfvb:length(mver)
       % Starting index of current vertex block
@@ -241,10 +250,9 @@ else
                   Bimg(2,vx(v)) = B(1); % Intercept
               end            
           end
-         if wb waitbar((vs+v-1)/length(mver),h); end
+         samsrf_waitbar((vs+v-1)/length(mver), h); 
       end
   end
-  if wb close(h); end
   t2 = toc(t0); 
   disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
 end
@@ -262,8 +270,17 @@ if Model.Coarse_Fit_Only
 else
     %% Run fine fit for each vertex
     warning off % Because of rank deficiency warnings in GLM for artifactual vertices
-    disp('Slow fine fitting...');
-    if wb h = waitbar(0, ['Slow fine fitting... ' strrep(OutFile,'_','-')], 'Units', 'pixels', 'Position', [100 100 360 70]); end
+    if Model.Low_Precision_Fit
+        % Reduced toleraance for model fits (faster but much less precise!)
+        OptimOpts = optimset('TolX',1e-2, 'TolFun',1e-2, 'Display', 'off'); 
+        SlowFitName = 'Low-precision optimisation...';
+    else
+        % Default tolerance for model fits (slow)
+        OptimOpts = optimset('Display', 'off');
+        SlowFitName = 'High-precision optimisation...';
+    end
+    disp(SlowFitName);
+    samsrf_waitbar([SlowFitName ' ' strrep(OutFile,'_','-')], h); 
     Tc = Srf.Y; % Always use unsmoothed data for fine fit
     Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
     fPimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fine fitted parameter maps
@@ -284,8 +301,7 @@ else
 
             % Find best prediction
             Y = Tc(:,vx);  % Time course of current vertex
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y), ...
-                        Pimg(:,vx)', optimset('TolX',1e-2,'TolFun',1e-2,'Display','off'));  % Lower than default tolerance             
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y), Pimg(:,vx)', OptimOpts);  
 
             % Loop thru fitted parameters
             IsGoodFit = true;
@@ -305,7 +321,7 @@ else
                 fR = 1 - fR; % 1 minus unexplained variance
                 % Generate predicted time course
                 Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
-                fX = prf_predict_timecourse(Rfp, ApFrm, false);
+                fX = prf_predict_timecourse(Rfp, ApFrm, true);
                 % Store prediction without HRF convolution
                 Srf.X(:,rd) = repmat(fX, 1, length(rd));  % Best fitting prediction
                 % Loop thru fitted parameters
@@ -345,12 +361,12 @@ else
                 end
             end
         end
-        if wb waitbar(v/length(mver),h); end
+        samsrf_waitbar(v/length(mver), h); 
     end
-    if wb close(h); end
     warning on
     new_line;
 end
+samsrf_waitbar('', h); 
 
 % Rescale the data
 for i = 1:size(fPimg,1)

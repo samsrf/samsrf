@@ -16,8 +16,9 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile)
 %
 % The function saves a new surface data file called lh/rh_glm (or any name
 % you define in GlmFile). This contains in each row the beta estimates of
-% each regressor in the design matrix. The final row contains the error 
-% residuals. 
+% each regressor in the design matrix. The final row contains the residuals.
+%
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
@@ -34,8 +35,6 @@ if nargin < 4
 elseif nargin < 5
     GlmFile = 'glm';
 end
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 
 %% If SrfCell is a string
 if isa(SrfCell, 'char')
@@ -84,15 +83,15 @@ end
 
 %% Run linear regression 
 B = NaN(size(X,2)+1, size(Srf.Data,2));
-if wb h = waitbar(0, 'Running GLM on vertices...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+h = samsrf_waitbar('Running GLM on vertices...'); 
 for v = 1:length(mver)
     if ~isnan(sum(Y(:,mver(v))))
         [cb,bint,cr,rint,st] = regress(Y(:,mver(v)),X);
         B(:,mver(v)) = [cb; st(4)];  % Betas for current vertex & error variance
     end
-    if wb waitbar(v/length(mver), h); end
+    samsrf_waitbar(v/length(mver), h); 
 end
-if wb close(h); end;
+samsrf_waitbar('', h); 
 
 %% Save as file
 Srf.Functional = 'GLM coefficients';

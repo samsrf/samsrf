@@ -1,20 +1,25 @@
-function Y = prf_predict_timecourse(Rfp, ApFrm, DispTc, Hrf)
+
+function Y = prf_predict_timecourse(Rfp, ApFrm, Znorm, DispTc, Hrf)
 %
-% Y = prf_predict_timecourse(Rfp, ApFrm, [DispTc, Hrf])
+% Y = prf_predict_timecourse(Rfp, ApFrm, Znorm, [DispTc, Hrf])
 %
-% Predicts the time course resulting from receptive field profile Rfp 
-%   and stimulus mask movie ApFrm. If DispTc is true the time course 
-%   is plotted as a movie. If Hrf is defined the time series is then
-%   convolved with the HRF (but in model fitting this is done separately).
+% Predicts the time course resulting from receptive field profile Rfp and stimulus mask movie ApFrm. 
+% If Znorm is true the time series is z-normalised. When simulating data, this must be turned off!
 %
-% 20/08/2018 - SamSrf 6 version (data added - no changes from v6) (DSS)
+%   If DispTc is true the time course is plotted as a movie. 
+%   IMPORTANT: If Hrf is defined the time series is then convolved with the HRF but this is for display purposes only -
+%              for actual model fitting you will need to convolve Y with the HRF separately!
+%
+% 20/08/2018 - SamSrf 6 version (date added - no changes from v6) (DSS)
 % 25/11/2019 - Fixed bug with missing widerthantall function for displaying (DSS)
+% 27/05/2020 - Added option to remove z-score normalisation (DSS) 
 %
 
-if nargin < 3
+if nargin < 4
     DispTc = false;
 end
 
+% Output time course vector
 Y = NaN(size(ApFrm,3),1); 
 
 if DispTc    
@@ -66,8 +71,10 @@ for i = 1:size(ApFrm,3)
     end
 end
 
-% Normalize time series
-Y = zscore(Y);
+% Normalize time series?
+if Znorm
+    Y = zscore(Y);
+end
 
 if DispTc
     subplot(2,1,2); 

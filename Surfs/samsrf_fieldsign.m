@@ -12,6 +12,7 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 % Adds the field sign map to Srf.Data as the bottom row. 
 %
 % 09/08/2018 - SamSrf 6 version (DSS)
+% 27/05/2020 - Streamlined how waitbar is handled (DSS)
 %
 
 %% Default parameters
@@ -25,8 +26,6 @@ elseif nargin < 3
 elseif nargin < 4
     thrsh = 0.1;
 end
-% Check if waitbar is to be used
-wb = samsrf_waitbarstatus;
 
 % Expand Srf if necessary
 InSrf = samsrf_expand_srf(InSrf);
@@ -55,9 +54,9 @@ if isfield(Srf, 'Sphere')
     sphV = Srf.Sphere;
     
     % Calculate field sign
-    if wb h = waitbar(0, 'Calculating field signs...', 'Units', 'pixels', 'Position', [100 100 360 70]); end
+    h = samsrf_waitbar('Calculating field signs...'); 
     for j = 1:si
-        if wb waitbar(0, h); end
+        samsrf_waitbar(0, h); 
         i = 0;
         if isempty(roi)
             if j == si
@@ -65,7 +64,7 @@ if isfield(Srf, 'Sphere')
             else
                 Vs = ((j-1)*50000+1:j*50000)';
             end
-            if wb waitbar(0, h, ['Calculating field signs... (Block #' num2str(j) ')']); end
+            samsrf_waitbar(['Calculating field signs... (Block #' num2str(j) ')'], h); 
         end
         for v = Vs'
             i = i + 1;
@@ -90,10 +89,10 @@ if isfield(Srf, 'Sphere')
                 % Field sign
                 fsD(1,v) = sign(sum(cross(E_vec, P_vec)));
             end
-            if wb waitbar(i/length(Vs), h); end
+            samsrf_waitbar(i/length(Vs), h); 
         end
     end
-    if wb close(h); end
+    samsrf_waitbar('', h);
 
     % Save field sign data
     Srf.Data = [Srf.Data; fsD];
