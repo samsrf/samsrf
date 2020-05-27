@@ -21,7 +21,7 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.339 (27-05-2020)  
+### Version 6.399 (27-05-2020)  
 - Improved precision of model fits (option to use old, poorer precision remains (DSS)  
 - Fixed bug in ViewApertures tool that inverted the Y-axis (DSS)  
 - Fixed bug in ViewApertures tool that gave a warning on empty frames (DSS)  
