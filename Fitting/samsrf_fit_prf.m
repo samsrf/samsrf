@@ -32,7 +32,10 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 21/02/2020 - If only coarse fit is run the file name is suffixed with '_CrsFit' (DSS)
 % 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
 % 27/05/2020 - Streamlined how waitbar is handled (DSS)
-%              MAJOR UPDATE: Improved model fitting precision & added option for old precision (DSS)
+%              MAJOR UPDATE: Improved model fitting precision as default option! (DSS)
+% 28/05/2020 - Reorganised the steps after the actual fine-fit (DSS)
+%              Added option for search grids in polar coordinates (DSS)
+%              Rank deficient regressors in GLM are now set to zero (DSS)
 %
 
 %% Defaults & constants
@@ -49,6 +52,9 @@ bo = strfind(PrfFcnName, '(');
 PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 
 %% Default model parameters
+if ~isfield(Model, 'Polar_Search_Space')
+    Model.Polar_Search_Space = false; % Search space is Cartesian
+end
 if ~isfield(Model, 'Seed_Fine_Fit')
     Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
 end 
@@ -168,7 +174,7 @@ new_line;
 if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     if ~exist([pwd filesep SearchspaceFile], 'file') 
         disp('Generating predictions...');
-        [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, wb);    
+        [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, Model.Polar_Search_Space);    
         save(SearchspaceFile, 'X', 'S', '-v7.3');
         t1 = toc(t0); 
         disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
@@ -315,9 +321,10 @@ else
                     IsGoodFit = false;
                 end
             end
-
-            % Only keep good parameters
+            
+            % Obtain time course & store parameters
             if IsGoodFit
+                % Only keep good parameters
                 fR = 1 - fR; % 1 minus unexplained variance
                 % Generate predicted time course
                 Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
@@ -328,14 +335,6 @@ else
                 for p = 1:length(fP)
                     fPimg(p,rd) = fP(p); % Add the pth fitted parameter
                 end
-                % Convolve predicted time course with HRF
-                fX = conv(fX, Model.Hrf);
-                fX = fX(1:length(Y)); % Truncate back to original length
-                % Fit betas for amplitude & intercept
-                fB = [ones(length(Y),1) fX] \ Y; % GLM fit 
-                fBimg(1,rd) = fB(2); % Amplitude
-                fBimg(2,rd) = fB(1); % Intercept
-                fRimg(rd) = fR;  % Variance explained
             else
                 % Replace bad fits with coarse fit?
                 if Model.Replace_Bad_Fits
@@ -350,15 +349,23 @@ else
                     for p = 1:length(fP)
                         fPimg(p,rd) = fP(p); % Add the pth fitted parameter
                     end
-                    % Convolve predicted time course with HRF
-                    fX = conv(fX, Model.Hrf);
-                    fX = fX(1:length(Y)); % Truncate back to original length
-                    % Fit betas for amplitude & intercept
-                    fB = [ones(length(Y),1) fX] \ Y; % GLM fit 
-                    fBimg(1,rd) = fB(2); % Amplitude
-                    fBimg(2,rd) = fB(1); % Intercept
-                    fRimg(rd) = fR;  % Variance explained
                 end
+            end
+            
+            % Convolve with HRF & fit betas
+            if IsGoodFit || Model.Replace_Bad_Fits
+                % Convolve predicted time course with HRF
+                fX = conv(fX, Model.Hrf);
+                fX = fX(1:length(Y)); % Truncate back to original length
+                % Fit betas for amplitude & intercept
+                if var(fX) ~= 0
+                    fB = [ones(length(Y),1) fX] \ Y; % GLM fit
+                else
+                    fB = [0 0]'; % Rank deficient model fit
+                end
+                fBimg(1,rd) = fB(2); % Amplitude
+                fBimg(2,rd) = fB(1); % Intercept
+                fRimg(rd) = fR;  % Variance explained
             end
         end
         samsrf_waitbar(v/length(mver), h); 
