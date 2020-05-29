@@ -51,7 +51,7 @@ end
 Model.Name = 'CF'; % File name for output map
 Model.SeedRoi = SeedRoi; % Seed ROI for analysis
 Model.Template = TempMap; % Vertex number of seed region origin
-Model.Smoothing = 0; % Smoothing kernel for profile (CURRENTLY NOT IMPLEMENTED!)
+Model.Smoothing = 0; % Smoothing kernel for profile (in geodesic steps)
 
 %% Fit pRF model
 MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi);

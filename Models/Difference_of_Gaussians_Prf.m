@@ -24,10 +24,12 @@ Model.Replace_Bad_Fits = false; % (Optional) If true, uses coarse fit for bad sl
 Model.Smoothed_Coarse_Fit = 0; % (Optional) If > 0, smoothes data for coarse fit
 Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
 Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
+Model.Low_Precision_Fit = false; % (Optional) If true, uses old, faster but poorer fine fit
 
 % Search grid for coarse fit
-Model.Param1 = -1 : 0.2 : 1; % X0 search grid
-Model.Param2 = -1 : 0.2 : 1; % Y0 search grid
+Model.Polar_Search_Space = false; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+Model.Param1 = -1.2 : 0.2 : 1.2; % X0 search grid
+Model.Param2 = -1.2 : 0.2 : 1.2; % Y0 search grid
 Model.Param3 = 2 .^ (-5:1); % Centre sigma search grid
 Model.Param4 = 2 .^ (-3:2); % Surround sigma search grid
 Model.Param5 = 0 : 0.5 : 1; % Delta (surround/centre amplitude) search grid

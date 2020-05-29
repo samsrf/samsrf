@@ -18,16 +18,18 @@ Model.Only_Positive = [0 0 1 1 0]; % Which parameters must be positive?
 Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Repetition time (TR) of pulse sequence
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
-Model.Aperture_File = 'aps_Bars'; % Aperture file
+Model.Aperture_File = 'aps_pRF'; % Aperture file
 Model.Seed_Fine_Fit = ''; % (Optional) Define a Srf file to use as seed map
 Model.Replace_Bad_Fits = false; % (Optional) If true, uses coarse fit for bad slow fits
 Model.Smoothed_Coarse_Fit = 0; % (Optional) If > 0, smoothes data for coarse fit
 Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
 Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
+Model.Low_Precision_Fit = false; % (Optional) If true, uses old, faster but poorer fine fit
 
 % Search grid for coarse fit
-Model.Param1 = -1 : 0.2 : 1; % X0 search grid
-Model.Param2 = -1 : 0.2 : 1; % Y0 search grid
+Model.Polar_Search_Space = false; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+Model.Param1 = -1.2 : 0.2 : 1.2; % X0 search grid
+Model.Param2 = -1.2 : 0.2 : 1.2; % Y0 search grid
 Model.Param3 = 2 .^ (-5:1); % Horizontal sigma search grid
 Model.Param4 = 2 .^ (-5:1); % Vertical sigma search grid
 Model.Param5 = 0 : 15 : 345; % Orientation search grid
