@@ -21,8 +21,11 @@ Even if you used SamSrf 5 for your mapping analysis we recommend you use SamSrf 
 
 ## LATEST UPDATES 
 
-### Version 6.3992 (28-05-2020)  
-- IMPORTANT UPDATE: Improved precision of model fits (option to use old, poorer precision remains) (DSS)  
+### Version 6.3993 (29-05-2020)  
+#### IMPORTANT UPDATE: Improved precision of model fits (old, poorer option remains)! (DSS)  
+- Updated example Model scripts with finer search grids (DSS)  
+- Responses are now modelled as percent change prior to z-scoring (-should- make no difference...) (DSS)  
+- Added functions for ground truth simulations as were present in SamSrf v5 (DSS)  
 - Changed default eccentricity map colour scheme to inverted jet (DSS)  
 - Added option of wider paths in samsrf_surf in SamSrf_defaults (DSS)  
 - Added support for inverted colour schemes in samsrf_surf (DSS)  
