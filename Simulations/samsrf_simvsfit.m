@@ -107,7 +107,7 @@ for v = 1:length(tX)
 end
 
 %% Plot modelled positions 
-scatter(mX, mY, 100, Delta, 'filled', 'markeredgecolor', 'k');
+scatter(mX, mY, 50, Delta, 'filled', 'markeredgecolor', 'k');
 
 %% Plot search space
 if ~isempty(SrcSpc)
