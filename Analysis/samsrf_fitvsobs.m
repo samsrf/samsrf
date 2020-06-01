@@ -15,8 +15,7 @@ Srf = samsrf_expand_srf(Srf);
 X = Srf.X(:,v); % Predicted time course
 Y = Srf.Y(:,v); % Observed time course
 % Convolve prediction with HRF
-X = conv(X, Model.Hrf);
-X = X(1:size(Srf.X,1)); % Truncate back to original length
+X = prf_convolve_hrf(X, Model.Hrf);
 
 % If raw data exists use that
 if isfield(Srf, 'Raw_Data')

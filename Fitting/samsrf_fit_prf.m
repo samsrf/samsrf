@@ -20,22 +20,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 21/06/2018 - SamSrf 6 version (DSS)
-% 09/11/2018 - Added option to use coarse fit parameters for bad fits (DSS)
-% 28/11/2018 - Added support for noise ceiling, if calculated (DSS)
-% 02/12/2018 - Added back an option for smoothed coarse-fit as in versions < 6 
-%              Added option for only running the coarse-fit (DSS)
-% 10/12/2018 - Fixed bug when coarse-fit only flag was undefined (DSS)
-% 17/02/2020 - Added option for thresholding for what goes into fine fit (DSS)
-% 18/02/2020 - Added option to use a seed map for fine fit (DSS)
-% 20/02/2020 - Turned off searchspace generation when using seed map (DSS)
-% 21/02/2020 - If only coarse fit is run the file name is suffixed with '_CrsFit' (DSS)
-% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
-%              MAJOR UPDATE: Improved model fitting precision as default option! (DSS)
-% 28/05/2020 - Reorganised the steps after the actual fine-fit (DSS)
-%              Added option for search grids in polar coordinates (DSS)
-%              Rank deficient regressors in GLM are now set to zero (DSS)
+% 02/06/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants
@@ -192,8 +177,7 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     %% Convolution with HRF
     disp('Convolving predictions with HRF...');
     for p = 1:size(X,2)
-        cX = conv(X(:,p), Model.Hrf);
-        X(:,p) = cX(1:size(Tc,1)); % Truncate back to original length
+        X(:,p) = prf_convolve_hrf(X(:,p), Model.Hrf);
     end
     new_line; 
 end
@@ -250,10 +234,12 @@ else
               Rimg(1,vx(v)) = mR(v);  % Variance explained
               % If running coarse fit only determine betas now
               if Model.Coarse_Fit_Only 
-                  % Fit betas for amplitude & intercept
-                  B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
-                  Bimg(1,vx(v)) = B(2); % Amplitude
-                  Bimg(2,vx(v)) = B(1); % Intercept
+                % Fit betas for amplitude & intercept
+                warning off % In case of rank deficient GLM
+                B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
+                warning on
+                Bimg(1,vx(v)) = B(2); % Amplitude
+                Bimg(2,vx(v)) = B(1); % Intercept
               end            
           end
          samsrf_waitbar((vs+v-1)/length(mver), h); 
@@ -275,7 +261,6 @@ if Model.Coarse_Fit_Only
     OutFile = [OutFile '_CrsFit']; % Suffix to indicate coarse fit only 
 else
     %% Run fine fit for each vertex
-    warning off % Because of rank deficiency warnings in GLM for artifactual vertices
     if Model.Low_Precision_Fit
         % Reduced toleraance for model fits (faster but much less precise!)
         OptimOpts = optimset('TolX',1e-2, 'TolFun',1e-2, 'Display', 'off'); 
@@ -328,7 +313,7 @@ else
                 fR = 1 - fR; % 1 minus unexplained variance
                 % Generate predicted time course
                 Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
-                fX = prf_predict_timecourse(Rfp, ApFrm, true);
+                fX = prf_predict_timecourse(Rfp, ApFrm);
                 % Store prediction without HRF convolution
                 Srf.X(:,rd) = repmat(fX, 1, length(rd));  % Best fitting prediction
                 % Loop thru fitted parameters
@@ -342,7 +327,7 @@ else
                     fP = Pimg(:,vx); % Parameter estimates from coarse fit
                     % Generate predicted time course
                     Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
-                    fX = prf_predict_timecourse(Rfp, ApFrm, false);
+                    fX = prf_predict_timecourse(Rfp, ApFrm);
                     % Store prediction without HRF convolution
                     Srf.X(:,rd) = repmat(fX, 1, length(rd));  % Best fitting prediction
                     % Loop thru fitted parameters
@@ -355,14 +340,11 @@ else
             % Convolve with HRF & fit betas
             if IsGoodFit || Model.Replace_Bad_Fits
                 % Convolve predicted time course with HRF
-                fX = conv(fX, Model.Hrf);
-                fX = fX(1:length(Y)); % Truncate back to original length
+                fX = prf_convolve_hrf(fX, Model.Hrf);
                 % Fit betas for amplitude & intercept
-                if var(fX) ~= 0
-                    fB = [ones(length(Y),1) fX] \ Y; % GLM fit
-                else
-                    fB = [0 0]'; % Rank deficient model fit
-                end
+                warning off % In case of rank deficient GLM
+                fB = [ones(length(Y),1) fX] \ Y; % GLM fit
+                warning on
                 fBimg(1,rd) = fB(2); % Amplitude
                 fBimg(2,rd) = fB(1); % Intercept
                 fRimg(rd) = fR;  % Variance explained
@@ -370,7 +352,6 @@ else
         end
         samsrf_waitbar(v/length(mver), h); 
     end
-    warning on
     new_line;
 end
 samsrf_waitbar('', h); 

@@ -46,7 +46,7 @@ S = [S1(:) S2(:) S3(:) S4(:) S5(:)]';
 h = samsrf_waitbar('Generating predictions...');
 for n = 1:numel(S1)
     Rfp = PrfFcn([S1(n) S2(n) S3(n) S4(n) S5(n)], size(ApFrm,1)*2); % pRF profile
-    cptc = prf_predict_timecourse(Rfp, ApFrm, true); % Prediction is z-normalised!
+    cptc = prf_predict_timecourse(Rfp, ApFrm); % Prediction is in percent of pRF activated
     Ptc(:,n) = cptc; 
     samsrf_waitbar(n/numel(S1), h);
 end

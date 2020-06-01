@@ -117,12 +117,9 @@ if ~exist([pwd filesep RegressorFile], 'file')
     % Reshape apertures to matrix
     X = reshape(ApFrm, size(ApFrm,1)*size(ApFrm,2), size(ApFrm,3))';
     % Convolve with HRF
-    cX = []; 
     for i = 1:size(X,2) 
-        cX = [cX conv(X(:,i),Model.Hrf)]; 
+        X(:,i) = prf_convolve_hrf(X(:,i),Model.Hrf); 
     end
-    % Truncate back to original length
-    X = cX(1:size(ApFrm,3),:);
     % X & Y coordinates
     [xc,yc] = meshgrid(linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,2)), ...
                        linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,1)));

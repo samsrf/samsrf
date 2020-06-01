@@ -4,6 +4,10 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %
 % Simulates time courses for ground truth pRF parameters based on the 
 %  pRF function PrfFcn and the stimulus apertures defined by ApFrm.
+%  Responses are modelled in terms of percentage of pRF activation. 
+%
+% Note: When generating noisy time courses it is advisable to z-normalise 
+%  them but you must do this *after* adding noise.
 %
 % GtPars can be a matrix where each column is a "vertex" and each row 
 %  is a parameter necessary for the pRF function (excluding betas).
@@ -22,6 +26,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 % Returns a Srf structure Srf which will contain the simulated timeseries
 %  in Srf.Data. Srf.Ground_Truth contains the ground truth parameters. 
 %  These timeseries are noise-free. You can add noise to them as desired.
+%  You may then also z-score them but this must be after adding the noise.
 %
 %  If GtPars was a Srf structure the output will retain all the same fields
 %  as the original (except for Srf.Data and Srf.Ground_Truth obviously) so 
@@ -30,7 +35,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %  If the input was just a matrix with parameters then this output Srf is
 %  not fully functional (contains no brain structure etc).
 %
-% 27/05/2020 - Written (DSS)
+% 02/06/2020 - SamSrf 7 version (DSS) 
 %
 
 %% What type of input?
@@ -87,9 +92,8 @@ new_line;
 h = samsrf_waitbar('Simulating pRF timecourses...');
 for v = 1:size(Srf.Data,2)
     Rfp = PrfFcn(Srf.Ground_Truth(:,v)', size(ApFrm,1)*2); % pRF profile
-    Y = prf_predict_timecourse(Rfp, ApFrm, false); % Prediction without z-normalisation!
-    Y = conv(Y, Model.Hrf); % Convolve with HRF
-    Y = Y(1:size(ApFrm,3)); % Truncate tail end
+    Y = prf_predict_timecourse(Rfp, ApFrm); % Prediction without z-normalisation!
+    Y = prf_convolve_hrf(Y, Model.Hrf); % Convolve with HRF
     Srf.Data(:,v) = Y; % Store simulation
     samsrf_waitbar(v/size(Srf.Data,2), h);
 end

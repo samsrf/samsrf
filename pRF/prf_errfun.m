@@ -11,13 +11,12 @@ function err = prf_errfun(PrfFcn, ApFrm, Hrf, P, Y)
 %   ApFrm contains aperture frames. 
 %   Hrf is the hemodynamic response function
 %
-% 23/04/2018 - SamSrf 6 version (DSS)
+% 02/06/2020 - SamSrf 7 version (DSS) 
 %
 
 Rfp = PrfFcn(P, size(ApFrm,1)*2); % pRF profile
-Yp = prf_predict_timecourse(Rfp, ApFrm, true); % Predict time course with z-normalisation
-Yp = conv(Yp, Hrf); % Convolve with HRF
-Yp = Yp(1:length(Y)); % Truncate back to original length
+Yp = prf_predict_timecourse(Rfp, ApFrm); % Predict time course with z-normalisation
+Yp = prf_convolve_hrf(Yp, Hrf); % Convolve with HRF
 R = corr(Yp, Y); % Correlate prediction with observed data
 err = 1 - R.^2; % Unexplained variance 
     
