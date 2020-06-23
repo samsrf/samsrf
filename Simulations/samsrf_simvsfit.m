@@ -2,20 +2,27 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
 %
 % samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf], SearchSpace=[]])
 %
-% Plots a comparison of simulated ground truth pRFs & model fits.
+% Plots a comparison of simulated ground truth pRFs & model fits in Srf.
 % At present this function only works for standard 2D Gaussian pRFs.
+% These plots really only make sense when you have noise-free simulations.
+% When you have noisy simulations use samsrf_simvsfithist instead.
 %
 % Srf contains the model fit of a simulated pRF data set, so this must 
 %   contain a Srf.Ground_Truth field. It assumes that Srf.Data(2:3,:) 
 %   contains the X and Y coordinates & Srf.Data(4,:) contains Sigma. 
 %
-%   Plots the position shifts as a quiver graph: the dot symbols denote 
+% Plots the position shifts as a quiver graph: the dot symbols denote 
 %   the modelled positions and the lines denote the shifts from the ground 
-%   truth positions. The dot colours denote the difference in Sigma. 
-%   The colours of the lines denote the modelled Beta parameters.
+%   truth positions. The dot colours denote the modelled Beta.
+%
 %   A circular mask for where the apertures should be is also included - 
-%   so if for some reason your stimulus was different you will need to
-%   change this to match your design.
+%   so if for some reason your stimulus was different (e.g. square?) 
+%   you will need to change this to match your design.
+%
+% Another plot contains a scatter graph comparing ground truth and
+%   modelled pRF size (sigma) parameters. Each symbol is one pRF. 
+%   The colour denotes the beta amplitude parameter.
+%
 %
 % Thresholds(1) defines the ground truth Sigma to restrict the plot to. 
 %   A typical simulation would contain a range of spatial positions and a 
@@ -27,13 +34,13 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
 %
 % SearchSpace defines the position parameters of the search grid. 
 %   These are plotted on top of the plot as crosses. This must be a 
-%   k-by-m matrix where n is the number of parameters in the search grid 
+%   k-by-m matrix where k is the number of parameters in the search grid 
 %   and m the number of grid positions. Note, however, only the unique 
 %   spatial positions are plotted so it ignores Sigmas, Thetas, or any 
 %   other such parameters. You would usually find this search space matrix 
 %   in the S variable of your src_*.mat file.
 %
-% 02/06/2020 - SamSrf 7 version (DSS) 
+% 22/06/2020 - SamSrf 7 version (DSS) 
 %
 
 if nargin < 2
@@ -54,22 +61,39 @@ mY = Srf.Data(3,:);
 mS = Srf.Data(4,:);
 mB = Srf.Data(5,:);
 
-% Ground truth posiitonsti
+% Ground truth parameters
 tX = Srf.Ground_Truth(1,:);
 tY = Srf.Ground_Truth(2,:);
 tS = Srf.Ground_Truth(3,:);
 
-% Difference in Sigma
-Delta = mS-tS;
-
-%% Filter data
-% Remove bad fits
+%% Remove bad fits
 g = R2 > Thresholds(2);
+
+%% Scales for sigma plot
+sB = max(abs([min(mB) max(mB)])); % Sigma difference scale
+if sB == 0
+    sB = 1;
+end
+
+%% Plot pRF sizes
+figure; hold on 
+line([0 max([tS mS])], [0 max([tS mS])], 'color', 'k');
+scatter(tS, mS, 200, mB, 'filled', 'markeredgecolor', 'k');
+axis square
+cb = colorbar;
+colormap hotcold
+set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);
+set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
+xlabel('Ground truth \sigma');
+ylabel('Modelled \sigma');
+set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');
+
+%% Filter to sigma ground truth
 mX = mX(g); tX = tX(g);
 mY = mY(g); tY = tY(g);
 mS = mS(g); tS = tS(g);
-Delta = Delta(g); 
-if isempty(Delta)
+mB = mB(g);
+if isempty(mB)
     error(['No data with R^2 > ' num2str(Thresholds(2))]);
 end
 TitlStr = ['R^2 > ' num2str(Thresholds(2))];
@@ -79,26 +103,25 @@ if ~isnan(Thresholds(1))
     g = tS == Thresholds(1);
     mX = mX(g); tX = tX(g); % X position
     mY = mY(g); tY = tY(g); % Y position
-    mS = mS(g); tS = tS(g); % Sigma (not used at present)
+    mS = mS(g); tS = tS(g); % Sigma (not used in following plots)
     mB = mB(g); % Beta 
-    Delta = Delta(g); % Sigma difference
     TitlStr = {TitlStr; ['Ground truth \sigma = ' num2str(Thresholds(1))]};
 else
-    TitlStr = {TitlStr; ['All ground truth \sigma']};
+    TitlStr = {TitlStr; 'All ground truth \sigma'};
 end
 % If this removed all data
-if isempty(Delta)
+if isempty(mB)
     error('No data with this ground truth in file!');
 end
 
-%% Scales for plot
-sS = max(abs([min(Delta) max(Delta)])); % Sigma difference scale
-TitlStr{3} = [num2str(min(mB)) ' \leq \beta \geq ' num2str(max(mB))];
-mB = mB - min(mB); % Baseline correct Betas
-mB = round(mB / max(mB) * 99)+1; % Normalise Betas
-mB(isnan(mB)) = 1; % In case poor betas
+%% Scales for quiver plot
+sB = max(abs([min(mB) max(mB)])); % Sigma difference scale
+if sB == 0
+    sB = 1;
+end
 
 %% Plot mask
+figure
 hold on
 set(gca, 'color', [1 1 1]*.7);
 [sx,sy] = pol2cart((0:360)/180*pi, 1);
@@ -108,11 +131,11 @@ alpha(h, 0.3);
 %% Plot lines
 Cmap = hotcold(100); % Beta colour map
 for v = 1:length(tX)
-    line([tX(v) mX(v)], [tY(v) mY(v)], 'color', Cmap(mB(v),:), 'linewidth', 2);
+    line([tX(v) mX(v)], [tY(v) mY(v)], 'color', [1 1 1]/2);
 end
 
 %% Plot modelled positions 
-scatter(mX, mY, 30, Delta, 'filled', 'markeredgecolor', 'k');
+scatter(mX, mY, 60, mB, 'filled', 'markeredgecolor', 'k');
 
 %% Plot search space
 if ~isempty(SearchSpace)
@@ -128,9 +151,9 @@ cb = colorbar;
 colormap hotcold
 axis([-2 2 -2 2]);
 axis square
-set(gca, 'fontsize', 20, 'Clim', [-1 1]*sS);
+set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
 xlabel('Horizontal position');
 ylabel('Vertical position');
 title(TitlStr);
 set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);
-set(get(cb, 'Label'), 'String', '\Delta_{\sigma}');
+set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');

@@ -1,6 +1,6 @@
-function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mode, Colour, BootParams)
+function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mode, Colour, BootParams)
 %
-% Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, [Roi='', Threshold=[0.01 -Inf/0 Inf], Mode='Mean', Colour='k', BootParams=[1000, 2.5, 97.5]])
+% [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, [Roi='', Threshold=[0.01 -Inf/0 Inf], Mode='Mean', Colour='k', BootParams=[1000, 2.5, 97.5]])
 %
 % Plots the data defined by ValDv in SrfDv against the data in ValIv from SrfIv
 %  (thus, SrfDv is the dependent variable, SrfIv the independent variable).
@@ -16,6 +16,9 @@ function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mod
 %  or any other further analysis. It usually contains the following columns:
 %  Bins, Summary Statistics, Confidence Intervals, Number of Vertices
 %  (If generating a scatter plot, only the first two columns are created)
+%
+% The second output FigHdl is a figure handle to the main part of the plot
+%  (i.e. the summary curve rather than the confidence intervals).
 %
 % SrfDv/SrfIv:  Srf structures. When plotting data within a map, use the -same- Srf.
 %
@@ -65,11 +68,7 @@ function Res = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mod
 %                If only two inputs are defined, the second input defines
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
-% 10/08/2018 - SamSrf 6 version (DSS & SS)
-% 11/08/2018 - Fixed bug with method switch (DSS)
-% 04/06/2019 - Added option to plot normalised goodness-of-fit (DSS)
-% 09/09/2019 - Octave 5 support added (DSS)
-% 18/01/2020 - Fixed bug with confidence intervals in Octave (DSS)
+% 23/06/2020 - SamSrf 7 version (DSS & SS)
 %
 
 %% Expand Srfs if necessary
@@ -324,7 +323,7 @@ end
 %% Plot data
 if strcmpi(Mode, 'Scatter')
     % Scatter plot
-    scatter(Res(:,1), Res(:,2), '+', 'markeredgecolor', Colour);
+    FigHdl = scatter(Res(:,1), Res(:,2), '+', 'markeredgecolor', Colour);
     ylabel([ValDv RawLabelDv]);
     xlabel([ValIv RawLabelIv]);
 else
@@ -337,7 +336,7 @@ else
         polar(Res(x,1)/180*pi, Res(x,2)+Res(x,4), [':' Colour]); % CI upper limit
     else
         % Bin plot
-        plot(Res(:,1), Res(:,2), 'linewidth', 2, 'color', Colour, 'Marker', 'o'); % Summary curve
+        FigHdl = plot(Res(:,1), Res(:,2), 'linewidth', 2, 'color', Colour, 'Marker', 'o'); % Summary curve
         hold on
         plot(Res(:,1), Res(:,2)+Res(:,3), 'linestyle',':', 'color', Colour); % CI lower limit
         plot(Res(:,1), Res(:,2)+Res(:,4), 'linestyle',':', 'color', Colour); % CI upper limit

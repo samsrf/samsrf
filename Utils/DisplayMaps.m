@@ -35,7 +35,7 @@ global Srf RoiName Pval
 %% Default parameters (Feel free to edit)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 RoiName = NaN; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
-Pval = 0.00000001; % Starting p-value with which to threshold maps
+Pval = 0.0001; % Starting p-value with which to threshold maps
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 
 %% Welcome message

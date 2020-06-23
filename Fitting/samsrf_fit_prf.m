@@ -4,10 +4,9 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Fits a pRF model using the slow fine-fitting procedure (fminsearch in Optimization toolbox).
 %
-% IMPORTANT NOTE: In version 6.4 the precision of the model fitting algorithm was improved!
+% IMPORTANT NOTE: In SamSrf 7 the precision of the model fitting algorithm was improved!
 %                 Model fits using this version are -NOT- compatible with previous versions!
-%                 You can still use the old precision with the Model.Low_Precision_Fit flag
-%                 (but you wouldn't really want to unless you're pressed for time...)
+%                 Under some conditions previous versions sometimes reverted to the search grid.
 %
 %   Model:          Contains the parameters defining the eccentricity/scaling factor of the space.
 %   SrfFiles:       Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
@@ -20,7 +19,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 02/06/2020 - SamSrf 7 version (DSS) 
+% 22/06/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants
@@ -54,9 +53,6 @@ if ~isfield(Model, 'Coarse_Fit_Only')
 end
 if ~isfield(Model, 'Fine_Fit_Threshold')
     Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
-end
-if ~isfield(Model, 'Low_Precision_Fit')
-    Model.Low_Precision_Fit = false; % Use default tolerance in fminsearch algorithm.
 end
 
 %% If coarse fit only suffix filename
@@ -261,15 +257,9 @@ if Model.Coarse_Fit_Only
     OutFile = [OutFile '_CrsFit']; % Suffix to indicate coarse fit only 
 else
     %% Run fine fit for each vertex
-    if Model.Low_Precision_Fit
-        % Reduced toleraance for model fits (faster but much less precise!)
-        OptimOpts = optimset('TolX',1e-2, 'TolFun',1e-2, 'Display', 'off'); 
-        SlowFitName = 'Low-precision optimisation...';
-    else
-        % Default tolerance for model fits (slow)
-        OptimOpts = optimset('Display', 'off');
-        SlowFitName = 'High-precision optimisation...';
-    end
+    % Default tolerance for model fits (slow)
+    OptimOpts = optimset('Display', 'off');
+    SlowFitName = 'Fine fitting...';
     disp(SlowFitName);
     samsrf_waitbar([SlowFitName ' ' strrep(OutFile,'_','-')], h); 
     Tc = Srf.Y; % Always use unsmoothed data for fine fit
