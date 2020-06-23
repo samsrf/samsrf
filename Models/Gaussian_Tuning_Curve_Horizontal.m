@@ -24,7 +24,6 @@ Model.Replace_Bad_Fits = false; % (Optional) If true, uses coarse fit for bad sl
 Model.Smoothed_Coarse_Fit = 0; % (Optional) If > 0, smoothes data for coarse fit
 Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
 Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
-Model.Low_Precision_Fit = false; % (Optional) If true, uses old, faster but poorer fine fit
 
 % Search grid for coarse fit
 Model.Polar_Search_Space = false; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates

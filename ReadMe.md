@@ -29,6 +29,7 @@ by converting the SamSrf data files using samsrf_convert_old_srf.m
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Updated example Model scripts with finer search grids (DSS)  
 - Added several new functions for ground truth simulations (DSS)  
+- Lowered default threshold in display & delineation tools (DSS)  
 - Changed default eccentricity map colour scheme to inverted jet (DSS)  
 - Added option of wider paths in samsrf_surf in SamSrf_defaults (DSS)  
 - Added support for inverted colour schemes in samsrf_surf (DSS)  
