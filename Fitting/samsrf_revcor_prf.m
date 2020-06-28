@@ -26,11 +26,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 03/08/2018 - SamSrf 6 version (DSS)
-% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
-% 06/04/2020 - MAJOR UPDATE: Changed from correlation to left division!! (DSS)  
-%              Added calculation of full-width-at-half-maximum (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 27/06/2020 - SamSrf 7 version (DSS)
 %
 
 %% Defaults & constants
@@ -49,7 +45,8 @@ load(Model.Aperture_File);  % Loads a variable called ApFrm
 disp([' Loading ' Model.Aperture_File]);
 new_line; 
 % Regressor file name
-RegressorFile = ['reg_' Model.Aperture_File '.mat'];  
+[~,ApsName] = fileparts(Model.Aperture_File);
+RegressorFile = ['reg_' ApsName '.mat'];  
 
 %% Load images 
 if ischar(SrfFiles)
@@ -141,7 +138,6 @@ new_line;
 
 %% Calculate reverse correlation map 
 disp('Calculating pRF profiles...');
-h = samsrf_waitbar(['Calculating pRF profiles... ' strrep(OutFile,'_','-')]);
 Srf.Regs = X;  % Design matrix (regressors per pixel)
 % R-map for each vertex 
 Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));  
@@ -185,9 +181,7 @@ for v = 1:length(mver)
             Fitted(rd) = 1; % Mark all redundant vertices
         end
     end
-    samsrf_waitbar(v/length(mver), h); 
 end
-samsrf_waitbar('', h); 
 t2 = toc(t0); 
 disp(['Analysis completed in ' num2str(t2/60) ' minutes.']);
 

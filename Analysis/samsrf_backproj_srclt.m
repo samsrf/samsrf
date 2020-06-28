@@ -223,14 +223,12 @@ if sum(IdxGeomean) > 0 && sum(sum(Cleaned_Response(IdxGeomean,:) <= 0)) > 0
 end
 
 %% Backprojection with searchlight
-h = samsrf_waitbar('Backprojecting volumes...');
-
-%% Id counter
+disp('Backprojecting data into visual space...');
+% Id counter
 c_id = 1;
 
 %% Loop through X-coordinates
 for x = 1:size(X,2)
-    
     %% Loop through Y-coordinates
     for y = 1:size(Y,1)
         % Only searchlight within eccentricity range (expansion by 1 inter-grid-point distance to omit missing vertices because of edge
@@ -377,6 +375,4 @@ for x = 1:size(X,2)
             end
         end
     end
-    samsrf_waitbar(x/size(X,2), h);
 end
-samsrf_waitbar('', h);

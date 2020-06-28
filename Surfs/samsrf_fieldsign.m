@@ -54,9 +54,8 @@ if isfield(Srf, 'Sphere')
     sphV = Srf.Sphere;
     
     % Calculate field sign
-    h = samsrf_waitbar('Calculating field signs...'); 
+    disp('  Calculating field signs...');
     for j = 1:si
-        samsrf_waitbar(0, h); 
         i = 0;
         if isempty(roi)
             if j == si
@@ -64,7 +63,7 @@ if isfield(Srf, 'Sphere')
             else
                 Vs = ((j-1)*50000+1:j*50000)';
             end
-            samsrf_waitbar(['Calculating field signs... (Block #' num2str(j) ')'], h); 
+            disp(['   Calculating field signs... (Block #' num2str(j) ')']); 
         end
         for v = Vs'
             i = i + 1;
@@ -89,10 +88,8 @@ if isfield(Srf, 'Sphere')
                 % Field sign
                 fsD(1,v) = sign(sum(cross(E_vec, P_vec)));
             end
-            samsrf_waitbar(i/length(Vs), h); 
         end
     end
-    samsrf_waitbar('', h);
 
     % Save field sign data
     Srf.Data = [Srf.Data; fsD];

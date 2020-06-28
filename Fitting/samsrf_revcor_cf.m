@@ -90,7 +90,6 @@ Srf.Data = NaN(length(svx),size(Srf.Vertices,1)); % Connective field profile for
 
 %% Calculate reverse correlation map 
 disp('Calculating CF profiles...');
-h = samsrf_waitbar(['Calculating CF profiles... ' strrep(OutFile,'_','-')]); 
 % Keep track of redundancies
 Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
@@ -119,7 +118,6 @@ for v = 1:length(mver)
             Fitted(rd) = 1; % Mark all redundant vertices
         end
     end
-    samsrf_waitbar(v/length(mver), h); 
 end
 t2 = toc(t0); 
 disp(['Correlation analysis completed in ' num2str(t2/60) ' minutes.']);
@@ -140,7 +138,6 @@ end
 Srf.ConFlds = Srf.Data; % Smoothed correlation profile
 Srf.Data = [];
 disp('Estimating CF parameters...');
-samsrf_waitbar(['Estimating CF parameters... ' strrep(OutFile,'_','-')], h); 
 % Keep track of redundancies
 Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
@@ -166,9 +163,7 @@ for v = 1:length(mver)
     else
         Fitted(rd) = 1; % Mark all redundant vertices
     end
-    samsrf_waitbar(v/length(mver), h); 
 end
-samsrf_waitbar('', h); 
 t3 = toc(t0); 
 disp(['Parameter estimates completed in ' num2str(t3/60) ' minutes.']);
 

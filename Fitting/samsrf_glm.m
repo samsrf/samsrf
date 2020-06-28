@@ -82,20 +82,19 @@ else
 end
 
 %% Run linear regression 
-B = NaN(size(X,2)+1, size(Srf.Data,2));
-h = samsrf_waitbar('Running GLM on vertices...'); 
-for v = 1:length(mver)
+disp('Running GLM on vertices...'); 
+B = NaN(size(X,2)+1, length(mver));
+parfor v = 1:length(mver)
     if ~isnan(sum(Y(:,mver(v))))
         [cb,bint,cr,rint,st] = regress(Y(:,mver(v)),X);
-        B(:,mver(v)) = [cb; st(4)];  % Betas for current vertex & error variance
+        B(:,v) = [cb; st(4)];  % Betas for current vertex & error variance
     end
-    samsrf_waitbar(v/length(mver), h); 
 end
-samsrf_waitbar('', h); 
 
 %% Save as file
 Srf.Functional = 'GLM coefficients';
-Srf.Data = B;
+Srf.Data = NaN(size(X,2)+1, size(Srf.Data,2));
+Srf.Data(:,mver) = B; % Add betas into full surface map
 % Ensure Xnames is a column
 if size(Xnames,1) == 1
     Xnames = Xnames';

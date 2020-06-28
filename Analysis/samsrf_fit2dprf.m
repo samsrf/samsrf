@@ -28,8 +28,12 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 %
 % If no output arguments are defined, the observed and modelled profiles are plotted.
 %
-% 15/05/2020 - Written (DSS)
+% 26/06/2020 - SamSrf 7 version (DSS)
 
+% Check seed parameters are row vector 
+if size(SeedParams,2) == 1
+    SeedParams = SeedParams';
+end
 % Check scaling vector matches seed parameter vector
 if length(SeedParams) ~= length(EccScaPars)-1
     error('Mismatch betwen seed parameter vector & scaling vector!');
@@ -54,7 +58,8 @@ for p = 1:length(SeedParams)-2
 end
 
 % Fit model
-[fParams, R] = fminsearch(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0]);
+OptimOpts = optimset('Display', 'off');
+[fParams, R] = fminsearch(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], OptimOpts);
 Resid = (Rmap - mean(Rmap(:))).^2; % Squared residuals
 R2 = 1 - R/sum(Resid(:)); % Convert to R^2
 Fmap = PrfFcn(fParams(1:end-2),dims).*Mask * fParams(end-1) + fParams(end); % Fitted profiles

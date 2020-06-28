@@ -40,20 +40,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % this step is skipped. 
 % IT IS YOUR RESPONSIBILITY TO CHECK YOU'RE USING THE RIGHT ANATOMICAL DATA!
 %
-% 10/08/2018 - SamSrf 6 version (DSS)
-% 11/08/2018 - Fixed bug with rule switch (DSS)
-% 30/10/2018 - Corrected help section (DSS)
-% 14/11/2018 - Added option to calculate noise ceiling
-%              Added optional input to determine anatomy path (DSS)
-% 28/11/2018 - Added some additional command line statements (DSS)
-% 07/06/2019 - Fixed error with noise ceiling calculation (DSS)
-% 20/02/2020 - Some minor changes (DSS)
-% 11/03/2020 - Removed native Matlab NIfTI loading (DSS)
-% 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! (DSS)
-% 02/04/2020 - Removed a few unnnecessary new lines (DSS)
-% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
-% 08/04/2020 - Trimming NII extension should now be case-insensitive (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 29/06/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters
@@ -148,6 +135,7 @@ Srf.Data = NaN(length(ctxsteps), fhdr(1).dim(4), size(V0,1), length(funimg));
 Srf.Rule = rule;
 
 %% Transform the vertices 
+disp('Running surface projection...');
 cs = 0;
 for cl = ctxsteps
     cs = cs + 1;
@@ -165,7 +153,6 @@ for cl = ctxsteps
     tV = tV(1:3,:)';
 
     % Find voxels for each vertex
-    h = samsrf_waitbar(['Vertices @ ' num2str(cl) '...']);
     for i = 1:size(tV,1) 
         for fi = 1:length(funimg)
             if tV(i,1)>0 && tV(i,2)>0 && tV(i,3)>0 && tV(i,1)<fhdr(1).dim(1) && tV(i,2)<fhdr(1).dim(2) && tV(i,3)<fhdr(1).dim(3) 
@@ -174,9 +161,7 @@ for cl = ctxsteps
                 Srf.Data(cs, :, i, fi) = NaN; 
             end
         end
-        samsrf_waitbar(i/size(tV,1), h); 
     end
-    samsrf_waitbar('', h); 
 end
 
 %% Calculate one value per vertex

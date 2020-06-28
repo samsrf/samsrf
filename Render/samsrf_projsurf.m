@@ -82,14 +82,14 @@ else
 
     % Calculate overlay
     Colours = NaN(size(Vertices,3),3);
-    h = samsrf_waitbar('Calculating vertex colours...');
-    for v = 1:length(r)
+    disp('Projecting pixels to cortical surface...');
+    parfor v = 1:length(r)
         if ~r(v)
             % Convert image space into visual space
             vx = Srf.Data(2,v); % X-position of pRF
             vy = Srf.Data(3,v); % Y-position of pRF
             ed = sqrt((ix-vx).^2+(iy-vy).^2); % Euclidean distance of pixels from pRF centre
-            [ir ic] = find(ed == min(ed(:))); % Position of pRF in image matrix
+            [ir,ic] = find(ed == min(ed(:))); % Position of pRF in image matrix
             if ir > 0 && ir <= size(Img,1) && ic > 0 && ic <= size(Img,2)
                 % Inside the image so gets a colour
                 Colours(v,:) = squeeze(Img(ir,ic,:))';
@@ -102,9 +102,7 @@ else
                 end
             end
         end
-        samsrf_waitbar(v/length(r), h);
     end
-    samsrf_waitbar('', h);
 end
 % Set bad vertices to curvature only
 Colours(r&Curv<0,:) = repmat([.8 .8 .8],sum(r&Curv<0),1);

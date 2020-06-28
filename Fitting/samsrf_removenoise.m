@@ -6,8 +6,7 @@ function cSrf = samsrf_removenoise(Srf, X)
 %  from the time series data in Srf.Data. Returns the "cleaned" Srf.
 %  A global regressor is added automatically so do not include one.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 29/06/2020 - SamSrf 7 version (DSS)
 %
 
 %% Expand Srf if necessary
@@ -21,16 +20,16 @@ X = zscore(X); % Standardise covariates
 X = [X ones(size(X,1),1)]; % Add global regressor
 
 % Loop thru vertices
-h = samsrf_waitbar('Regressing...'); 
-for v = 1:Nv
+disp('Regressing out noise...'); 
+Data = zeros(size(cSrf.Data));
+parfor v = 1:Nv
     if ~isnan(sum(Y(:,v)))
         B = regress(Y(:,v), X);
         nY = X * B;
-        cSrf.Data(:,v) = Y(:,v) - nY;
+        Data(:,v) = Y(:,v) - nY;
     end
-    samsrf_waitbar(v/Nv, h); 
 end
-samsrf_waitbar('', h); 
+cSrf.Data = Data;
 
 %% Compress Srf again if needed
 cSrf = samsrf_compress_srf(cSrf,vx);

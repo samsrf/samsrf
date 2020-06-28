@@ -42,7 +42,6 @@ end
 % Determine visual area for each vertex
 Vis = zeros(size(Srf.Data,2), 1);
 Cmf = zeros(size(Srf.Data,2), 1);
-h = samsrf_waitbar('Calculating local CMF...'); 
 for v = mver'
     if Srf.Data(1,v) >= 0.01  % No point doing this for crappy vertices
         % Calculate visual area (density)
@@ -55,9 +54,7 @@ for v = mver'
         % Calculate cortical magnification factors
         Cmf(v) = sqrt(Ctx(v)) / sqrt(Vis(v));
     end
-    samsrf_waitbar(v/length(mver), h); 
 end
-samsrf_waitbar('', h); 
 
 % Store in structure
 Srf.Data = [Srf.Data; Cmf'; Vis'];

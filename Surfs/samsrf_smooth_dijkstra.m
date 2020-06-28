@@ -28,8 +28,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 % IMPORTANT: Requires the external dijkstra.m function from MatLab Central:
 %            https://au.mathworks.com/matlabcentral/fileexchange/20025-dijkstra-s-minimum-cost-path-algorithm
 %
-% 27/05/2019 - Fixed bug with thresholding when using already smoothed data (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 29/06/2020 - SamSrf 7 version (DSS)
 %
 
 if ~exist('dijkstra.m', 'file')
@@ -43,6 +42,7 @@ end
 if nargin <= 3
     thrsh = 0.01;
 end
+t0 = tic;
 
 % Expand Srf if necessary
 InSrf = samsrf_expand_srf(InSrf);
@@ -54,7 +54,6 @@ if isfield(Srf, 'Raw_Data')
 else
     Data = Srf.Data;
 end
-SmoothedData = zeros(size(Data));
 nver = size(Data,2);
 aVs = 1:nver; % All vertex indices
 
@@ -118,21 +117,22 @@ if isfield(Srf, 'Sphere')
     
     % Smoothing
     radius = stdev * 4;
-    h = samsrf_waitbar('Smoothing vertices...'); 
-    disp('  Smoothing vertices...');
+    disp('Smoothing vertices...');
     for j = 1:si
-        samsrf_waitbar(0, h); 
-        i = 0;
         if isempty(roi)
             if j == si
                 Vs = ((j-1)*50000+1:nver)';
             else
                 Vs = ((j-1)*50000+1:j*50000)';
             end
-            samsrf_waitbar(['Smoothing vertices... (Block #' num2str(j) ')'], h); 
+            disp([' Smoothing vertices... (Block #' num2str(j) ')']); 
         end
-        for v = Vs'
-            i = i + 1;
+        % Smooth data for each mask vertex
+        SmoothedData = zeros(size(Data,1), length(Vs));
+        parfor vi = 1:length(Vs)
+            % Current vertex
+            v = Vs(vi);
+            
             % Vertices in a spherical ROI within large radius 
             Dm = sphV - repmat(sphV(v,:), size(sphV,1), 1); % Euclidian distance vectors 
             Nd = sqrt(Dm(:,1).^2 + Dm(:,2).^2 + Dm(:,3).^2); % Euclidian distance in spherical mesh   
@@ -155,15 +155,14 @@ if isfield(Srf, 'Sphere')
 
                 % Weight vertices by distance
                 W = exp(-(Dd.^2)/(2*stdev.^2));  
-                SmoothedData(:,v) = sum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / sum(W);
+                SmoothedData(:,vi) = sum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / sum(W);
             end
-            samsrf_waitbar(i/length(Vs), h); 
         end
+        % Store smoothed data
+        Srf.Data(:,Vs) = SmoothedData;
     end
-    samsrf_waitbar('', h); 
 
-    % Store smoothed data
-    Srf.Data = SmoothedData;
+    % Store unsmoothed raw data
     Srf.Raw_Data = Data;
     if iscellstr(Srf.Functional)
         for iStr = 1:length(Srf.Functional)
@@ -172,7 +171,8 @@ if isfield(Srf, 'Sphere')
     else
         Srf.Functional = [Srf.Functional ' (Smoothed with Dijkstra FWHM=' num2str(fwhm) roistr];
     end
-    disp('  Smoothing complete.');
+    disp(['Smoothing finished after ' num2str(toc(t0)) ' seconds.']);
+    new_line;
 else
     warning('Skipping smoothing: no sphere data in Srf');
 end

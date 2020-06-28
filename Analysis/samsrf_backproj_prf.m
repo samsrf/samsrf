@@ -39,10 +39,7 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % same movie but in intensity image format. The third output contains in 
 % rows the X and Y coordinates, the Sigma and the Response for each vertex.
 %
-% 03/08/2018 - SamSrf 6 version (DSS)
-% 22/05/2019 - Made output name Timecourses more descriptive (DSS)
-% 19/08/2019 - Fixed bug with assignment of default inputs (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 29/06/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin <= 5
@@ -94,8 +91,7 @@ pRF_Data(4,:) = pRF_Data(4,:) / Eccentricity;
 Response = Response / max(abs(Response(:)));
 
 % Loop through volumes
-h = samsrf_waitbar('Backprojecting volumes...');
-for t = 1:size(Response,1)
+parfor t = 1:size(Response,1)
     % Loop through vertices
     Curr = zeros(200,200); % Current response
     Dcur = zeros(200,200);
@@ -107,9 +103,7 @@ for t = 1:size(Response,1)
     % Store current frame
     Timecourses(:,:,t) = Curr;
     Ds(:,:,t) = Dcur;
-    samsrf_waitbar(t/size(Response,1), h);
 end
-samsrf_waitbar('', h);
 
 % Normalize backprojected response by pRF density?
 if NormaliseByDensity

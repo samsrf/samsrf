@@ -19,7 +19,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 22/06/2020 - SamSrf 7 version (DSS) 
+% 29/06/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants
@@ -154,7 +154,7 @@ new_line;
 %% Generate prediction matrix
 if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     if ~exist([pwd filesep SearchspaceFile], 'file') 
-        disp('Generating predictions...');
+        disp('Generating predictions (this may take a while)...');
         [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, Model.Polar_Search_Space);    
         save(SearchspaceFile, 'X', 'S', '-v7.3');
         t1 = toc(t0); 
@@ -179,7 +179,6 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
 end
 
 %% Coarse fit / Load seed map
-h = samsrf_waitbar('Fitting pRFs...');
 if ~isempty(Model.Seed_Fine_Fit)
   % Load a previous map as seeds for fine fit
   disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
@@ -196,7 +195,6 @@ if ~isempty(Model.Seed_Fine_Fit)
 else
   % Coarse fitting procedure
   disp('Coarse fitting...');
-  samsrf_waitbar(['Coarse fitting... ' strrep(OutFile,'_','-')], h); 
   Srf.X = zeros(size(Tc));  % Matrix with predictions
   Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
   Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
@@ -238,7 +236,6 @@ else
                 Bimg(2,vx(v)) = B(1); % Intercept
               end            
           end
-         samsrf_waitbar((vs+v-1)/length(mver), h); 
       end
   end
   t2 = toc(t0); 
@@ -251,100 +248,80 @@ if Model.Coarse_Fit_Only
     %% Store coarse fit parameters
     disp('Only running coarse fit!');
     Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
-    fPimg = Pimg; % Coarse fitted parameter maps
-    fRimg = Rimg; % R^2 map
-    fBimg = Bimg; % Beta map
+    fPimg = Pimg(:,mver); % Coarse fitted parameter maps
+    fRimg = Rimg(1,mver); % R^2 map
+    fBimg = Bimg(:,mver); % Beta map
     OutFile = [OutFile '_CrsFit']; % Suffix to indicate coarse fit only 
 else
     %% Run fine fit for each vertex
-    % Default tolerance for model fits (slow)
-    OptimOpts = optimset('Display', 'off');
-    SlowFitName = 'Fine fitting...';
-    disp(SlowFitName);
-    samsrf_waitbar([SlowFitName ' ' strrep(OutFile,'_','-')], h); 
-    Tc = Srf.Y; % Always use unsmoothed data for fine fit
+    disp('Fine fitting...');
+    Tc = Srf.Y(:,mver); % Always use unsmoothed data for fine fit
+        
+    % Run fine fit (must be separate function for parallel computing toolbox
+    [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Tc, ApFrm, Rimg, Pimg, mver);
+    t3 = toc(t0); 
+    disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
+
+    % Additional data fields
+    fBimg = zeros(2,length(mver)); % Beta maps
     Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
-    fPimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fine fitted parameter maps
-    fRimg = zeros(1,size(Srf.Vertices,1)); % R^2 map
-    fBimg = zeros(2,size(Srf.Vertices,1)); % Beta map
-    % Keep track of redundancies
-    Fitted = zeros(1,size(Srf.Vertices,1)); % Toggle if vertex was already analysed
-    % Only loop through mask vertices
+    
+    % Process & fit betas for mask vertices
     for v = 1:length(mver)
-        % Index of current vertex
-        vx = mver(v);
-
-        if Fitted(vx) == 0 && Rimg(vx) >= Model.Fine_Fit_Threshold % Only non-redundant & reasonable coarse fits
-            % Find redundant vertices
-            rd = samsrf_find_redundancy(Tc,vx);  
-            % Mark all redundant vertices
-            Fitted(rd) = 1; 
-
-            % Find best prediction
-            Y = Tc(:,vx);  % Time course of current vertex
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y), Pimg(:,vx)', OptimOpts);  
-
-            % Loop thru fitted parameters
-            IsGoodFit = true;
-            for p = 1:length(fP)
-                % If scaled parameter is out of bounds
-                if Model.Scaled_Param(p) && abs(fP(p)) > 3
-                    IsGoodFit = false;
-                end
-                % If a parameter is negative but shouldn't be
-                if Model.Only_Positive(p) && fP(p) < 0
-                    IsGoodFit = false;
-                end
+        % Loop thru fitted parameters
+        IsGoodFit = true;
+        for p = 1:size(fPimg,1)
+            % If scaled parameter is out of bounds
+            if Model.Scaled_Param(p) && abs(fPimg(p,v)) > 2 
+                IsGoodFit = false;
             end
-            
-            % Obtain time course & store parameters
-            if IsGoodFit
-                % Only keep good parameters
-                fR = 1 - fR; % 1 minus unexplained variance
+            % If a parameter is negative but shouldn't be
+            if Model.Only_Positive(p) && fPimg(p,v) < 0
+                IsGoodFit = false;
+            end
+        end
+
+        % Store parameters & predicted time course 
+        vx = mver(v); % Current vertex in brain space
+        if IsGoodFit 
+            % Only keep good parameters
+            Rfp = Model.Prf_Function(fPimg(:,v)', size(ApFrm,1)*2); % Generate predicted pRF
+            fX = prf_predict_timecourse(Rfp, ApFrm); % Generate predicted time course
+            % Store prediction without HRF convolution
+            Srf.X(:,vx) = fX;  % Best fitting prediction
+        else
+            % Replace bad fits with coarse fit?
+            if Model.Replace_Bad_Fits
                 % Generate predicted time course
                 Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
                 fX = prf_predict_timecourse(Rfp, ApFrm);
                 % Store prediction without HRF convolution
-                Srf.X(:,rd) = repmat(fX, 1, length(rd));  % Best fitting prediction
-                % Loop thru fitted parameters
-                for p = 1:length(fP)
-                    fPimg(p,rd) = fP(p); % Add the pth fitted parameter
-                end
+                Srf.X(:,vx) = fX;  % Best fitting prediction
+                % Replace bad fit with coarse fit
+                fPimg(:,v) = Pimg(:,vx); % Parameters
+                fRimg(1,v) = Rimg(1,vx); % Goodness-of-fit
             else
-                % Replace bad fits with coarse fit?
-                if Model.Replace_Bad_Fits
-                    fR = Rimg(vx); % Goodness of coarse fit
-                    fP = Pimg(:,vx); % Parameter estimates from coarse fit
-                    % Generate predicted time course
-                    Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
-                    fX = prf_predict_timecourse(Rfp, ApFrm);
-                    % Store prediction without HRF convolution
-                    Srf.X(:,rd) = repmat(fX, 1, length(rd));  % Best fitting prediction
-                    % Loop thru fitted parameters
-                    for p = 1:length(fP)
-                        fPimg(p,rd) = fP(p); % Add the pth fitted parameter
-                    end
-                end
-            end
-            
-            % Convolve with HRF & fit betas
-            if IsGoodFit || Model.Replace_Bad_Fits
-                % Convolve predicted time course with HRF
-                fX = prf_convolve_hrf(fX, Model.Hrf);
-                % Fit betas for amplitude & intercept
-                warning off % In case of rank deficient GLM
-                fB = [ones(length(Y),1) fX] \ Y; % GLM fit
-                warning on
-                fBimg(1,rd) = fB(2); % Amplitude
-                fBimg(2,rd) = fB(1); % Intercept
-                fRimg(rd) = fR;  % Variance explained
+                % Just set all to zero
+                fRimg(1,v) = 0;
+                fPimg(:,v) = 0;
             end
         end
-        samsrf_waitbar(v/length(mver), h); 
+
+        % Convolve with HRF & fit betas
+        if IsGoodFit || Model.Replace_Bad_Fits
+            % Time course of current vertex
+            Y = Tc(:,v);  
+            % Convolve predicted time course with HRF
+            fX = prf_convolve_hrf(fX, Model.Hrf);
+            % Fit betas for amplitude & intercept
+            warning off % In case of rank deficient GLM
+            fB = [ones(length(Y),1) fX] \ Y; % GLM fit
+            warning on
+            fBimg(:,v) = fB([2 1]); % Amplitude & intercept
+        end
     end
     new_line;
 end
-samsrf_waitbar('', h); 
 
 % Rescale the data
 for i = 1:size(fPimg,1)
@@ -355,7 +332,9 @@ end
 
 % Prepare surface structure
 Srf.Functional = PrfFcnName; % pRF function name
-Srf.Data = [fRimg; fPimg; fBimg]; % Parameter maps
+Data = [fRimg; fPimg; fBimg];
+Srf.Data = zeros(size(Data,1), size(Srf.Vertices,1));
+Srf.Data(:,mver) = Data; % Add parameter maps into full data matrix
 % Add parameter names
 Srf.Values = {'R^2'}; 
 for p = 1:length(Model.Param_Names)
@@ -379,6 +358,6 @@ save(OutFile, 'Model', 'Srf', '-v7.3');
 disp(['Saved ' OutFile '.mat']); 
 
 % End time
-t3 = toc(t0); 
-EndTime = num2str(t3/60/60);
+t4 = toc(t0); 
+EndTime = num2str(t4/60/60);
 new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);

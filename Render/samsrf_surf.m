@@ -29,7 +29,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %   undefined a dialog box opens allowing you to select the file (close it if none needed).
 %  If the last entry in this array is a 1x3 vector, this defines the path colour.
 %  If the last entry in this array is NaN, then a default path colour is used.
-%  If this is empty, or the last entry is a filename, then the path colour
+%  If Paths is empty, or the last entry is a filename, then the path colour
 %   is automatically defined as the opposite polarity of the underlying colour.
 %
 % If Srf.Data contains more than one subject in the third dimension then
@@ -49,20 +49,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
-% 10/08/2018 - SamSrf 6 version (DSS)
-% 18/06/2019 - Values below Thrsh(2) are now removed unless it's sigma or eccentricity (DSS)
-% 22/06/2019 - Changed how colours are assigned (DSS)
-%              Added transparency option (DSS)
-% 03/07/2019 - Path colour is now by default complementary colour (DSS)
-%              Added option to define path colour in Paths (DSS)
-% 14/07/2019 - Added option to have uniform transparency level (DSS)
-% 10/03/2020 - Fixed bug with transparency of negative R^2 when using this
-%               function directly rather than via DisplayMaps (DSS)
-% 06/05/2020 - Added option to display connective field profiles (DSS)
-% 15/05/2020 - Fixed bug when paths are defined by vertex indeces (DSS)
-% 20/05/2020 - Fixed critical bug when loading no paths (DSS)
-% 27/05/2020 - Added default option to change path thickness (DSS)
-%              Added support for inverted colour schemes (DSS)
+% 28/06/2018 - SamSrf 7 version (DSS)
 %
 
 %% Create global variables
@@ -99,7 +86,7 @@ for i = length(Thrsh)+1:5
 end
 % Default transparency
 if length(Thrsh) < 6
-    Thrsh(6) = 0.3;
+    Thrsh(6) = 0.1;
 end
 % If uniform alpha desired
 if Thrsh(6) < 0

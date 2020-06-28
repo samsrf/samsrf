@@ -89,12 +89,12 @@ end
 new_line; 
 
 %% Simulate pRF timecourses
-h = samsrf_waitbar('Simulating pRF timecourses...');
-for v = 1:size(Srf.Data,2)
-    Rfp = PrfFcn(Srf.Ground_Truth(:,v)', size(ApFrm,1)*2); % pRF profile
+Gt = Srf.Ground_Truth; % Ground truth data
+Data = zeros(size(Srf.Data)); % Simulated data
+parfor v = 1:size(Srf.Data,2)
+    Rfp = PrfFcn(Gt(:,v)', size(ApFrm,1)*2); % pRF profile
     Y = prf_predict_timecourse(Rfp, ApFrm); % Prediction without z-normalisation!
     Y = prf_convolve_hrf(Y, Model.Hrf); % Convolve with HRF
-    Srf.Data(:,v) = Y; % Store simulation
-    samsrf_waitbar(v/size(Srf.Data,2), h);
+    Data(:,v) = Y; % Store simulation
 end
-samsrf_waitbar('', h);
+Srf.Data = Data; % Save simulation in Srf

@@ -10,8 +10,7 @@ function Ds = samsrf_geomatrix(V, F, Vs, MaxDist)
 % Returns a N x N matrix Ds containing the cortical distances between each 
 % of the N vertices and all the others.
 %
-% 05/05/2020 - Written (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 29/06/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters
@@ -26,13 +25,10 @@ N = length(Vs);
 Ds = NaN(N,N);
 
 %% Loop thru vertices
-h = samsrf_waitbar('Calculating distance matrix...'); 
 disp('Calculating distance matrix...');
 for v = 1:N
     [Nv,Nd] = samsrf_georoi(Vs(v), MaxDist, V, F); % Neighbourhood vertices & distances
     X = Inf(1,size(V,1)); % Dummy vector of vertices
     X(Nv) = Nd; % Distances on surface
     Ds(v,:) = X(Vs); % Store in matrix
-    samsrf_waitbar(v/N, h); 
 end
-samsrf_waitbar('', h); 
