@@ -75,6 +75,9 @@ t0 = tic; new_line;
 disp('*** SamSrf pRF model fitting ***');
 disp([' pRF model: ' PrfFcnName]);
 new_line;
+disp('Current working directory:');
+disp([' ' pwd]);
+new_line;
 
 %% Load apertures
 disp('Load stimulus apertures...');
@@ -117,7 +120,6 @@ Srf.Version = samsrf_version;
 % Store raw time courses
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
-
 % Do aperture & data length match?
 if size(Tc,1) ~= size(ApFrm,3)
     error('Mismatch between length of apertures and data!');
@@ -162,7 +164,13 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
         if size(ApFrm,3) ~= size(X,1)
             error('Mismatch between length of saved search space and apertures!');
         end
+        % Does length of search parameter & prediction matrix match?
+        if size(S,2) ~= size(X,2)
+            % Shouldn't ever happen unless someone screwed with the search space file
+            error('Search space is corrupt! Mismatch between number of parameters & predictions!');
+        end
     end
+    disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);
     new_line; 
 
     %% Convolution with HRF
