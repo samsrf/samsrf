@@ -28,7 +28,7 @@ by converting the SamSrf data files using samsrf_convert_old_srf.m
 
 ## LATEST UPDATES 
 
-### Version 6.994 (29-06-2020)  
+### Version 6.9941 (30-06-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Implemented parallel computing in several intensive analyses (DSS)  
@@ -46,6 +46,8 @@ by converting the SamSrf data files using samsrf_convert_old_srf.m
 - Fixed bug in ViewApertures tool where colour scheme was inconsistent across frames (DSS)  
 - Fixed inconsequential duplicate lines in samsrf_benson2srf (DSS)  
 - Added function for backprojecting reverse correlation profiles (DSS)  
+- Added checks for mismatch between model definition & pre-saved search spaces (DSS)  
+- Moved coarse fit smoothing later in the model fitting pipeline (DSS)  
 - Inconsequential reorganisation of steps after fine-fit in samsrf_fit_prf (DSS)  
 - Added figure handle output to samsrf_plot for legend use (DSS)   
 

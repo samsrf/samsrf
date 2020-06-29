@@ -19,7 +19,7 @@ function Srf = samsrf_smooth_georoi(InSrf, fwhm, roi, thrsh)
 % Stores the smoothed data in Srf.Data. The original raw data are stored 
 % inside Srf.Raw_Data.
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
+% 30/06/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters
@@ -32,10 +32,10 @@ end
 t0 = tic;
 
 % Expand Srf if necessary
-InSrf = samsrf_expand_srf(InSrf);
+Srf = samsrf_expand_srf(InSrf);
+clear InSrf
 
 % Load data
-Srf = InSrf;
 if isfield(Srf, 'Raw_Data')
     Data = Srf.Raw_Data;
 else
@@ -43,6 +43,8 @@ else
 end
 nver = size(Data,2);
 aVs = 1:nver; % All vertex indices
+% Remove smoothed value labels
+Srf.Values = Srf.Values(1:size(Data,1));
 
 % Remove smoothing string if it exists
 if iscellstr(Srf.Functional)
@@ -71,6 +73,8 @@ if fwhm == 0
 else
     % Convert FWHM into standard deviation
     stdev = fwhm / (2*sqrt(2*log(2)));
+    % Clear Srf.Data field
+    Srf.Data = zeros(size(Data));
 end
 
 % Is R^2 present in data?

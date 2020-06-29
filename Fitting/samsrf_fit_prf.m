@@ -19,7 +19,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 29/06/2020 - SamSrf 7 version (DSS) 
+% 30/06/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants
@@ -123,15 +123,6 @@ if size(Tc,1) ~= size(ApFrm,3)
     error('Mismatch between length of apertures and data!');
 end
 
-% Smooth for coarse fit?
-if Model.Smoothed_Coarse_Fit > 0
-    Srf.Data = Tc; % Store full time course in Srf
-    Srf = samsrf_smooth_sphere(Srf, Model.Smoothed_Coarse_Fit, Roi, 0); % Smooth within ROI
-    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field
-    Tc = Srf.Data; % Put smoothed data back into time course variable
-    Srf.Data = []; % Clear data field
-end
-
 %% Load or generate HRF
 disp('Haemodynamic response function...')
 if isempty(Model.Hrf)
@@ -163,9 +154,13 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
         disp('Loading pre-defined predictions...');
         load([pwd filesep SearchspaceFile]);
         disp([' Loading ' SearchspaceFile]);
+        % Does number of grid points match model?
+        if size(S,2) ~= length(Model.Param1) * length(Model.Param2) * length(Model.Param3) * length(Model.Param4) * length(Model.Param5)
+            error('Mismatch between saved search space and model definition!');
+        end
         % Does length of search space match apertures?
         if size(ApFrm,3) ~= size(X,1)
-            error('Mismatch between length of search space and apertures!');
+            error('Mismatch between length of saved search space and apertures!');
         end
     end
     new_line; 
@@ -176,6 +171,15 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
         X(:,p) = prf_convolve_hrf(X(:,p), Model.Hrf);
     end
     new_line; 
+end
+
+%% Smooth for coarse fit?
+if Model.Smoothed_Coarse_Fit > 0
+    Srf.Data = Tc; % Store full time course in Srf
+    Srf = samsrf_smooth_sphere(Srf, Model.Smoothed_Coarse_Fit, Roi, 0); % Smooth within ROI
+    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field
+    Tc = Srf.Data; % Put smoothed data back into time course variable
+    Srf.Data = []; % Clear data field
 end
 
 %% Coarse fit / Load seed map

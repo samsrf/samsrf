@@ -11,6 +11,6 @@ function [v,d,o] = samsrf_version
 %  completed before I manage to get all of this to work in Octave...
 %
 
-v = 6.994; % SamSrf version number
-d = '29-06-2020'; % Release date 
+v = 6.9941; % SamSrf version number
+d = '30-06-2020'; % Release date 
 o = 0.1; % SamOaSrf version number
