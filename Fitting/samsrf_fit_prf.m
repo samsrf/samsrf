@@ -147,7 +147,7 @@ new_line;
 %% Generate prediction matrix
 if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     if ~exist([pwd filesep SearchspaceFile], 'file') 
-        disp('Generating predictions (this may take a while)...');
+        disp('Generating predictions...');
         [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, Model.Polar_Search_Space);    
         save(SearchspaceFile, 'X', 'S', '-v7.3');
         t1 = toc(t0); 

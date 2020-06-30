@@ -12,19 +12,23 @@ In addition, there are various GUI-based tools available for specific functions:
 
 SamSrf now supports parallel computing for a number of time-intensive analyses,  
 so if you have Matlab's Parallel Computing Toolbox installed and you have a  
-multi-core computer or cluster it should run faster.   
+multi-core computer or cluster it should run faster. Many stages of the analysis  
+are now geared towards parallel computing, so they may be quite slow without it.  
 
-By default the anatomical meshes for a reconstruction (recon-all) are kept separate from the functional data in the folder ../anatomy/  
-You can use samsrf_expand_srf and samsrf_compress_srf to load and remove these fields from the Srf structure.  
+By default the anatomical meshes for a reconstruction (recon-all) are kept  
+separate from the functional data in the folder ../anatomy/  
+You can use samsrf_expand_srf and samsrf_compress_srf to load and remove  
+these fields from the Srf structure.  
 
 ### IMPORTANT NOTE: MODEL FITS FROM VERSIONS PRIOR TO 7.0 ARE NOT COMPARABLE!  
-The pRF fitting process has considerable differences to that used in previous versions of SamSrf.  
+The pRF fitting process has considerable differences to previous versions of SamSrf.  
 Previous versions would revert to the search grid in some situations.  
 Please refer to the cookbook for more information.  
 
-Even if you used earlier versions for your mapping analysis we recommend you use SamSrf 7 for your analysis -after- the model fitting.  
-Data files from SamSrf 6 should already be in the same format. You can also use data files from older versions (at least 5.0 upwards)  
-by converting the SamSrf data files using samsrf_convert_old_srf.m  
+Even if you used earlier versions for your analysis we recommend you use SamSrf 7  
+for your analysis -after- the model fitting. Data files from SamSrf 6 should already  
+be in the same format. You can also convert old data files from older versions  
+(at least 5.0 upwards) using samsrf_convert_old_srf.m   
 
 ## LATEST UPDATES 
 
