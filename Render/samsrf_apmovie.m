@@ -1,15 +1,14 @@
 function samsrf_apmovie(ApFile, Framerate)
 % samsrf_apmovie(ApFile, [Framerate])
 %
-% Displays each frame from a SamSrf aperture file, and saves it to disk as
-% a movie.
+% Displays each frame from a SamSrf aperture file, and saves it to disk as a movie.
 %
 % ApFile is a SamSrf aperture file (aps_*.mat)
 %
 % Framerate allows you to change the number of stimulus frames per second
 % in the final movie. Default is 5 frames/second, to match samsrf_tcmovie.
 %
-% 09/08/2018 SamSrf 6 version (DSS) 
+% 30/06/2020 SamSrf 7 version (DSS) 
 %
 
 %% Defaults

@@ -7,7 +7,7 @@ function samsrf_tcmovie(Srf, Mesh, Thrsh, Paths, CamView, MapType, ColorMap)
 %
 % MapType = 'signal' or 'model'
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
+% 30/06/2020 - SamSrf 7 version (DSS)
 %
 
 %% Defaults
