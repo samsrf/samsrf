@@ -26,9 +26,9 @@ Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
 Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
 
 % Search grid for coarse fit
-Model.Polar_Search_Space = false; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
-Model.Param1 = -1.1 : 0.1 : 1.1; % X0 search grid
-Model.Param2 = -1.1 : 0.1 : 1.1; % Y0 search grid
+Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+Model.Param1 = 0 : 10 : 350; % Polar search grid
+Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5.6 : 0.2 : 1); % Sigma search grid
 Model.Param4 = 0; % Unused
 Model.Param5 = 0; % Unused

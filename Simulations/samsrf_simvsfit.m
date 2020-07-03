@@ -19,7 +19,7 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
 %   so if for some reason your stimulus was different (e.g. square?) 
 %   you will need to change this to match your design.
 %
-% Another plot contains a scatter graph comparing ground truth and
+% An alternative plot is a scatter graph comparing ground truth and 
 %   modelled pRF size (sigma) parameters. Each symbol is one pRF. 
 %   The colour denotes the beta amplitude parameter.
 %
@@ -27,7 +27,9 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
 % Thresholds(1) defines the ground truth Sigma to restrict the plot to. 
 %   A typical simulation would contain a range of spatial positions and a 
 %   range of Sigmas. You can restrict the plot to only one simulated Sigma
-%   to prevent clutter. Defaults to NaN for no restriction.
+%   to prevent clutter. This defaults to NaN, which means no restriction.
+%   When this is NaN the function also plots a comparison of Sigmas between
+%   ground truth and modelled pRFs.
 %
 % Thresholds(2) defines the R^2 threshold of the model fits to include in 
 %   the comparison. Defaults to -Inf (includes all).
@@ -76,17 +78,19 @@ if sB == 0
 end
 
 %% Plot pRF sizes
-figure; hold on 
-line([0 max([tS mS])], [0 max([tS mS])], 'color', 'k');
-scatter(tS, mS, 200, mB, 'filled', 'markeredgecolor', 'k');
-axis square
-cb = colorbar;
-colormap hotcold
-set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);
-set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
-xlabel('Ground truth \sigma');
-ylabel('Modelled \sigma');
-set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');
+if isnan(Thresholds(1))
+    figure; hold on 
+    line([0 max([tS mS])], [0 max([tS mS])], 'color', 'k');
+    scatter(tS, mS, 200, mB, 'filled', 'markeredgecolor', 'k');
+    axis square
+    cb = colorbar;
+    colormap hotcold
+    set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);
+    set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
+    xlabel('Ground truth \sigma');
+    ylabel('Modelled \sigma');
+    set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');
+end
 
 %% Filter to sigma ground truth
 mX = mX(g); tX = tX(g);

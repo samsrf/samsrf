@@ -1,22 +1,28 @@
 function [Img, Mov] = samsrf_vfcoverage(Srf, Ecc, Roi, R2Thrsh, Clipping, Raw)
 %
-% [Img, Mov] = samsrf_vfcoverage(Srf, Ecc, [Roi='', R2Thrsh=0.05, Clipping, Raw])
+% [Img, Mov] = samsrf_vfcoverage(Srf, Ecc, [Roi='', R2Thrsh=0.05, Clipping=1, Raw])
 %
 % Creates an image showing the visual field coverage of a particular ROI. 
+% Also plots the image & overlays the pRF centres as black dots.
 %
 % ROI is a string to a ROI label. If it is undefined or empty, all vertices are displayed.
-% If ROI is a scalar vector it instead directly refers to the ROI vertices.
+%   If ROI is a vector it instead directly refers to the ROI vertices.
 %
-% Ecc defines the eccentricity of the mapping stimulus. R2Thrsh defines the 
-% R^2 threshold (defaults = 0.1). Clipping defines the value above which
-% all pixels are coloured the same (default = Inf, i.e. no clipping).
-% Finally, Raw toggles whether raw data are used.
+% Ecc defines the eccentricity of the mapping stimulus. 
+%   If this is a vector, the second & third element define the 
+%   eccentricity range (min, max) to include in the coverage plot.
+%   This range defaults to [0 2*Ecc(1)].
+%
+% R2Thrsh defines the R^2 threshold (defaults = 0.05). 
+%
+% Clipping defines the value above which all pixels are coloured the same 
+%   (default = Inf, i.e. no clipping).
+%
+% Raw toggles whether raw data are used.
 %
 % The optional output Mov contains all the pRF profiles as individual frames.
 %
-% 10/08/2018 - SamSrf 6 version (DSS)
-% 11/08/2018 - Fixed bug with switch but need to add support 
-%               for flexible function handles (DSS)
+% 01/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 3
@@ -33,6 +39,14 @@ elseif nargin < 5
     Raw = false;
 elseif nargin < 6
     Raw = false;
+end
+
+%% Eccentricity range undefined?
+if length(Ecc) == 1
+    Ecc = [Ecc 0];
+end
+if length(Ecc) == 2
+    Ecc = [Ecc 2*Ecc];
 end
 
 %% Expand Srf if necessary
@@ -67,8 +81,12 @@ end
 Srf.Data = Srf.Data(:,rver);
 
 %% Remove rubbish
-sv = Srf.Data(1,:) > R2Thrsh & Srf.Data(4,:) > 0 & sqrt(Srf.Data(2,:).^2+Srf.Data(3,:).^2) < 2*Ecc;
+sv = Srf.Data(1,:) > R2Thrsh & Srf.Data(4,:) > 0 & sqrt(Srf.Data(2,:).^2+Srf.Data(3,:).^2) > Ecc(2) & sqrt(Srf.Data(2,:).^2+Srf.Data(3,:).^2) < Ecc(3);
 Srf.Data = Srf.Data(:,sv);
+
+%% pRF centre positions
+Xpos = Srf.Data(2,:);
+Ypos = Srf.Data(3,:);
 
 %% Initialise the image matrix
 Mov = zeros(200, 200, size(Srf.Data,2));
@@ -76,10 +94,10 @@ Mov = zeros(200, 200, size(Srf.Data,2));
 %% Detect type of data (pRF, DoG) and normalise data by eccentricity
 if sum(strcmpi(Srf.Values, 'Surround'))
     DataType = 'DoG';
-    Srf.Data(2:6, :) = Srf.Data(2:6, :) / Ecc;
+    Srf.Data(2:6, :) = Srf.Data(2:6, :) / Ecc(1);
 else
     DataType = 'pRF';
-    Srf.Data(2:4, :) = Srf.Data(2:4, :) / Ecc;
+    Srf.Data(2:4, :) = Srf.Data(2:4, :) / Ecc(1);
 end
 
 %% Loop through all vertices
@@ -93,18 +111,24 @@ end
   
 %% Display the images
 figure('Name', 'Visual field coverage');
+g = Ecc(3)/100;
+EccGrd = [-Ecc(3):g:-g g:g:Ecc(3)];
+[Xc,Yc] = meshgrid(EccGrd, EccGrd);
+Yc = flipud(Yc); % Because Matlab is stupid...
 Img = mean(Mov,3); 
-Img = Img(26:175,26:175);
-Img = flipud(Img);
 if isinf(Clipping)
     Img = Img / max(Img(:));
+    Clipping = 1;
 else
     Img = Img / Clipping;
     Img(Img > 1) = 1;
 end
-contourf(Img, 50, 'linestyle', 'none');
-colormap jet 
-set(gca, 'fontsize', 12);
+contourf(Xc, Yc, Img, 100, 'linestyle', 'none');
+hold on
+scatter(Xpos, Ypos, '.k');
+line(xlim, [0 0], 'color', 'k', 'linestyle', '--');
+line([0 0], ylim, 'color', 'k', 'linestyle', '--');
+set(gca, 'fontsize', 20);
 xlabel('Horizontal coordinate (deg)');
 ylabel('Vertical coordinate (deg)');
 if ischar(Roi)
@@ -112,8 +136,7 @@ if ischar(Roi)
     title(RoiName);
 end
 axis square
-axis([1 150 1 150]);
-set(gca, 'xtick', 0:25:150, 'xticklabel', -Ecc*1.5:Ecc/2:Ecc*1.5);
-set(gca, 'ytick', 0:25:150, 'yticklabel', -Ecc*1.5:Ecc/2:Ecc*1.5);
-colorbar
+cb = colorbar;
 caxis([0 1]);
+set(cb, 'ytick', 0:.25:1, 'yticklabel', 0:Clipping/4:Clipping);
+set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);

@@ -8,6 +8,10 @@ function Radial_2d_Multivariate_Prf(SrfFiles, Roi)
 % This is an example model. Move this file to your parent data folder and
 % adapt the model parameters to suit your personal needs and desires.
 %
+% IMPORTANT NOTE: The search space for the coarse fit in this model has not
+% yet been tested! You may also instead wish to use a seed map based on a
+% standard 2D Gaussian instead of a coarse fit.
+%
 
 %% Radial 2D multivariate pRF
 Model.Prf_Function = @(P,ApWidth) prf_multivariate_rf(P(1), P(2), P(3), P(4), atan2(P(2),P(1))/pi*180, ApWidth); % Which pRF model function? 
@@ -26,9 +30,9 @@ Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
 Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
 
 % Search grid for coarse fit
-Model.Polar_Search_Space = false; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
-Model.Param1 = -1.2 : 0.2 : 1.2; % X0 search grid
-Model.Param2 = -1.2 : 0.2 : 1.2; % Y0 search grid
+Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+Model.Param1 = 0 : 10 : 350; % Polar search grid
+Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5:1); % Horizontal sigma search grid
 Model.Param4 = 2 .^ (-5:1); % Vertical sigma search grid
 Model.Param5 = 0; % Unused
