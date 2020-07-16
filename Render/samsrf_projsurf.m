@@ -15,8 +15,7 @@ function OutSrf = samsrf_projsurf(Srf, Mesh, Img, Eccen, Thrsh, CamView)
 % This projection does not use pRF size but only position. It also simply 
 % uses the pixel nearest to the pRF position rather than interpolating. 
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 10/07/2020 - SamSrf 6 version (DSS)
 %
 
 %% Expand Srf if necessary
@@ -142,7 +141,7 @@ if nargin < 7
         if Srf.Hemisphere(1) == 'l'
             CamView = [36 -20 1.8];
         else
-            CamView = [-50 -6 1.6];
+            CamView = [-26 -7 1.6];
         end
     end
 end

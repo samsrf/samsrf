@@ -9,8 +9,10 @@ function Srf = samsrf_compress_srf(Srf,vx)
 % Only if the length of vx is shorter than the number of vertices overall
 % the compression takes place, unless vx is empty.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 28/11/2018 - Added support for noise ceiling (DSS)
+% Note: this function only works for single-subject Srfs. There currently
+%   is no support for expanding or compressing multi-subbject Srfs.
+%
+% 16/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Remove data outside of region of interest

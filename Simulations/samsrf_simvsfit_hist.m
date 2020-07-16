@@ -45,7 +45,7 @@ if nargin < 3
     Nreps = 100;
 end
 
-%% Retrieve data
+%% Vectorise data
 % Modelled parameters
 R2 = Srf.Data(1,:);
 mX = Srf.Data(2,:);

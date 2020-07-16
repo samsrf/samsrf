@@ -1,6 +1,6 @@
-function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
+function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 %
-% samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf], SearchSpace=[]])
+% samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf], SearchSpace=[], PlotRsq])
 %
 % Plots a comparison of simulated ground truth pRFs & model fits in Srf.
 % At present this function only works for standard 2D Gaussian pRFs.
@@ -13,7 +13,7 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
 %
 % Plots the position shifts as a quiver graph: the dot symbols denote 
 %   the modelled positions and the lines denote the shifts from the ground 
-%   truth positions. The dot colours denote the modelled Beta.
+%   truth positions. The dot colours denote the modelled Beta or R^2.
 %
 %   A circular mask for where the apertures should be is also included - 
 %   so if for some reason your stimulus was different (e.g. square?) 
@@ -42,7 +42,10 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace)
 %   other such parameters. You would usually find this search space matrix 
 %   in the S variable of your src_*.mat file.
 %
-% 22/06/2020 - SamSrf 7 version (DSS) 
+% PlotRsq is a boolean that toogles whether dot colours denote R^2 (true) 
+%   or the modelled Betas (false).
+%
+% 13/07/2020 - SamSrf 7 version (DSS) 
 %
 
 if nargin < 2
@@ -54,6 +57,9 @@ end
 if nargin < 3
     SearchSpace = [];
 end
+if nargin < 4
+    PlotRsq = false;
+end
 
 %% Retrieve data
 % Modelled parameters
@@ -62,6 +68,10 @@ mX = Srf.Data(2,:);
 mY = Srf.Data(3,:);
 mS = Srf.Data(4,:);
 mB = Srf.Data(5,:);
+% Plot betas or R^2?
+if PlotRsq
+    mB = R2;
+end
 
 % Ground truth parameters
 tX = Srf.Ground_Truth(1,:);
@@ -70,9 +80,17 @@ tS = Srf.Ground_Truth(3,:);
 
 %% Remove bad fits
 g = R2 > Thresholds(2);
+mX = mX(g); tX = tX(g);
+mY = mY(g); tY = tY(g);
+mS = mS(g); tS = tS(g);
+mB = mB(g);
+if isempty(mB)
+    error(['No data with R^2 > ' num2str(Thresholds(2))]);
+end
+TitlStr = ['R^2 > ' num2str(Thresholds(2))];
 
 %% Scales for sigma plot
-sB = max(abs([min(mB) max(mB)])); % Sigma difference scale
+sB = max(abs([min(mB) max(mB)])); % Beta difference / R^2 scale
 if sB == 0
     sB = 1;
 end
@@ -92,16 +110,7 @@ if isnan(Thresholds(1))
     set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');
 end
 
-%% Filter to sigma ground truth
-mX = mX(g); tX = tX(g);
-mY = mY(g); tY = tY(g);
-mS = mS(g); tS = tS(g);
-mB = mB(g);
-if isempty(mB)
-    error(['No data with R^2 > ' num2str(Thresholds(2))]);
-end
-TitlStr = ['R^2 > ' num2str(Thresholds(2))];
-% Limit ground truths?
+%% Limit ground truths?
 if ~isnan(Thresholds(1))
     % Only this Sigma 
     g = tS == Thresholds(1);
@@ -119,7 +128,7 @@ if isempty(mB)
 end
 
 %% Scales for quiver plot
-sB = max(abs([min(mB) max(mB)])); % Sigma difference scale
+sB = max(abs([min(mB) max(mB)])); % Beta difference / R^2 scale
 if sB == 0
     sB = 1;
 end
@@ -153,7 +162,7 @@ end
 grid on
 cb = colorbar;
 colormap hotcold
-axis([-2 2 -2 2]);
+axis([-1.5 1.5 -1.5 1.5]);
 axis square
 set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
 xlabel('Horizontal position');

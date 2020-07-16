@@ -18,13 +18,10 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 %
 % The second output argument contains the list of vertices in the ROI.
 %
-% As of SamSrf 6, all functions that take Srfs as an input will check if
-%  the Srf has been expanded and produce an error if it hasn't.
+% Note: this function only works for single-subject Srfs. There currently
+%   is no support for expanding or compressing multi-subbject Srfs.
 %
-% 10/08/2018 - SamSrf 6 version (DSS)
-% 28/11/2018 - Added support for noise ceiling (DSS)
-% 30/11/2018 - Fixed show-stopping bug with noise ceiling (DSS)
-% 01/12/2018 - Fixed platform-dependency with path when loading anatomy (DSS)
+% 16/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% In case no values defined

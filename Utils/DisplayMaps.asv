@@ -83,13 +83,9 @@ load(fn); % Load Srf
 % Limit multi-subject Srf?
 if size(Srf.Data,3) > 1
     disp(['Srf.Data contains ' num2str(size(Srf.Data,3)) ' subjects.']);
-    if ~isfield(Srf, 'Subjects')
-        Srf.Subjects = {};
-        for i = 1:size(Srf.Data,3)
-            Srf.Subjects{i} = ['Subject #' num2str(i)];
-        end
+    if isfield(Srf, 'Subjects')
+        SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which su);
     end
-    SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
     if isempty(SubjNum)
         disp('You must pick a subject! Selecting #1...');
         SubjNum = 1;
@@ -103,13 +99,9 @@ end
 % In case only raw data has multiple subjects
 if isfield(Srf, 'Raw_Data') && size(Srf.Raw_Data,3) > 1
     disp(['Srf.Raw_Data contains ' num2str(size(Srf.Raw_Data,3)) ' subjects.']);
-    if ~isfield(Srf, 'Subjects')
-        Srf.Subjects = {};
-        for i = 1:size(Srf.Raw_Data,3)
-            Srf.Subjects{i} = ['Subject #' num2str(i)];
-        end
+    if isfield(Srf, 'Subjects')
+        SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single');
     end
-    SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
     if isempty(SubjNum)
         disp('You must pick a subject! Selecting #1...');
         SubjNum = 1;

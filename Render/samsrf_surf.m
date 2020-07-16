@@ -19,7 +19,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %   Thrsh(4:5) restrict the eccentricity range irrespective of what kind of map it is.
 %    (Obviously, this only works if there is actually a 2D visual map present in the data).
 %   
-%   Thrhs(6) defines the proporion of the range beyond which the map is scaled to be transparent.
+%   Thrsh(6) defines the proportion of the range beyond which the map is scaled to be transparent.
 %    If R^2 is present, this proportion is relative to the range between Thrsh(1) and 1.
 %    If no R^2 is present, this proportion refers to the range between Thrsh(2) and Thrsh(3).
 %   If Thrsh(6) is negative, the same transparency level is used uniformly for the whole map.
@@ -49,7 +49,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
-% 28/06/2018 - SamSrf 7 version (DSS)
+% 16/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Create global variables
@@ -101,14 +101,22 @@ end
 %% Figure handle
 fh = gcf;
 
-%% Expand Srf if necessary
+%% Expand (if necessary) & denoise Srf 
 Srf = samsrf_expand_srf(Srf);
 
-%% Is this a group map file?
+%% Multi-subject Srf?
 if size(Srf.Data,3) > 1
-    SubjNum = inputdlg(['Which subject? (N=' num2str(size(Srf.Data,3)) ')']);
-    SubjNum = cell2mat(SubjNum);
-    SubjNum = str2double(SubjNum);
+    if ~isfield(Srf, 'Subjects')
+        Srf.Subjects = {};
+        for i = 1:size(Srf.Data,3)
+            Srf.Subjects{i} = ['Subject #' num2str(i)];
+        end
+    end
+    SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
+    if isempty(SubjNum)
+        disp('You must pick a subject! Selecting #1...');
+        SubjNum = 1;
+    end
     Srf.Data = Srf.Data(:,:,SubjNum);
 end
 
@@ -552,7 +560,7 @@ if nargin < 5 || isempty(CamView)
         if Srf.Hemisphere(1) == 'l'
             CamView = [36 -20 1.8];
         else
-            CamView = [-50 -6 1.6];
+            CamView = [-26 -7 1.6];
         end
     else
         % Use default camera angle

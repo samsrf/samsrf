@@ -4,8 +4,6 @@ function Simulate_Noisy_Prfs(StdDev, ModAps, SimAps)
 %
 % Fits a standard 2D Gaussian pRF model to simulated pRF data to which
 %   Gaussian noise with standard deviation StdDev has been added.
-%   In the interest of time, this generates a smaller number of ground truth 
-%   conditions than for simulating noise-free data.
 %
 % ModAps defines the aperture file to model (omitting 'aps_' prefix).
 %
@@ -17,7 +15,7 @@ function Simulate_Noisy_Prfs(StdDev, ModAps, SimAps)
 % This is an example script of the simulation analyses you can run.
 %
 
-% Number of repeats per ground truth condition
+% Number of pRFs per condition
 Nreps = 100;
 
 if nargin < 3
@@ -33,17 +31,18 @@ Model.Only_Positive = [0 0 1]; % Which parameters must be positive?
 Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity) - not changed here
 Model.TR = 1; % Repetition time (TR) of pulse sequence - standard in our experiments
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
-Model.Aperture_File = ['aps_' ModAps]; % Box standard sweeping bars design we typically use
+Model.Aperture_File = ['Apertures\aps_' ModAps]; % Box standard sweeping bars design we typically use
 
 % Search grid for coarse fit
-Model.Param1 = -1.1 : 0.1 : 1.1; % X0 search grid
-Model.Param2 = -1.1 : 0.1 : 1.1; % Y0 search grid
+Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+Model.Param1 = 0 : 10 : 350; % Polar angle search grid
+Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5.6 : 0.2 : 1); % Sigma search grid
 Model.Param4 = 0; % Unused
 Model.Param5 = 0; % Unused
 
 %% Simulate pRFs 
-[Theta, Rho, Sigma] = ndgrid(0:30:330, 2.^(-4.5:.5), .05*2.^(0:2:4)); % A simulated visual field with a range of pRF sizes
+[Theta, Rho, Sigma] = ndgrid(0:15:345, 2.^[-4.5 -3.5:.5:.5], .05*2.^(0:5)); % A simulated visual field with a range of pRF sizes
 [X,Y] = pol2cart(Theta/180*pi, Rho); % Convert polar to Cartesian coordinates
 Ground_Truth = [X(:) Y(:) Sigma(:)]'; % Matrix of ground truth parameters
 load(['Apertures' filesep 'aps_' SimAps]); % Load apertures to simulate responses for

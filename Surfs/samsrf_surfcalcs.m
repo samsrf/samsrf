@@ -1,6 +1,6 @@
-function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms, NegBetas)
+function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms)
 %
-% Srf = samsrf_surfcalcs(InSrf, [Roi='', R2Thrsh=0.01, Eccens=[0 Inf], Method='o', Fwhms=[10 3], NegBetas=false])
+% Srf = samsrf_surfcalcs(InSrf, [Roi='', R2Thrsh=0.01, Eccens=[0 Inf], Method='o', Fwhms=[10 3]])
 % 
 % Runs a range of surface calculations on a pRF map:
 % First, it smoothes the map with a large kernel and calculates the field sign.
@@ -16,11 +16,8 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms, NegB
 %                'Geodeosic':   Distance determined by geodesic steps (FreeSurfer standard)
 %                'Dijkstra':    Distance determined by Dijkstra's geodesic distance (best method, but slow)
 %   Fwhms:      Smoothing kernels (1x2 vector, first kernel is for field sign, second is for everything else)
-%   NegBetas:   Toggles whether negative betas are allowed in field sign calculation
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 11/08/2018 - Updated help description (DSS)
-% 28/05/2019 - Added some clarifications in the help section (DSS)
+% 05/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2
@@ -50,10 +47,6 @@ Raw = Srf.Data; % Save raw data
 % Filter as required
 Ecc = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2); % Eccentricities
 Srf.Data(1,Ecc < Eccens(1) | Ecc > Eccens(2)) = 0; % Remove anything outside eccentricity range
-if ~NegBetas
-    Beta = Srf.Data(strcmpi(Srf.Values, 'Beta'),:); % Betas
-    Srf.Data(1,Beta <= 0) = 0; % Remove anything with beta <= 0
-end    
 
 % Smooth heavily & calculate field sign
 switch upper(Method(1))

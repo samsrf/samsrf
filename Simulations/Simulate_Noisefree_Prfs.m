@@ -29,9 +29,10 @@ Model.TR = 1; % Repetition time (TR) of pulse sequence - standard in our experim
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = ['aps_' ModAps]; % Box standard sweeping bars design we typically use
 
-% Search grid for coarse fit
-Model.Param1 = -1.1 : 0.1 : 1.1; % X0 search grid
-Model.Param2 = -1.1 : 0.1 : 1.1; % Y0 search grid
+%% Search grid for coarse fit
+Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+Model.Param1 = 0 : 10 : 350; % Polar angle search grid
+Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5.6 : 0.2 : 1); % Sigma search grid
 Model.Param4 = 0; % Unused
 Model.Param5 = 0; % Unused
@@ -42,7 +43,6 @@ Model.Param5 = 0; % Unused
 Ground_Truth = [X(:) Y(:) Sigma(:)]'; % Matrix of ground truth parameters
 load(['Apertures' filesep 'aps_' SimAps]); % Load apertures to simulate responses for
 Srf = samsrf_simulate_prfs(Ground_Truth, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth), ApFrm, Model); % Simulate time courses
-% Srf = 
 save(['sim_' SimAps], 'Srf'); % Save simulated data 
         
 %% Fit pRF model
