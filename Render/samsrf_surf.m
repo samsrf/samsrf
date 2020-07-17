@@ -597,7 +597,7 @@ Alpha = repmat(Alpha',1,3);
 
 
 function txt = getvertexfun(empt, event_obj)
-global Vertices Type Data
+global Vertices Type Data Srf
 
 pos = get(event_obj, 'Position');
 v = find(Vertices(:,1) == pos(1) & Vertices(:,2) == pos(2) & Vertices(:,3) == pos(3), 1);

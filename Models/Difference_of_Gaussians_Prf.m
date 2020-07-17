@@ -62,19 +62,10 @@ end
 MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 
 %% Post-processing
-load(MapFile);
-
-% Calculate FWHM
-Srf = samsrf_dog_fwhm(Srf);
-
-% Field sign, CMF & smooth
-R2_Threshold = 0.05; % R^2 threshold for surface calculations
-Eccentricity_Range = [1 Model.Scaling_Factor]; % Eccentricity range for surface calculations
-Smoothing_Kernels = [10 3]; % First kernel for field sign & second kernel for everything else
-Srf = samsrf_surfcalcs(Srf, Roi, R2_Threshold, Eccentricity_Range, 'S', Smoothing_Kernels, false);
-
-%% Save again
-save(MapFile, 'Srf', 'Model', '-v7.3'); 
+load(MapFile); % Load map we just analysed
+Srf = samsrf_dog_fwhm(Srf); % Calculate FWHM
+Srf = samsrf_normr2(Srf); % Convert raw R^2 to normalised R^2
+save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
 
 %% Return home
 cd(HomePath); 

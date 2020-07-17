@@ -29,14 +29,14 @@ for ac = 1:size(A,2)
         % Current data vector
         b = B(:,bc);
         % Calculate correlation
-        r = sum(sin(a-circmean(a)) .* sin(b-circmean(b))) ...
-          / sqrt(sum(sin(a-circmean(a)).^2) .* sum(sin(b-circmean(b)).^2));
+        r = sum(sin(a-circmeanrad(a)) .* sin(b-circmeanrad(b))) ...
+          / sqrt(sum(sin(a-circmeanrad(a)).^2) .* sum(sin(b-circmeanrad(b)).^2));
         R(ac,bc) = r;
     end
 end
 
-%% Circular mean
-function Alpha = circmean(X)
+%% Circular mean (input in radians)
+function Alpha = circmeanrad(X)
 
 n = length(X); % Number of observations
 Alpha = atan2(sum(sin(X)) / n, sum(cos(X)) / n); % Circular mean

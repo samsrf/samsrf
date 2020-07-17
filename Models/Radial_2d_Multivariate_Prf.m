@@ -62,20 +62,15 @@ end
 MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 
 %% Post-processing
-load(MapFile);
+load(MapFile); % Load map we just analysed
 
 % Add aspect ratio
 Srf.Values{8} = 'Aspect Ratio'; 
 Srf.Data(8,:) = log(abs(Srf.Data(4,:)) ./ abs(Srf.Data(5,:))); % Logarithm of Radial/Tangential 
 
-% Field sign, CMF & smooth
-R2_Threshold = 0.05; % R^2 threshold for surface calculations
-Eccentricity_Range = [1 Model.Scaling_Factor]; % Eccentricity range for surface calculations
-Smoothing_Kernels = [10 3]; % First kernel for field sign & second kernel for everything else
-Srf = samsrf_surfcalcs(Srf, Roi, R2_Threshold, Eccentricity_Range, 'S', Smoothing_Kernels, false);
-
-%% Save again
-save(MapFile, 'Srf', 'Model', '-v7.3'); 
+% Standard post-processing
+Srf = samsrf_normr2(Srf); % Convert raw R^2 to normalised R^2
+save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
 
 %% Return home
 cd(HomePath); 

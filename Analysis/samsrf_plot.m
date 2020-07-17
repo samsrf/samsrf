@@ -68,7 +68,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %                If only two inputs are defined, the second input defines
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
-% 17/07/2020 - SamSrf 7 version (DSS & SS)
+% 17/07/2020 - SamSrf 7 version (DSS & SuSt)
 %
 
 %% Expand Srfs if necessary
