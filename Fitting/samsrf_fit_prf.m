@@ -19,7 +19,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 30/06/2020 - SamSrf 7 version (DSS) 
+% 17/07/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants

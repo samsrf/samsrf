@@ -189,7 +189,7 @@ MapNum = get(handles.popupmenu2,'Value');
 MapType = contents{MapNum};
 
 % What R^2 threshold?
-if strcmpi(Srf.Values{1}, 'R^2')
+if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     R2Thrsh = str2double(get(handles.edit1, 'String'));
     if strcmpi(get(handles.togglebutton1, 'Enable'), 'on')
         if get(handles.togglebutton1,'Value') 

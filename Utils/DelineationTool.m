@@ -141,7 +141,7 @@ end
 
 %% R^2 threshold
 set(handles.edit1,'String',num2str(R2Thrsh));
-if strcmpi(Srf.Values{1}, 'R^2')
+if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     r = Srf.Data(1,:) <= 0.01 | isnan(Srf.Data(1,:));
 else 
     r = isnan(Srf.Data(1,:));
@@ -243,7 +243,7 @@ if nargin == 0
 end
 
 % Remove rubbish
-if strcmpi(Srf.Values{1}, 'R^2')
+if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     r = Srf.Data(1,:) <= 0.01 | isnan(Srf.Data(1,:));
 else 
     r = isnan(Srf.Data(1,:));

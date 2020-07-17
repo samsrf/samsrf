@@ -68,7 +68,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %                If only two inputs are defined, the second input defines
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
-% 23/06/2020 - SamSrf 7 version (DSS & SS)
+% 17/07/2020 - SamSrf 7 version (DSS & SS)
 %
 
 %% Expand Srfs if necessary
@@ -185,7 +185,7 @@ end
 %% Filter data & restrict to ROI
 GoF = true(1,size(SrfIv.Data,2)); % Goodness-of-fit placeholder
 % Is 1st row R^2 (usually in pRF maps only)?
-if strcmpi(SrfIv.Values{1}, 'R^2')
+if strcmpi(SrfIv.Values{1}, 'R^2') || strcmpi(SrfIv.Values{1}, 'nR^2')
     GoF(SrfIv.Data(1,:) <= Threshold(1)) = false; % Unlabel bad fits
 else
     % Warn user if 1st row isn't R^2

@@ -7,7 +7,7 @@ function samsrf_tcmovie(Srf, Mesh, Thrsh, Paths, CamView, MapType, ColorMap)
 %
 % MapType = 'signal' or 'model'
 %
-% 30/06/2020 - SamSrf 7 version (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Defaults
@@ -141,7 +141,7 @@ PathColour = [1 1 1];
 %% Thresholding
 
 % R^2 threshold
-if strcmpi(Srf.Values{1}, 'R^2')
+if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     r = Srf.Data(1,:) <= 0.01 | isnan(Srf.Data(1,:));
 else 
     r = isnan(Srf.Data(1,:));

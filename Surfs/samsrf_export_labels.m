@@ -11,7 +11,7 @@ function samsrf_export_labels(Srf, Ecc, OutFile, Raw)
 %
 % You can use this function to load maps in FreeSurfer.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 % Default
@@ -93,7 +93,13 @@ if isfield(Srf, 'Values')
      if cell2mat(strfind(Srf.Values, 'Mu'))
         
         % Extract values
-        R2 = Srf.Data(find(strcmpi(Srf.Values, 'R^2')), :);
+        R2 = Srf.Data(find(strcmpi(Srf.Values, 'nR^2')), :);
+        if isempty(R2)
+            R2 = Srf.Data(find(strcmpi(Srf.Values, 'R^2')), :);
+            disp('Using raw R^2 values as magnitude.');
+        else
+            disp('Using normalised R^2 values as magnitude.');
+        end
         Mu = Srf.Data(find(strcmpi(Srf.Values, 'Mu')), :);
         
         % Convert Mu into complex map

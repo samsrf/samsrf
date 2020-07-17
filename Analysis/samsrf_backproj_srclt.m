@@ -112,30 +112,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %  searchlight. The row number corresponds to the identifier in SrclID.
 %
 %
-% 10/08/2018 - SamSrf 6 version (DSS & SuSt)
-% 11/08/2018 - Fixed bug with method switch (DSS)
-% 24/11/2018 - Added filtered weight matrices
-%            - Removed NaN substitution outside loop as loop itself checks for this (SuSt)
-% 26/11/2018 - Added warning message if NaN detected when summing up weights
-%              Simplified code for filtered weight matrices & storage of current summary statistic
-%              Adapted calculation of used pRFs (filtered and unfiltered)
-%              Maximum distance from searchlight centre now filtered like summary statistic
-%              Fixed bug when calculating count weight matrix
-%              Fixed bug when checking for standard mode (SuSt)
-% 27/11/2018 - Nearest neighbour mode: distances are now normalized using 2*Eccentricity (SuSt)
-% 21/05/2019 - Now outputs one variable instead of Cleaned_Response and Cleaned_pRF_Data (SuSt)
-% 22/05/2019 - Changed output variable names to be more descriptive (DSS)
-% 27/01/2020 - Implemented square tessellation
-%              Expanded eccentricity range to omit missing vertices due to edge effects
-%              Updated descriptions/comments (SuSt)
-% 14/02/2020 - Added to the toolbox & minor cosmetic changes (DSS)
-% 17/05/2020 - Simplified default inputs and updated feasibility check-ups (SuSt)
-%              Now allows restricting polar angle range (SuSt)
-%              Now allows specifying a separate mode for each row of Response (SuSt)
-%              Added circular mean and median (SuSt)
-%              Now outputs searchlight IDs and indices for vertices falling in a given searchlight (SuSt)
-% 18/05/2020 - Added error if using circular stats without a toolbox (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 16/07/2020 - SamSrf 7 version (DSS & SuSt)
 %
 
 %% Default inputs

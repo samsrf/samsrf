@@ -28,7 +28,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 % IMPORTANT: Requires the external dijkstra.m function from MatLab Central:
 %            https://au.mathworks.com/matlabcentral/fileexchange/20025-dijkstra-s-minimum-cost-path-algorithm
 %
-% 30/06/2020 - SamSrf 7 version (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 if ~exist('dijkstra.m', 'file')
@@ -92,7 +92,7 @@ end
 
 % Is R^2 present in data?
 if isfield(Srf, 'Values')
-    if strcmpi(Srf.Values{1}, 'R^2')
+    if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
         Rsq = Data(1,:);
     else
         Rsq = ones(1,size(Data,2));

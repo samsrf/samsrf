@@ -16,9 +16,7 @@ function Srf = samsrf_cortmagn(Srf, Roi)
 % Adds a 2*n matrix with the CMF and visual area values to the Srf.
 % (Surface area is already stored in the anatomical data)
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 18/02/2019 - Fixed bug when no ROI is used (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters
@@ -59,4 +57,4 @@ end
 % Store in structure
 Srf.Data = [Srf.Data; Cmf'; Vis'];
 Srf.Values{end+1} = 'Cmf';
-Srf.Values{end+1} = 'Visual area';
+Srf.Values{end+1} = 'Visual Area';

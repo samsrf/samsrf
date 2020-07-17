@@ -11,11 +11,7 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 %
 % The output of this function is a bitmap which can be displayed or saved.
 % 
-% 15/09/2018 - Fixed errors with eccentricity & made polar consistent with 
-%               samsrf_surf but numerically identical to previous version (DSS)
-% 27/11/2018 - Modified to make more versatile for some colour schemes and 
-%               added option to use colour maps without changing SamSrf_defaults (DSS)
-% 27/05/2020 - Added support for inverted colour schemes (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2
@@ -110,7 +106,7 @@ elseif strcmpi(vartype, 'Sigma')
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);
         imgB(c,abs(x(1,:))<50) = Cmap(c,3);
     end
-elseif strcmpi(vartype, 'R^2')
+elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     % Colourmap
     cstr = ['colormap(' def_cmap_other(2:end) '(801));'];
     Cmap = eval(cstr);        

@@ -6,8 +6,10 @@ function [p75, med, r2h] = samsrf_r2hist(Srf, Roi)
 % in Srf and plots the histogram of all reasonable vertices (R^2>0.01). 
 % Can be restricted to region of interest Roi. It doesn't check if the
 % values are in fact R^2 values but simply takes Srf.Data(1,:).
+% The X-axis label states what the name of this field is so if this doesn't
+% say R^2 or nR^2 you aren't plotting goodness-of-fit values...
 %
-% 23/08/2018 - SamSrf 7 version (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2
@@ -20,6 +22,7 @@ Srf = samsrf_expand_srf(Srf);
 % Load ROI
 if isempty(Roi)
     Vs = 1:size(Srf.Vertices,1);
+    Roi = 'All vertices';
 else
     Vs = samsrf_loadlabel(Roi);
 end
@@ -35,9 +38,12 @@ p75 = prctile(r2h, 75);
 med = median(r2h);
 
 % Plot histogram
-hist(r2h, 100);
+hist(r2h, -.05:.05:1.1);
 hold on
 h1 = line([med med], ylim, 'color', 'r');
 h2 = line([p75 p75], ylim, 'color', 'r', 'linestyle', '--');
+xlim([-.05 1.1]);
 legend([h1 h2], {'Median' '90^t^h %ile'});
 title(Roi);
+xlabel(Srf.Values{1});
+ylabel('Number of data points');

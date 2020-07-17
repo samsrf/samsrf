@@ -32,11 +32,12 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 6.9943 (16-07-2020)  
+### Version 6.9944 (17-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Implemented parallel computing in several intensive analyses (DSS)  
-- Removed all progress bars as they don't work in parallel computing (DSS)  
+- Added function for computing normalised goodness-of-fit (DSS)  
+- Removed all progress bars (new command window solution to follow) (DSS)  
 - Fits beyond twice the X & Y range are now automatically removed (DSS)  
 - Updated example Model scripts with finer search grids (DSS)  
 - Added several new functions for ground truth simulations (DSS)  

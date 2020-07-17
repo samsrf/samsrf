@@ -49,7 +49,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
-% 16/07/2020 - SamSrf 7 version (DSS)
+% 17/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Create global variables
@@ -173,7 +173,7 @@ if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0') && strcmpi(Srf.Values{
 end
 
 %% Remove rubbish
-if strcmpi(Srf.Values{1}, 'R^2')
+if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     r = Srf.Data(1,:) <= Thrsh(1) | isnan(Srf.Data(1,:));
     Srf.Data(1,r) = NaN; % Set rubbish to NaN
     Alpha = CalcAlphas(Srf.Data(1,:), [Thrsh(1) Thrsh(1) + (1-Thrsh(1))*Thrsh(6)]); % Transparency based on R^2
@@ -355,7 +355,7 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     Pha(r) = 360;
     
     % If no R^2 present
-    if ~strcmpi(Srf.Values{1}, 'R^2')
+    if ~strcmpi(Srf.Values{1}, 'R^2') || ~strcmpi(Srf.Values{1}, 'nR^2')
         Alpha = CalcAlphas(Pha, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on Pha
         % If uniform alpha desired
         if UniformAlpha
@@ -496,7 +496,7 @@ else
     X(r) = 0;
     
     % If no R^2 present
-    if ~strcmpi(Srf.Values{1}, 'R^2')
+    if ~strcmpi(Srf.Values{1}, 'R^2') || ~strcmpi(Srf.Values{1}, 'nR^2')
         Alpha = CalcAlphas(X, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on X
         % If uniform alpha desired
         if UniformAlpha
