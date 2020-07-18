@@ -19,7 +19,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 17/07/2020 - SamSrf 7 version (DSS) 
+% 18/07/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants
@@ -54,6 +54,9 @@ end
 if ~isfield(Model, 'Fine_Fit_Threshold')
     Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
 end
+if ~isfield(Model, 'Coarse_Fit_Block_Size')
+    Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
+end
 
 %% If coarse fit only suffix filename
 if Model.Coarse_Fit_Only 
@@ -67,7 +70,7 @@ if verLessThan('matlab','7.13')
     cfvb = 1;
 else
     % Coarse-fit vertex block size
-    cfvb = 10000;
+    cfvb = Model.Coarse_Fit_Block_Size;
 end
 
 %% Start time of analysis
@@ -214,6 +217,8 @@ else
   if Model.Coarse_Fit_Only
       Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
   end
+  disp([' Vertex block size: ' num2str(cfvb) ' columns']);
+
   
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
   for vs = 1:cfvb:length(mver)
@@ -248,6 +253,9 @@ else
                 Bimg(2,vx(v)) = B(1); % Intercept
               end            
           end
+      end
+      if vs > 1 && cfvb > 1
+        disp([' ' num2str(vs) ' vertices completed']);
       end
   end
   t2 = toc(t0); 

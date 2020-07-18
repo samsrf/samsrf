@@ -26,7 +26,7 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 % Stores the smoothed data in Srf.Data. The original raw data are stored 
 % inside Srf.Raw_Data.
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
+% 18/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters
@@ -161,7 +161,7 @@ if isfield(Srf, 'Sphere')
     else
         Srf.Functional = [Srf.Functional ' (Smoothed with spherical FWHM=' num2str(fwhm) roistr];
     end
-    disp(['Smoothing finished after ' num2str(toc(t0)) ' seconds.']);
+    disp(['Smoothing finished after ' num2str(toc(t0)/60) ' minutes.']);
     new_line;
 else
     warning('Skipping smoothing: no sphere data in Srf');

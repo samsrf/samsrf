@@ -14,6 +14,11 @@ end
 A = A / 180 * pi;
 B = B / 180 * pi;
 
+% Remove rubbish
+nn = ~isnan(A) & ~isnan(B);
+A = A(nn);
+B = B(nn);
+
 % Sample size
 n = size(A,1);
 
@@ -34,6 +39,7 @@ for ac = 1:size(A,2)
         R(ac,bc) = r;
     end
 end
+
 
 %% Circular mean (input in radians)
 function Alpha = circmeanrad(X)

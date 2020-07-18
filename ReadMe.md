@@ -32,12 +32,14 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 6.9944 (17-07-2020)  
+### Version 6.9945 (18-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Implemented parallel computing in several intensive analyses (DSS)  
+- Added option to change the size of coarse fit vertex blocks (DSS)  
 - Added function for computing normalised goodness-of-fit (DSS)  
-- Removed all progress bars (new command window solution to follow) (DSS)  
+- Added options to render noise ceiling in DisplayMaps (DSS)  
+- Removed all progress bars (new command window solution to follow?) (DSS)  
 - Fits beyond twice the X & Y range are now automatically removed (DSS)  
 - Updated example Model scripts with finer search grids (DSS)  
 - Added several new functions for ground truth simulations (DSS)  
@@ -57,6 +59,7 @@ be in the same format. You can also convert old data files from older versions
 - Changed default camera position for right hemisphere (DSS)  
 - Simplified support for multi-subject Srf data in DisplayMaps (DSS)  
 - Added function for Beta denoising & checkbox in DisplayMaps (DSS)  
+- Added default option for restricting DisplayMaps to a ROI (DSS)  
 - Added figure handle output to samsrf_plot for legend use (DSS)   
 
 ## Questions/Comments?

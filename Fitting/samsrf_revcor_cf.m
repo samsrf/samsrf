@@ -22,9 +22,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 05/05/2020 - Added option to smooth connectivity profiles (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 18/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Defaults & constants
@@ -171,6 +169,12 @@ disp(['Parameter estimates completed in ' num2str(t3/60) ' minutes.']);
 Srf.Functional = 'Connective field';
 Srf.Data = [fRimg; fXimg; fZimg; fWimg; fVimg];
 Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Vx'};
+% Add noise ceiling if it has been calculated
+if isfield(Srf, 'Noise_Ceiling')
+    Srf.Data = [Srf.Data; Srf.Noise_Ceiling];
+    Srf.Values{end+1} = 'Noise Ceiling'; 
+    Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
+end
 
 % Save map files
 disp('Saving CF results...');

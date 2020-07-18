@@ -26,7 +26,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 27/06/2020 - SamSrf 7 version (DSS)
+% 18/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Defaults & constants
@@ -195,6 +195,12 @@ Srf.Y_coords = Yc;
 Srf.Functional = 'Reverse correlation';
 Srf.Data = [fRimg; fXimg; fYimg; fSimg; fBimg];
 Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
+% Add noise ceiling if it has been calculated
+if isfield(Srf, 'Noise_Ceiling')
+    Srf.Data = [Srf.Data; Srf.Noise_Ceiling];
+    Srf.Values{end+1} = 'Noise Ceiling'; 
+    Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
+end
 
 % Save map files
 disp('Saving pRF results...');

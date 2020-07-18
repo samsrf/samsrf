@@ -28,7 +28,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 % IMPORTANT: Requires the external dijkstra.m function from MatLab Central:
 %            https://au.mathworks.com/matlabcentral/fileexchange/20025-dijkstra-s-minimum-cost-path-algorithm
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
+% 18/07/2020 - SamSrf 7 version (DSS)
 %
 
 if ~exist('dijkstra.m', 'file')
@@ -175,7 +175,7 @@ if isfield(Srf, 'Sphere')
     else
         Srf.Functional = [Srf.Functional ' (Smoothed with Dijkstra FWHM=' num2str(fwhm) roistr];
     end
-    disp(['Smoothing finished after ' num2str(toc(t0)) ' seconds.']);
+    disp(['Smoothing finished after ' num2str(toc(t0)/60) ' minutes.']);
     new_line;
 else
     warning('Skipping smoothing: no sphere data in Srf');

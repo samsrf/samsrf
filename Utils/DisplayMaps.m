@@ -32,9 +32,14 @@ end
 function DisplayMaps_OpeningFcn(hObject, eventdata, handles, varargin)
 global Srf RoiName Pval
 
+load('SamSrf_defaults.mat');
+if ~exist('def_disproi')
+    def_disproi = NaN; 
+end
+
 %% Default parameters (Feel free to edit)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
-RoiName = NaN; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
+RoiName = def_disproi; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
 Pval = 0.0001; % Starting p-value with which to threshold maps
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 
@@ -142,6 +147,14 @@ if isfield(Srf, 'Raw_Data')
     set(handles.togglebutton1, 'Enable', 'on');
 else
     set(handles.togglebutton1, 'Enable', 'off');
+end
+
+%% Is this raw data with noise ceiling?
+if isfield(Srf, 'Noise_Ceiling')
+    Srf.Values(2:end+1) = Srf.Values;
+    Srf.Values{1} = 'Noise Ceiling';
+    Srf.Data = [Srf.Noise_Ceiling; Srf.Data];
+    Srf = rmfield(Srf, 'Noise_Ceiling');
 end
 
 %% Update map list
@@ -396,7 +409,7 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 contents = cellstr(get(handles.popupmenu2,'String'));
 MapType = contents{get(handles.popupmenu2,'Value')};
 % Default cut-offs
-if strcmpi(MapType, 'R^2')
+if strcmpi(MapType, 'R^2') || strcmpi(MapType, 'nR^2') || strcmpi(MapType, 'Noise Ceiling')
     set(handles.edit2, 'String', '0 1');
 elseif strcmpi(MapType, 'Polar')
     set(handles.edit2, 'String', '0 0');
