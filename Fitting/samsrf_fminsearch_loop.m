@@ -43,8 +43,8 @@ end
 
     %% Progress report
     function percentanalysed(~)
-    % Reports back every 1000 vertices
-        if mod(vc,1000) == 0
+    % Reports back every 5000 vertices
+        if mod(vc,5000) == 0
             disp([' ' num2str(round(vc/length(mver)*100)) '% completed']);
         end
         vc = vc + 1;

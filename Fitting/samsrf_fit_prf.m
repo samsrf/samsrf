@@ -282,7 +282,8 @@ else
     [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Tc, ApFrm, Rimg, Pimg, mver);
     t3 = toc(t0); 
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
-
+    
+    disp('Fitting beta parameters & storing fitted models...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
     Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
@@ -344,6 +345,7 @@ else
     new_line;
 end
 
+disp('Tidying up final results structure...');
 % Rescale the data
 for i = 1:size(fPimg,1)
     if Model.Scaled_Param(i)
