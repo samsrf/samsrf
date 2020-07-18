@@ -60,7 +60,9 @@ be in the same format. You can also convert old data files from older versions
 - Changed default camera position for right hemisphere (DSS)  
 - Simplified support for multi-subject Srf data in DisplayMaps (DSS)  
 - Added function for Beta denoising & checkbox in DisplayMaps (DSS)  
-- Added default option for restricting DisplayMaps to a ROI (DSS)  
+- Added default option for restricting DisplayMaps & DelineationTool to a ROI (DSS)  
+- Default display is now based on occipital mesh coordinates instead of ROI (DSS)  
+- DelineationTool now defaults to activation loading if no field sign exists (DSS)  
 - Added figure handle output to samsrf_plot for legend use (DSS)   
 
 ## Questions/Comments?

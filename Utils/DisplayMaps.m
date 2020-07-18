@@ -124,14 +124,42 @@ end
 
 % Expand if necessary
 [Srf,vx] = samsrf_expand_srf(Srf);
+% What ROI to display
 if isnan(RoiName)
+    % Use ROI from Srf
     disp('Using ROI from Srf if it exists');
-elseif ischar(RoiName)
+elseif RoiName(1) == '<' || RoiName(1) == '>' 
+    % If ROI defined by coordinates
+    if length(RoiName) == 1
+        error('You must define inflated mesh coordinate in def_disproi!');
+    end
+    switch RoiName(2)
+        case 'X'
+            wv = Srf.Inflated(:,1);
+        case 'Y'
+            wv = Srf.Inflated(:,2);
+        case 'Z'
+            wv = Srf.Inflated(:,3);
+        otherwise
+            error('Invalid inflated mesh coordinate specified in def_disproi!');
+    end
+    if length(RoiName) < 3
+        error('You must define inflated mesh cut-off coordinate in def_disproi!');
+    end
+    wc = str2double(RoiName(3:end));
+    if RoiName(1) == '<'
+        vx = find(wv < wc);
+    elseif RoiName(1) == '>'
+        vx = find(wv > wc);
+    end
+    disp(['Only displaying inflated mesh vertices with ' RoiName]);
+elseif isempty(RoiName)
+    % No ROI defined
+    disp('No ROI defined!');
+else
     % If ROI was named, load that instead
     vx = samsrf_loadlabel([pn filesep Srf.Hemisphere '_' RoiName]);
     disp(['Only displaying ROI ' Srf.Hemisphere '_' RoiName]);   
-else
-    disp('No ROI defined!');
 end
 
 % Remove non-ROI vertices if desired

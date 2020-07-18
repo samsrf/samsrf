@@ -50,10 +50,15 @@ guidata(hObject, handles);
 %% Global variables
 global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
 
+load('SamSrf_defaults.mat');
+if ~exist('def_disproi')
+    def_disproi = NaN; 
+end
+
 %% Default parameters (Change at your own leisure/peril!)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 Mesh = 'sphere'; % Which cortex model to use
-RoiName = 'occ'; % ROI name without hemisphere
+RoiName = def_disproi; % ROI name without hemisphere
 Pval = 0.0001; % Starting p-value with which to threshold maps
 ActPrct = [25 95]; % Percentiles to threshold activation maps
 RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % ROI list
@@ -75,13 +80,44 @@ EccThrsh = EccVec(1:2);
 SrfName = uigetfile('*h_*.mat', 'Select pRF map');
 SrfName = SrfName(1:end-4);
 load(SrfName);
-Srf = samsrf_expand_srf(Srf);
+[Srf, vx] = samsrf_expand_srf(Srf);
 
-% Load region of interest
-Roi = [SrfName(1:2) '_' RoiName];
-vx = samsrf_loadlabel(Roi);
-if ~isnan(vx)
+% What ROI to display
+if RoiName(1) == '<' || RoiName(1) == '>'
+    % If ROI defined by coordinates
+    if length(RoiName) == 1
+        error('You must define inflated mesh coordinate in def_disproi!');
+    end
+    switch RoiName(2)
+        case 'X'
+            wv = Srf.Inflated(:,1);
+        case 'Y'
+            wv = Srf.Inflated(:,2);
+        case 'Z'
+            wv = Srf.Inflated(:,3);
+        otherwise
+            error('Invalid inflated mesh coordinate specified in def_disproi!');
+    end
+    if length(RoiName) < 3
+        error('You must define inflated mesh cut-off coordinate in def_disproi!');
+    end
+    wc = str2double(RoiName(3:end));
+    if RoiName(1) == '<'
+        vx = find(wv < wc);
+    elseif RoiName(1) == '>'
+        vx = find(wv > wc);
+    end
+    disp(['Only displaying inflated mesh vertices with ' RoiName]);
+elseif isnan(RoiName)
+    % Use ROI from Srf
+    disp('Using ROI from Srf if it exists');
+else
+    % Load region of interest
+    Roi = [SrfName(1:2) '_' RoiName];
+    vx = samsrf_loadlabel(Roi);
     disp(['Only displaying ROI ' Roi]);
+end
+if ~isnan(vx)
     roivx = true(size(Srf.Vertices,1),1);
     roivx(vx) = false;
     Srf.Vertices(roivx,:) = NaN;
@@ -93,6 +129,13 @@ end
 Srf.Values{end+1} = 'Custom';
 if sum(strcmpi(Srf.Values, 'Beta')) == 1
     Srf.Data(end+1,:) = Srf.Data(strcmpi(Srf.Values, 'Beta'),:);
+end
+% Check if field sign exists
+if sum(strcmpi(Srf.Values, 'Field Sign')) == 0
+    IsFsMap = false;
+    FsMapName = 'Beta map';
+else
+    FsMapName = 'Field Sign map';
 end
 
 % Determine starting threshold
@@ -150,7 +193,7 @@ end
 %% Display maps
 CalculateMapRgb;
 [hc pc] = DisplayMesh('Cortex & ROIs', Srf, Vertices, Faces, CfRgb);
-[hf pf] = DisplayMesh('Field Sign map', Srf, Vertices, Faces, FsRgb);
+[hf pf] = DisplayMesh(FsMapName, Srf, Vertices, Faces, FsRgb);
 [he pe] = DisplayMesh('Eccentricity map', Srf, Vertices, Faces, EccRgb);
 [hp pp] = DisplayMesh('Polar map', Srf, Vertices, Faces, PolRgb);
 set(hc, 'Units', 'normalized');
@@ -303,6 +346,9 @@ Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
 PolRgb = Cmap(Pha,:);
 PolRgb(Vs,:) = repmat(WhitePath, size(Vs,1), 1); % Draw paths
 
+if sum(strcmpi(Srf.Values, 'Field Sign')) == 0 
+    IsFsMap = false;
+end
 if IsFsMap
     % Field sign map
     Fs = sign(Srf.Data(strcmpi(Srf.Values, 'Field Sign'), :));
@@ -732,7 +778,10 @@ end
 function pushbutton10_Callback(hObject, eventdata, handles)
 global Srf hf IsFsMap ActPrct
 
-if IsFsMap
+if sum(strcmpi(Srf.Values, 'Field Sign')) == 0 
+    IsFsMap = false;
+end
+if IsFsMap || sum(strcmpi(Srf.Values, 'Field Sign')) == 0 
     % Load activation map
     [fn pn] = uigetfile([Srf.Hemisphere '_*.mat']);
     if fn ~= 0
@@ -755,7 +804,9 @@ if IsFsMap
             Srf.Data(end,:) = ActMap.Srf.Data(dt,:);
             set(hf, 'name', [Values{dt} ' map (' num2str(ActPrct(1)) '-' num2str(ActPrct(2)) ' %ile)']);
             IsFsMap = false;
-            set(handles.pushbutton10, 'String', 'Load Field Sign');
+            if sum(strcmpi(Srf.Values, 'Field Sign')) == 1 
+                set(handles.pushbutton10, 'String', 'Load Field Sign');
+            end
         end
     end
 else
