@@ -39,7 +39,7 @@ be in the same format. You can also convert old data files from older versions
 - Added option to change the size of coarse fit vertex blocks (DSS)  
 - Added function for computing normalised goodness-of-fit (DSS)  
 - Added options to render noise ceiling in DisplayMaps (DSS)  
-- Removed all progress bars (new command window solution to follow?) (DSS)  
+- Removed all progress bars, now reported in command window instead (DSS)  
 - Fits beyond twice the X & Y range are now automatically removed (DSS)  
 - Updated example Model scripts with finer search grids (DSS)  
 - Added several new functions for ground truth simulations (DSS)  

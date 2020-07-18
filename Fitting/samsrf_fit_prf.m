@@ -76,6 +76,8 @@ end
 %% Start time of analysis
 t0 = tic; new_line;  
 disp('*** SamSrf pRF model fitting ***');
+[vn, vd] = samsrf_version;
+disp([' Version ' num2str(vn) ' - ' vd]);
 disp([' pRF model: ' PrfFcnName]);
 new_line;
 disp('Current working directory:');
@@ -217,10 +219,9 @@ else
   if Model.Coarse_Fit_Only
       Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
   end
-  disp([' Vertex block size: ' num2str(cfvb) ' columns']);
-
   
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
+  disp([' Block size: ' num2str(cfvb) ' vertices']);
   for vs = 1:cfvb:length(mver)
       % Starting index of current vertex block
       ve = vs + cfvb - 1;
@@ -253,9 +254,9 @@ else
                 Bimg(2,vx(v)) = B(1); % Intercept
               end            
           end
-      end
-      if vs > 1 && cfvb > 1
-        disp([' ' num2str(vs) ' vertices completed']);
+          if cfvb > 1 && v == length(vx)
+              disp([' ' num2str(round(ve/length(mver)*100)) '% completed']);
+          end
       end
   end
   t2 = toc(t0); 
