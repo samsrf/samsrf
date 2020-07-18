@@ -25,9 +25,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %
 % Optionally returns the image matrix Img, in which case plotting is turned off.
 %
-% 08/08/2018 - SamSrf 6 version (DSS)
-% 12/12/2018 - Tick labels of color bar now rounded to 2 decimal places (SuSt)
-% 18/05/2020 - Fixed camera issue in Matlab R2020 (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default inputs

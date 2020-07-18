@@ -45,6 +45,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 % Mode defines the summary statistic for the searchlight:
 %  Central tendency estimates
 %   'Mean':         Arithmetic mean (default)
+%   'Wmean':        Arithmetic mean weighted by distance (smoother)
 %   'Median':       Median
 %   'Mode':         Mode
 %   'Maximum':      Maximum
@@ -112,7 +113,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %  searchlight. The row number corresponds to the identifier in SrclID.
 %
 %
-% 16/07/2020 - SamSrf 7 version (DSS & SuSt)
+% 19/07/2020 - SamSrf 7 version (DSS & SuSt)
 %
 
 %% Default inputs
@@ -260,6 +261,9 @@ for x = 1:size(X,2)
                 if strcmpi(CurrMode, 'Mean')
                     % Arithmetic mean of values
                     curstat = mean(Cleaned_Response(v,vx));
+                elseif strcmpi(CurrMode, 'Wmean')
+                    % Distance weighted arithmetic mean of values
+                    curstat = sum(Cleaned_Response(v,vx).*dc) / sum(dc);
                 elseif strcmpi(CurrMode, 'Median')
                     % Median of values
                     curstat = median(Cleaned_Response(v,vx));
@@ -276,7 +280,7 @@ for x = 1:size(X,2)
                     % Geometric mean of values
                     curstat = geomean(Cleaned_Response(v,vx));
                 elseif strcmpi(CurrMode, 'Sum')
-                    % Geometric mean of values
+                    % Sum of values
                     curstat = sum(Cleaned_Response(v,vx));
                 elseif strcmpi(CurrMode, 't-test')
                     % Calculate t-test vs zero

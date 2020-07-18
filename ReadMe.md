@@ -32,7 +32,7 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 6.9945 (18-07-2020)  
+### Version 6.9946 (19-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Implemented parallel computing in several intensive analyses (DSS)  
@@ -53,6 +53,7 @@ be in the same format. You can also convert old data files from older versions
 - Fixed bug in ViewApertures tool where colour scheme was inconsistent across frames (DSS)  
 - Fixed inconsequential duplicate lines in samsrf_benson2srf (DSS)  
 - Added function for backprojecting reverse correlation profiles (DSS)  
+- Added option for mean weighted by distance to samsrf_backproj_srclt (DSS)  
 - Added checks for mismatch between model definition & pre-saved search spaces (DSS)  
 - Moved coarse fit smoothing later in the model fitting pipeline (DSS)  
 - Inconsequential reorganisation of steps after fine-fit in samsrf_fit_prf (DSS)  
