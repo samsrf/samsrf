@@ -15,11 +15,7 @@ function samsrf_showprf(SrfEcc, IdxMat, Mode)
 %
 %   Mode:   Whether to plot a contour plot ('C'), a surface plot ('S'), or a 3D scatter plot ('D')
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 13/05/2020 - Now gives clearer error when using pRF matrix (DSS)
-% 18/05/2020 - Renamed input variables & edited help section (DSS)
-%              Changes how colour scheme is scaled (DSS)
-%              Added support for 3D scatter plot (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 3

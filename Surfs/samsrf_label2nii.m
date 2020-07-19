@@ -13,13 +13,7 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 %                   (Optional, defaults to [0.5] but [0.1] is closer to what FreeSurfer does)
 %   scalar:     save scalar values stored in labelfile (true/false)
 %
-% 09/08/2018 - SamSrf 6 version (DSS) 
-% 21/02/2020 - Added Matlab-native NIfTI support (IA)
-% 11/03/2020 - Removed MatLab-native NIfTI support again because too complex (DSS)
-% 01/04/2020 - IMPORTANT UPDATE: Removed the need (I hope) for Coregistration.txt!!! 
-%              Fixed bug with native reader still being present for functional image *sigh* (DSS)
-%              Corrected the help section in this function (DSS)
-% 02/04/2020 - Removed inconsequential line from code (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 5

@@ -21,7 +21,7 @@ function [p, r, df] = samsrf_vxcorr(A, B, tcA, tcB, IsCirc)
 %
 % Returns the p-value, correlation coefficient, and degrees of freedom.
 %
-% 28/11/2018 - Created this function (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 5

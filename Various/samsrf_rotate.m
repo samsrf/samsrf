@@ -4,6 +4,8 @@ function Srf = samsrf_rotate(InSrf, theta)
 %
 % Rotates the pRFs in Srf by angle theta.
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 %% Expand if necessary
 InSrf = samsrf_expand_srf(InSrf);

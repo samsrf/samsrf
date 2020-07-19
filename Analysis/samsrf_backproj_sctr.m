@@ -17,7 +17,8 @@ function xysb = samsrf_backproj_sctr(Response, pRF_Data, Threshold)
 % Returns a cell array with as many components as there are rows in Response. 
 % Each component contains a 4-column matrix which you can use for a scatter plot:
 %
-%   scatter(xysb{1}(:,1), xysb{1}(:,2), 4000*xysb{1}(:,3), xysb{1}(:,4));
+%   h = scatter(xysb{1}(:,1), xysb{1}(:,2), 700*xysb{1}(:,3), xysb{1}(:,4), 'filled');
+%   alpha(h, 0.2);
 %   axis square
 %   colormap(flipud(gray))
 %
@@ -26,11 +27,11 @@ function xysb = samsrf_backproj_sctr(Response, pRF_Data, Threshold)
 % To do so, after having opened a figure you could call:
 %
 %   hold on
-%   scatter(0,0,4000,'r')
-%       This adds a red circle at 0,0. Adjust the third input 4000, the size,
-%       until the circle covers the radius you want for sigma = 1 (presumably 2 deg)
+%   scatter(0,0,700,'r')
+%       This adds a red circle at 0,0. Adjust the third input 700, the size,
+%       until the circle covers the radius you want for sigma = 1.
 %           
-% 27/07/2018 - SamSrf 6 version (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 
 if nargin < 3
     Threshold = [];
@@ -48,7 +49,7 @@ end
 % pRF map data
 gof = pRF_Data(1,:); % Goodness of fit
 ecc = sqrt(pRF_Data(2,:).^2 + pRF_Data(3,:).^2); % Eccentricity
-sigma = pRF_Data(4,:); % pRF size
+sigma = pRF_Data(4,:).^2; % pRF size squared
 
 % Percentile level
 Pct = prctile(Response(:), Threshold(2));

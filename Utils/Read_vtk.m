@@ -10,8 +10,7 @@ function [vertex,face,points] = Read_vtk(filename, verbose)
 %
 %   Copyright (c) Mario Richtsfeld
 %
-%   03/08/2013 - Modified by Thomas Ditye & Sam Schwarzkopf
-%                   to also read in the point data field
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin<2

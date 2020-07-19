@@ -14,7 +14,7 @@ function [Area, Thickness, Curvature] = samsrf_anatstats(Srf, Ecc, Roi)
 %
 % Returns the surface area, mean cortical thickness, and mean curvature.
 %
-% 10/08/2018 - SamSrf 6 version (DSS) 
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2

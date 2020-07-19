@@ -10,6 +10,8 @@ function samsrf_clonecam(Z)
 % Also, this function isn't very clever. It only updates the camera view.
 % The optional input argument Z defines the zoom to apply to each figure.
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 % Get current view
 c = get(gca, 'CameraPosition');

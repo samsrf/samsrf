@@ -1,6 +1,6 @@
 function ApName = CreateApertures
 
-% 30/05/2018 - SamSrf 6 version - Apertures are now always 3D (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 
 [f,p] = uigetfile('*.mat', 'Select results files', 'MultiSelect', 'on');
 if isnumeric(f) && f == 0

@@ -10,7 +10,7 @@ function Rfp = prf_gaussian_rf(x0, y0, sigma, screen_width)
 %   stimulus model screen in pixels. This should be twice the width
 %   of the apertures.
 %
-% 20/08/2018 - SamSrf 6 version (data added - no changes from v6) (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 4

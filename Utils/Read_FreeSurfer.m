@@ -11,7 +11,7 @@ function data = Read_FreeSurfer(fname)
 % (in which the first 2 lines are header information and thus ignored).
 % If no file extension is given, the program assumes no headers.
 %
-% 02-04-2015:   Now permits loading csurf files with 6 columns (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 fid = fopen(fname);

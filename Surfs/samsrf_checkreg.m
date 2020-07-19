@@ -26,8 +26,7 @@ function strf = samsrf_checkreg(labpath)
 % IMPORTANT: You must run this script from inside the 'label' folder 
 %            of the FreeSurfer subject you want to analyse!
 %
-% 03/07/2018 - SamSrf 6 version (DSS)
-% 08/04/2020 - If SPM unavailable, now simply doesn't continue (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 % Check whether you are in a 'label' folder

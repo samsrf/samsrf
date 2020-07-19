@@ -6,8 +6,7 @@ function R = prf_contour(Srf, v)
 %
 % Note: This function requires a Srf analysed with reverse correlation.
 %
-% 24/02/2020 - Ensured axes are square now (DSS)
-% 07/04/2020 - Removed plotting to avoid redundancy with samsrf_showprf (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 % Reverse correlation profile vector

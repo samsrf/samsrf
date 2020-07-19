@@ -12,13 +12,7 @@ function SurfaceProjection
 % If using MGH files, you must follow a strict naming convention where your files 
 % for the left & right hemispheres are prefixed 'lh' & 'rh', respectively.
 % 
-% 10/08/2018 - SamSrf 6 version (DSS)
-% 12/09/2018 - Fixed bug with Rule switch (DSS)
-% 19/09/2018 - Fixed bug with default cortical steps (DSS)
-% 02/04/2020 - Added new line after default cortical sampling steps (DSS)
-% 04/04/2020 - Added overlay for the functional data (DSS)
-% 08/04/2020 - Now allows user to skip out at file selection & normalisation dialog (DSS)
-%              Added supoort for loading MGH files projected with mri_vol2surf (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Select paths 

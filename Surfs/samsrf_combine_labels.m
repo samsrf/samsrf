@@ -5,6 +5,8 @@ function Status = samsrf_combine_labels(OldLabels, NewLabel)
 % Combines the labels in the cell array OldLabels into a new label named NewLabel.
 % Returns the Status of the operation: true = no error, false = error
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 Vs = [];
 for i = 1:length(OldLabels)

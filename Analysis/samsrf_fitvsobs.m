@@ -6,7 +6,8 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % You must define Model to convolve the predicted time course with the HRF.
 % Also reports the model parameters (S) in the figure.
 %
-
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 % Expand Srf if necessary
 Srf = samsrf_expand_srf(Srf);

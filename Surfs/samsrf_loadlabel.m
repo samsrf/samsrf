@@ -4,9 +4,7 @@ function V = samsrf_loadlabel(Roi)
 %
 % Returns a vector with the vertex indices of the label Roi.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 09/09/2019 - Octave 5 support added (DSS)
-% 17/01/2020 - Fixed indexing bug in Octave (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if exist('OCTAVE_VERSION', 'builtin') <= 4

@@ -13,6 +13,8 @@ function samsrf_glm_conts(SrfFile, Conts, ContNames)
 % Crit_Ts that defines the critical t-statistics for p=0.05, p=0.001, and
 % p=0.05 (Bonferroni corrected).
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 % Convert ContNames into cell if it's a string
 if ischar(ContNames)

@@ -8,7 +8,7 @@ function cmap = bensoncol(res)
 % It is only an approximation because their scheme is a weird rendition of
 % HSV but with some extra colours in the ipsilateral hemifield.
 %
-% 27/11/2018 - Created this function (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin == 0

@@ -5,7 +5,7 @@ function Nb = samsrf_neighbours(v, F)
 % Finds the neighbours of a particular vertex v (or a vector of vertices).
 % You also need to provide the faces of the mesh in F.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
  
 Nf = ismember(F,v);

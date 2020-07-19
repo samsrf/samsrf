@@ -10,7 +10,7 @@ function MakeOccRoi(MeshFolder, Y)
 % Note that the vertex coordinates saved in the label file are 
 %  from the spherical mesh, -not- the white matter mesh as normally.
 %
-% 17/02/2020 - Added clarification to help section (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2

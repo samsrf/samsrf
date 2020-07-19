@@ -20,7 +20,7 @@ function ApName = CreateRoiRespApertures(DataSrfs, MapSrfs, RoiNames, Eccen, ApW
 % Saves the backprojected movie of the time course as an aperture that will
 % be named ApName in the format aps_[RoiNames].
 %
-% 07/05/2020 - Written (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 5

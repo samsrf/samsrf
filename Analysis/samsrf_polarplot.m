@@ -42,8 +42,7 @@ function Res = samsrf_polarplot(Srf, Roi, Scale, Val, Thr)
 % The function returns a matrix containing the data: [X0 Y0 Sigma Value]
 %   where Value stands for the value you plotted in the colour code.
 %
-% 10/08/2018 - SamSrf 6 version (DSS)
-% 11/08/2018 - Fixed bug with method switch (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2

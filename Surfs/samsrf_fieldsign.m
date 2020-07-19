@@ -11,8 +11,7 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 %
 % Adds the field sign map to Srf.Data as the bottom row. 
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 27/05/2020 - Streamlined how waitbar is handled (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters

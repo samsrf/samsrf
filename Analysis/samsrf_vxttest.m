@@ -27,9 +27,7 @@ function [p, t, df] = samsrf_vxttest(A, B, tcA, tcB)
 %
 % Returns the p-value, t-statistic, and degrees of freedom of the test.
 %
-% 31/10/2018 - Created this function (DSS)
-%              Fixed issue with too low degrees of freedom (DSS)
-% 01/11/2018 - Sample size is now plus 1 for mathematical reasons (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 4

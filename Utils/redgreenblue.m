@@ -6,7 +6,7 @@ function cmap = redgreenblue(res)
 % and from there to cold colours (blue-cyan). The input res defines the 
 % number of steps, which must be a multiple of 4. By default res is 256. 
 %
-% 19/12/2018 - Cosmetic changes (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin == 0

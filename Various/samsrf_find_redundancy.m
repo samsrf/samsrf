@@ -6,6 +6,8 @@ function Vs = samsrf_find_redundancy(Data, v)
 % (e.g. time courses) as vertex v. This help reduce redundancy 
 % in the analysis.
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 % Calculates the residuals between column v in Data and every column in the data set.
 D = sum(abs(Data-repmat(Data(:,v),1,size(Data,2))));

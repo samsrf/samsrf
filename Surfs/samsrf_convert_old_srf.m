@@ -11,7 +11,7 @@ function samsrf_convert_old_srf(srfname, surfdir)
 %   srfname:    Name of the SamSrf file (without .mat extension)malise!
 %   surfdir:    Pathname to the 'surf' folder in the subject's Freesurfer folder
 %
-% 10/08/2018 - SamSrf 6 version (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Load old file

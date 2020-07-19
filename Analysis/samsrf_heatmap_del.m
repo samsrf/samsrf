@@ -13,9 +13,7 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 % Cmap, the colour map, defaults to 'hotcold'. Prefixing this with '-' inverts
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
 %
-% 21/05/2019 - Created this function (DSS)
-% 14/02/2020 - Made axis square (again) (DSS)
-% 18/05/2020 - Fixed camera issue in Matlab R2020 (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default inputs

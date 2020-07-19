@@ -22,7 +22,7 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % as a matrix of 50 x 50 x NumberOfVolumes. You can use samsrf_showprf to
 % display the outputs.
 %
-% 20/05/2020 - Written (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 4

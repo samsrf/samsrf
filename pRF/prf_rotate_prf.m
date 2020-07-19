@@ -7,8 +7,7 @@ function tR = prf_rotate_prf(R, alpha)
 %
 % Note: This function requires a Srf analysed with reverse correlation.
 %
-% 13/05/2020 - Written (DSS)
-% 14/05/2020 - Only finds one maximum value now (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2

@@ -13,8 +13,7 @@ function samsrf_extract_hrf(fname, tr, roi, ntrials)
 % parameters fP, and the raw data points in Raw_avg and Raw_err.
 % This fit is done for all active vertices.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 1

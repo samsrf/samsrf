@@ -2,8 +2,7 @@ function Vs = samsrf_loadpaths(Paths)
 %
 % Loads the vertex indeces of FreeSurfer paths in file Paths into Vs.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 21/01/2020 - Fixed bug when paths are empty (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if ~isempty(Paths)

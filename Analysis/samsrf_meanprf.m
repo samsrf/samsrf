@@ -20,13 +20,7 @@ function AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, Thrsh, Nrmls)
 %
 % Note: This function requires Srf's analysed with reverse correlation!
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 18/08/2019 - Corrected variable names in the help section (DSS) 
-% 14/05/2020 - Added alignment to 3 o'clock (DSS)
-%              Made centering of pRF profile optional (DSS)
-%              Now uses nanmean instead of mean (DSS)
-% 21/05/2020 - Empty ROI now includes all data (DSS)
-%              R^2 threshold now defaults to 0 (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 3

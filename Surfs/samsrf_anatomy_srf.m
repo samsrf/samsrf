@@ -23,8 +23,7 @@ function samsrf_anatomy_srf(SrfName, AnatPath)
 %  convert it using samsrf_convert_old_srf. Any new Srfs generated using
 %  samsrf_vol2srf in SamSrf 6 will have automatically been separated though.
 %
-% 09/08/2018 - SamSrf 6 version (DSS)
-% 13/08/2018 - Fixed bug when using on already-converted file (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default path?

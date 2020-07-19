@@ -10,9 +10,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %   nrmls:      if true, it will detrend & z-score the time series in each
 %               voxel.
 %
-% 07/08/2018 - SamSrf 6 version (DSS)
-% 05/04/2019 - Explicitly stores NIfTI header information (IA)
-% 11/03/2020 - Removed native Matlab NIfTI loading (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters

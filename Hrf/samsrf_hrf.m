@@ -7,7 +7,7 @@ function Hrf = samsrf_hrf(TR)
 % with 2.55s TR and 2.3mm isotropic resolution. In 10 trials, sparse full 
 % field ripple stimuli were presented for 1 TR followed by 11 TRs of blank. 
 %
-% 03/04/2020 - Turned doublegamma subfunction into a standalone function (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 % SPM's canonical HRF

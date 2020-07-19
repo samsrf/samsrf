@@ -8,7 +8,7 @@ function samsrf_fix_broken_hrf(fname, BadVols)
 %
 % Saves the fixed data file under the same name suffixed by '_fixed'.
 %
-% 03/04/2020 - Removed all dependencies on spm_hrf (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 1

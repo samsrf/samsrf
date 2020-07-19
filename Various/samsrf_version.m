@@ -10,6 +10,8 @@ function [v,d,o] = samsrf_version
 %  Life is too short for this. It's more likely MapSrf for Python will be
 %  completed before I manage to get all of this to work in Octave...
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 v = 6.9946; % SamSrf version number
 d = '19-07-2020'; % Release date 

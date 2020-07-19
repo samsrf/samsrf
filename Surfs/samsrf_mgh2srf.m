@@ -18,7 +18,7 @@ function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %                   (this may change in future versions)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
 %
-% 08/04/2020 - Written (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 %% Default parameters

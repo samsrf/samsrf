@@ -9,7 +9,7 @@ function [Vs, Rho, Ws] = samsrf_visualroi(xyr, X, Y, Sigma)
 % Returns in Vs the vertices inside the ROI, in Rho the distance, 
 % and in Ws the weight of each vertex based on the distance and pRF size.
 %
-% 03/08/2018 - SamSrf 6 version (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 % Individual ROI parameters

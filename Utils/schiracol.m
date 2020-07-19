@@ -6,7 +6,7 @@ function cmap = schiracol(res)
 % with the resolution res. By default res is 360. This is a simple scheme which 
 % is basically just HSV doubled.
 %
-% 27/11/2018 - Created this function (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin == 0

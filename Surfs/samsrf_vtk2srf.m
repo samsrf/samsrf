@@ -8,7 +8,7 @@ function samsrf_vtk2srf(Vtks)
 % The saved Srf file will be named after Vtks{1}. This file name must
 % contain either 'lcr' or 'rcr' to identify the hemisphere.
 %
-% 07/08/2018 - SamSrf 6 version (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 %
 
 if ischar(Vtks)

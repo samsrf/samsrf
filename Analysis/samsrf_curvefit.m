@@ -17,7 +17,7 @@ function [mP,mR,oF] = samsrf_curvefit(xyci, ft)
 % Returns the fitted parameters mP, the goodness-of-fit mR structure, 
 % and the fitted function oF (use as oF(x)). 
 %
-% 03/08/2018 - SamSrf 6 version (DSS)
+% 19/07/2020 - SamSrf 7 version (DSS)
 % 
 
 % Split variables

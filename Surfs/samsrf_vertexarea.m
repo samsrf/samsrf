@@ -10,6 +10,8 @@ function A = samsrf_vertexarea(v, V, F)
 % associated with each vertex as the FreeSurfer area already provides the 
 % area of the cortical representation.
 %
+% 19/07/2020 - SamSrf 7 version (DSS)
+%
 
 F = F(sum(F==v,2)~=0,:);
 if size(V,2) == 2
