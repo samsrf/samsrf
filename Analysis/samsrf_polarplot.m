@@ -139,7 +139,8 @@ D = D(sx);
 
 %% Polar plot
 figure('name', Val);
-scatter(X, Y, (S*abs(Scale)).^2, D, 'linewidth', 2);
+h = scatter(X, Y, (S*abs(Scale)).^2, D, 'filled');
+alpha(h, 0.1);
 Ecc = max([abs(X)+max(S) abs(Y)+max(S)]);
 if Scale < 0
     scatter(0, 0, abs(Scale).^2, 'r');

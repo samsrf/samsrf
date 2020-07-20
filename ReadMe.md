@@ -1,5 +1,5 @@
 # SamSrf VII - Read Me
-Version 7.0 (??-??-2020)
+Version 7.0 (20-07-2020)
 
 Complete overhaul of the toolbox. The GUI from SamSrf <=5 has been abolished.  
 Instead there are now example scripts for various pRF models in SamSrf/Models.  
@@ -32,7 +32,7 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 6.9946 (19-07-2020)  
+### Version 7.0 (20-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Implemented parallel computing in several intensive analyses (DSS)  

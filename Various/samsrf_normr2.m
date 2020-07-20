@@ -1,6 +1,6 @@
 function Srf = samsrf_normr2(Srf, NcThr)
 %
-% Srf = samsrf_normr2(Srf, [NcThr=0.1])
+% Srf = samsrf_normr2(Srf, [NcThr=0])
 % 
 % Calculates the normalised goodness-of-fit nR^2. It searches through 
 % Srf.Values to see if there is a Noise Ceiling field. If so, it then 
@@ -9,17 +9,17 @@ function Srf = samsrf_normr2(Srf, NcThr)
 % is moved to the bottom row of Srf.Data.
 %
 % The function filters out data points with bad noise ceilings by setting
-% the normalised R^2 to zero. The default threshold for this is a noise
-% ceiling of 0.1 but this can be tweaked with the optional NcThr input.
+% the normalised R^2 to zero. The default threshold is a noise ceiling of 0 
+% but this can (and should) be tweaked with the optional NcThr input.
 %
 % Note, this function only works on Srf.Data so don't apply that to
 % smoothed data. If smoothing is desired, do that afterwards.
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
+% 20/07/2020 - SamSrf 7 version (DSS)
 %
 
 if nargin < 2
-    NcThr = 0.1; % Default noise ceiling threshold
+    NcThr = 0; % Default noise ceiling threshold
 end
 
 if ~isfield(Srf, 'Values')
@@ -31,15 +31,22 @@ end
 
 % Data fields
 R2 = Srf.Data(1,:); % Raw goodness-of-fit
-Nc = Srf.Data(find(strcmpi(Srf.Values, 'Noise Ceiling')),:); % Noise ceiling
+Nc = Srf.Data(strcmpi(Srf.Values, 'Noise Ceiling'),:); % Noise ceiling
 
-% Threshold by noise ceiling
-R2(Nc < NcThr) = 0;
-% Normalised goodness-of-fit
-nR2 = R2 ./ Nc;
+if isempty(Nc)
+    % No noise ceiling available
+    disp('No noise ceiling has been computed');
+else
+    % Threshold by noise ceiling
+    R2(Nc <= NcThr) = 0;
+    % Normalised goodness-of-fit
+    nR2 = R2 ./ Nc;
 
-% Rearrange Srf
-Srf.Values{1} = 'nR^2';
-Srf.Values{end+1} = 'R^2';
-Srf.Data = [Srf.Data; R2];
-Srf.Data(1,:) = nR2;
+    % Rearrange Srf
+    Srf.Values{1} = 'nR^2';
+    Srf.Values{end+1} = 'R^2';
+    Srf.Data = [Srf.Data; R2];
+    Srf.Data(1,:) = nR2;
+    
+    disp('Computed normalised R^2');
+end

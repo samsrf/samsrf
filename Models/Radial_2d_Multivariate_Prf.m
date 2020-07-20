@@ -23,15 +23,18 @@ Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentri
 Model.TR = 1; % Repetition time (TR) of pulse sequence
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pRF'; % Aperture file
-Model.Seed_Fine_Fit = ''; % (Optional) Define a Srf file to use as seed map
-Model.Replace_Bad_Fits = false; % (Optional) If true, uses coarse fit for bad slow fits
-Model.Smoothed_Coarse_Fit = 0; % (Optional) If > 0, smoothes data for coarse fit
-Model.Coarse_Fit_Only = false; % (Optional) If true, only runs the coarse fit
-Model.Fine_Fit_Threshold = 0.01; % (Optional) Define threshold for what to include in fine fit
-Model.Coarse_Fit_Block_Size = 10000; % (Optional) Defines block size for coarse fit (reduce if using large search space)
+
+% Optional parameters
+Model.Noise_Ceiling_Threshold = 0; % Limit data to above certain noise ceiling?
+Model.Replace_Bad_Fits = false; % If true, uses coarse fit for bad slow fits
+Model.Smoothed_Coarse_Fit = 0; % If > 0, smoothes data for coarse fit
+Model.Coarse_Fit_Only = false; % If true, only runs the coarse fit
+Model.Seed_Fine_Fit = ''; % Define a Srf file to use as seed map
+Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine fit
+Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
+Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 
 % Search grid for coarse fit
-Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar search grid
 Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5:1); % Horizontal sigma search grid

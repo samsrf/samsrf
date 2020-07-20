@@ -19,7 +19,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 18/07/2020 - SamSrf 7 version (DSS) 
+% 20/07/2020 - SamSrf 7 version (DSS) 
 %
 
 %% Defaults & constants
@@ -36,6 +36,9 @@ bo = strfind(PrfFcnName, '(');
 PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 
 %% Default model parameters
+if ~isfield(Model, 'Noise_Ceiling_Threshold')
+    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
+end
 if ~isfield(Model, 'Polar_Search_Space')
     Model.Polar_Search_Space = false; % Search space is Cartesian
 end
@@ -117,6 +120,15 @@ else
     disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 new_line; 
+
+%% Limit data due to noise ceiling?
+if isfield(Srf, 'Noise_Ceiling')
+    if Model.Noise_Ceiling_Threshold > 0
+        mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
+        disp(['Limiting analysis to ' num2str(size(mver,1)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        new_line;
+    end
+end
 
 %% Add version number
 Srf.Version = samsrf_version;
@@ -286,7 +298,7 @@ else
     disp('Fitting beta parameters & storing fitted models...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
-    Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
+    Srf.X = zeros(size(Tc,1),length(mver)); % Matrix with unconvolved predictions
     
     % Process & fit betas for mask vertices
     for v = 1:length(mver)
@@ -370,8 +382,10 @@ if isfield(Srf, 'Noise_Ceiling')
     Srf.Data = [Srf.Data; Srf.Noise_Ceiling];
     Srf.Values{end+1} = 'Noise Ceiling'; 
     Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
+    Srf = samsrf_normr2(Srf); % Calculate normalised R^2
 end
 Srf.Values = Srf.Values'; % So it is the same as Srf.Data
+new_line;
 
 % Compress to save space
 Srf = samsrf_compress_srf(Srf, mver);
