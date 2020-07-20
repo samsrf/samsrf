@@ -22,8 +22,6 @@ these fields from the Srf structure.
 
 ### IMPORTANT NOTE: MODEL FITS FROM VERSIONS PRIOR TO 7.0 ARE NOT COMPARABLE!  
 The pRF fitting process has considerable differences to previous versions of SamSrf.  
-Previous versions would revert to the search grid in some situations.  
-Please refer to the cookbook for more information.  
 
 Even if you used earlier versions for your analysis we recommend you use SamSrf 7  
 for your analysis -after- the model fitting. Data files from SamSrf 6 should already  
