@@ -32,10 +32,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.0 (20-07-2020)  
+### Version 7.01 (20-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
 - Implemented parallel computing in several intensive analyses (DSS)  
+- Fixed bugs with storing predicted time courses from fine fit (DSS)  
 - Added option to change the size of coarse fit vertex blocks (DSS)  
 - Added function for computing normalised goodness-of-fit (DSS)  
 - Added options to render noise ceiling in DisplayMaps (DSS)  

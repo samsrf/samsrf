@@ -288,17 +288,20 @@ if Model.Coarse_Fit_Only
 else
     %% Run fine fit for each vertex
     disp('Fine fitting...');
+    % Restrict matrices to mask
     Tc = Srf.Y(:,mver); % Always use unsmoothed data for fine fit
-        
+    Rimg = Rimg(1,mver);
+    Pimg = Pimg(:,mver);
+    
     % Run fine fit (must be separate function for parallel computing toolbox
-    [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Tc, ApFrm, Rimg, Pimg, mver);
+    [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Tc, ApFrm, Rimg, Pimg);
     t3 = toc(t0); 
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
     
     disp('Fitting beta parameters & storing fitted models...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
-    Srf.X = zeros(size(Tc,1),length(mver)); % Matrix with unconvolved predictions
+    Srf.X = zeros(size(Tc,1), size(Srf.Vertices,1)); % Matrix with unconvolved predictions
     
     % Process & fit betas for mask vertices
     for v = 1:length(mver)
@@ -316,13 +319,12 @@ else
         end
 
         % Store parameters & predicted time course 
-        vx = mver(v); % Current vertex in brain space
         if IsGoodFit 
             % Only keep good parameters
             Rfp = Model.Prf_Function(fPimg(:,v)', size(ApFrm,1)*2); % Generate predicted pRF
             fX = prf_predict_timecourse(Rfp, ApFrm); % Generate predicted time course
             % Store prediction without HRF convolution
-            Srf.X(:,vx) = fX;  % Best fitting prediction
+            Srf.X(:,mver(v)) = fX;  % Best fitting prediction
         else
             % Replace bad fits with coarse fit?
             if Model.Replace_Bad_Fits
@@ -330,10 +332,10 @@ else
                 Rfp = Model.Prf_Function(fP, size(ApFrm,1)*2);
                 fX = prf_predict_timecourse(Rfp, ApFrm);
                 % Store prediction without HRF convolution
-                Srf.X(:,vx) = fX;  % Best fitting prediction
+                Srf.X(:,mver(v)) = fX;  % Best fitting prediction
                 % Replace bad fit with coarse fit
-                fPimg(:,v) = Pimg(:,vx); % Parameters
-                fRimg(1,v) = Rimg(1,vx); % Goodness-of-fit
+                fPimg(:,v) = Pimg(:,v); % Parameters
+                fRimg(1,v) = Rimg(1,v); % Goodness-of-fit
             else
                 % Just set all to zero
                 fRimg(1,v) = 0;
