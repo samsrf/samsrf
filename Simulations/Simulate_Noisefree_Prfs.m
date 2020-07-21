@@ -41,7 +41,7 @@ Model.Param5 = 0; % Unused
 [Theta, Rho, Sigma] = ndgrid(0:15:345, 2.^[-4.5 -3.5:.5:.5], .05*2.^(0:5)); % A simulated visual field with a range of pRF sizes
 [X,Y] = pol2cart(Theta/180*pi, Rho); % Convert polar to Cartesian coordinates
 Ground_Truth = [X(:) Y(:) Sigma(:)]'; % Matrix of ground truth parameters
-load(['Apertures' filesep 'aps_' SimAps]); % Load apertures to simulate responses for
+load(['aps_' SimAps]); % Load apertures to simulate responses for
 Srf = samsrf_simulate_prfs(Ground_Truth, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth), ApFrm, Model); % Simulate time courses
 save(['sim_' SimAps], 'Srf'); % Save simulated data 
         

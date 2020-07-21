@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.011 (22-07-2020)  
+- Fixed minor errors in example simulation scripts (DSS)  
+
 ### Version 7.01 (20-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  
 - Responses are now modelled as percent change relative to pRF volume! (DSS)  
