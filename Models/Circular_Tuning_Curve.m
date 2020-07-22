@@ -67,7 +67,6 @@ load(MapFile); % Load map we just analysed
 Srf.Data(2,:) = mod(Srf.Data(2,:), 360); % Ensure nothing above 360 or below 0
 x = Srf.Data(2,:) > 180; % Index phi > 180 degrees
 Srf.Data(2,x) = Srf.Data(2,x) - 360; % Greater than 180 is now negative
-Srf = samsrf_normr2(Srf); % Convert raw R^2 to normalised R^2
 save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
 
 %% Return home

@@ -73,7 +73,6 @@ Srf.Values{8} = 'Aspect Ratio';
 Srf.Data(8,:) = log(abs(Srf.Data(4,:)) ./ abs(Srf.Data(5,:))); % Logarithm of Radial/Tangential 
 
 % Standard post-processing
-Srf = samsrf_normr2(Srf); % Convert raw R^2 to normalised R^2
 save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
 
 %% Return home

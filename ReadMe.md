@@ -32,6 +32,7 @@ be in the same format. You can also convert old data files from older versions
 
 ### Version 7.011 (22-07-2020)  
 - Fixed minor errors in example simulation scripts (DSS)  
+- Removed erroneous but inconsequential duplicate command from example models (DSS)  
 
 ### Version 7.01 (20-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  

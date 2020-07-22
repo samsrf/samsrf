@@ -68,7 +68,6 @@ MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 %% Post-processing
 load(MapFile); % Load map we just analysed
 Srf = samsrf_dog_fwhm(Srf); % Calculate FWHM
-Srf = samsrf_normr2(Srf); % Convert raw R^2 to normalised R^2
 save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
 
 %% Return home

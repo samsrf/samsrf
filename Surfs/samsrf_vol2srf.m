@@ -41,6 +41,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % IT IS YOUR RESPONSIBILITY TO CHECK YOU'RE USING THE RIGHT ANATOMICAL DATA!
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
+% 22/07/2020 - Added progress reports but still no parallel processing (DSS)
 %
 
 %% Default parameters
@@ -138,6 +139,7 @@ Srf.Rule = rule;
 disp('Running surface projection...');
 cs = 0;
 for cl = ctxsteps
+    disp([' Cortical sampling step: ' num2str(cl)]);
     cs = cs + 1;
     % Step through cortex layers
     V = V0 + N*cl;
@@ -161,7 +163,11 @@ for cl = ctxsteps
                 Srf.Data(cs, :, i, fi) = NaN; 
             end
         end
-    end
+        % Progress report
+        if mod(i,25000) == 0
+            disp(['  ' num2str(round(i/size(tV,1)*100)) '% complete']);
+        end
+    end       
 end
 
 %% Calculate one value per vertex
