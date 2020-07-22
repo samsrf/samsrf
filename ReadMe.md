@@ -30,9 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.011 (22-07-2020)  
+### Version 7.02 (23-07-2020)  
 - Fixed minor errors in example simulation scripts (DSS)  
 - Removed erroneous but inconsequential duplicate command from example models (DSS)  
+- Removed denoise checkbox from DisplayMaps - do this in postprocessing instead (DSS)  
 
 ### Version 7.01 (20-07-2020)  
 #### IMPORTANT UPDATE: Improved precision of model fits! (DSS)  

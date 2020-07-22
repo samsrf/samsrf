@@ -278,11 +278,6 @@ else
     CamView = [get(gca, 'View') 1];
 end
 
-% Denoise map?
-if get(handles.checkbox1, 'Value')
-    Srf = samsrf_denoisemap(Srf);
-end
-
 % Draw the map
 if get(handles.popupmenu2,'Value') <= size(Srf.Data,1) || strcmpi(MapType, 'Polar') || strcmpi(MapType, 'Eccentricity') || strcmpi(MapType, 'Connective Field')
     figure(FigHdl);

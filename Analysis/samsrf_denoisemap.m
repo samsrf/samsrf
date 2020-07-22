@@ -1,12 +1,16 @@
-function [Srf, vx] = samsrf_denoisemap(Srf)
+function [Srf, vx] = samsrf_denoisemap(Srf, BetaThr, RemoveOrigins)
 %
-% [Srf, vx] = samsrf_denoisemap(Srf)
+% [Srf, vx] = samsrf_denoisemap(Srf, [BetaThr=[.01 3], RemoveOrigins=true])
 %
 % Removes bad vertices in a pRF map in InSrf by setting their R^2 to zero.
-% It removes any pRFs with Betas <= 0.01 or greater than 3. It also removes pRFs
-% whose x0 and y0 position is exactly zero because these are typical artifacts.
-% It finds the relevant data rows for x0, y0, and Beta but it asssumes that the 
-% first row in Srf.Data is R^2 because that's the convention.
+% It removes any pRFs with Betas <= BetaThr(1) or greater than BetaThr(2). 
+% By default it also removes pRFs whose x0 and y0 position is exactly zero 
+% because these are typical artifacts (only works if both x0 and y0 exist).
+%   BetaThr defaults to [.01 3] but you can tweak it.
+%   RemoveOrigins is a boolean that toggles whether x0=y0=0 is removed. 
+%
+% It works by finding the relevant data rows for x0, y0, and Beta but it 
+% asssumes that the first row in Srf.Data is R^2 because that's the convention.
 %
 % IMPORTANT: this function only works on Srf.Data. If Srf.Raw_Data exists it
 % will not be affected. You would first need to assign that to Srf.Data.
@@ -17,15 +21,47 @@ function [Srf, vx] = samsrf_denoisemap(Srf)
 % Returns the denoised Srf. The second output vx contains the removed vertex indeces.
 %
 % 16/07/2020 - SamSrf 7 version (DSS)
+% 23/07/2020 - Input option for tweaking the thresholds (DSS)
+%              Added flexibility for different models (DSS)
 %
 
+if nargin < 2
+    BetaThr = [.01 3];
+end
+if nargin < 3
+    RemoveOrigins = true;
+end
+if length(BetaThr) == 1
+    BetaThr = [BetaThr 3];
+end
+
 % Relevant data rows
-x0 = Srf.Data(find(strcmpi(Srf.Values, 'x0')),:);
-y0 = Srf.Data(find(strcmpi(Srf.Values, 'y0')),:);
-Betas = Srf.Data(find(strcmpi(Srf.Values, 'Beta')),:);
+x0 = Srf.Data(strcmpi(Srf.Values, 'x0'),:);
+y0 = Srf.Data(strcmpi(Srf.Values, 'y0'),:);
+Betas = Srf.Data(strcmpi(Srf.Values, 'Beta'),:);
+
+% If any data don't exist
+if isempty(x0)
+    disp('No x0 data in this map');
+    RemoveOrigins = false;
+end
+if isempty(y0)
+    disp('No y0 data in this map');
+    RemoveOrigins = false;
+end
+if isempty(Betas)
+    error('No Beta data in this map!');
+end
 
 % Fine bad vertices
-vx = Betas <= 0.01 | Betas > 3 | (x0 == 0 & y0 == 0);
+if RemoveOrigins
+    % Remove pRFs perfectly at origin
+    disp('Removing pRFs located perfectly at origin');
+    ovx = (x0 == 0 & y0 == 0);
+else
+    ovx = false(1,size(Srf.Data,2));
+end
+vx = Betas <= BetaThr(1) | Betas > BetaThr(2) | ovx;
 % Remove bad vertices
 Srf.Data(1,vx) = 0;
 % Denoised vertex indeces
