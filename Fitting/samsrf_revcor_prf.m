@@ -27,6 +27,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
+% 27/07/2020 - More info in command window (DSS)
 %
 
 %% Defaults & constants
@@ -37,12 +38,18 @@ end
 
 %% Start time of analysis
 t0 = tic; new_line;  
-disp('*** Reverse-correlation pRF analysis ***');
+disp('*** SamSrf reverse-correlation pRF analysis ***');
+[vn, vd] = samsrf_version;
+disp([' Version ' num2str(vn) ' - ' vd]);
+new_line;
+disp('Current working directory:');
+disp([' ' pwd]);
+new_line;
 
 %% Load apertures
 disp('Load stimulus apertures...');
 load(Model.Aperture_File);  % Loads a variable called ApFrm
-disp([' Loading ' Model.Aperture_File]);
+disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
 new_line; 
 % Regressor file name
 [~,ApsName] = fileparts(Model.Aperture_File);
@@ -61,7 +68,7 @@ for f = 1:length(SrfFiles)
     if f == 1
         OutFile = [Srf.Hemisphere '_' Model.Name];
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices']);
+    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
     Tc = [Tc; Srf.Data]; % Add run to time course
 end
 

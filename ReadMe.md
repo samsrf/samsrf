@@ -30,6 +30,12 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.03 (24-07-2020)  
+- Expanded support for parallel processing to samsrf_geomatrix (DSS)  
+- Cosmetic changes to command window output in samsrf_fit_prf (DSS)  
+- Added shell scripts for MGH surface projection & Benson map conversion (DSS)  
+- Removed fs_bin2asc.sh shell script because out-of-date & redundant (DSS)  
+
 ### Version 7.02 (23-07-2020)  
 - Fixed minor errors in example simulation scripts (DSS)  
 - Removed erroneous but inconsequential duplicate command from example models (DSS)  

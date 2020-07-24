@@ -23,6 +23,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
+% 23/07/2020 - Reorganised fitting loop but parallel processing isn't working (DSS)
 %
 
 %% Defaults & constants
@@ -33,7 +34,13 @@ end
 
 %% Start time of analysis
 t0 = tic; new_line;  
-disp('*** Connective field analysis ***');
+disp('*** SamSrf connective field analysis ***');
+[vn, vd] = samsrf_version;
+disp([' Version ' num2str(vn) ' - ' vd]);
+new_line;
+disp('Current working directory:');
+disp([' ' pwd]);
+new_line;
 
 %% Load images 
 if ischar(SrfFiles)
@@ -48,7 +55,7 @@ for f = 1:length(SrfFiles)
     if f == 1
         OutFile = [Srf.Hemisphere '_' Model.Name];
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices']);
+    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
     Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
@@ -72,6 +79,8 @@ X = Tc(:,svx); % Time courses in seed ROI
 if Model.Smoothing > 0 % No point when not smoothing
     Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
     Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
+    disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' seconds.']);
+    new_line;
 end
 
 %% Load template map
@@ -84,41 +93,38 @@ Srf.Version = samsrf_version;
 %% Preprocess data
 % Store raw time courses
 Srf.Y = Tc; % Raw time coarse stored away
-Srf.Data = NaN(length(svx),size(Srf.Vertices,1)); % Connective field profile for each vertex 
+Srf.Data = []; % Needed for later
 
 %% Calculate reverse correlation map 
 disp('Calculating CF profiles...');
-% Keep track of redundancies
-Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
-% Loop through mask vertices (in blocks if Matlab R2012a or higher)
+% % Keep track of redundancies
+Rmaps = NaN(length(svx),length(mver)); % Connective field profile for each vertex 
+% Loop through mask vertices 
 for v = 1:length(mver)
-    % Index of current vertex
-    vx = mver(v);
-
-    if Fitted(vx) == 0 % Only non-redundant vertices    
-        % Calculate r-map
-        Y = Tc(:,vx);  % Time course of current vertex
-        R = corr(Y,X); % Correlation of time courses with regressors
-        % Smooth profile if needed
-        if Model.Smoothing > 0
-            sR = repmat(R,length(svx),1) .* Ws; % Smoothed profiles for each seed vertex 
-            R = sum(sR,2) ./ sum(Ws,2); % Smoothed seed ROI    
-        end
-        % Determine parameters
-        mR = max(R); % Find peak activation in each map
-        mR = mR(1); % Ensure only one value
-        rd = samsrf_find_redundancy(Tc,vx); % Find redundant vertices
-        if ~isnan(mR) && mR > 0
-            Fitted(rd) = 1; % Mark all redundant vertices
-            % Store CF profile
-            Srf.Data(:,rd) = repmat(R(:), 1, length(rd)); % Activation map as vector 
-        else
-            Fitted(rd) = 1; % Mark all redundant vertices
-        end
+    % Calculate r-map
+    Y = Tc(:,mver(v));  % Time course of current vertex
+    R = corr(Y,X); % Correlation of time courses with regressors
+    % Smooth profile if needed
+    if Model.Smoothing > 0
+        sR = repmat(R,length(svx),1) .* Ws; % Smoothed profiles for each seed vertex 
+        R = sum(sR,2) ./ sum(Ws,2); % Smoothed seed ROI    
+    end
+    % Determine parameters
+    mR = max(R); % Find peak activation in each map
+    mR = mR(1); % Ensure only one value
+    if ~isnan(mR) && mR > 0
+        Rmaps(:,v) = R(:); % Activation map as vector 
+    end
+    % Progress report every 5000 vertices
+    if mod(v,5000) == 0
+        disp([' ' num2str(round(v/length(mver)*100)) '% completed']);
     end
 end
+Srf.Data = NaN(length(svx), size(Srf.Vertices,1));
+Srf.Data(:,mver) = Rmaps;
 t2 = toc(t0); 
-disp(['Correlation analysis completed in ' num2str(t2/60) ' minutes.']);
+disp(['Correlation analysis completed in ' num2str(t2/60/60) ' hours.']);
+new_line;
 
 %% Determine CF parameters
 % Keep track of redundancies
@@ -129,10 +135,6 @@ fXimg = zeros(1,size(Srf.Vertices,1)); % Left-Right coordinate
 fZimg = zeros(1,size(Srf.Vertices,1)); % Inferior-Superior coordinate
 fWimg = zeros(1,size(Srf.Vertices,1)); % Full width half maximum
 fRimg = zeros(1,size(Srf.Vertices,1)); % R^2 map
-% % Smooth connective field profiles if desired
-if Model.Smoothing > 0   
-    % CURRENTLY NOT YET IMPLEMENTED!
-end
 Srf.ConFlds = Srf.Data; % Smoothed correlation profile
 Srf.Data = [];
 disp('Estimating CF parameters...');
@@ -163,7 +165,8 @@ for v = 1:length(mver)
     end
 end
 t3 = toc(t0); 
-disp(['Parameter estimates completed in ' num2str(t3/60) ' minutes.']);
+disp(['Parameter estimates completed in ' num2str(t3/60/60) ' hours.']);
+new_line;
 
 % Save as surface structure
 Srf.Functional = 'Connective field';
@@ -184,5 +187,5 @@ disp(['Saved ' OutFile '.mat']);
 
 % End time
 t4 = toc(t0); 
-EndTime = num2str(t4/60);
-new_line; disp(['Whole analysis completed in ' EndTime ' minutes.']);
+EndTime = num2str(t4/60/60);
+new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);

@@ -11,6 +11,7 @@ function Ds = samsrf_geomatrix(V, F, Vs, MaxDist)
 % of the N vertices and all the others.
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
+% 23/07/2020 - Added support for parallel processing (DSS)
 %
 
 %% Default parameters
@@ -26,7 +27,7 @@ Ds = NaN(N,N);
 
 %% Loop thru vertices
 disp('Calculating distance matrix...');
-for v = 1:N
+parfor v = 1:N
     [Nv,Nd] = samsrf_georoi(Vs(v), MaxDist, V, F); % Neighbourhood vertices & distances
     X = Inf(1,size(V,1)); % Dummy vector of vertices
     X(Nv) = Nd; % Distances on surface

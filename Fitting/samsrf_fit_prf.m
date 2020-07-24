@@ -20,6 +20,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 20/07/2020 - SamSrf 7 version (DSS) 
+% 23/07/2020 - Cosmetic changes to command window outputs (DSS)
 %
 
 %% Defaults & constants
@@ -90,7 +91,7 @@ new_line;
 %% Load apertures
 disp('Load stimulus apertures...');
 load(Model.Aperture_File);  % Loads a variable called ApFrm
-disp([' Loading ' Model.Aperture_File '.']);
+disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
 new_line; 
 
 %% Load images 
@@ -106,7 +107,7 @@ for f = 1:length(SrfFiles)
     if f == 1
         OutFile = [Srf.Hemisphere '_' Model.Name];
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices']);
+    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
     Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
@@ -295,8 +296,9 @@ else
     
     % Run fine fit (must be separate function for parallel computing toolbox
     [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Tc, ApFrm, Rimg, Pimg);
-    t3 = toc(t0); 
+    t3 = toc(t0);
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
+    new_line;
     
     disp('Fitting beta parameters & storing fitted models...');   
     % Additional data fields
@@ -356,7 +358,6 @@ else
             fBimg(:,v) = fB([2 1]); % Amplitude & intercept
         end
     end
-    new_line;
 end
 
 disp('Tidying up final results structure...');
