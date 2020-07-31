@@ -6,6 +6,7 @@
 #   sh fs_vol2mgh.sh [Filenames Without NII Extension Separated By Space]
 #
 # This script uses a cortical sampling step of 0.5 and 3 mm surface smoothing. Adjust as desired.
+# You will need to first create a register.dat file for your NII.
 #
 
 # Convert

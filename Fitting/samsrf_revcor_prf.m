@@ -28,12 +28,17 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
 % 27/07/2020 - More info in command window (DSS)
+% 24/07/2020 - Added option to limit data by noise ceiling (DSS)
+%              Reorganised analysis loop but parallel processing isn't working yet (DSS)
 %
 
 %% Defaults & constants
 % If no ROI defined, analyse whole brain...
 if nargin < 3
     Roi = ''; 
+end
+if ~isfield(Model, 'Noise_Ceiling_Threshold')
+    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
 end
 
 %% Start time of analysis
@@ -49,7 +54,7 @@ new_line;
 %% Load apertures
 disp('Load stimulus apertures...');
 load(Model.Aperture_File);  % Loads a variable called ApFrm
-disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
+disp([' Loading '  Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
 new_line; 
 % Regressor file name
 [~,ApsName] = fileparts(Model.Aperture_File);
@@ -82,6 +87,15 @@ else
     disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 new_line; 
+
+%% Limit data due to noise ceiling?
+if isfield(Srf, 'Noise_Ceiling')
+    if Model.Noise_Ceiling_Threshold > 0
+        mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
+        disp(['Limiting analysis to ' num2str(size(mver,1)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        new_line;
+    end
+end
 
 %% Add version number
 Srf.Version = samsrf_version;
@@ -147,46 +161,37 @@ new_line;
 disp('Calculating pRF profiles...');
 Srf.Regs = X;  % Design matrix (regressors per pixel)
 % R-map for each vertex 
-Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));  
+Rmaps = zeros(Model.Rdim^2, length(mver));  
 % Parameters for pRFs
-fXimg = zeros(1,size(Srf.Vertices,1)); % X-coordinate map
-fYimg = zeros(1,size(Srf.Vertices,1)); % Y-coordinate map
-fSimg = zeros(1,size(Srf.Vertices,1)); % Sigma map
-fBimg = zeros(1,size(Srf.Vertices,1)); % Beta map
-fRimg = zeros(1,size(Srf.Vertices,1)); % R^2 map
-% Keep track of redundancies
-Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
-% Loop through mask vertices (in blocks if Matlab R2012a or higher)
+fXimg = zeros(1,length(mver)); % X-coordinate map
+fYimg = zeros(1,length(mver)); % Y-coordinate map
+fSimg = zeros(1,length(mver)); % Sigma map
+fBimg = zeros(1,length(mver)); % Beta map
+fRimg = zeros(1,length(mver)); % R^2 map
+% Loop through mask vertices 
 for v = 1:length(mver)
-    vx = mver(v); % Current vertex
     % Calculate r-map
-    Y = Tc(:,vx);  % Time course of current vertex
-    if Fitted(vx) == 0 % Only non-redundant vertices
-        warning off
-        cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
-        warning on
-        cM = cM(1,:); % Remove intercept beta
-        mM = max(cM); % Find peak activation in each map
-        mM = mM(1); % Ensure only one value
-        gp = cM > mM/2; % Full area at half maximum
-        m = find(cM==mM,1); % Find peak coordinate
-        mR = corr(Y, X(:,m)); % Correlation coefficient at peak
-        rd = samsrf_find_redundancy(Tc,vx); % Find redundant vertices
-        if ~isempty(mR) && ~isnan(mR) && mR >= 0.1
-            cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
-            cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
-            cM = cM(:); % Vectorise again
-            Fitted(rd) = 1; % Mark all redundant vertices
-            % Store pRF profile
-            Srf.Rmaps(:,rd) = repmat(cM, 1, length(rd)); % Activation map as vector 
-            fXimg(rd) = xc(m);  % X-coordinate
-            fYimg(rd) = yc(m);  % Y-coordinate
-            fSimg(rd) = sqrt(mean(gp) * (Model.Scaling_Factor*2)^2); % Full width at half maximum
-            fBimg(rd) = mM;  % Activation peak
-            fRimg(rd) = mR^2;  % Variance explained
-        else
-            Fitted(rd) = 1; % Mark all redundant vertices
-        end
+    Y = Tc(:,v);  % Time course of current vertex
+    warning off
+    cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
+    warning on
+    cM = cM(1,:); % Remove intercept beta
+    mM = max(cM); % Find peak activation in each map
+    mM = mM(1); % Ensure only one value
+    gp = cM > mM/2; % Full area at half maximum
+    m = find(cM==mM,1); % Find peak coordinate
+    mR = corr(Y, X(:,m)); % Correlation coefficient at peak
+    if ~isempty(mR) && ~isnan(mR) && mR >= 0.1
+        cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
+        cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
+        cM = cM(:); % Vectorise again
+        % Store pRF profile
+        Rmaps(:,v) = cM; % Activation map as vector 
+        fXimg(v) = xc(m);  % X-coordinate
+        fYimg(v) = yc(m);  % Y-coordinate
+        fSimg(v) = sqrt(mean(gp) * (Model.Scaling_Factor*2)^2); % Full width at half maximum
+        fBimg(v) = mM;  % Activation peak
+        fRimg(v) = mR^2;  % Variance explained
     end
 end
 t2 = toc(t0); 
@@ -200,8 +205,11 @@ Srf.Y_coords = Yc;
 
 % Save as surface structure
 Srf.Functional = 'Reverse correlation';
-Srf.Data = [fRimg; fXimg; fYimg; fSimg; fBimg];
+Srf.Data = zeros(5, size(Srf.Vertices,1));
+Srf.Data(:,mver) = [fRimg; fXimg; fYimg; fSimg; fBimg];
 Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
+Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));
+Srf.Rmaps(:,mver) = Rmaps; % Add activation maps 
 % Add noise ceiling if it has been calculated
 if isfield(Srf, 'Noise_Ceiling')
     Srf.Data = [Srf.Data; Srf.Noise_Ceiling];

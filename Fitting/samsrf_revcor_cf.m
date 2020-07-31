@@ -23,13 +23,17 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
-% 23/07/2020 - Reorganised fitting loop but parallel processing isn't working (DSS)
+% 23/07/2020 - Reorganised fitting loop but parallel processing isn't working yet (DSS)
+% 24/07/2020 - Added option to limit data by noise ceiling (DSS)
 %
 
 %% Defaults & constants
 % If no ROI defined, analyse whole brain...
 if nargin < 3
     Roi = ''; 
+end
+if ~isfield(Model, 'Noise_Ceiling_Threshold')
+    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
 end
 
 %% Start time of analysis
@@ -69,6 +73,15 @@ else
     disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 new_line; 
+
+%% Limit data due to noise ceiling?
+if isfield(Srf, 'Noise_Ceiling')
+    if Model.Noise_Ceiling_Threshold > 0
+        mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
+        disp(['Limiting analysis to ' num2str(size(mver,1)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        new_line;
+    end
+end
 
 %% Load seed ROI 
 svx = samsrf_loadlabel(Model.SeedRoi);
