@@ -8,8 +8,8 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %  It then uses a searchlight procedure to calculate a summary statistic
 %  within a searchlight (circular or square) at each visual field position.
 %
-% IMPORTANTLY, if the rows in Response arise from different experiments or GLMs, 
-%  you can define different summary statistics for each (see below).
+% If the rows in Response arise from different experiments or GLMs, you can 
+%  define different summary statistics for each (see below).
 %
 % Eccentricity defines the maximum eccentricity of the mapping stimulus.
 %  This is used for defining the extent of the graph for example when mapping
@@ -30,17 +30,19 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %        represents the circle's radius.
 %     - is negative, the searchlight instead determines the pRFs which are
 %        the nearest N Euclidean neighbours to the searchlight centre. The
-%        2nd value therefore represents N.
+%        2nd value therefore represents N. (A separate function trimmed to only 
+%        this functionality may be added in the future as this produces the 
+%        nicest backprojections)
 %     - is a complex number (i.e., 0.5i), a square searchlight is used and
 %        the absolute value (i.e., the modulus) of the 2nd value (i.e., 0.5)
 %        represents half of the square's side length.
 %
 %  Note suboptimal choices for the granularity of the searchlight grid and the
-%  searchlight size can result in missing pRFs (see below for Used_pRFs).
-%  Moreover, since the size of the searchlight grid is determined by the
-%  maximum eccentrity of the mapping stimulus, the maximum eccentricity should
-%  be divisible by the chosen granularity value. With suboptimal granularities,
-%  the serachlight grid might not fully cover the eccentricity range.
+%   searchlight size can result in missing pRFs (see below for Used_pRFs).
+%   Moreover, since the size of the searchlight grid is determined by the
+%   maximum eccentrity of the mapping stimulus, the maximum eccentricity should
+%   be divisible by the chosen granularity value. With suboptimal granularities,
+%   the serachlight grid might not fully cover the eccentricity range.
 %
 % Mode defines the summary statistic for the searchlight:
 %  Central tendency estimates
@@ -50,24 +52,23 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %   'Mode':         Mode
 %   'Maximum':      Maximum
 %   'Minimum':      Minimum
-%   'Geomean':      Geometric mean
+%   'GeoMean':      Geometric mean
 %   'Sum':          Sum
 %   't-test':       t-test vs 0
-% Dispersion estimates
+%  Dispersion estimates
 %   'StdDev'        Standard deviation
 %   'MeanAbsDev'    Mean absolute deviation
-%   'MedAbsDev'     Median absolutre deviation
+%   'MedAbsDev'     Median absolute deviation
 %   'CircMean'      Mean direction for circular data 
-%   'CircMedian'    Median direction for circular data 
+%      (Note that previous versions used an external toolbox for this. 
+%       For consistency with other functions in SamSrf, the internal function 
+%       circmean is used instead now (should give identical results). 
+%       Moreover, we don't support the circular median any longer because 
+%       calculating this is non-trivial & the algorithm for that should be 
+%       chosen deliberately & declared explicitly in your Methods section)
 %
-%  You can apply a different mode for each row of Response, 
-%   using a cell array as input, e.g. {'Mean' 'Median' 'Maximum'} 
-%
-%  Moreover, if you would like to use 'CircMean' or 'CircMedian' you need to 
-%   download the circular statistics toolbox (c.f. relevant documentation): 
-%     https://github.com/circstat/circstat-matlab
-%   Alternatively, you could override these functions with custom functions
-%   for circular statistics.
+%   You can apply a different mode for each row of Response, using a cell array 
+%   as input, e.g. {'Mean' 'Median' 'Maximum'} 
 %
 % SkipVtxInSrcl toggles whether indidces flagging the vertices falling within
 %  a given searchlight shall be produced. Defaults to false.
@@ -114,6 +115,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %
 %
 % 19/07/2020 - SamSrf 7 version (DSS & SuSt)
+% 03/08/2020 - Removed dependency on external circular statistics toolbox (DSS)
 %
 
 %% Default inputs
@@ -276,7 +278,7 @@ for x = 1:size(X,2)
                 elseif strcmpi(CurrMode, 'Minimum')
                     % Minimum of values
                     curstat = min(Cleaned_Response(v,vx));
-                elseif strcmpi(CurrMode, 'Geomean')
+                elseif strcmpi(CurrMode, 'GeoMean')
                     % Geometric mean of values
                     curstat = geomean(Cleaned_Response(v,vx));
                 elseif strcmpi(CurrMode, 'Sum')
@@ -286,22 +288,11 @@ for x = 1:size(X,2)
                     % Calculate t-test vs zero
                     [~,~,~,TestStats] = ttest(Cleaned_Response(v,vx), 0);
                     curstat = TestStats.tstat;
-                elseif sum(strcmpi(CurrMode, {'CircMean' 'CircMedian'})) > 0
-                    if ~exist('circ_mean.m','file') || ~exist('circ_median.m','file')
-                        error('Circular statistics tools not installed! (see ''help samsrf_backproj_srclt'')');
-                    end
+                elseif strcmpi(CurrMode, 'CircMean')
                     % Circular mean
-                    if strcmpi(CurrMode, 'CircMean')
-                        curstat = circ_mean(deg2rad(Cleaned_Response(v,vx))');
-                    else % Circular median
-                        curstat = circ_median(deg2rad(Cleaned_Response(v,vx))');
-                    end
-                    curstat = rad2deg(curstat);
-                    if curstat < 0
-                        curstat = curstat+360;
-                    end
+                    curstat = circmean(Cleaned_Response(v,vx));
                     
-                    %% Dispersion estimates
+                 %% Dispersion estimates
                 elseif strcmpi(CurrMode, 'StdDev')
                     % Standard deviation
                     curstat = std(Cleaned_Response(v,vx));
@@ -311,14 +302,17 @@ for x = 1:size(X,2)
                 elseif strcmpi(CurrMode, 'MedAbsDev')
                     % Median absolute deviation
                     curstat = mad(Cleaned_Response(v,vx), 1);
+                
+                 %% Unknown mode defined
                 else
-                    % Unknown mode defined
                     error(['Unknown summary statistic ' CurrMode ' specified.']);
                 end
+                
                 %% Store current stat in pixel
                 if ~isempty(curstat) && ~isinf(curstat) && ~isnan(curstat)
                     Backprojections(y,x,v) = curstat;
                 end
+                
                 %% Store distances & numbers (only need to do once)
                 if v == 1
                     % Calculated across all pRFs inside the searchlight

@@ -14,6 +14,7 @@ function [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg)
 %   Pimg:   Coarse fit/seed map parameters, restricted to mask
 %
 % 20/07/2020 - SamSrf 7 version (DSS)
+% 03/08/2020 - Fixed bug where loop could get stuck on bad fits (IA & DSS)
 %
 
 % Number of vertices
@@ -36,6 +37,8 @@ end
 
 % Display off & default tolerances (=slow)
 OptimOpts = optimset('Display', 'off'); 
+% Add output function to prevent loop from getting stuck
+OptimOpts.OutputFcn = @samsrf_fminsearch_outfun;
 
 %% Loop thru mask vertices 
 vc = 1;
@@ -75,5 +78,15 @@ end
             disp([' ' num2str(round(vc/nver*100)) '% completed']);
         end
         vc = vc + 1;
+    end
+end
+
+
+%% Output function to prevent loop from getting stuck  
+function stop = samsrf_fminsearch_outfun(x, optimValues, state) 
+    if isfinite(optimValues.fval)
+        stop = false;
+    else
+        stop = true;
     end
 end
