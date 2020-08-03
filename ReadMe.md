@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.041 (04-08-2020)  
+- ViewApertures now uses greyscale if no negative pixels are present (DSS)  
+
 ### Version 7.04 (03-08-2020)  
 - Fixed bug in samsrf_fminsearch_loop by which it could get stuck with poor fits (DSS)  
 - For consistency, removed external dependencies from samsrf_backproj_srclt (DSS)  

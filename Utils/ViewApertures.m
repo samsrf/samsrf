@@ -84,7 +84,7 @@ if nanmin(ApFrm(:)) < 0
     colormap hotcold
     set(gca, 'Clim', [-1 1]);
 else
-    colormap hot
+    colormap gray
     set(gca, 'Clim', [0 1]);
 end
 set(handles.slider1, 'Value', 1/size(ApFrm,3), 'SliderStep', [1/(1+size(ApFrm,3)) 1/(1+size(ApFrm,3))]);
@@ -135,7 +135,7 @@ if nanmin(ApFrm(:)) < 0
     colormap hotcold
     set(gca, 'Clim', [-1 1]);
 else
-    colormap hot
+    colormap gray
     set(gca, 'Clim', [0 1]);
 end
 text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
@@ -190,7 +190,7 @@ try
             colormap hotcold
             set(gca, 'Clim', [-1 1]);
         else
-            colormap hot
+            colormap gray
             set(gca, 'Clim', [0 1]);
         end
         text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
