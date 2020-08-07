@@ -263,7 +263,7 @@ if IsNewFig
         if Srf.Hemisphere(1) == 'l'
             CamView = [36 -20 1.8];
         else
-            CamView = [-50 -6 1.6];
+            CamView = [-35 -35 2.2];
         end
     else
         % Use default camera angle
@@ -461,6 +461,8 @@ elseif strcmpi(MapType, 'Field Sign')
     set(handles.edit2, 'String', '0 3');
 elseif strcmpi(MapType, 'x0') || strcmpi(MapType, 'y0')
     set(handles.edit2, 'String', '0 10');
+elseif strcmpi(MapType, 'ROI')
+    set(handles.edit2, 'String', '0 8');
 else
     set(handles.edit2, 'String', '0 0.5');
 end

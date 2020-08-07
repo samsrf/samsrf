@@ -50,6 +50,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
 % 17/07/2020 - SamSrf 7 version (DSS)
+% 07/08/2020 - Changed default camera view for right hemisphere (DSS)
+%              Added support for displaying ROI numbers (DSS)
 %
 
 %% Create global variables
@@ -445,8 +447,8 @@ elseif strcmpi(Type, 'Mu')
         PathColour = [0 0 0];  
     end
     
-elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual Area') || strcmpi(Type, 'Spread') ...
-        || strcmpi(Type, 'Centre') || strcmpi(Type, 'Surround') || strcmpi(Type, 'Sigma1') || strcmpi(Type, 'Sigma2')
+elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual Area') || strcmpi(Type, 'Spread') || strcmpi(Type, 'ROI') ...
+        || strcmpi(Type, 'Centre') || strcmpi(Type, 'Surround') || strcmpi(Type, 'Sigma1') || strcmpi(Type, 'Sigma2') 
     % pRF size map
     Sigma = Srf.Data(dt,:);
     Data = Sigma;
@@ -560,7 +562,7 @@ if nargin < 5 || isempty(CamView)
         if Srf.Hemisphere(1) == 'l'
             CamView = [36 -20 1.8];
         else
-            CamView = [-26 -7 1.6];
+            CamView = [-35 -35 2.2];
         end
     else
         % Use default camera angle
