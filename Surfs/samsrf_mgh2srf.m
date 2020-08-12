@@ -104,10 +104,10 @@ end
 if length(funimg) > 1
     if avrgd
         % Average runs 
-        disp('Averaging runs.');
+        disp('Averaging runs...');
         % Calculate noise ceiling?
         if nsceil && size(Srf.Data, 3) > 1
-            disp('Calculating noise ceiling.');
+            disp('Calculating noise ceiling...');
             OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
             EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
             % Loop thru vertices
@@ -123,7 +123,7 @@ if length(funimg) > 1
         Srf.Data = nanmean(Srf.Data, 3);
     else
         % Concatenate runs
-        disp('Concatenating runs.');
+        disp('Concatenating runs...');
         if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
             nSrf = Srf;
             nSrf.Data = [];

@@ -53,7 +53,6 @@ new_line;
 disp(['                 Version ' num2str(vn) ', Released on ' vd]);
 disp('      (see SamSrf/ReadMe.md for what is new in this version)');
 disp('****************************************************************************');
-new_line;
 
 % Choose default command line output for DisplayMaps
 handles.output = hObject;
@@ -84,6 +83,9 @@ global Srf Pval R2Thrsh
 [fn,pn] = uigetfile('*.mat', 'Load Srf');
 cd(pn); % Navigate to folder as otherwise anatomicals cannot be loaded
 load(fn); % Load Srf 
+new_line;
+disp(['Loading surface data file: ' pn fn]);
+new_line;
 
 % Limit multi-subject Srf?
 if size(Srf.Data,3) > 1

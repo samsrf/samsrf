@@ -172,26 +172,26 @@ end
 
 %% Calculate one value per vertex
 if strcmpi(rule, 'Mean')
-    disp('Using mean of steps through cortex.');
+    disp('Using mean of steps through cortex');
     Srf.Data = squeeze(nanmean(Srf.Data,1));
 elseif strcmpi(rule, 'Maximum')
-    disp('Using maximum of steps through cortex.');
+    disp('Using maximum of steps through cortex');
     Srf.Data = squeeze(nanmax(Srf.Data,[],1));
 elseif strcmpi(rule, 'Minimum')
-    disp('Using minimum of steps through cortex.');
+    disp('Using minimum of steps through cortex');
     Srf.Data = squeeze(nanmin(Srf.Data,[],1));
 elseif strcmpi(rule, 'Median')
-    disp('Using median of steps through cortex.');
+    disp('Using median of steps through cortex');
     Srf.Data = squeeze(nanmedian(Srf.Data,1));
 elseif strcmpi(rule, 'Sum')
-    disp('Using sum of steps through cortex.');
+    disp('Using sum of steps through cortex');
     Srf.Data = squeeze(nansum(Srf.Data,1));
 elseif strcmpi(rule, 'Geomean')
-    disp('Using geometric mean of steps through cortex.');
+    disp('Using geometric mean of steps through cortex');
     Srf.Data = squeeze(exp(nanmean(log(Srf.Data,1))));
 else
     % Unless this happens
-    disp('Retaining individual steps through cortex.');
+    disp('Retaining individual steps through cortex');
     Srf.Data = permute(Srf.Data, [2 3 4 1]);
 end
 
@@ -228,10 +228,10 @@ end
 if length(funimg) > 1
     if avrgd
         % Average runs 
-        disp('Averaging runs.');
+        disp('Averaging runs...');
         % Calculate noise ceiling?
         if nsceil && size(Srf.Data, 3) > 1
-            disp('Calculating noise ceiling.');
+            disp('Calculating noise ceiling...');
             OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
             EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
             % Loop thru vertices
@@ -247,7 +247,7 @@ if length(funimg) > 1
         Srf.Data = nanmean(Srf.Data, 3);
     else
         % Concatenate runs
-        disp('Concatenating runs.');
+        disp('Concatenating runs...');
         if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
             nSrf = Srf;
             nSrf.Data = [];

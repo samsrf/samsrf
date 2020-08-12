@@ -214,6 +214,8 @@ disp(['                 Version ' num2str(vn) ', Released on ' vd]);
 disp('      (see SamSrf/ReadMe.md for what is new in this version)');
 disp('****************************************************************************');
 new_line;
+disp(['Displaying map: ' SrfName]);
+new_line;
 
 %% Close request function
 crfcn = @closereq;

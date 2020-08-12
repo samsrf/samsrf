@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.051 (13-08-2020)  
+- DisplayMaps & DelineationTool now state which map is being loaded (DSS)  
+
 ### Version 7.05 (07-08-2020)  
 - Added tool for warping average template maps back into native space (DSS)  
 - ViewApertures now uses greyscale if no negative pixels are present (DSS)  
