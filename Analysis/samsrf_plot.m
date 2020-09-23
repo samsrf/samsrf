@@ -38,7 +38,8 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %                In that case, Window-width must be negative so e.g.:
 %                [0 8 -1] will produce sliding window with width 1 from 0 to 8.
 %               When creating a scatter plot instead of binned summaries,
-%                this input is ignored and generates a warning.
+%                only the lowest and highest values are used to restrict the range.
+%                If Bins is undefined this will then default to [-Inf Inf].
 %
 % Roi:          ROI label (without the file extension).
 %                Defaults to '' and data isn't restricted to any ROI.
@@ -69,6 +70,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
 % 17/07/2020 - SamSrf 7 version (DSS & SuSt)
+% 23/09/2020 - Bins is now used to restrict range of scatter plot (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -323,6 +325,10 @@ end
 %% Plot data
 if strcmpi(Mode, 'Scatter')
     % Scatter plot
+    if nargin < 5
+        Bins = [-Inf Inf];
+    end
+    Res(Res(:,1)<Bins(1) | Res(:,1)>Bins(end),:) = []; % Restrict range 
     FigHdl = scatter(Res(:,1), Res(:,2), '+', 'markeredgecolor', Colour);
     ylabel([ValDv RawLabelDv]);
     xlabel([ValIv RawLabelIv]);

@@ -16,6 +16,7 @@ function samsrf_simvsfit_ecc(Srf, Bins, Threshold)
 %   the comparison. Defaults to -Inf (includes all).
 %
 % 23/06/2020 - SamSrf 7 version (DSS) 
+% 18/09/2020 - Fixed typo in output message (DSS)
 %
 
 if nargin < 3
@@ -28,7 +29,7 @@ uS = unique(Srf.Ground_Truth(3,:));
 Cmap = lines(length(uS));
 if nargin < 2
     new_line;
-    disp('Unique ground truth sigmas');
+    disp('Unique ground truth eccentricities');
     disp(uE);
     return
 end
