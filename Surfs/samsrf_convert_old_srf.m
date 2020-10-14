@@ -8,10 +8,12 @@ function samsrf_convert_old_srf(srfname, surfdir)
 % It then saves the Srf under the same name again and adds Srf.ConvertedFrom 
 % to indicate the version from which it has been converted.
 %
-%   srfname:    Name of the SamSrf file (without .mat extension)malise!
+%   srfname:    Name of the SamSrf file (without .mat extension!)
 %   surfdir:    Pathname to the 'surf' folder in the subject's Freesurfer folder
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 14/10/2020 - Fixed typo in help section (DSS)
+%              Will now load ASC files if binary files don't exist (DSS)
 %
 
 %% Load old file
@@ -21,9 +23,19 @@ Mat = load(srfname);
 P = fs_read_surf([surfdir filesep Mat.Srf.Hemisphere '.pial']); % Pial surface
 I = fs_read_surf([surfdir filesep Mat.Srf.Hemisphere '.inflated']); % Inflated surface
 S = fs_read_surf([surfdir filesep Mat.Srf.Hemisphere '.sphere']); % Spherical surface
-C = fs_read_curv([surfdir filesep Mat.Srf.Hemisphere '.curv']); % Cortical curvature 
-A = fs_read_curv([surfdir filesep Mat.Srf.Hemisphere '.area']); % Cortical surface area
-T = fs_read_curv([surfdir filesep Mat.Srf.Hemisphere '.thickness']); % Cortical thickness
+try
+    C = fs_read_curv([surfdir filesep Mat.Srf.Hemisphere '.curv']); % Cortical curvature 
+    A = fs_read_curv([surfdir filesep Mat.Srf.Hemisphere '.area']); % Cortical surface area
+    T = fs_read_curv([surfdir filesep Mat.Srf.Hemisphere '.thickness']); % Cortical thickness
+catch
+    % If no binary files available, hope there are ASC files, and use those
+    C = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.curv.asc']); % Cortical curvature 
+    A = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.area.asc']); % Cortical surface area
+    T = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.thickness.asc']); % Cortical thickness
+    C = C(:,5);
+    A = A(:,5);
+    T = T(:,5);
+end
 
 %% Add version number
 if ~isfield(Mat.Srf, 'Version')
