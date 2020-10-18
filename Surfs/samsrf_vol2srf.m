@@ -42,7 +42,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
 % 22/07/2020 - Added progress reports but still no parallel processing (DSS)
-% 19/10/2020 - Will now load ASC files if binary files don't exist (DSS)
+% 19/10/2020 - Will now also load ASC files if binary files don't exist (DSS)
 %
 
 %% Default parameters
