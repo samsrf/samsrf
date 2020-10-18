@@ -42,6 +42,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
 % 22/07/2020 - Added progress reports but still no parallel processing (DSS)
+% 19/10/2020 - Will now load ASC files if binary files don't exist (DSS)
 %
 
 %% Default parameters
@@ -110,9 +111,19 @@ mat = fhdr.mat; % Functional matrix
 P = fs_read_surf([hemsurf '.pial']); % Pial surface
 I = fs_read_surf([hemsurf '.inflated']); % Inflated surface
 S = fs_read_surf([hemsurf '.sphere']); % Spherical surface
-C = fs_read_curv([hemsurf '.curv']); % Cortical curvature 
-A = fs_read_curv([hemsurf '.area']); % Cortical surface area
-T = fs_read_curv([hemsurf '.thickness']); % Cortical thickness
+try
+    C = fs_read_curv([hemsurf '.curv']); % Cortical curvature 
+    A = fs_read_curv([hemsurf '.area']); % Cortical surface area
+    T = fs_read_curv([hemsurf '.thickness']); % Cortical thickness
+catch
+    % If no binary files available, hope there are ASC files, and use those
+    C = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.curv.asc']); % Cortical curvature 
+    A = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.area.asc']); % Cortical surface area
+    T = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.thickness.asc']); % Cortical thickness
+    C = C(:,5);
+    A = A(:,5);
+    T = T(:,5);
+end
 N = P - V0; % Cortical vectors for each vertex 
 [~,hemsurf] = fileparts(hemsurf);   % Remove folder from hemsurf
 

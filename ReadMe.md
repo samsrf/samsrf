@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.054 (19-10-2020)  
+- Surface projection function now also accepts ASC files (DSS)  
+
 ### Version 7.053 (15-10-2020)  
 - Conversion from old Srf files now also accepts ASC files (DSS)  
 

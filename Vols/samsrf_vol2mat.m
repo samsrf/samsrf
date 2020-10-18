@@ -7,8 +7,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %                 This can be a cell array if more than one file is to be
 %                 averaged. In that case you should probably normalise!
 %   roi:        name of binary mask, in NII format (without extension)
-%   nrmls:      if true, it will detrend & z-score the time series in each
-%               voxel.
+%   nrmls:      if true, it will detrend & z-score the time series in each voxel.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 %

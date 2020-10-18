@@ -52,6 +52,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 17/07/2020 - SamSrf 7 version (DSS)
 % 07/08/2020 - Changed default camera view for right hemisphere (DSS)
 %              Added support for displaying ROI numbers (DSS)
+% 16/10/2020 - Fixed bug with determining transparency when no goodness-of-fit exists (DSS)
 %
 
 %% Create global variables
@@ -357,7 +358,7 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     Pha(r) = 360;
     
     % If no R^2 present
-    if ~strcmpi(Srf.Values{1}, 'R^2') || ~strcmpi(Srf.Values{1}, 'nR^2')
+    if ~strcmpi(Srf.Values{1}, 'R^2') && ~strcmpi(Srf.Values{1}, 'nR^2')
         Alpha = CalcAlphas(Pha, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on Pha
         % If uniform alpha desired
         if UniformAlpha
@@ -498,7 +499,7 @@ else
     X(r) = 0;
     
     % If no R^2 present
-    if ~strcmpi(Srf.Values{1}, 'R^2') || ~strcmpi(Srf.Values{1}, 'nR^2')
+    if ~strcmpi(Srf.Values{1}, 'R^2') && ~strcmpi(Srf.Values{1}, 'nR^2')
         Alpha = CalcAlphas(X, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on X
         % If uniform alpha desired
         if UniformAlpha
