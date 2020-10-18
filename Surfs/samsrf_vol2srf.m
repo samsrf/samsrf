@@ -117,9 +117,9 @@ try
     T = fs_read_curv([hemsurf '.thickness']); % Cortical thickness
 catch
     % If no binary files available, hope there are ASC files, and use those
-    C = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.curv.asc']); % Cortical curvature 
-    A = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.area.asc']); % Cortical surface area
-    T = Read_FreeSurfer([surfdir filesep Mat.Srf.Hemisphere '.thickness.asc']); % Cortical thickness
+    C = Read_FreeSurfer([hemsurf '.curv.asc']); % Cortical curvature 
+    A = Read_FreeSurfer([hemsurf '.area.asc']); % Cortical surface area
+    T = Read_FreeSurfer([hemsurf '.thickness.asc']); % Cortical thickness
     C = C(:,5);
     A = A(:,5);
     T = T(:,5);
