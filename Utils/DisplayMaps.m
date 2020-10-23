@@ -130,7 +130,11 @@ end
 if isnan(RoiName)
     % Use ROI from Srf
     disp('Using ROI from Srf if it exists');
-elseif RoiName(1) == '<' || RoiName(1) == '>' 
+elseif isempty(RoiName)
+    % No ROI defined
+    disp('No default ROI defined!');
+    vx = NaN;
+elseif ischar(RoiName) && RoiName(1) == '<' || RoiName(1) == '>' 
     % If ROI defined by coordinates
     if length(RoiName) == 1
         error('You must define inflated mesh coordinate in def_disproi!');
@@ -155,9 +159,6 @@ elseif RoiName(1) == '<' || RoiName(1) == '>'
         vx = find(wv > wc);
     end
     disp(['Only displaying inflated mesh vertices with ' RoiName]);
-elseif isempty(RoiName)
-    % No ROI defined
-    disp('No ROI defined!');
 else
     % If ROI was named, load that instead
     vx = samsrf_loadlabel([pn filesep Srf.Hemisphere '_' RoiName]);

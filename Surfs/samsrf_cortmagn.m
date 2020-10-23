@@ -17,6 +17,7 @@ function Srf = samsrf_cortmagn(Srf, Roi)
 % (Surface area is already stored in the anatomical data)
 %
 % 17/07/2020 - SamSrf 7 version (DSS)
+% 23/10/2020 - Added support for parallel computing (DSS)
 %
 
 %% Default parameters
@@ -38,10 +39,13 @@ else
 end
 
 % Determine visual area for each vertex
-Vis = zeros(size(Srf.Data,2), 1);
-Cmf = zeros(size(Srf.Data,2), 1);
-for v = mver'
-    if Srf.Data(1,v) >= 0.01  % No point doing this for crappy vertices
+Ctx = Ctx(mver); % Limit to ROI
+Vis = zeros(1,length(mver));
+Cmf = zeros(1,length(mver));
+disp('Calculating cortical magnification factors...');
+t0 = tic;
+parfor v = 1:length(mver)
+    if Srf.Data(1,mver(v)) >= 0.01  % No point doing this for crappy vertices
         % Calculate visual area (density)
         Vis(v) = samsrf_vertexarea(v, Srf.Data(2:3,:)', Srf.Faces);
         % Fix artifacts
@@ -53,8 +57,11 @@ for v = mver'
         Cmf(v) = sqrt(Ctx(v)) / sqrt(Vis(v));
     end
 end
+disp([' CMF computation completed in ' num2str(toc(t0)/60) ' minutes.']);
 
 % Store in structure
-Srf.Data = [Srf.Data; Cmf'; Vis'];
+Srf.Data = [Srf.Data; zeros(2,size(Srf.Data,2))];
+Srf.Data(end-1,mver) = Cmf;
+Srf.Data(end,mver) = Vis;
 Srf.Values{end+1} = 'Cmf';
 Srf.Values{end+1} = 'Visual Area';

@@ -30,13 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.054 (19-10-2020)  
+### Version 7.056 (22-10-2020)  
+- Added support for parallel computing of CMF (DSS)  
+- Limited ROI in DisplayMaps can now be turned off completely (DSS)  
 - Surface projection function now also accepts ASC files (DSS)  
-
-### Version 7.053 (15-10-2020)  
 - Conversion from old Srf files now also accepts ASC files (DSS)  
-
-### Version 7.052 (23-09-2020)  
 - DisplayMaps & DelineationTool now state which map is being loaded (DSS)  
 - Bins in samsrf_plot now restrict range for scatter plot (DSS)  
 - Added option to samsrf_denoisemap to remove artifactually small pRFs (DSS)  
