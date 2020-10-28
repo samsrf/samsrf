@@ -25,7 +25,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 % ValDv/ValIv:  The value name as given by Srf.Values. Returns an error if 
 %                more than one entry of that name exists.
 %               This can also be 'Eccentricity' or 'Polar', in which case it 
-%                throws up an error if SrfIv.Data(2:3,:) are not X0 and Y0.
+%                may throw up an error if SrfIv.Data(2:3,:) are not X0 and Y0.
 %               Prefixing ValDv/ValIv by ':' uses unsmoothed data (if possible).
 %               Finally, this can also refer to anatomical statistics such as
 %                'Area', 'Thickness', or 'Curvature'. (These will always be
@@ -71,6 +71,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %
 % 17/07/2020 - SamSrf 7 version (DSS & SuSt)
 % 23/09/2020 - Bins is now used to restrict range of scatter plot (DSS)
+% 28/20/2020 - Minor changes (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -272,7 +273,7 @@ else % Binning analysis
         CurN = length(CurDat); % Number of vertices
         
         %% Summary statistic & confidence interval
-        if length(CurDat) > 1 
+        if CurN > 1 
             if strcmpi(Mode, 'Mean')
                 if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
                   Bs = bootstrp(BootParams(1), @nanmean, CurDat); % Bootstrap distribution

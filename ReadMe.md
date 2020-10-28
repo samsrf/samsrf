@@ -30,9 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.056 (22-10-2020)  
-- Added support for parallel computing of CMF (DSS)  
+### Version 7.057 (28-10-2020)  
+- It is now possible to combine Srfs from both hemipheres (DSS)  
+- Added function for creating a binned plot for wedge segments (DSS)  
 - Limited ROI in DisplayMaps can now be turned off completely (DSS)  
+- Added support for parallel computing of CMF (DSS)  
 - Surface projection function now also accepts ASC files (DSS)  
 - Conversion from old Srf files now also accepts ASC files (DSS)  
 - DisplayMaps & DelineationTool now state which map is being loaded (DSS)  
