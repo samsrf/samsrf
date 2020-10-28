@@ -5,7 +5,11 @@ function Status = samsrf_combine_labels(OldLabels, NewLabel)
 % Combines the labels in the cell array OldLabels into a new label named NewLabel.
 % Returns the Status of the operation: true = no error, false = error
 %
+% Note: This function assumes labels are from the same hemisphere! You can use
+%       samsrf_bilat_label to create labels combining left & right hemispheres.
+%
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 29/10/2020 - Updated help section for clarification (DSS)
 %
 
 Vs = [];

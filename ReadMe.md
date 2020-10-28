@@ -30,7 +30,7 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.057 (28-10-2020)  
+### Version 7.06 (29-10-2020)  
 - It is now possible to combine Srfs from both hemipheres (DSS)  
 - Added function for creating a binned plot for wedge segments (DSS)  
 - Limited ROI in DisplayMaps can now be turned off completely (DSS)  

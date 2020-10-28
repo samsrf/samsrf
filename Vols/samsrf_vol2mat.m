@@ -2,6 +2,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 % Srf = samsrf_vol2mat(funimg, [mask, nrmls=true])
 %
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
+% The data file is prefixed 'vol_'
 %
 %   funimg:     name of functional NII file (without extension)
 %                 This can be a cell array if more than one file is to be
@@ -10,6 +11,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %   nrmls:      if true, it will detrend & z-score the time series in each voxel.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 29/10/2020 - Added prefix for these files (DSS)
 %
 
 %% Default parameters
@@ -65,7 +67,7 @@ end
 Srf = struct;
 Srf.Version = samsrf_version;
 Srf.Functional = funimg;
-Srf.Hemisphere = 'both';
+Srf.Hemisphere = 'vol';
 Srf.NiiHeader = fhdr;
 Srf.Roi = [];
 
@@ -129,6 +131,6 @@ end
 
 %% Save data
 [~, f, ~] = fileparts(funimg{1});
-save(f, 'Srf', '-v7.3');
-disp(['Saved ' f '.mat']);
+save(['vol_' f], 'Srf', '-v7.3');
+disp(['Saved vol_' f '.mat']);
 new_line;

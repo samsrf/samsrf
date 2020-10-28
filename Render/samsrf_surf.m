@@ -53,6 +53,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 07/08/2020 - Changed default camera view for right hemisphere (DSS)
 %              Added support for displaying ROI numbers (DSS)
 % 16/10/2020 - Fixed bug with determining transparency when no goodness-of-fit exists (DSS)
+% 29/10/2020 - Polar/phase colour schemes now account for bilateral data files (DSS)
 %
 
 %% Create global variables
@@ -325,8 +326,15 @@ if strcmpi(Type, 'Polar')
     Pha = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
     Data = Pha;
     if Srf.Hemisphere(1) == 'l'
+        % Left hemisphere
         Pha = mod(ceil(Pha + 270), 360) + 1;
+    elseif Srf.Hemisphere(1) == 'b'
+        % Bilateral maps
+        Pha(1:Srf.Nvert_Lhem) = mod(ceil(Pha(1:Srf.Nvert_Lhem) + 270), 360) + 1;
+        Pha(Srf.Nvert_Lhem+1:end) = -Pha(Srf.Nvert_Lhem+1:end);
+        Pha(Srf.Nvert_Lhem+1:end) = mod(ceil(Pha(Srf.Nvert_Lhem+1:end) + 90), 360) + 1;
     else
+        % Right hemisphere
         Pha = -Pha;
         Pha = mod(ceil(Pha + 90), 360) + 1;
     end
@@ -351,7 +359,11 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     Pha = Srf.Data(dt,:);
     Data = Pha;
     if Srf.Hemisphere(1) == 'r'
+        % Right hemisphere
         Pha = -Pha;
+    elseif Srf.Hemisphere(1) == 'b'
+        % Bilateral data
+        Pha(Srf.Nvert_Lhem+1:end) = -Pha(Srf.Nvert_Lhem+1:end);
     end
     Pha = mod(ceil(Pha + 270), 360) + 1;
     Pha(Pha == 0) = 360;

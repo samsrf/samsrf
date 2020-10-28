@@ -1,18 +1,30 @@
-function Srf = samsrf_combine_srf(SrfL, SrfR)
+function Srf = samsrf_bilat_srf(SrfL, SrfR)
 %
-% Srf = samsrf_combine_srf(SrfL, SrfR)
+% Srf = samsrf_bilat_srf(SrfL, SrfR)
 %
 % Returns a Srf structure that combines the data from both hemispheres. 
-% This is useful when you want to combine hemispheres but the function 
-% requires a Srf as input. The left hemisphere will always be first in the
-% resulting data fields. 
+%  This is useful when you want to combine hemispheres but an analysis function 
+%  requires a Srf as input. You can also display these combined hemispheres with 
+%  the rendering functions and in theory you can even delineate them together,
+%  but this is probably not recommended and currently you cannot actually save 
+%  combined labels with the DelineationTool.
+%
+% The left hemisphere is always first in the resulting data fields. Therefore,
+%  that the vertex indices for the right hemisphere are increased by the number 
+%  of vertices in the left hemisphere. So right hemisphere vertex N is now:
+%       N_combined = N + size(SrfL.Vertices,1) 
+%  The combined Srf contains a filed called Srf.Nvert_Lhem with that number. 
+%
+% By convention, surface data files for combined hemispheres are prefixed 'bi_'
+%
+% You can create combined ROI labels using the function samsrf_bilat_label.
+%  This will save a label without the hemisphere prefix (so e.g. V1.label) and 
+%  the vertex indices are now the ones based on the combined Srf.
 %
 % SrfL/SrfR: Srf structures for left & right hemispheres, respectively.
 %             Automatically expanded but you may want to denoise them first.
 %
-% Roi:       ROI label name, e.g. 'V1'
-%
-% 28/10/2020 - Written (DSS)
+% 29/10/2020 - Written & finalised (DSS)
 %
 
 % Expand Srfs
@@ -33,9 +45,9 @@ end
 
 % Combine hemispheres
 Srf = SrfL;
-Srf.Hemisphere = 'both';
-Srf.Num_Left_Hemi = size(SrfL.Vertices,1);
-Srf.Faces = [SrfL.Faces; SrfR.Faces + Srf.Num_Left_Hemi];
+Srf.Hemisphere = 'bi';
+Srf.Nvert_Lhem = size(SrfL.Vertices,1);
+Srf.Faces = [SrfL.Faces; SrfR.Faces + Srf.Nvert_Lhem];
 
 Srf.Vertices = [SrfL.Vertices; SrfR.Vertices];
 Srf.Normals = [SrfL.Normals; SrfR.Normals];
