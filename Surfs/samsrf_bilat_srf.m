@@ -24,7 +24,7 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 % SrfL/SrfR: Srf structures for left & right hemispheres, respectively.
 %             Automatically expanded but you may want to denoise them first.
 %
-% 29/10/2020 - Written & finalised (DSS)
+% 29/10/2020 - Written & further error corrections (DSS)
 %
 
 % Expand Srfs
@@ -60,10 +60,14 @@ end
 
 if isfield(SrfL, 'Curvature')
     Srf.Curvature = [SrfL.Curvature SrfR.Curvature];
+else
+    warning('Curvature data not in Srf...');
+end
+if isfield(SrfL, 'Area')
     Srf.Area = [SrfL.Area SrfR.Area];
     Srf.Thickness = [SrfL.Thickness SrfR.Thickness];
 else
-    warning('Cortical folding data not in Srf...');
+    warning('Cortical dimensions not in Srf...');
 end
 Srf.Data = [SrfL.Data SrfR.Data];
 
