@@ -54,6 +54,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %              Added support for displaying ROI numbers (DSS)
 % 16/10/2020 - Fixed bug with determining transparency when no goodness-of-fit exists (DSS)
 % 29/10/2020 - Polar/phase colour schemes now account for bilateral data files (DSS)
+% 26/11/2020 - Added default camera angle for bilateral data files (DSS)  
 %
 
 %% Create global variables
@@ -573,16 +574,30 @@ if nargin < 5 || isempty(CamView)
     if ~exist('def_views', 'var')
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
+            % Left hemisphere
             CamView = [36 -20 1.8];
-        else
+        elseif Srf.Hemisphere(1) == 'r'
+            % Right hemisphere
             CamView = [-35 -35 2.2];
+        else
+            % Both hemispheres
+            CamView = [4 -30 2.2];
         end
     else
         % Use default camera angle
         if Srf.Hemisphere(1) == 'l'
+            % Left hemisphere
             CamView = def_views(:,1)';
-        else
+        elseif Srf.Hemisphere(1) == 'r'
+            % Right hemisphere
             CamView = def_views(:,2)';
+        else
+            % Both hemispheres
+            if size(def_views,2) > 2
+                CamView = def_views(:,3)';
+            else
+                CamView = [4 -30 2.2];
+            end
         end
     end
 end

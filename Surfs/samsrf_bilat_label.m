@@ -15,6 +15,7 @@ function samsrf_bilat_label(Srf, Roi)
 %  indicates that the Srf is not for combined hemispheres.
 %
 % 29/10/2020 - Written (DSS)
+% 26/11/2020 - Fixed bug with file names (DSS)
 %
 
 if ~isfield(Srf, 'Nvert_Lhem')
@@ -23,6 +24,9 @@ end
 
 % Path to label
 [p,f] = fileparts(Roi);
+if isempty(p)
+    p = '.';
+end
 
 % Load data
 Lvx = samsrf_loadlabel([p filesep 'lh_' f]);

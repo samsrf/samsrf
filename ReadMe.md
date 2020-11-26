@@ -30,6 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.061 (26-11-2020)  
+- Fixed bug with filenames in samsrf_bilat_label (DSS)  
+- Added default camera angles for rendering bilateral data files (DSS)  
+
 ### Version 7.06 (29-10-2020)  
 - It is now possible to combine Srfs from both hemipheres (DSS)  
 - Added function for creating a binned plot for wedge segments (DSS)  

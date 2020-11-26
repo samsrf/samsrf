@@ -60,7 +60,7 @@ end
 Mesh = 'sphere'; % Which cortex model to use
 RoiName = def_disproi; % ROI name without hemisphere
 Pval = 0.0001; % Starting p-value with which to threshold maps
-ActPrct = [5 95];%[25 95]; % Percentiles to threshold activation maps
+ActPrct = [5 95]; % Percentiles to threshold activation maps
 RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % ROI list
 RoiColours = [[1 0 0]; [0 1 0]; [0 0 1]; [1 0 1]; [0 1 0]; [0 0 1]; hsv(6); jet(6)]; % Colours of ROIs
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
