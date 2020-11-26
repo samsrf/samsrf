@@ -54,6 +54,7 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 % Cmap:         Colour map as string. Defaults to 'jet'.
 %
 % 28/10/2020 - Written (DSS)
+% 26/11/2020 - Fixed bug with default inputs (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -66,9 +67,9 @@ if size(SrfDv.Data,2) ~= size(SrfIv.Data,2)
 end
 
 %% Default inputs
-if nargin == 6  Roi = ''; end % ROI defaults to all
+if nargin == 5  Roi = ''; end % ROI defaults to all
 
-if nargin <= 7  Threshold = [0.01 -Inf Inf]; end % Threshold defaults to R^2>0.01 and all values
+if nargin <= 6  Threshold = [0.01 -Inf Inf]; end % Threshold defaults to R^2>0.01 and all values
 % If Threshold not fully defined
 if length(Threshold) == 1
     Threshold = [Threshold -Inf Inf];
@@ -83,8 +84,8 @@ if strcmpi(Value, 'Sigma') || strcmpi(Value, 'Centre') || strcmpi(Value, 'Surrou
     end
 end
  
-if nargin <= 8  Mode = 'Mean'; end % Summary stat defaults to arithmetic mean
-if nargin <= 9  Cmap = 'jet'; end % Colour scheme defaults to jet
+if nargin <= 7  Mode = 'Mean'; end % Summary stat defaults to arithmetic mean
+if nargin <= 8  Cmap = 'jet'; end % Colour scheme defaults to jet
 
 %% Raw or smoothed data?
 if Value(1) == ':'
