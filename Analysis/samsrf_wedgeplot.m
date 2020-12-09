@@ -209,12 +209,11 @@ for r = 1:length(Rings)-1 % Loop thru eccentricity rings
 end
 
 %% Plot results
-if isnan(CurDat)
-    CurDat = 0;
-end
-S = zscore(CurN);
+S = zscore(Res(:,4));
 S = S - min(S);
-scatter(CurX, CurY, 1+S*100, CurDat, 'filled');
+D = Res(:,3);
+D(isnan(D)) = 0;
+scatter(Res(:,1), Res(:,2), 1+S*100, D, 'filled');
 axis square
 colormap(Cmap);
 colorbar
