@@ -55,6 +55,7 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 %
 % 28/10/2020 - Written (DSS)
 % 26/11/2020 - Fixed bug with default inputs (DSS)
+% 09/12/2020 - Changed output so it now contains NaN data for 0 vertex ROIs (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -201,9 +202,6 @@ for r = 1:length(Rings)-1 % Loop thru eccentricity rings
         else
             error('Invalid summary statistic specified!');
         end
-        if isnan(CurDat)
-            CurDat = 0;
-        end
         
         % Output results
         Res = [Res; CurX CurY CurDat CurN];
@@ -211,9 +209,12 @@ for r = 1:length(Rings)-1 % Loop thru eccentricity rings
 end
 
 %% Plot results
-S = zscore(Res(:,4));
+if isnan(CurDat)
+    CurDat = 0;
+end
+S = zscore(CurN);
 S = S - min(S);
-scatter(Res(:,1), Res(:,2), 1+S*100, Res(:,3), 'filled');
+scatter(CurX, CurY, 1+S*100, CurDat, 'filled');
 axis square
 colormap(Cmap);
 colorbar
