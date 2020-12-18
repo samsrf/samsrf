@@ -5,8 +5,7 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 % Plots the data defined by Value in SrfDv against the data in ValIv from SrfIv
 %  (thus, SrfDv is the dependent variable, SrfIv the independent variable).
 % It plots the summary statistic for each wedge segment of the visual field as defined.
-%  The colour code plots the dependent variable, while the dot size denotes
-%  the number of vertices at each wedge segment location.
+%  The colour code plots the dependent variable.
 %
 % Note that this function tacitly assumes you are using pRF data for the 
 %  independent variable but this is -not- mandatory. It will throw up a
@@ -56,6 +55,8 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 % 28/10/2020 - Written (DSS)
 % 26/11/2020 - Fixed bug with default inputs (DSS)
 % 09/12/2020 - Changed output so it now contains NaN data for 0 vertex ROIs (DSS)
+% 18/12/2020 - Now produces a proper wedge plot rather than scatter plot (EA)
+%              Adjusted alpha scaling based on number of vertices per segment (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -181,13 +182,13 @@ Rho = Rho(GoF & RoiLab); % Eccentricity
 
 %% Segment binning analysis
 Res = [];
-for r = 1:length(Rings)-1 % Loop thru eccentricity rings
+for R = 1:length(Rings)-1 % Loop thru eccentricity rings
     for t = 1:length(Wedges)-1 % Loop thru eccentricity rings
         % Select data
-        CurDat = Data(Rho >= Rings(r) & Rho < Rings(r+1) & Theta >= Wedges(t) & Theta < Wedges(t+1));
+        CurDat = Data(Rho >= Rings(R) & Rho < Rings(R+1) & Theta >= Wedges(t) & Theta < Wedges(t+1));
         
         % Wedge location & number of vertices
-        [CurX, CurY] = pol2cart(mean(Wedges(t:t+1))/180*pi, mean(Rings(r:r+1)));
+        [CurX, CurY] = pol2cart(mean(Wedges(t:t+1))/180*pi, mean(Rings(R:R+1)));
         CurN = length(CurDat); 
         
         % Summary statistic 
@@ -209,13 +210,41 @@ for r = 1:length(Rings)-1 % Loop thru eccentricity rings
 end
 
 %% Plot results
-S = zscore(Res(:,4));
-S = S - min(S);
+A = Res(:,4);
+A(A > median(A)) = median(A);
+A = log(A);
+A(isinf(A)) = -0.001;
+A = A - min(A);
+A = A / max(A);
 D = Res(:,3);
 D(isnan(D)) = 0;
-scatter(Res(:,1), Res(:,2), 1+S*100, D, 'filled');
-axis square
+w = Wedges(2)-Wedges(1);
+r = Rings(2)-Rings(1);
+
+figure; axis square; hold on;
+colors = colormap(Cmap);
+
+for S = 1:length(D)
+    [Th, R] = cart2pol(Res(S,1),Res(S,2));
+    CurrD = D(S);
+    cIdx = round(((CurrD - min(D))/ (max(D)-min(D)) * 255))+1;
+    c = colors(cIdx, :);
+    alpha = A(S);
+    
+    t = linspace(Th-deg2rad(w/2), Th+deg2rad(w/2));
+    x1 = (R+r/2)*cos(t);
+    x2 = fliplr((R-r/2)*cos(t));
+    y1 = (R+r/2)*sin(t);
+    y2 = fliplr((R-r/2)*sin(t));
+
+    segm = fill([x1 x2], [y1 y2], c);
+    set(segm, 'facealpha', alpha)
+end
+
+scatter(Res(:,1), Res(:,2), 30, D, 'filled');
 colormap(Cmap);
 colorbar
+ax = gca;
+text(ax.XLim(1), ax.YLim(1)+0.6, ['Alpha [0 1] = # of Vertices [' num2str(min(Res(:,4))) ' ' num2str(max(Res(:,4))) ']'])
 xlabel('Horizontal position (deg)');
 ylabel('Vertical position (deg)');
