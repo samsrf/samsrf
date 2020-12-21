@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.071 (21-12-2020)  
+- Fixed bug with expanding that restored file version from anatomy meshes (DSS)  
+
 ### Version 7.07 (21-12-2020)  
 - Parallel processing progress reports now turned off on older Matlab versions (DSS)  
 - Fixed bug with filenames in samsrf_bilat_label (DSS)  

@@ -22,6 +22,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 %   is no support for expanding or compressing multi-subbject Srfs.
 %
 % 16/07/2020 - SamSrf 7 version (DSS)
+% 21/12/2020 - Fixed bug where version number was restored from anatomy meshes (DSS)
 %
 
 %% In case no values defined
@@ -47,7 +48,6 @@ if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')
     
     % Load anatomical meshes
     load(Srf.Meshes);
-    Srf.Version = Anat.Version;
     Srf.Structural = Anat.Structural;
     Srf.Hemisphere = Anat.Hemisphere;
     Srf.Vertices = Anat.Vertices;
