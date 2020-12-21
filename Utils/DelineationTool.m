@@ -287,6 +287,22 @@ if nargin == 0
     LoadSavedDelins = true;
 end
 
+%% Load default parameters?
+load('SamSrf_defaults.mat');
+% Ensure colour maps have sign
+if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
+    def_cmap_angle = ['+' def_cmap_angle];
+end
+if def_cmap_eccen(1) ~= '-' && def_cmap_eccen(1) ~= '+'
+    def_cmap_eccen = ['+' def_cmap_eccen];
+end
+if def_cmap_other(1) ~= '-' && def_cmap_other(1) ~= '+'
+    def_cmap_other = ['+' def_cmap_other];
+end
+if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
+    def_cmap_sigma = ['+' def_cmap_sigma];
+end
+
 % Remove rubbish
 if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     r = Srf.Data(1,:) <= 0.01 | isnan(Srf.Data(1,:));
@@ -328,14 +344,21 @@ Pha = round(Rho * 360);
 Pha = mod(Pha, 360);
 Pha(Pha==0) = 360;
 Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
-figure; Cmap = [colormap(fscol); CurvGrey]; close
+Cmap = colormap([def_cmap_eccen(2:end) '(360)']);
+if def_cmap_eccen(1) == '-'
+  Cmap = flipud(Cmap);
+end
+figure; Cmap = [Cmap; CurvGrey]; close
 EccRgb = Cmap(Pha,:);
 EccRgb(Vs,:) = repmat(BlackPath, size(Vs,1), 1); % Draw paths
 
 % Polar map
 Pha = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
 Pha(Srf.Data(1,:) <= R2Thrsh | isnan(Rho)) = NaN;
-Cmap = colormap(fscol); 
+Cmap = colormap([def_cmap_angle(2:end) '(360)']);
+if def_cmap_angle(1) == '-'
+  Cmap = flipud(Cmap);
+end
 Cmap = [Cmap; CurvGrey];
 if Srf.Hemisphere(1) == 'l'
     Pha = mod(ceil(Pha + 270), 360) + 1;

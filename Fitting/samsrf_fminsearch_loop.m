@@ -16,6 +16,7 @@ function [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg)
 % 20/07/2020 - SamSrf 7 version (DSS)
 % 03/08/2020 - Fixed bug where loop could get stuck on bad fits (IA & DSS)
 % 21/12/2020 - No progress reports if parallel computing but using older Matlab versions (DSS)
+% 22/12/2020 - Bugfix for when progress reports are turned off (DSS)
 %
 
 % Number of vertices
@@ -37,12 +38,13 @@ end
 
 % Prepare progress report
 try
-    Q = parallel.pool.DataQueue;
-    afterEach(Q, @percentanalysed);
-    ProgReps = true;
+    Q = parallel.pool.DataQueue; % Queue variable
+    afterEach(Q, @percentanalysed); % Reporting function
+    ProgReps = true; % Progress will be reported
     disp(' Progress update every 5000 vertices');
 catch
-    ProgReps = false;
+    Q = NaN; % No queue variable exists
+    ProgReps = false; % No progress can be reported when using parallel computing
     if IsParallel
       disp(' No progress reports possible :(');
     else

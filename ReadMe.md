@@ -30,7 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.071 (21-12-2020)  
+### Version 7.072 (22-12-2020)  
+- DelineationTool now uses default polar & eccentricity colour scheme (DSS)  
+- Bugfix for when progress reports are turned off in older Matlab versions (DSS)  
 - Fixed bug with expanding that restored file version from anatomy meshes (DSS)  
 
 ### Version 7.07 (21-12-2020)  

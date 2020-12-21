@@ -1,6 +1,6 @@
 function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms)
 %
-% Srf = samsrf_surfcalcs(InSrf, [Roi='', R2Thrsh=0.01, Eccens=[0 Inf], Method='o', Fwhms=[10 3]])
+% Srf = samsrf_surfcalcs(InSrf, [Roi='', R2Thrsh=0.01, Eccens=[0 Inf], Method='S', Fwhms=[10 3]])
 % 
 % Runs a range of surface calculations on a pRF map:
 % First, it smoothes the map with a large kernel and calculates the field sign.
@@ -19,6 +19,7 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms)
 %
 % 05/07/2020 - SamSrf 7 version (DSS)
 % 21/12/2020 - Inconsequential bug fix (DSS)
+% 22/12/2020 - Fixed typo in help section (DSS)
 %
 
 if nargin < 2
