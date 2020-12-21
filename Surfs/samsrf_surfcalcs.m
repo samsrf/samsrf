@@ -18,6 +18,7 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms)
 %   Fwhms:      Smoothing kernels (1x2 vector, first kernel is for field sign, second is for everything else)
 %
 % 05/07/2020 - SamSrf 7 version (DSS)
+% 21/12/2020 - Inconsequential bug fix (DSS)
 %
 
 if nargin < 2
@@ -34,9 +35,6 @@ if nargin < 5
 end
 if nargin < 6
     Fwhms = [10 3];
-end
-if nargin < 7
-    NegBetas = false;
 end
 
 % Expand if needed & store raw data

@@ -30,9 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.063 (18-12-2020)  
+### Version 7.07 (21-12-2020)  
+- Parallel processing progress reports now turned off on older Matlab versions (DSS)  
 - Fixed bug with filenames in samsrf_bilat_label (DSS)  
 - Added default camera angles for rendering bilateral data files (DSS)  
+- When combining hemispheres meshes field is now automatically removed (DSS)   
 - Changed output in samsrf_wedgeplot so it contains NaN for bad data (DSS)  
 - Improved wedge plots to show actual segments (EA & DSS)   
 

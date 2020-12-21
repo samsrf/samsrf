@@ -16,6 +16,8 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 %  The combined Srf contains a filed called Srf.Nvert_Lhem with that number. 
 %
 % By convention, surface data files for combined hemispheres are prefixed 'bi_'
+% If the original surface structures contained a meshes field, this is removed.
+% You can split the anatomical surfaces using samsrf_anatomy_srf as usual.
 %
 % You can create combined ROI labels using the function samsrf_bilat_label.
 %  This will save a label without the hemisphere prefix (so e.g. V1.label) and 
@@ -25,6 +27,7 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 %             Automatically expanded but you may want to denoise them first.
 %
 % 29/10/2020 - Written & further error corrections (DSS)
+% 21/12/2020 - Now removes mesh field if it exists (DSS)
 %
 
 % Expand Srfs
@@ -88,4 +91,9 @@ if isfield(SrfL, 'ConFlds')
 end
 if isfield(SrfL, 'Noise_Ceiling')
     Srf.Noise_Ceiling = [SrfL.Noise_Ceiling SrfR.Noise_Ceiling];
+end
+
+% Remove mesh field if it exists
+if isfield(Srf, 'Meshes')
+    Srf = rmfield(Srf, 'Meshes');
 end
