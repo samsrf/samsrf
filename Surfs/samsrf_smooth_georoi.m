@@ -20,6 +20,7 @@ function Srf = samsrf_smooth_georoi(InSrf, fwhm, roi, thrsh)
 % inside Srf.Raw_Data.
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
+% 07/01/2020 - Fixed bug when smoothing concatenated runs (DSS) 
 %
 
 %% Default parameters
@@ -44,7 +45,9 @@ end
 nver = size(Data,2);
 aVs = 1:nver; % All vertex indices
 % Remove smoothed value labels
-Srf.Values = Srf.Values(1:size(Data,1));
+if size(Data,1) < length(Srf.Values) % Only if more values than data rows!
+    Srf.Values = Srf.Values(1:size(Data,1));
+end
 
 % Remove smoothing string if it exists
 if iscellstr(Srf.Functional)
