@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.073 (07-01-2021)  
+### Version 7.08 (03-02-2021)  
+- Fixed crashing bug when replacing bad fine fits with coarse fits (DSS)  
 - DelineationTool now uses default polar & eccentricity colour scheme (DSS)  
 - Bugfix for when progress reports are turned off in older Matlab versions (DSS)  
 - Fixed bug with expanding that restored file version from anatomy meshes (DSS)  
