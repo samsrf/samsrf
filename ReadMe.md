@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.081 (05-02-2021)  
+- Fixed small bug when replacing bad fits where incorrect time series was saved (DSS)  
+
 ### Version 7.08 (03-02-2021)  
 - Fixed crashing bug when replacing bad fine fits with coarse fits (DSS)  
 - DelineationTool now uses default polar & eccentricity colour scheme (DSS)  

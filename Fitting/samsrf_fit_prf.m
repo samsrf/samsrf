@@ -22,6 +22,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 20/07/2020 - SamSrf 7 version (DSS) 
 % 23/07/2020 - Cosmetic changes to command window outputs (DSS)
 % 03/02/2021 - Fixed crashing bug when replacing bad fine fits (DSS)
+% 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)
 %
 
 %% Defaults & constants
@@ -332,7 +333,7 @@ else
             % Replace bad fits with coarse fit?
             if Model.Replace_Bad_Fits
                 % Generate predicted time course
-                Rfp = Model.Prf_Function(fPimg(:,v)', size(ApFrm,1)*2);
+                Rfp = Model.Prf_Function(Pimg(:,v)', size(ApFrm,1)*2);
                 fX = prf_predict_timecourse(Rfp, ApFrm);
                 % Store prediction without HRF convolution
                 Srf.X(:,mver(v)) = fX;  % Best fitting prediction
