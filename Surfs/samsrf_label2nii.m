@@ -14,6 +14,7 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 %   scalar:     save scalar values stored in labelfile (true/false)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 04/03/2021 - Added clarification comments regarding hi-res T1s (DSS)
 %
 
 if nargin < 5
@@ -51,7 +52,10 @@ mat = fhdr.mat; % Functional matrix
 %% Load surface vertices
 V0 = fs_read_surf([hemsurf '.white']); % Grey-white surface
 P = fs_read_surf([hemsurf '.pial']); % Pial surface
-N = P - V0; % Cortical vectors for each vertex 
+% Note: These numbers need to be multipled by a factor if T1 voxels are not 1mm!
+
+% Cortical vectors for each vertex 
+N = P - V0; 
 
 % Load ROI label
 labeldata = Read_FreeSurfer([labelfile '.label']);

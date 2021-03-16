@@ -8,9 +8,10 @@ function [v,d,o] = samsrf_version
 % The third output o is the SamOaSrf version for Octave support but be
 %  aware that Octave support may never be fully implemented.
 %  Life is too short for this. It's more likely MapSrf for Python will be
-%  completed before I manage to get all of this to work in Octave...
+%  completed - and that pigs fly and hell freezes over - before I manage 
+%  to get all of this to work in Octave...
 %
 
-v = 7.081; % SamSrf version number
-d = '05-02-2021'; % Release date 
+v = 7.082; % SamSrf version number
+d = '17-03-2021'; % Release date 
 o = 0.1; % SamOaSrf version number

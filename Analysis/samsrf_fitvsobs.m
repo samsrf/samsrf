@@ -7,6 +7,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % Also reports the model parameters (S) in the figure.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 17/03/2021 - Removed redundant rounding function (DSS) 
 %
 
 % Expand Srf if necessary
@@ -57,6 +58,6 @@ xlabel('Volumes (#)');
 ylabel('Response (z)');
 ts = '';
 for i = 1:size(S,1)
-    ts = [ts Srf.Values{i} '=' num2str(round_decs(S(i),2)) '   '];
+    ts = [ts Srf.Values{i} '=' num2str(round(S(i),2)) '   '];
 end
 title(ts);

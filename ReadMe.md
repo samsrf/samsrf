@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.081 (05-02-2021)  
+### Version 7.082 (17-03-2021)  
+- Removed redundant rounding function that is not needed since at last 2016a (DSS)  
 - Fixed small bug when replacing bad fits where incorrect time series was saved (DSS)  
 
 ### Version 7.08 (03-02-2021)  
