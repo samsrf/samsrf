@@ -17,6 +17,7 @@ function Template2NativeMap(NatSrf, MeshFolder)
 %       the Matlab path, using the name lh/rh_pRF_fsaverage. 
 %
 % 07/08/2020 - Written (DSS)
+% 28/03/2021 - Now automatically removes noise ceiling from NatSrf (DSS)
 
 % Load native map
 load(NatSrf);
@@ -24,6 +25,11 @@ NatSrf = samsrf_expand_srf(Srf);
 % Load template (on Matlab path)
 load([NatSrf.Hemisphere '_pRF_fsaverage']);
 TmpSrf = samsrf_expand_srf(Srf);
+
+% Is there a noise ceiling in NatSrf?
+if isfield(NatSrf, 'Noise_Ceiling')
+    NatSrf = rmfield(NatSrf, 'Noise_Ceiling'); % Remove this field
+end
 
 % Only if sphere data present
 if ~isfield(TmpSrf, 'Sphere')

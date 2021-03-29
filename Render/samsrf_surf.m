@@ -27,8 +27,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %
 % Paths is a cell array that defines the filenames of the paths to be displayed. If this is 
 %   undefined a dialog box opens allowing you to select the file (close it if none needed).
-%  If the last entry in this array is a 1x3 vector, this defines the path colour.
-%  If the last entry in this array is NaN, then a default path colour is used.
+%  If the last entry is NaN followed by a 1x3 vector, this defines the path colour.
+%  If the last entry is simply NaN, then a default path colour is used.
 %  If Paths is empty, or the last entry is a filename, then the path colour
 %   is automatically defined as the opposite polarity of the underlying colour.
 %
@@ -55,6 +55,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 16/10/2020 - Fixed bug with determining transparency when no goodness-of-fit exists (DSS)
 % 29/10/2020 - Polar/phase colour schemes now account for bilateral data files (DSS)
 % 26/11/2020 - Added default camera angle for bilateral data files (DSS)  
+% 29/03/2021 - Fixed bugs with directly assigning path colours (DSS)  
 %
 
 %% Create global variables
@@ -292,10 +293,10 @@ if ~isempty(Paths)
             % If paths contain strings
             if i == length(Paths) && ~ischar(Paths{i})
                 % Is a path colour defined?
-                if isnan(Paths{i})
+                if isnan(Paths{i}(1)) && length(Paths{i}) == 1
                     PathColour = NaN;
-                else
-                    PathColour = Paths{i};
+                elseif isnan(Paths{i}(1))
+                    PathColour = Paths{i}(2:4);
                 end
             else
                 % No path colour defined

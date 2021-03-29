@@ -30,9 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.082 (17-03-2021)  
+### Version 7.084 (29-03-2021)  
 - Removed redundant rounding function that is not needed since at last 2016a (DSS)  
 - Fixed small bug when replacing bad fits where incorrect time series was saved (DSS)  
+- Template2NativeMap now automatically removes noise ceiling from native Srf (DSS)  
+- Fixed bug with directly assigning path colours in samsrf_surf (DSS)  
 
 ### Version 7.08 (03-02-2021)  
 - Fixed crashing bug when replacing bad fine fits with coarse fits (DSS)  
