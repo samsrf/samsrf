@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.084 (29-03-2021)  
+### Version 7.09 (30-03-2021)  
+- Fixed major show-stopping bug with reverse correlation pRFs on bilateral surfaces (DSS)  
 - Removed redundant rounding function that is not needed since at last 2016a (DSS)  
 - Fixed small bug when replacing bad fits where incorrect time series was saved (DSS)  
 - Template2NativeMap now automatically removes noise ceiling from native Srf (DSS)  

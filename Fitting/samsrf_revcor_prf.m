@@ -29,7 +29,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 18/07/2020 - SamSrf 7 version (DSS)
 % 27/07/2020 - More info in command window (DSS)
 % 24/07/2020 - Added option to limit data by noise ceiling (DSS)
-%              Reorganised analysis loop but parallel processing isn't working yet (DSS)
+%              Reorganised analysis loop but parallel processing isn't working yet (DSS)  
+% 29/03/2021 - Fixed horrendous bug when fitting bilateral surface meshes (DSS)    
 %
 
 %% Defaults & constants
@@ -171,7 +172,7 @@ fRimg = zeros(1,length(mver)); % R^2 map
 % Loop through mask vertices 
 for v = 1:length(mver)
     % Calculate r-map
-    Y = Tc(:,v);  % Time course of current vertex
+    Y = Tc(:,mver(v));  % Time course of current vertex
     warning off
     cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
     warning on
