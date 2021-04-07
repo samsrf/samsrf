@@ -23,6 +23,7 @@ function [Img, Mov] = samsrf_vfcoverage(Srf, Ecc, Roi, R2Thrsh, Clipping, Raw)
 % The optional output Mov contains all the pRF profiles as individual frames.
 %
 % 01/07/2020 - SamSrf 7 version (DSS)
+% 07/04/2021 - Using logarithmic scale now (DSS)
 %
 
 if nargin < 3
@@ -110,7 +111,7 @@ for v = 1:size(Srf.Data, 2)
 end
   
 %% Display the images
-figure('Name', 'Visual field coverage');
+% figure('Name', 'Visual field coverage');
 g = Ecc(3)/100;
 EccGrd = [-Ecc(3):g:-g g:g:Ecc(3)];
 [Xc,Yc] = meshgrid(EccGrd, EccGrd);
@@ -123,6 +124,7 @@ else
     Img = Img / Clipping;
     Img(Img > 1) = 1;
 end
+Img = log(Img); % Logarithmic scale!
 contourf(Xc, Yc, Img, 100, 'linestyle', 'none');
 hold on
 scatter(Xpos, Ypos, '.k');
@@ -136,7 +138,5 @@ if ischar(Roi)
     title(RoiName);
 end
 axis square
-cb = colorbar;
-caxis([0 1]);
-set(cb, 'ytick', 0:.25:1, 'yticklabel', 0:Clipping/4:Clipping);
+colorbar
 set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);
