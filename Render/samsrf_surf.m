@@ -56,6 +56,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 29/10/2020 - Polar/phase colour schemes now account for bilateral data files (DSS)
 % 26/11/2020 - Added default camera angle for bilateral data files (DSS)  
 % 29/03/2021 - Fixed bugs with directly assigning path colours (DSS)  
+% 07/04/2021 - Added logarithmic scaling option for eccentricy, mu & sigma-style maps (DSS)
+%              Fixed incorrect description of greyscale curvature (DSS) 
 %
 
 %% Create global variables
@@ -76,6 +78,9 @@ end
 if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
     def_cmap_sigma = ['+' def_cmap_sigma];
 end
+if ~exist('def_logmaps', 'var')
+    def_logmaps = false;
+end  
 
 %% Default thresholds
 if nargin < 3
@@ -132,7 +137,7 @@ if exist('def_curv', 'var')
     if strcmpi(def_curv, 'Greyscale')
         % Greyscale for curvature
         CurvGrey = gray(11); % Grey scale colour map
-        CurvGrey = CurvGrey(1:10,:); % Remove black & white
+        CurvGrey = CurvGrey(1:10,:); % Remove white to avoid transparency issues 
     elseif strcmpi(def_curv, 'FreeSurfer')
         % Freesurfer-like curvature
         CurvGrey = gray(4); % Gray scale colour map
@@ -144,7 +149,7 @@ if exist('def_curv', 'var')
 else
     % Greyscale for curvature
     CurvGrey = gray(11); % Grey scale colour map
-    CurvGrey = CurvGrey(1:10,:); % Remove black & white
+    CurvGrey = CurvGrey(1:10,:); % Remove white to avoid transparency issues
 end
 
 % Transform curvature
@@ -399,6 +404,11 @@ elseif strcmpi(Type, 'Eccentricity')
     Rho = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
     Data = Rho;
     Rho(r) = 0;
+ 
+    % If logarithmic maps
+    if def_logmaps
+    	Rho = log2(Rho);
+    end	
         
     % Set all below minimum to minimum
     Rho(Rho < Thrsh(2)) = Thrsh(2);
@@ -433,6 +443,11 @@ elseif strcmpi(Type, 'Mu')
     Mu = Srf.Data(dt,:);
     Data = Mu;
     Mu(r) = 0;
+
+    % If logarithmic maps
+    if def_logmaps
+    	Mu = log2(Mu);
+    end	
     
     % Set all below minimum to minimum
     Mu(Mu>0 & Mu<+Thrsh(2)) = +Thrsh(2);
@@ -468,6 +483,11 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Sigma = Srf.Data(dt,:);
     Data = Sigma;
     Sigma(r) = 0;
+
+    % If logarithmic maps
+    if def_logmaps
+    	Sigma = log2(Sigma);
+    end	
     
     % Set all below minimum to minimum
     Sigma(Sigma < Thrsh(2)) = Thrsh(2);

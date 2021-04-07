@@ -22,7 +22,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 20/07/2020 - SamSrf 7 version (DSS) 
 % 23/07/2020 - Cosmetic changes to command window outputs (DSS)
 % 03/02/2021 - Fixed crashing bug when replacing bad fine fits (DSS)
-% 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)
+% 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)  
+% 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)   
 %
 
 %% Defaults & constants
@@ -59,6 +60,9 @@ if ~isfield(Model, 'Coarse_Fit_Only')
 end
 if ~isfield(Model, 'Fine_Fit_Threshold')
     Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
+end
+if ~isfield(Model, 'Only_Positive_Coarse_Fits')
+    Model.Only_Positive_Coarse_Fits = false; % Coarse fit can either be negative or positive correlation to pass 
 end
 if ~isfield(Model, 'Coarse_Fit_Block_Size')
     Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
@@ -246,8 +250,14 @@ else
       vx = mver(vs:ve);
       % Find best prediction
       Y = Tc(:,vx);  % Time course of current vertex
-      R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
-      mR = max(R,[],2); % Find best fit
+      if Parameters.Only_Positive_Coarse_Fits
+      	 R = corr(Y,X); % Best correlating prediction 
+      	 mR = max(R,[],2); % Find best fit
+      	 R = R.^2; % Now turn into R^2
+      else
+      	 R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
+      	 mR = max(R,[],2); % Find best fit
+      end
       for v = 1:length(vx)
           rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
           if ~isempty(rx)
