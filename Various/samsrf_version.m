@@ -13,5 +13,5 @@ function [v,d,o] = samsrf_version
 %
 
 v = 7.11; % SamSrf version number
-d = '08-04-2021'; % Release date 
+d = '09-04-2021'; % Release date 
 o = 0.1; % SamOaSrf version number

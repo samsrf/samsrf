@@ -30,8 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.11 (08-04-2021)  
+### Version 7.11 (09-04-2021)  
 - Visual field coverage plots now use logarithmic scale (DSS)  
+- Added tool for warping native data into fsaverage template (DSS)  
 
 ### Version 7.10 (07-04-2021)  
 - Added parameter option for only allowing positive correlations to pass coarse fit (DSS)  

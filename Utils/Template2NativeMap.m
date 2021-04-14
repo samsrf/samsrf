@@ -3,9 +3,12 @@ function Template2NativeMap(NatSrf, MeshFolder)
 % Template2NativeMap(NatSrf, MeshFolder)
 % 
 % Warps the group average pRF map in the template lh/rh_pRF_fsaverage into 
-% the native space belonging to NatSrf. The second input MeshFolder  is the 
+% the native space belonging to NatSrf. The second input MeshFolder is the 
 % path pointing to subject's surf folder which must contain the sphere.reg 
 % linking the subject's native space with the fsaverage template.
+%
+% This procedure is a simple nearest neighbour transformation. It achieves
+% very similar but non-identical results to FreeSurfer's tool.
 %
 % Saves a new Srf called lh/rh_temp_map with the same number of vertices as 
 % NatSrf but containing the map data from the group average template.
