@@ -21,6 +21,7 @@ function Template2NativeMap(NatSrf, MeshFolder)
 %
 % 07/08/2020 - Written (DSS)
 % 28/03/2021 - Now automatically removes noise ceiling from NatSrf (DSS)
+% 14/04/2021 - Exports anatomical surfaces automatically now (DSS)
 
 % Load native map
 load(NatSrf);
@@ -80,6 +81,7 @@ Srf.Data = TmpSrf.Data(:,Sva);
 
 %% Save Srf & ROIs
 save([Srf.Hemisphere '_temp_map'], 'Srf');
+samsrf_anatomy_srf([Srf.Hemisphere '_temp_map']);
 Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
 mkdir('ROIs_temp_map');
 for r = 1:length(Rois)
