@@ -478,10 +478,10 @@ elseif strcmpi(MapType, 'Field Sign')
     set(handles.edit2, 'String', '0 3');
 elseif strcmpi(MapType, 'x0') || strcmpi(MapType, 'y0')
     set(handles.edit2, 'String', '0 10');
-elseif strcmpi(MapType, 'ROI')
-    set(handles.edit2, 'String', '0 8');
+elseif strcmpi(MapType, 'ROI') || strcmpi(MapType, 'ROIs')
+    set(handles.edit2, 'String', '0 6');
 else
-    set(handles.edit2, 'String', '0 0.5');
+    set(handles.edit2, 'String', '0 2');
 end
 RedrawMaps(handles, false);
 

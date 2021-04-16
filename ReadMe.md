@@ -30,7 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.112 (16-04-2021)  
+### Version 7.113 (17-04-2021)  
+- Renamed ROI variable in Benson template projections (DSS) 
+- Added fake sigma row into Benson projections & added note about newer Wang template (DSS)  
+- Changed default colour schemes in DisplayMaps, including for ROI maps (DSS)  
 - Visual field coverage plots now use logarithmic scale (DSS)  
 - Added tool for warping native data into fsaverage template (DSS)  
 - Template2NativeMaps tool now splits off anatomical meshes (DSS)  

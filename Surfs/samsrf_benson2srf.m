@@ -6,6 +6,10 @@ function samsrf_benson2srf(mghimg, surfdir)
 %   (Need to select the 'all' file containing polar, eccentricity, and ROIs)
 % Also saves the ROI labels for V1-V3 in a subfolder called ROIs_Benson.
 %
+% This is using the original Benson templates that only contained V1-V3.
+% A future version could adjust this to use a newer template with a larger number 
+% of ROIs as well as predictions for pRF size.
+%
 %   mghimg:     Name of MGH file (without extension)
 %   surfdir:    Folder containing the surface data
 %
@@ -16,6 +20,8 @@ function samsrf_benson2srf(mghimg, surfdir)
 % and adds this to Srf.Structural.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 17/04/2021 - Renamed ROI variable to be consistent with SamSrf's template (DSS)
+%              Added a sigma row for consistency which contains only NaNs (DSS)
 %
 
 %% Determine file parts 
@@ -26,7 +32,7 @@ end
 mghimg = mghimg(2:end);  % Remove dot from beginning
 
 %% Data labels
-valstrs = {'R^2'; 'x0'; 'y0'; 'ROIs'};
+valstrs = {'R^2'; 'x0'; 'y0'; 'Sigma', 'ROI'};
 
 %% Load surface vertices
 [V0 F] = fs_read_surf([surfdir filesep hemis '.white']); % Grey-white surface
@@ -79,12 +85,12 @@ Srf.Curvature = C';
 Srf.Area = A';
 Srf.Thickness = T';
 % Add map data
-Srf.Data = NaN(4, size(V0,1));
+Srf.Data = NaN(5, size(V0,1));
 Srf.Data(1,:) = zeros(1,size(V0,1));
 Srf.Data(1,rois~=0) = ones(1, sum(rois~=0)); % Label predicted maps as R^2 = 1
 Srf.Data(2,:) = x0';
 Srf.Data(3,:) = y0';
-Srf.Data(4,:) = rois';
+Srf.Data(5,:) = rois';
 Srf.Rule = 'X';
 Srf.Values = valstrs;
 
