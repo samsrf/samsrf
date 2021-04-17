@@ -2,10 +2,18 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %
 % PatchHandle = samsrf_surf(Srf, Mesh, [Thrsh, Paths, CamView, MapType, PatchHandle])
 %
-% Displays a cortical mesh (e.g. 'inflated') overlaid with the pRF 
-%  statistics from Srf. A GUI is used to select the data type to be displayed. 
-%  If the surface mesh can't be located in the Srf, the function simply takes 
-%  the WM-GM surface which should already be in the Srf. 
+% Displays a cortical surface Mesh (e.g. 'Inflated') overlaid with the data in Srf. 
+%   If the surface mesh isn't found in the Srf, the WM-GM surface is displayed.
+%
+% If the Srf contains a reverse correlation or connective field data, a second figure 
+%   is opened to display the relevant data for the currently selected vertex.
+%   However, this functionality only works when using the DisplayMaps tool.
+%
+% Note: This function is primarily designed to be called internally by the DisplayMaps tool!
+%       While it can be used directly, it is overly complex. You may want to create 
+%       a streamlined, simplified version for displaying maps directly.
+%
+% Optional input arguments:
 %
 % Thrsh defines the thresholds, clipping and transparency parameters.
 % All these inputs are optional and if undefined a default is chosen:
@@ -42,10 +50,12 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % MapType is a string containing the name of the data entry to display
 %  (e.g. 'Polar', 'Eccentricity', 'R^2', etc.). It can also be a scalar in
 %  which case it will use this as the index for Srf.Data and Srf.Values.
+%  If undefined, the function opens a selection dialog.
 %
 % PatchHandle is the handle to the patch with the mesh returned by the function.
 %  By adding this to the input arguments the figure will simply update the
-%  maps instead of opening a whole new figure.
+%  maps instead of opening a whole new figure. This is mostly for internal
+%  use by the DisplayMaps tool.
 %
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
@@ -58,10 +68,12 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 29/03/2021 - Fixed bugs with directly assigning path colours (DSS)  
 % 07/04/2021 - Added logarithmic scaling option for eccentricy, mu & sigma-style maps (DSS)
 %              Fixed incorrect description of greyscale curvature (DSS) 
+% 18/04/2021 - DisplayMaps now visualises reverse correlation & connective field profiles (DSS)
+%              Added some more documentation to the help section (DSS)
 %
 
 %% Create global variables
-global Vertices Type Data
+global Vertices Type Data CurvGrey fh fv pv
 
 %% Load default parameters?
 load('SamSrf_defaults.mat');
@@ -198,9 +210,15 @@ end
 
 %% Select data type
 Values = Srf.Values;
-% Does file contain connective field profiles?
-if isfield(Srf, 'ConFlds')
-    Values{end+1} = 'Connective Field';
+% If connective field or reverse correlation profiles open second figure unless simply changing which map to display
+if (isfield(Srf, 'ConFlds') || isfield(Srf, 'Rmaps')) && nargin < 7
+    CallingFuncs = dbstack;
+    % Only if using DisplayMaps tool
+    if ~strcmpi(CallingFuncs(end).file, 'samsrf_surf.m')
+        fv = figure; % Visualization figure handle
+        pv = []; % Visualisation patch handle
+        figure(fh);
+    end
 end
 % Does file contain retinotopic maps?
 if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0') && strcmpi(Srf.Values{3}, 'y0')
@@ -211,29 +229,12 @@ if nargin < 6
     if isempty(dt)
         return
     end
-    CfVx = 0;
 else
     if isscalar(MapType)
         % Map type given by number
         dt = MapType;
-        % CF profiles present?
-        if isfield(Srf, 'ConFlds')
-            CfVx = 0;
-        end
     else
         % Map type given by name
-        if contains(MapType, 'Connective Field')
-            hash = strfind(MapType,'#');
-            if ~isempty(hash)
-                CfVx = str2double(MapType(hash+1:end));
-                if isnan(CfVx)
-                    error('Invalid vertex number provided!');
-                end
-            else
-                CfVx = 0;
-            end
-            MapType = MapType(1:16);
-        end
         dt = find(strcmpi(Values, MapType));
     end
 end
@@ -242,23 +243,6 @@ if isempty(dt)
     error('Invalid map type specified!');
 end
 Type = Values{dt};
-
-%% If CF profile selected
-if strcmpi(Type, 'Connective Field')
-    % Select vertex?
-    if CfVx == 0
-        CfVx = inputdlg('Vertex #', ['Which vertex? (1-' num2str(size(Srf.Data,2)) ')']);
-        CfVx = str2double(cell2mat(CfVx));
-        if isnan(CfVx)
-            error('Invalid vertex number provided!');
-        end
-    end
-    % Overlay connective field profile onto cortex
-    Srf.Data(end+1,:) = zeros(1,size(Srf.Data,2)); % Empty surface
-    Srf.Data(end,Srf.SeedVx) = Srf.ConFlds(:,CfVx)'; % Fill in seed ROI with CF profile
-    Srf.Values{1} = ''; % Remove R^2 value label
-    Srf.Values{end+1} = 'Connective Field'; % Remove values field
-end
 
 %% Select paths if desired
 if nargin < 4
@@ -648,16 +632,84 @@ Alpha = repmat(Alpha',1,3);
 
 
 function txt = getvertexfun(empt, event_obj)
-global Vertices Type Data Srf
+global Vertices Type Data CurvGrey fh fv pv Srf 
 
-pos = get(event_obj, 'Position');
-v = find(Vertices(:,1) == pos(1) & Vertices(:,2) == pos(2) & Vertices(:,3) == pos(3), 1);
+% Datatip update
+pos = get(event_obj, 'Position'); % Selected position
+v = find(Vertices(:,1) == pos(1) & Vertices(:,2) == pos(2) & Vertices(:,3) == pos(3), 1); % Selected vertex
 txt = {['Vertex: ', num2str(v)];...
-       [Type ': ' num2str(Data(v))]};
+       [Type ': ' num2str(Data(v))]}; % Datatip message
+
+% Update visualisation figure?   
+if isfield(Srf, 'Rmaps')
+    % Reverse correlation profile
+    figure(fv);
+    if var(Srf.Rmaps(:,v)) == 0
+        Srf.Rmaps(1,v)=.001;
+    end
+    samsrf_showprf(Srf, v);
+    s = max(abs([min(Srf.Rmaps(:)) max(Srf.Rmaps(:))]));
+    caxis([-s s]);
+    figure(fh);
+elseif isfield(Srf, 'ConFlds')
+    % Connective field profile
+    curcam = get(gca, 'view');
+    figure(fv);
+    % Curvature
+    Curv = Srf.Curvature;
+    Curv(isnan(Curv)) = 0;
+    Curv = -Curv + 0.5;
+    Curv(Curv <= 0) = 0.000001;
+    Curv(Curv > 1) = 1;
+    Curv = ceil(Curv * size(CurvGrey,1));
+    % Seed ROI correlations
+    Cf = Srf.ConFlds(:,v);
+    CfThrsh = [.01 max(Cf(:))];
+    X = NaN(1,size(Vertices,1));
+    X(1,Srf.SeedVx) = Cf;
+    % Set all below minimum to minimum
+    X(X>0 & X<+CfThrsh(1)) = NaN;
+    X(X<0 & X>-CfThrsh(1)) = NaN;
+    % Adjust minimum
+    AdjThr = CfThrsh(2) - CfThrsh(1);
+    X(X>0) = X(X>0) - CfThrsh(1);
+    X(X<0) = X(X<0) + CfThrsh(1);
+    % Set all above maximum to maximum
+    X(X>0 & X>+AdjThr) = +AdjThr;
+    X(X<0 & X<-AdjThr) = -AdjThr;
+    % Convert to integers
+    Pha = round(X / AdjThr * 100) + 100;    
+    Pha(Pha==0) = 1;
+    Pha(isnan(Pha)|isinf(Pha)) = 100;  
+    % Transparency
+    Alpha = zeros(size(Vertices,1),3);
+    Alpha(Srf.SeedVx,:) = 0.5;
+    % Colour map
+    Cmap = hotcold(200);
+    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
+    % Draw surface
+    set(gca, 'view', curcam);
+    if isempty(pv)
+        % New plot
+        pv = patch('vertices', Vertices, 'faces', Srf.Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none');
+        zoom(3);
+        axis off;
+        ax = gca;
+        ax.Clipping = 'off';
+        set(gca, 'projection', 'perspective');
+        daspect([1 1 1]); % Correct aspect ratio    
+    else
+        % Simply redraw
+        set(pv, 'FaceVertexCData', Colours); 
+    end
+    figure(fh);
+end
 return
    
 
 function closereq(src, evnt)
 % Clear global variables when figure is closed
-clear global Vertices Type Data
+global fv 
+close(fv);
+clear global Vertices Type Data CurvGrey fh fv pv
 delete(src);

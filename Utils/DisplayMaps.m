@@ -190,10 +190,6 @@ end
 
 %% Update map list
 Values = Srf.Values;
-% Does file contain connective field profiles?
-if isfield(Srf, 'ConFlds')
-    Values{end+1} = 'Connective Field';
-end
 % Does file contain retinotopic maps?
 if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0') && strcmpi(Srf.Values{3}, 'y0')
     Values(end+1:end+2) = {'Polar'; 'Eccentricity'};
@@ -296,7 +292,7 @@ else
 end
 
 % Draw the map
-if get(handles.popupmenu2,'Value') <= size(Srf.Data,1) || strcmpi(MapType, 'Polar') || strcmpi(MapType, 'Eccentricity') || strcmpi(MapType, 'Connective Field')
+if get(handles.popupmenu2,'Value') <= size(Srf.Data,1) || strcmpi(MapType, 'Polar') || strcmpi(MapType, 'Eccentricity') 
     figure(FigHdl);
     if IsNewFig
         % Draw new mesh
@@ -378,10 +374,6 @@ else
 end
 % Update map list
 Values = Srf.Values;
-% Does file contain connective field profiles?
-if isfield(Srf, 'ConFlds')
-    Values{end+1} = 'Connective Field';
-end
 % Does file contain retinotopic maps?
 if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0')
     Values(end+1:end+2) = {'Polar'; 'Eccentricity'};
