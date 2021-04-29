@@ -14,6 +14,9 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 %
 % The output Res contains the following columns:
 %  Xs, Ys, Summary Statistics, Number of Vertices
+%
+% IMPORTANT NOTE: Binning analyses like this can suffer from regression artifacts!
+%   Results can be misleading & should be interpreted with caution.
 %  
 %
 % SrfDv/SrfIv:  Srf structures. When plotting data within a map, use the -same- Srf.
@@ -57,6 +60,8 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 % 09/12/2020 - Changed output so it now contains NaN data for 0 vertex ROIs (DSS)
 % 18/12/2020 - Now produces a proper wedge plot rather than scatter plot (EA)
 %              Adjusted alpha scaling based on number of vertices per segment (DSS)
+% 29/04/2021 - Added note about regression artifacts (DSS)
+%              Removed nR^2 option as redundant - use samsrf_normr2 instead (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -117,16 +122,6 @@ elseif strcmpi(Value, 'Thickness')
 elseif strcmpi(Value, 'Curvature')
     % Curvature
     Data = SrfDv.Curvature;
-elseif strcmpi(Value, 'nR^2')
-    if sum(strcmpi(SrfDv.Values, 'Noise Ceiling'))
-        % Normalised goodness-of-fit
-        Nc = SrfDv.Data(strcmpi(SrfDv.Values, 'Noise Ceiling'),:); % Extract noise ceiling
-        Data = SrfDv.Data(1,:) ./ Nc; % R^2 relative to noise ceiling
-        Data(Nc <= Threshold(1)) = 0; % Threshold vertices under a noise ceiling level
-    else
-        warning('No Noise Ceiling in input Srf! Using R^2...');
-        Data = SrfDv.Data(1,:);
-    end
 else
     %% Anything else
     loc = strcmpi(SrfDv.Values, Value);

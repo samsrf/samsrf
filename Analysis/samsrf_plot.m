@@ -1,6 +1,6 @@
 function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mode, Colour, BootParams)
 %
-% [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, [Roi='', Threshold=[0.01 -Inf/0 Inf], Mode='Mean', Colour='k', BootParams=[1000, 2.5, 97.5]])
+% [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, [Roi='', Threshold=[0.01 -Inf/0 Inf], Mode='Scatter', Colour='k', BootParams=[1000, 2.5, 97.5]])
 %
 % Plots the data defined by ValDv in SrfDv against the data in ValIv from SrfIv
 %  (thus, SrfDv is the dependent variable, SrfIv the independent variable).
@@ -19,6 +19,10 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %
 % The second output FigHdl is a figure handle to the main part of the plot
 %  (i.e. the summary curve rather than the confidence intervals).
+%
+% IMPORTANT NOTE: Binning analyses like this can suffer from regression artifacts!
+%   Results can be misleading & should be interpreted with caution.
+%
 %
 % SrfDv/SrfIv:  Srf structures. When plotting data within a map, use the -same- Srf.
 %
@@ -54,11 +58,11 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %                it defaults to [0 Inf].
 %
 % Mode:         How bins are statistically summarised:
-%                'Mean':        Arithmetic mean (default)
+%                'Scatter':     Scatter plot without summary statistics (default)
+%                'Mean':        Arithmetic mean 
 %                'Median':      Median
 %                'Sum':         Sum
 %                'Geomean':     Geometric mean
-%                'Scatter':     Scatter plot (no summary statistic)
 %
 % Colour:       Colour of the plot this produces (defaults to black = 'k').
 %                Can also be a 1x3 vector with RGB values.
@@ -72,6 +76,9 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 % 17/07/2020 - SamSrf 7 version (DSS & SuSt)
 % 23/09/2020 - Bins is now used to restrict range of scatter plot (DSS)
 % 28/20/2020 - Minor changes (DSS)
+% 29/04/2021 - Added note about regression artifacts (DSS)
+%              Changed default model to Scatter (DSS)
+%              Removed nR^2 option as redundant - use samsrf_normr2 instead (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -101,7 +108,7 @@ if strcmpi(ValDv, 'Sigma') || strcmpi(ValDv, 'Centre') || strcmpi(ValDv, 'Surrou
     end
 end
  
-if nargin <= 7  Mode = 'Mean'; end % Summary stat defaults to arithmetic mean
+if nargin <= 7  Mode = 'Scatter'; end % Default mode is scatter plot
 if nargin <= 8  Colour = 'k'; end % Colour defaults to black
 
 if nargin <= 9  BootParams = [1000, 2.5, 97.5]; end % Bootstrapping defaults to 1000 iterations for 95%CI
@@ -153,16 +160,6 @@ for i_var = 1:2
     elseif strcmpi(Val, 'Curvature')
         % Curvature
         Data = Srf.Curvature;
-    elseif strcmpi(Val, 'nR^2')
-        if sum(strcmpi(Srf.Values, 'Noise Ceiling'))
-            % Normalised goodness-of-fit
-            Nc = Srf.Data(strcmpi(Srf.Values, 'Noise Ceiling'),:); % Extract noise ceiling
-            Data = Srf.Data(1,:) ./ Nc; % R^2 relative to noise ceiling
-            Data(Nc <= Threshold(1)) = 0; % Threshold vertices under a noise ceiling level
-        else
-            warning('No Noise Ceiling in input Srf! Using R^2...');
-            Data = Srf.Data(1,:);
-        end
     else
         %% Anything else
         loc = strcmpi(Srf.Values, Val);
@@ -221,7 +218,7 @@ Theta = mod(DataIv, 360); % Angles between 0-360 for circular plots
 Res = [];
 if strcmpi(Mode, 'Scatter')
     if ~isempty(Bins)
-        warning('For scatter plot input Bins is ignored.');
+        disp('Scatter plot: lowest & highest bin are used as bounds');
     end
     % Scatter plot
     Res = [DataIv' DataDv'];
@@ -351,9 +348,8 @@ else
         xlabel([ValIv RawLabelIv]);
     end
 end
-%% Reformat title
+
+% Reformat title
 Roi(strfind(Roi,'_')) = '-';
 Roi([strfind(Roi,'/'),  strfind(Roi,'\')]) = ' ';
 title(Roi);
-
-

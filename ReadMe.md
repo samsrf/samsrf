@@ -30,7 +30,13 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.12 (18-04-2021)  
+### Version 7.13 (29-04-2021)  
+#### IMPORTANT BUGFIX: Fixed show-stopping bug in samsrf_fit_prf! (DSS)
+- Changed samsrf_plot default mode to scatter plot (DSS)  
+- Added warning in bin & wedge plot help about regression artifacts (DSS)  
+- Created new comet plot function as alternative to bin plots (DSS)  
+
+### Version 7.12 (18-04-2021) - samsrf_fit_prf broken - DO NOT USE! 
 - Renamed ROI variable in Benson template projections (DSS) 
 - Added fake sigma row into Benson projections & added note about newer Wang template (DSS)  
 - Changed default colour schemes in DisplayMaps, including for ROI maps (DSS)  
@@ -39,7 +45,7 @@ be in the same format. You can also convert old data files from older versions
 - Template2NativeMaps tool now splits off anatomical meshes (DSS)  
 - DisplayMaps can now visualise reverse correlation & connective fields (DSS)  
 
-### Version 7.10 (07-04-2021)  
+### Version 7.10 (07-04-2021) - samsrf_fit_prf broken - DO NOT USE!  
 - Added parameter option for only allowing positive correlations to pass coarse fit (DSS)  
 - Added default parameter to allow for logarithmic eccentricity & sigma-style maps (DSS)  
 

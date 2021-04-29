@@ -10,12 +10,13 @@ function Srf = samsrf_normr2(Srf, NcThr)
 %
 % The function filters out data points with bad noise ceilings by setting
 % the normalised R^2 to zero. The default threshold is a noise ceiling of 0 
-% but this can (and should) be tweaked with the optional NcThr input.
+% but this can be tweaked with the optional NcThr input.
 %
 % Note, this function only works on Srf.Data so don't apply that to
 % smoothed data. If smoothing is desired, do that afterwards.
 %
 % 20/07/2020 - SamSrf 7 version (DSS)
+% 29/04/2021 - Removed false advice from help section (DSS)
 %
 
 if nargin < 2

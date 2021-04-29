@@ -51,7 +51,7 @@ if isfield(F.Srf, 'Vertices')
     Anat.Curvature = F.Srf.Curvature;
     Anat.Area = F.Srf.Area;
     Anat.Thickness = F.Srf.Thickness;
-
+    
     %% Remove fields from Srf
     F.Srf = rmfield(F.Srf, 'Vertices');
     F.Srf = rmfield(F.Srf, 'Faces');

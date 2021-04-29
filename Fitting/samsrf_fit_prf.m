@@ -23,7 +23,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 23/07/2020 - Cosmetic changes to command window outputs (DSS)
 % 03/02/2021 - Fixed crashing bug when replacing bad fine fits (DSS)
 % 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)  
-% 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)   
+% 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)  
+% 29/04/2021 - Fixed show-stopping bug with incorrect model parameters! (DSS)  
 %
 
 %% Defaults & constants
@@ -250,7 +251,7 @@ else
       vx = mver(vs:ve);
       % Find best prediction
       Y = Tc(:,vx);  % Time course of current vertex
-      if Parameters.Only_Positive_Coarse_Fits
+      if Model.Only_Positive_Coarse_Fits
       	 R = corr(Y,X); % Best correlating prediction 
       	 mR = max(R,[],2); % Find best fit
       	 R = R.^2; % Now turn into R^2
