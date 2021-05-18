@@ -70,6 +70,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %              Fixed incorrect description of greyscale curvature (DSS) 
 % 18/04/2021 - DisplayMaps now visualises reverse correlation & connective field profiles (DSS)
 %              Added some more documentation to the help section (DSS)
+% 18/05/2021 - Added rendering options for half-way inflation (DSS)
 %
 
 %% Create global variables
@@ -179,6 +180,10 @@ if isfield(Srf, Mesh)
 elseif strcmpi(Mesh, 'Fake-Flat')
     Vertices = Srf.Sphere;
     Vertices(:,2) = 0;
+elseif strcmpi(Mesh, 'Inflated-50%')
+    Vertices = Srf.Vertices + (Srf.Inflated-Srf.Vertices)*0.5;
+elseif strcmpi(Mesh, 'Pial-50%')
+    Vertices = Srf.Pial + (Srf.Inflated-Srf.Pial)*0.5;
 else
     error(['Unknown mesh ' Mesh ' specified!']);
 end
