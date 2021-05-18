@@ -22,6 +22,7 @@ function samsrf_benson2srf(mghimg, surfdir)
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 17/04/2021 - Renamed ROI variable to be consistent with SamSrf's template (DSS)
 %              Added a sigma row for consistency which contains only NaNs (DSS)
+% 18/05/2021 - Fixed bug with previous change that clearly nobody used since then (DSS) 
 %
 
 %% Determine file parts 
@@ -32,7 +33,7 @@ end
 mghimg = mghimg(2:end);  % Remove dot from beginning
 
 %% Data labels
-valstrs = {'R^2'; 'x0'; 'y0'; 'Sigma', 'ROI'};
+valstrs = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'ROI'};
 
 %% Load surface vertices
 [V0 F] = fs_read_surf([surfdir filesep hemis '.white']); % Grey-white surface

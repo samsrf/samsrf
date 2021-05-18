@@ -30,8 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.131 (18-05-2021) 
+### Version 7.132 (18-05-2021) 
 - Added half-way inflation options for pial and inflated surfaces (DSS)  
+- Fixed bug with samsrf_benson2srf converter (DSS)  
 
 ### Version 7.13 (29-04-2021)  
 #### IMPORTANT BUGFIX: Fixed show-stopping bug in samsrf_fit_prf! (DSS)
