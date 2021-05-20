@@ -71,6 +71,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 18/04/2021 - DisplayMaps now visualises reverse correlation & connective field profiles (DSS)
 %              Added some more documentation to the help section (DSS)
 % 18/05/2021 - Added rendering options for half-way inflation (DSS)
+% 21/05/2021 - Now uses scaled transparency for connective field profiles (DSS)
 %
 
 %% Create global variables
@@ -688,7 +689,8 @@ elseif isfield(Srf, 'ConFlds')
     Pha(isnan(Pha)|isinf(Pha)) = 100;  
     % Transparency
     Alpha = zeros(size(Vertices,1),3);
-    Alpha(Srf.SeedVx,:) = 0.5;
+    Alpha(Srf.SeedVx,:) = repmat(X(Srf.SeedVx)'/AdjThr * 0.9 + 0.1, [1 3]);
+    Alpha(isnan(Alpha)) = 0.1; % To remove white artifacts
     % Colour map
     Cmap = hotcold(200);
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature

@@ -30,10 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.133 (19-05-2021) 
+### Version 7.134 (21-05-2021) 
 - Added half-way inflation options for pial and inflated surfaces (DSS)  
 - Fixed bug with samsrf_benson2srf converter (DSS)  
 - Fixed bug with smoothing connective field profiles (DSS)  
+- Changed how transparency of connectiv field profiles is scaled (DSS)  
 
 ### Version 7.13 (29-04-2021)  
 #### IMPORTANT BUGFIX: Fixed show-stopping bug in samsrf_fit_prf! (DSS)
