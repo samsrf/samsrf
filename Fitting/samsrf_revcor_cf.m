@@ -25,6 +25,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 18/07/2020 - SamSrf 7 version (DSS)
 % 23/07/2020 - Reorganised fitting loop but parallel processing isn't working yet (DSS)
 % 24/07/2020 - Added option to limit data by noise ceiling (DSS)
+% 19/05/2021 - Fixed bug with smoothing correlation profiles when NaNs present (DSS)
 %
 
 %% Defaults & constants
@@ -120,7 +121,7 @@ for v = 1:length(mver)
     % Smooth profile if needed
     if Model.Smoothing > 0
         sR = repmat(R,length(svx),1) .* Ws; % Smoothed profiles for each seed vertex 
-        R = sum(sR,2) ./ sum(Ws,2); % Smoothed seed ROI    
+        R = nansum(sR,2) ./ sum(Ws,2); % Smoothed seed ROI    
     end
     % Determine parameters
     mR = max(R); % Find peak activation in each map
