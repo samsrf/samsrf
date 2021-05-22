@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.134 (21-05-2021) 
+### Version 7.14 (22-05-2021) 
+- Added forward-model for connective fields using fast-fit procedure (DSS)  
 - Added half-way inflation options for pial and inflated surfaces (DSS)  
 - Fixed bug with samsrf_benson2srf converter (DSS)  
 - Fixed bug with smoothing connective field profiles (DSS)  

@@ -17,15 +17,13 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %   Roi:            ROI label to restrict the analysis (default = '') 
 %                       Optional, but without this the analysis can take forever.
 %
-% You must be in the folder containing the surface data files as well as
-% the various parameter files (i.e. apertures, searchspace, and HRF).
-%
 % Returns the name of the map file it saved.
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
 % 23/07/2020 - Reorganised fitting loop but parallel processing isn't working yet (DSS)
 % 24/07/2020 - Added option to limit data by noise ceiling (DSS)
 % 19/05/2021 - Fixed bug with smoothing correlation profiles when NaNs present (DSS)
+% 22/05/2021 - Presumably inconsequential (famous last words) bugfix... (DSS)
 %
 
 %% Defaults & constants
@@ -85,6 +83,7 @@ if isfield(Srf, 'Noise_Ceiling')
 end
 
 %% Load seed ROI 
+disp(['Loading seed ROI: ' Model.SeedRoi]);
 svx = samsrf_loadlabel(Model.SeedRoi);
 Srf.SeedVx = svx; % Store for posterity
 X = Tc(:,svx); % Time courses in seed ROI
@@ -94,12 +93,13 @@ if Model.Smoothing > 0 % No point when not smoothing
     Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
     Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
     disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' seconds.']);
-    new_line;
 end
 
 %% Load template map
+disp(['Loading template map: ' Model.Template]);
 Temp = load(Model.Template);
 Temp.Srf = samsrf_expand_srf(Temp.Srf);
+new_line;
 
 %% Add version number
 Srf.Version = samsrf_version;
@@ -141,8 +141,6 @@ disp(['Correlation analysis completed in ' num2str(t2/60/60) ' hours.']);
 new_line;
 
 %% Determine CF parameters
-% Keep track of redundancies
-Fitted(:) = 0;  % Toggle if vertex was already analysed
 % CF parameters
 fVimg = zeros(1,size(Srf.Vertices,1)); % Peak vertex index
 fXimg = zeros(1,size(Srf.Vertices,1)); % Left-Right coordinate

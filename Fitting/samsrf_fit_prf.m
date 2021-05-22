@@ -14,9 +14,6 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %   Roi:            ROI label to restrict the analysis (default = '') 
 %                       Optional, but without this the analysis can take forever.
 %
-% You must be in the folder containing the surface data files as well as
-% the various parameter files (i.e. apertures, searchspace, and HRF).
-%
 % Returns the name of the map file it saved.
 %
 % 20/07/2020 - SamSrf 7 version (DSS) 

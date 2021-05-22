@@ -7,6 +7,8 @@ function Connective_Fields(SrfFiles, Roi, SeedRoi, TempMap)
 %   TempMap:    Template map file
 % Both inputs are optional. If undefined, a dialog is opened for user selection.
 %
+% Includes code examples for using either forward-model fast fit or reverse correlation analysis.
+%
 
 %% Open dialogs if needed
 HomePath = pwd;
@@ -51,10 +53,12 @@ end
 Model.Name = 'CF'; % File name for output map
 Model.SeedRoi = SeedRoi; % Seed ROI for analysis
 Model.Template = TempMap; % Vertex number of seed region origin
-Model.Smoothing = 0; % Smoothing kernel for profile (in geodesic steps)
+Model.Smoothing = 0; % Smoothing kernel (works differently for forward-model & reverse-correlation)
+Model.Sizes = 5:5:20; % Range of sizes for CFs in geodesic steps (forward-model only)
 
 %% Fit pRF model
-MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi);
+MapFile = samsrf_fit_cf(Model, SrfFiles, Roi); % Forward-model fast fit
+% MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi); % Reverse correlation analysis
 
 %% Return home
 cd(HomePath); 
