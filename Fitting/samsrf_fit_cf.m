@@ -15,6 +15,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 % Returns the name of the map file it saved.
 %
 % 22/05/2021 - Writen (DSS) 
+% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 %
 
 %% Defaults & constants
@@ -236,3 +237,6 @@ disp(['Saved ' OutFile '.mat']);
 t4 = toc(t0); 
 EndTime = num2str(t4/60/60);
 new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
+disp('******************************************************************');
+new_line; new_line;
+

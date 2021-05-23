@@ -22,6 +22,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)  
 % 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)  
 % 29/04/2021 - Fixed show-stopping bug with incorrect model parameters! (DSS)  
+% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 %
 
 %% Defaults & constants
@@ -411,3 +412,5 @@ disp(['Saved ' OutFile '.mat']);
 t4 = toc(t0); 
 EndTime = num2str(t4/60/60);
 new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
+disp('******************************************************************');
+new_line; new_line;

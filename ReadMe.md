@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.141 (24-05-2021) 
+- Main analysis functions now mark more visibly when they're done (DSS)  
+
 ### Version 7.14 (22-05-2021) 
 - Added forward-model for connective fields using fast-fit procedure (DSS)  
 - Added half-way inflation options for pial and inflated surfaces (DSS)  

@@ -24,6 +24,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 24/07/2020 - Added option to limit data by noise ceiling (DSS)
 % 19/05/2021 - Fixed bug with smoothing correlation profiles when NaNs present (DSS)
 % 22/05/2021 - Presumably inconsequential (famous last words) bugfix... (DSS)
+% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 %
 
 %% Defaults & constants
@@ -201,3 +202,6 @@ disp(['Saved ' OutFile '.mat']);
 t4 = toc(t0); 
 EndTime = num2str(t4/60/60);
 new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
+disp('******************************************************************');
+new_line; new_line;
+
