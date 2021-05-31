@@ -28,19 +28,27 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %
 % ValDv/ValIv:  The value name as given by Srf.Values. Returns an error if 
 %                more than one entry of that name exists.
+%
 %               This can also be 'Eccentricity' or 'Polar', in which case it 
 %                may throw up an error if SrfIv.Data(2:3,:) are not X0 and Y0.
+%
 %               Prefixing ValDv/ValIv by ':' uses unsmoothed data (if possible).
+%
 %               Finally, this can also refer to anatomical statistics such as
 %                'Area', 'Thickness', or 'Curvature'. (These will always be
 %                anatomical so don't have any Srf.Values of the same names!)
 %
 % Bins:         Vector with the boundaries of the bins to be analysed.
 %                0:8 would return bins centred on 0.5:7.5, respectively.
+%                If the last component in this vector is NaN, the mean of the 
+%                independent variable per bin is calculated. Otherwise, the 
+%                conventional bin centre is plotted.
+%
 %               You can also decide to use a sliding window approach by
 %                giving three entries: Starting-point, End-point, Window-width
 %                In that case, Window-width must be negative so e.g.:
 %                [0 8 -1] will produce sliding window with width 1 from 0 to 8.
+%
 %               When creating a scatter plot instead of binned summaries,
 %                only the lowest and highest values are used to restrict the range.
 %                If Bins is undefined this will then default to [-Inf Inf].
@@ -51,6 +59,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 % Threshold:    The R^2 threshold for the IV to be included (defaults to 0.01).
 %                When plotting normalised R^2 this threshold is first applied 
 %                to the noise ceiling and then again to the normalised R^2)
+%
 %               If this is a vector, the second & third entry define the
 %                range of data values in SrfDv to be included (excluding
 %                the values given). Defaults to [-Inf Inf] unless the data
@@ -79,6 +88,7 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 % 29/04/2021 - Added note about regression artifacts (DSS)
 %              Changed default model to Scatter (DSS)
 %              Removed nR^2 option as redundant - use samsrf_normr2 instead (DSS)
+% 31/05/2021 - Now includes option to plot mean of bin for independent variable (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -88,6 +98,14 @@ SrfIv = samsrf_expand_srf(SrfIv);
 %% Check compatibility
 if size(SrfDv.Data,2) ~= size(SrfIv.Data,2)
     error('SrfDv & SrfIv are not the same mesh!');
+end
+
+%% Plotting bin summary stat?
+if isnan(Bins(end))
+    IvSumStats = true;
+    Bins = Bins(1:end-1);
+else
+    IvSumStats = false;
 end
 
 %% Default inputs
@@ -243,12 +261,18 @@ else % Binning analysis
                 end
                 RelAng = Theta - CurAng; % Relative angle to bin start
                 RelAng(RelAng < 0) = RelAng(RelAng < 0) + 360; % Anything negative must become positive
-                CurDat = DataDv(RelAng <= CurRng); % Current data
+                CurDv = DataDv(RelAng <= CurRng); % Current DV data
+                CurIv = DataIv(RelAng <= CurRng); % Current IV data
             else
                 % Linear measures
-                CurDat = DataDv(DataIv > Bins(b) & DataIv < Bins(b+1)); % Current data
+                CurDv = DataDv(DataIv > Bins(b) & DataIv < Bins(b+1)); % Current DV data
+                CurIv = DataIv(DataIv > Bins(b) & DataIv < Bins(b+1)); % Current IV data
             end
-            CurBin = mean(Bins(b:b+1)); % Middle of bin
+            if IvSumStats
+                CurBin = nanmean(CurIv); % Mean 
+            else
+                CurBin = mean(Bins(b:b+1)); % Middle of bin
+            end
         else
             % Sliding window analysis
             if strcmpi(ValIv,'Polar') || strcmpi(ValIv,'Phi') || strcmpi(ValIv,'Theta') || strcmpi(ValIv,'Phase')
@@ -260,45 +284,51 @@ else % Binning analysis
                 end
                 RelAng = Theta - CurAng; % Relative angle to bin start
                 RelAng(RelAng < 0) = RelAng(RelAng < 0) + 360; % Anything negative must become positive
-                CurDat = DataDv(RelAng <= CurRng); % Current data
+                CurDv = DataDv(RelAng <= CurRng); % Current DV data
+                CurUv = DataIv(RelAng <= CurRng); % Current IV data
             else
                 % Linear measures
-                CurDat = DataDv(DataIv > Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current data
+                CurDv = DataDv(DataIv > Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current DV data
+                CurIv = DataIv(DataIv > Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current IV data
             end
-            CurBin = Bins(b); % Current bin
+            if IvSumStats
+                CurBin = nanmean(CurIv); % Mean 
+            else
+                CurBin = Bins(b); % Current bin
+            end
         end
-        CurN = length(CurDat); % Number of vertices
+        CurN = length(CurDv); % Number of vertices
         
         %% Summary statistic & confidence interval
         if CurN > 1 
             if strcmpi(Mode, 'Mean')
                 if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
-                  Bs = bootstrp(BootParams(1), @nanmean, CurDat); % Bootstrap distribution
+                  Bs = bootstrp(BootParams(1), @nanmean, CurDv); % Bootstrap distribution
                 else
                   Bs = 0;
                 end
-                CurDat = nanmean(CurDat); % Mean
+                CurDv = nanmean(CurDv); % Mean
             elseif strcmpi(Mode, 'Median')
                 if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
-                  Bs = bootstrp(BootParams(1), @nanmedian, CurDat); % Bootstrap distribution
+                  Bs = bootstrp(BootParams(1), @nanmedian, CurDv); % Bootstrap distribution
                 else
                   Bs = 0;
                 end
-                CurDat = nanmedian(CurDat); % Median
+                CurDv = nanmedian(CurDv); % Median
             elseif strcmpi(Mode, 'Sum')
                 if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!                
-                  Bs = bootstrp(BootParams(1), @nansum, CurDat); % Bootstrap distribution
+                  Bs = bootstrp(BootParams(1), @nansum, CurDv); % Bootstrap distribution
                 else
                   Bs = 0;
                 end
-                CurDat = nansum(CurDat); % Sum
+                CurDv = nansum(CurDv); % Sum
             elseif strcmpi(Mode, 'Geomean')
                 if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
-                  Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDat))); % Bootstrap distribution
+                  Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDv))); % Bootstrap distribution
                 else
                   Bs = 0;
                 end
-                CurDat = exp(nanmean(log(CurDat))); % Mean
+                CurDv = exp(nanmean(log(CurDv))); % Geometric mean
             else
                 error('Invalid summary statistic specified!');
             end
@@ -307,16 +337,16 @@ else % Binning analysis
             if size(CurCi,1) > 1
               CurCi = CurCi';
             end
-            CurCi = CurCi - CurDat; % CIs relative to mean
+            CurCi = CurCi - CurDv; % CIs relative to mean
         else
             CurCi = [NaN NaN]; %% No CI for single or zero entry
         end
         % If bin is empty
-        if isempty(CurDat)
-            CurDat = NaN;
+        if isempty(CurDv)
+            CurDv = NaN;
         end        
         % Store bin results
-        Res = [Res; CurBin CurDat CurCi CurN];        
+        Res = [Res; CurBin CurDv CurCi CurN];        
     end
 end
 

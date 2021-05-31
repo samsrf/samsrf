@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.142 (24-05-2021) 
+### Version 7.143 (31-05-2021) 
+- Added option to samsrf_plot to plot mean of x-bin values instead of bin centre (DSS)
 - Main analysis functions now mark more visibly when they're done (DSS)  
 - Improved speed of samsrf_removenoise data cleaning function (DSS)  
 
