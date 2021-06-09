@@ -22,6 +22,7 @@ function Template2NativeMap(NatSrf, MeshFolder)
 % 07/08/2020 - Written (DSS)
 % 28/03/2021 - Now automatically removes noise ceiling from NatSrf (DSS)
 % 14/04/2021 - Exports anatomical surfaces automatically now (DSS)
+% 10/06/2021 - Now only saves ROI labels if they exist (DSS) 
 
 % Load native map
 load(NatSrf);
@@ -85,7 +86,10 @@ samsrf_anatomy_srf([Srf.Hemisphere '_temp_map']);
 Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
 mkdir('ROIs_temp_map');
 for r = 1:length(Rois)
-    samsrf_srf2label(Srf, ['ROIs_temp_map' filesep Srf.Hemisphere '_' Rois{r}], 1, find(Srf.Data(5,:)==r));
+    rvx = find(Srf.Data(5,:)==r);
+    if ~isempty(rvx)
+        samsrf_srf2label(Srf, ['ROIs_temp_map' filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
+    end
 end
 disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
 new_line;
