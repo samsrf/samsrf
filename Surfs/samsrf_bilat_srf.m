@@ -26,6 +26,9 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 % SrfL/SrfR: Srf structures for left & right hemispheres, respectively.
 %             Automatically expanded but you may want to denoise them first.
 %
+%
+% Warning: May fail with very large data files due to lack of memory.
+%
 % 29/10/2020 - Written & further error corrections (DSS)
 % 21/12/2020 - Now removes mesh field if it exists (DSS)
 %
