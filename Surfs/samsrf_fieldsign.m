@@ -12,6 +12,7 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 % Adds the field sign map to Srf.Data as the bottom row. 
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 26/06/2021 - Added support for parallel computing (DSS)
 %
 
 %% Default parameters
@@ -32,9 +33,7 @@ InSrf = samsrf_expand_srf(InSrf);
 % Load data
 Srf = InSrf;
 D = Srf.Data;
-fsD = zeros(1,size(D,2));
 nver = size(D,2);
-aVs = 1:nver;
 
 % Calculate retinotopy
 E = sqrt(D(2,:).^2 + D(3,:).^2);
@@ -49,13 +48,16 @@ else
 end
 
 if isfield(Srf, 'Sphere')
+    % Add new data row
+    Srf.Data(end+1,:) = 0;
+    Srf.Values{end+1} = 'Field Sign';
+    
     % Load sphere surface
     sphV = Srf.Sphere;
     
     % Calculate field sign
     disp('  Calculating field signs...');
     for j = 1:si
-        i = 0;
         if isempty(roi)
             if j == si
                 Vs = ((j-1)*50000+1:nver)';
@@ -64,8 +66,9 @@ if isfield(Srf, 'Sphere')
             end
             disp(['   Calculating field signs... (Block #' num2str(j) ')']); 
         end
-        for v = Vs'
-            i = i + 1;
+        fsD = zeros(1,length(Vs));
+        parfor vi = 1:length(Vs)
+            v = Vs(vi);
             % Vertices in geodesic ROI within radius 
             Nv = samsrf_georoi(v, radius, Srf.Vertices, Srf.Faces);
             Nv = Nv(Srf.Data(1,Nv) >= thrsh);
@@ -85,14 +88,12 @@ if isfield(Srf, 'Sphere')
                 P_vec = [Pfx(1) Pfz(1) 0]; % Polar angle vector
 
                 % Field sign
-                fsD(1,v) = sign(sum(cross(E_vec, P_vec)));
+                fsD(1,vi) = sign(sum(cross(E_vec, P_vec)));
             end
         end
     end
-
     % Save field sign data
-    Srf.Data = [Srf.Data; fsD];
-    Srf.Values{end+1} = 'Field Sign';
+    Srf.Data(end,Vs) = fsD;
 else
     % No sphere data in Srf
     warning('Skipping field sign calculation: no sphere data in Srf'); 

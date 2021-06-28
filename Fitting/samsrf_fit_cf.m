@@ -167,11 +167,11 @@ for vs = 1:cfvb:length(mver)
   % Find best prediction
   Y = Tc(:,vx);  % Time course of current vertex
   if Model.Only_Positive_Coarse_Fits
-     R = corr(Y,X); % Best correlating prediction 
+     R = corr(Y,X); % Mean corrected correlation 
      mR = max(R,[],2); % Find best fit
      R = R.^2; % Now turn into R^2
   else
-      R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
+      R = corr(Y,X).^2; % Mean corrected correlation (squared to allow for negative betas!)
       mR = max(R,[],2); % Find best fit
   end
   for v = 1:length(vx)

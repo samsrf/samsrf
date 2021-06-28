@@ -1,6 +1,6 @@
 function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpolate)
 %
-% Img = samsrf_heatmap(X, Y, Data, [Wts, Clipping=[0 Inf 0], WtSatur=50, Cmap='hotcold', Interpolate=true])
+% Img = samsrf_heatmap(X, Y, Data, [Wts, Clipping=[0 Inf 0], WtSatur=50, Cmap='berlin', Interpolate=true])
 %
 % Plots a heat-color map of the image in Data using the coordinate matrices
 % X and Y (from samsrf_backproj_srclt). It further uses the weights in Wts 
@@ -17,7 +17,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %  If you Wts is undefined or you provide an empty Wts matrix, the background 
 %  is set to whatever colour 0 is (this is usually fine but may not always be desirable).
 %
-% Cmap, the colour map, defaults to 'hotcold'. Prefixing this with '-' inverts
+% Cmap, the colour map, defaults to 'berlin'. Prefixing this with '-' inverts
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
 %
 % Interpolate is a boolean that toggles face interpolation (default = true).
@@ -26,6 +26,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 % Optionally returns the image matrix Img, in which case plotting is turned off.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 26/06/2021 - Changed default colour map (DSS)
 %
 
 %% Default inputs
@@ -39,7 +40,7 @@ if nargin <= 5
     WtSatur = 50;
 end
 if nargin <= 6
-    Cmap = 'hotcold';
+    Cmap = 'berlin';
 end
 if nargin <= 7 
     Interpolate = true;

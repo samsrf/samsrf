@@ -19,6 +19,7 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile)
 % each regressor in the design matrix. The final row contains the residuals.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 27/06/2021 - Changed how design matrix is plotted (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
@@ -64,9 +65,22 @@ for r = 1:nRuns
     Ct = [Ct; ct];
 end
 X = [X Ct];
+
+% Plot design matrix
 figure('name', 'Design matrix');
-imshow(imresize(X+.5, [size(X,1) size(X,2)*5], 'nearest'));
-imwrite(imresize(X+.5, [size(X,1) size(X,2)*5], 'nearest'), [GlmFile '.png']);
+hold on
+cm = berlin(size(X,2)); % Colour scheme
+% Plot each regressor
+for i = 1:size(X,2)
+    plot(X(:,i)/10 + i, 'linewidth', 2, 'color', cm(i,:));
+end
+% Regressor names
+for r = 1:nRuns
+    Xnames{end+1} = ['Constant #' num2str(r)];
+end
+set(gca, 'ytick', 1:size(X,2), 'yticklabel', Xnames);
+xlabel('Volume (#)');
+saveas(gcf, [GlmFile '.fig']);
 
 %% Add version number
 Srf.Version = samsrf_version;
@@ -101,9 +115,6 @@ if size(Xnames,1) == 1
 end
 % Add regressor names to structure
 Srf.Values = Xnames;
-for r = 1:nRuns
-    Srf.Values{end+1} = ['Constant #' num2str(r)];
-end
 Srf.Values{end+1} = 'Error';
 % Save design matrix & observed data
 Srf.X_glm = X;

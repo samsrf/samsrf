@@ -1,6 +1,6 @@
 function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %
-% samsrf_heatmap_del(Tri, X, Y, Data, [Clipping=[0 Inf 0], Cmap='hotcold'])
+% samsrf_heatmap_del(Tri, X, Y, Data, [Clipping=[0 Inf 0], Cmap='berlin'])
 %
 % Plots a heat-color map of Data using the Delaunay tesselation Tri, X and Y (from samsrf_backproj_del).  
 %
@@ -10,10 +10,11 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %  By default this is false, and in that case all values <= Clipping(1)
 %  will not be displayed.
 %
-% Cmap, the colour map, defaults to 'hotcold'. Prefixing this with '-' inverts
+% Cmap, the colour map, defaults to 'berlin'. Prefixing this with '-' inverts
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 26/06/2021 - Changed default colour map (DSS)
 %
 
 %% Default inputs
@@ -21,7 +22,7 @@ if nargin <= 4
     Clipping = [0 Inf 0];
 end
 if nargin <= 5
-    Cmap = 'hotcold';
+    Cmap = 'berlin';
 end
 
 if length(Clipping) == 1
