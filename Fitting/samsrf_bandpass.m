@@ -7,11 +7,9 @@ function cSrf = samsrf_bandpass(Srf, Hz, Tr)
 %   defining the high-pass & low-pass cutoff, respectively, in Hz. 
 %   In order to calculate this, the TR must be defined in seconds. 
 %
-% 30/06/2020 - Written (DSS)
+% 30/06/2021 - Written (DSS)
+% 01/07/2021 - Removed redundant expansion/compression (DSS)
 %
-
-%% Expand Srf if necessary
-[Srf,vx] = samsrf_expand_srf(Srf);
 
 %% Band-pass filter
 cSrf = Srf; % Cleaned Srf
@@ -25,6 +23,3 @@ cF = fft(Y); % Fast fourier transform
 cF([1:Cps(1) Cps(2):end],:) = 0; % Remove out-of-range cycles
 tY = real(ifft(cF)); % Transform back
 cSrf.Data = tY;
-
-%% Compress Srf again if needed
-cSrf = samsrf_compress_srf(cSrf,vx);

@@ -8,11 +8,8 @@ function cSrf = samsrf_removenoise(Srf, X)
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
 % 24/05/2021 - Improved speed & removed expansion/compression (DSS)
-% 30/06/2021 - Now includes expansion/compression again (DSS)
+% 01/07/2021 - Removed utterly redundant expansion/compression again (DSS)
 %
-
-%% Expand Srf if necessary
-[Srf,vx] = samsrf_expand_srf(Srf);
 
 %% Regression analysis
 cSrf = Srf; % Cleaned Srf
@@ -35,6 +32,3 @@ parfor v = 1:Nv
     end
 end
 cSrf.Data = Data;
-
-%% Compress Srf again if needed
-cSrf = samsrf_compress_srf(cSrf,vx);

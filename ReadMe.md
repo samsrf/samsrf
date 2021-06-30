@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.201 (01-07-2021)
+### Version 7.202 (01-07-2021)
+- Removed redundant expansion/compression from filtering functions (DSS)  
 - Updated default cut-offs in DisplayMaps & removed def_eccen default (DSS)   
 
 ### Version 7.2 (30-06-2021)
