@@ -437,43 +437,45 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu2
 
+global Srf
+
 % Which map? 
 contents = cellstr(get(handles.popupmenu2,'String'));
 MapType = contents{get(handles.popupmenu2,'Value')};
+MapNum = find(strcmpi(Srf.Values, MapType));
+
 % Default cut-offs
 if strcmpi(MapType, 'R^2') || strcmpi(MapType, 'nR^2') || strcmpi(MapType, 'Noise Ceiling')
+    % Goodness-of-fit
     set(handles.edit2, 'String', '0 1');
-elseif strcmpi(MapType, 'Polar')
+
+elseif strcmpi(MapType, 'Polar') || strcmpi(MapType, 'Phase')
+    % Angles & phases
     set(handles.edit2, 'String', '0 0');
+
 elseif strcmpi(MapType, 'Eccentricity') 
-    if exist('SamSrf_defaults.mat', 'file')
-        load('SamSrf_defaults.mat');
-        set(handles.edit2, 'String', ['0 ' num2str(def_eccen)]);
-    else
-        set(handles.edit2, 'String', '0 10');
-    end
-elseif strcmpi(MapType, 'Sigma') || strcmpi(MapType, 'Fwhm') || strcmpi(MapType, 'nSigma') ...
-       || strcmpi(MapType, 'Centre') || strcmpi(MapType, 'Surround') || strcmpi(MapType, 'Sigma1') || strcmpi(MapType, 'Sigma2')   
-    if exist('SamSrf_defaults.mat', 'file')
-        load('SamSrf_defaults.mat');
-        set(handles.edit2, 'String', ['0 ' num2str(def_eccen/2)]);
-    else
-        set(handles.edit2, 'String', '0 5');
-    end
-elseif strcmpi(MapType, 'Spread') 
-    set(handles.edit2, 'String', '0 50');
-elseif strcmpi(MapType, 'Beta') || strcmpi(MapType, 'Suppression')
-    set(handles.edit2, 'String', '0 0.5');
-elseif strcmpi(MapType, 'Cmf')
-    set(handles.edit2, 'String', '0 10');
+    % Eccentricity
+    MapData = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
+    set(handles.edit2, 'String', ['0 ' num2str(prctile(MapData(MapData > 0), 95))]);
+
+elseif strcmpi(MapType, 'x0') || strcmpi(MapType, 'y0') || strcmpi(MapType, 'Sigma') || strcmpi(MapType, 'Fwhm') || strcmpi(MapType, 'nSigma') ...
+       || strcmpi(MapType, 'Centre') || strcmpi(MapType, 'Surround') || strcmpi(MapType, 'Sigma1') || strcmpi(MapType, 'Sigma2')  || strcmpi(MapType, 'Spread') ...
+       || strcmpi(MapType, 'Suppression') || strcmpi(MapType, 'Cmf') || strcmpi(MapType, 'Visual Area') || strcmpi(MapType, 'Surface Area') 
+    % Measures that should be positive
+    MapData = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
+    set(handles.edit2, 'String', ['0 ' num2str(prctile(MapData(MapData > 0), 95))]) 
+
 elseif strcmpi(MapType, 'Field Sign')
-    set(handles.edit2, 'String', '0 3');
-elseif strcmpi(MapType, 'x0') || strcmpi(MapType, 'y0')
-    set(handles.edit2, 'String', '0 10');
+    % Field sign
+    set(handles.edit2, 'String', '0 3'); % Ranges -1 to +1 but this makes it prettier
+    
 elseif strcmpi(MapType, 'ROI') || strcmpi(MapType, 'ROIs')
-    set(handles.edit2, 'String', '0 6');
+    % ROI numbers
+    set(handles.edit2, 'String', ['0 ' num2str(nanmax(Srf.Data(MapNum,:)))]);
+
 else
-    set(handles.edit2, 'String', '0 2');
+    % Anything else
+    set(handles.edit2, 'String', ['0 ' num2str(prctile(Srf.Data(MapNum,:), 95))]);
 end
 RedrawMaps(handles, false);
 

@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.201 (01-07-2021)
+- Updated default cut-offs in DisplayMaps & removed def_eccen default (DSS)   
+
 ### Version 7.2 (30-06-2021)
 - New function for splitting bilateral Srfs back into hemispheres (DSS)   
 - Added option to samsrf_plot to plot mean of x-bin values instead of bin centre (DSS)
