@@ -17,6 +17,7 @@ function [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg)
 % 03/08/2020 - Fixed bug where loop could get stuck on bad fits (IA & DSS)
 % 21/12/2020 - No progress reports if parallel computing but using older Matlab versions (DSS)
 % 22/12/2020 - Bugfix for when progress reports are turned off (DSS)
+% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 %
 
 % Number of vertices
@@ -41,14 +42,11 @@ try
     Q = parallel.pool.DataQueue; % Queue variable
     afterEach(Q, @percentanalysed); % Reporting function
     ProgReps = true; % Progress will be reported
-    disp(' Progress update every 5000 vertices');
 catch
     Q = NaN; % No queue variable exists
     ProgReps = false; % No progress can be reported when using parallel computing
     if IsParallel
-      disp(' No progress reports possible :(');
-    else
-      disp(' Progress update every 100 vertices');
+        disp(' No progress reports possible :(');
     end
 end
 
@@ -61,6 +59,9 @@ OptimOpts.OutputFcn = @samsrf_fminsearch_outfun;
 vc = 1;
 if IsParallel
     % Run parallel loop
+    if ProgReps
+        samsrf_progbar(0);
+    end
     parfor v = 1:nver
         if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
             % Find best prediction
@@ -70,11 +71,12 @@ if IsParallel
         end
         % Report back?
         if ProgReps
-          send(Q,v); % Only reports every 1000 vertices
+            send(Q,v); % Only reports every 1000 vertices
         end
     end
 else
     % Run normal loop
+    samsrf_progbar(0);
     for v = 1:nver
         if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
             % Find best prediction
@@ -82,20 +84,15 @@ else
             fPimg(:,v) = fP;
             fRimg(1,v) = 1 - fR;
         end
-        % Reports back ?
-        if mod(vc,100) == 0 % Every 100 vertices
-            disp([' ' num2str(round(vc/nver*100)) '% completed']);
-        end
+        % Reports back 
+        samsrf_progbar(vc/nver);
         vc = vc + 1;
     end
 end
 
     %% Nested progress report function
     function percentanalysed(~)
-    % Reports back every 5000 vertices
-        if mod(vc,5000) == 0
-            disp([' ' num2str(round(vc/nver*100)) '% completed']);
-        end
+        samsrf_progbar(vc/nver);
         vc = vc + 1;
     end
 end

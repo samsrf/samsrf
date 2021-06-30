@@ -30,7 +30,7 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.148 (28-06-2021)
+### Version 7.2 (30-06-2021)
 - New function for splitting bilateral Srfs back into hemispheres (DSS)   
 - Added option to samsrf_plot to plot mean of x-bin values instead of bin centre (DSS)
 - Main analysis functions now mark more visibly when they're done (DSS)  
@@ -39,6 +39,10 @@ be in the same format. You can also convert old data files from older versions
 - Added new colour maps from various sources & updates defaults (DSS)  
 - Field sign function now uses parallel computing but is still slow (DSS)  
 - Changed how samsrf_glm plots design matrix (DSS)  
+- GLM contrast function can now work even if no time course data present (DSS)  
+- Noise covariate regression includes data expansion/compression again (DSS)  
+- Added bandpass filtering function (DSS)  
+- Added new-fangled old-school progress bars (DSS)  
 
 ### Version 7.14 (22-05-2021) 
 - Added forward-model for connective fields using fast-fit procedure (DSS)  

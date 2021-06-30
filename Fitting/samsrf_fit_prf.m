@@ -23,6 +23,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)  
 % 29/04/2021 - Fixed show-stopping bug with incorrect model parameters! (DSS)  
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
+% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 %
 
 %% Defaults & constants
@@ -240,6 +241,7 @@ else
   
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
   disp([' Block size: ' num2str(cfvb) ' vertices']);
+  samsrf_progbar(0);
   for vs = 1:cfvb:length(mver)
       % Starting index of current vertex block
       ve = vs + cfvb - 1;
@@ -278,9 +280,7 @@ else
                 Bimg(2,vx(v)) = B(1); % Intercept
               end            
           end
-          if cfvb > 1 && v == length(vx)
-              disp([' ' num2str(round(ve/length(mver)*100)) '% completed']);
-          end
+          samsrf_progbar((vs+v-1)/length(mver));
       end
   end
   t2 = toc(t0); 
@@ -317,6 +317,7 @@ else
     Srf.X = zeros(size(Tc,1), size(Srf.Vertices,1)); % Matrix with unconvolved predictions
     
     % Process & fit betas for mask vertices
+    samsrf_progbar(0);
     for v = 1:length(mver)
         % Loop thru fitted parameters
         IsGoodFit = true;
@@ -368,6 +369,9 @@ else
             warning on
             fBimg(:,v) = fB([2 1]); % Amplitude & intercept
         end
+        
+        % Progress report
+        samsrf_progbar(v/length(mver));
     end
 end
 

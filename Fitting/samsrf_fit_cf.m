@@ -16,6 +16,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 %
 % 22/05/2021 - Writen (DSS) 
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
+% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 %
 
 %% Defaults & constants
@@ -157,6 +158,7 @@ Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
   
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
 disp([' Block size: ' num2str(cfvb) ' vertices']);
+samsrf_progbar(0);
 for vs = 1:cfvb:length(mver)
   % Starting index of current vertex block
   ve = vs + cfvb - 1;
@@ -192,9 +194,7 @@ for vs = 1:cfvb:length(mver)
           Bimg(1,vx(v)) = B(2); % Amplitude
           Bimg(2,vx(v)) = B(1); % Intercept
       end
-      if cfvb > 1 && v == length(vx)
-          disp([' ' num2str(round(ve/length(mver)*100)) '% completed']);
-      end
+      samsrf_progbar((vs+v-1)/length(mver));
   end
 end
 t2 = toc(t0); 

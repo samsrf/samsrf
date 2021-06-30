@@ -14,6 +14,7 @@ function samsrf_glm_conts(SrfFile, Conts, ContNames)
 % p=0.05 (Bonferroni corrected).
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 29/06/2021 - Now allows use of GLM file with time course data (DSS)
 %
 
 % Convert ContNames into cell if it's a string
@@ -43,14 +44,15 @@ end
 
 % Critical t-statistics
 nver = size(bSrf.Data,2); % Number of vertices
-Srf.df = size(bSrf.Y,1) - size(bSrf.X_glm,2) - 1; % Degrees of freedom
-Srf.Crit_Ts = tinv(1 - [0.05 0.001 0.05/nver]/2, Srf.df); % Critical T's (doesn't work for z-scored data)
-% Remove unnecessary fields
-if isfield(Srf, 'Raw_Data')
-    Srf = rmfield(Srf, 'Raw_Data');
+if isfield(bSrf, 'Y')
+    Srf.df = size(bSrf.Y,1) - size(bSrf.X_glm,2) - 1; % Degrees of freedom
+    Srf.Crit_Ts = tinv(1 - [0.05 0.001 0.05/nver]/2, Srf.df); % Critical T's (doesn't work for z-scored data)
+    Srf = rmfield(Srf, 'Y'); % Remove time courses
 end
-Srf = rmfield(Srf, 'X_glm');
-Srf = rmfield(Srf, 'Y');
+Srf = rmfield(Srf, 'X_glm'); % Remove regressors
+if isfield(Srf, 'Raw_Data') 
+    Srf = rmfield(Srf, 'Raw_Data'); % Remove unsmoothed data 
+end
 
 % Calculate contrasts
 Resid = bSrf.Data(end,:); % Residuals

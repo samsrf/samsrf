@@ -25,6 +25,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 19/05/2021 - Fixed bug with smoothing correlation profiles when NaNs present (DSS)
 % 22/05/2021 - Presumably inconsequential (famous last words) bugfix... (DSS)
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
+% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 %
 
 %% Defaults & constants
@@ -115,6 +116,7 @@ disp('Calculating CF profiles...');
 % % Keep track of redundancies
 Rmaps = NaN(length(svx),length(mver)); % Connective field profile for each vertex 
 % Loop through mask vertices 
+samsrf_progbar(0);
 for v = 1:length(mver)
     % Calculate r-map
     Y = Tc(:,mver(v));  % Time course of current vertex
@@ -130,10 +132,8 @@ for v = 1:length(mver)
     if ~isnan(mR) && mR > 0
         Rmaps(:,v) = R(:); % Activation map as vector 
     end
-    % Progress report every 5000 vertices
-    if mod(v,5000) == 0
-        disp([' ' num2str(round(v/length(mver)*100)) '% completed']);
-    end
+    % Progress report
+    samsrf_progbar(v/length(mver));
 end
 Srf.Data = NaN(length(svx), size(Srf.Vertices,1));
 Srf.Data(:,mver) = Rmaps;

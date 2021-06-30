@@ -32,6 +32,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %              Reorganised analysis loop but parallel processing isn't working yet (DSS)  
 % 29/03/2021 - Fixed horrendous bug when fitting bilateral surface meshes (DSS)    
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
+% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 %
 
 %% Defaults & constants
@@ -171,6 +172,7 @@ fSimg = zeros(1,length(mver)); % Sigma map
 fBimg = zeros(1,length(mver)); % Beta map
 fRimg = zeros(1,length(mver)); % R^2 map
 % Loop through mask vertices 
+samsrf_progbar(0);
 for v = 1:length(mver)
     % Calculate r-map
     Y = Tc(:,mver(v));  % Time course of current vertex
@@ -195,6 +197,8 @@ for v = 1:length(mver)
         fBimg(v) = mM;  % Activation peak
         fRimg(v) = mR^2;  % Variance explained
     end
+    % Progress report
+    samsrf_progbar(v/length(mver));
 end
 t2 = toc(t0); 
 disp(['Analysis completed in ' num2str(t2/60) ' minutes.']);

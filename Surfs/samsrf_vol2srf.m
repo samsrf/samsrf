@@ -43,6 +43,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 29/06/2020 - SamSrf 7 version (DSS)
 % 22/07/2020 - Added progress reports but still no parallel processing (DSS)
 % 19/10/2020 - Will now also load ASC files if binary files don't exist (DSS)
+% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 %
 
 %% Default parameters
@@ -148,9 +149,10 @@ Srf.Rule = rule;
 
 %% Transform the vertices 
 disp('Running surface projection...');
+new_line;
 cs = 0;
 for cl = ctxsteps
-    disp([' Cortical sampling step: ' num2str(cl)]);
+    disp(['Cortical sampling step: ' num2str(cl)]);
     cs = cs + 1;
     % Step through cortex layers
     V = V0 + N*cl;
@@ -166,6 +168,7 @@ for cl = ctxsteps
     tV = tV(1:3,:)';
 
     % Find voxels for each vertex
+    samsrf_progbar(0);
     for i = 1:size(tV,1) 
         for fi = 1:length(funimg)
             if tV(i,1)>0 && tV(i,2)>0 && tV(i,3)>0 && tV(i,1)<fhdr(1).dim(1) && tV(i,2)<fhdr(1).dim(2) && tV(i,3)<fhdr(1).dim(3) 
@@ -175,10 +178,9 @@ for cl = ctxsteps
             end
         end
         % Progress report
-        if mod(i,25000) == 0
-            disp(['  ' num2str(round(i/size(tV,1)*100)) '% complete']);
-        end
-    end       
+        samsrf_progbar(i/size(tV,1));            
+    end
+    new_line;
 end
 
 %% Calculate one value per vertex

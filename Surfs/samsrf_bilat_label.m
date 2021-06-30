@@ -16,6 +16,7 @@ function samsrf_bilat_label(Srf, Roi)
 %
 % 29/10/2020 - Written (DSS)
 % 26/11/2020 - Fixed bug with file names (DSS)
+% 29/06/2021 - Now reports that the label was saved (DSS)
 %
 
 if ~isfield(Srf, 'Nvert_Lhem')
@@ -50,3 +51,4 @@ Vx = [Lvx; Rvx];
 
 % Save new label
 samsrf_srf2label(Srf, Roi, 1, Vx);
+disp(['Saved bilateral label: ' Roi]);
