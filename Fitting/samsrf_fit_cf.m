@@ -176,7 +176,7 @@ for vs = 1:cfvb:length(mver)
       R = corr(Y,X).^2; % Mean corrected correlation (squared to allow for negative betas!)
       mR = max(R,[],2); % Find best fit
   end
-  for v = 1:length(vx)
+  for v = 1:length(vx)      
       rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
       if ~isempty(rx)
           rx = rx(1); % Only first instance 

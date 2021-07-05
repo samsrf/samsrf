@@ -116,6 +116,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %
 % 19/07/2020 - SamSrf 7 version (DSS & SuSt)
 % 03/08/2020 - Removed dependency on external circular statistics toolbox (DSS)
+% 05/07/2021 - Fixed bug when Response has only one row (DSS)
 %
 
 %% Default inputs
@@ -179,8 +180,8 @@ Numbers = zeros(size(X,1), size(X,2), Nr_Dim); % Number of pRFs within the searc
 SrclID = Numbers(:, :, 1);
 
 %% Filter vertices
-nanprf = sum(isnan(pRF_Data)) > 0; % Shouldn't happen but just in case...
-nanresp = sum(isnan(Response)) > 0; % Determine NaNs in response
+nanprf = sum(isnan(pRF_Data),1) > 0; % Shouldn't happen but just in case...
+nanresp = sum(isnan(Response),1) > 0; % Determine NaNs in response
 % Retrieve only good vertices
 Good_Vertices = gof > Threshold(1) & ecc > Threshold(2) & ecc < Threshold(3) & sigma > 0 & nanresp == 0 & nanprf == 0 & ...
     (pol_theta >= Threshold(4) & pol_theta <= Threshold(5));

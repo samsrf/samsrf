@@ -30,9 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.202 (01-07-2021)
+### Version 7.203 (05-07-2021)
 - Removed redundant expansion/compression from filtering functions (DSS)  
-- Updated default cut-offs in DisplayMaps & removed def_eccen default (DSS)   
+- Updated default cut-offs in DisplayMaps & removed def_eccen default (DSS)  
+- Fixed minor bug with searchlight backprojection (DSS)  
 
 ### Version 7.2 (30-06-2021)
 - New function for splitting bilateral Srfs back into hemispheres (DSS)   
