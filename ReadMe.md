@@ -30,10 +30,12 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.203 (05-07-2021)
+### Version 7.21 (09-07-2021)
+- Fixed catastrophic bug when only allowing positive coarse fits (DSS)  
 - Removed redundant expansion/compression from filtering functions (DSS)  
 - Updated default cut-offs in DisplayMaps & removed def_eccen default (DSS)  
 - Fixed minor bug with searchlight backprojection (DSS)  
+- Fixed minor bug with dimensions of outputs in samsrf_visualroi (DSS)  
 
 ### Version 7.2 (30-06-2021)
 - New function for splitting bilateral Srfs back into hemispheres (DSS)   

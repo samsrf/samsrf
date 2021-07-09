@@ -24,6 +24,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 29/04/2021 - Fixed show-stopping bug with incorrect model parameters! (DSS)  
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
+% 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
 %
 
 %% Defaults & constants
@@ -253,8 +254,8 @@ else
       Y = Tc(:,vx);  % Time course of current vertex
       if Model.Only_Positive_Coarse_Fits
       	 R = corr(Y,X); % Best correlating prediction 
-      	 mR = max(R,[],2); % Find best fit
-      	 R = R.^2; % Now turn into R^2
+      	 mR = max(R,[],2).^2; % Find best fit & square now
+      	 R = R.^2; % Now turn others into R^2 too
       else
       	 R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
       	 mR = max(R,[],2); % Find best fit

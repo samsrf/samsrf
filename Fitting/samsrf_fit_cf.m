@@ -17,6 +17,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 % 22/05/2021 - Writen (DSS) 
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
+% 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
 %
 
 %% Defaults & constants
@@ -154,7 +155,7 @@ Vimg = zeros(1, size(Srf.Vertices,1)); % Fitted vertex number map
 Simg = zeros(1, size(Srf.Vertices,1)); % Fitted size parameter map
 Pimg = zeros(2, size(Srf.Vertices,1)); % Template parameter maps
 Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
-Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
+Bimg = zeros(2, size(Srf.Vertices,1)); % Beta map
   
 % Loop through mask vertices (in blocks if Matlab R2012a or higher)
 disp([' Block size: ' num2str(cfvb) ' vertices']);
@@ -170,13 +171,13 @@ for vs = 1:cfvb:length(mver)
   Y = Tc(:,vx);  % Time course of current vertex
   if Model.Only_Positive_Coarse_Fits
      R = corr(Y,X); % Mean corrected correlation 
-     mR = max(R,[],2); % Find best fit
-     R = R.^2; % Now turn into R^2
+     mR = max(R,[],2).^2; % Find best fit & square now
+     R = R.^2; % Now turn others into R^2 too
   else
       R = corr(Y,X).^2; % Mean corrected correlation (squared to allow for negative betas!)
       mR = max(R,[],2); % Find best fit
   end
-  for v = 1:length(vx)      
+  for v = 1:length(vx) 
       rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
       if ~isempty(rx)
           rx = rx(1); % Only first instance 
