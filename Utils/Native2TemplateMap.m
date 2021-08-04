@@ -12,6 +12,8 @@ function Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 % Saves the spatially normalised Srf called the same as NatSrf with the suffix _sn.
 %
 % 09/04/2021 - Written (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+%
 
 % Load native map
 NatSrfName = NatSrf;
@@ -76,6 +78,7 @@ end
 %% Vertex assignments
 t0 = tic;
 disp('Warping native into template surface...');
+disp(' Please stand by...');
 Sva = NaN(1,NtgtVx); % Source vertex assignment
 parfor v = 1:NtgtVx
     % Vector from current target vertex to all source vertices

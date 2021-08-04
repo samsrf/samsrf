@@ -14,10 +14,16 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 22/05/2021 - Writen (DSS) 
+% 22/05/2021 - Written (DSS) 
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
+% 11/07/2021 - Now uses 1st eigenvariate for both seed & target vertices (DSS)
+%              Added parallel computing to vertex-wise coarse fit (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+%              Receiving patch size can now be adjusted (DSS) 
+% 04/08/2021 - New option to use polar or eccentricity-defined patches as CFs (DSS)
+%              Moved smoothing before search space generation (DSS)
 %
 
 %% Defaults & constants
@@ -35,19 +41,11 @@ end
 if ~isfield(Model, 'Smoothing')
     Model.Smoothing = 0; % No smoothing on coarse fit
 end
-if ~isfield(Model, 'Only_Positive_Coarse_Fits')
-    Model.Only_Positive_Coarse_Fits = false; % Coarse fit can either be negative or positive correlation to pass 
-end
 if ~isfield(Model, 'Coarse_Fit_Block_Size')
     Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
 end
-
-%% MatLab R2012a or higher can do fast coarse-fit
-if verLessThan('matlab','7.13')
-    cfvb = 1;
-else
-    % Coarse-fit vertex block size
-    cfvb = Model.Coarse_Fit_Block_Size;
+if ~isfield(Model, 'Patch_Size')
+    Model.Patch_Size = 0; % Size of receiving patch in geodesic steps (0 = single vertex)
 end
 
 %% Start time of analysis
@@ -112,10 +110,44 @@ new_line;
 %% Add version number
 Srf.Version = samsrf_version;
 
+%% Smooth for coarse fit?
+if Model.Smoothing > 0
+    Srf = samsrf_smooth_sphere(Srf, Model.Smoothing, Roi, 0); % Smooth within ROI
+    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field
+    Tc = Srf.Data; % Put smoothed data back into time course variable
+end
+
 %% Generate prediction matrix
 if ~exist([pwd filesep SearchspaceFile], 'file') 
     disp('Generating predictions...');
-    [X,S] = cf_generate_searchspace(Srf, svx, Model.Sizes);    
+    if isfield(Model, 'Polar')
+        disp(' Using polar angle patches as CFs');
+        Polar = atan2(Temp.Srf.Data(3,svx), Temp.Srf.Data(2,svx)) / pi * 180;
+        X = NaN(size(Tc,1), length(Model.Polar)-1); % Time courses
+        S = NaN(1,length(Model.Polar)-1); % Patch polar angle
+        for p = 1:length(Model.Polar)-1
+            pvx = svx(Polar >= Model.Polar(p) & Polar < Model.Polar(p+1)); % Patch vertices in seed ROI
+            pX = roi_1steigvar(Tc(:,pvx)); % 1st eigenvariate of patch
+            S(p) = mean(Model.Polar(p:p+1)); % Polar angle of patch
+            X(:,p) = pX; % Store extracted time course
+        end
+    elseif isfield(Model, 'Eccentricity')
+        disp(' Using eccentricity patches as CFs');
+        Eccentricity = sqrt(Temp.Srf.Data(2,svx).^2 + Temp.Srf.Data(3,svx).^2);
+        X = NaN(size(Tc,1), length(Model.Eccentricity)-1); % Time courses
+        S = NaN(1,length(Model.Eccentricity)-1); % Patch eccentricity
+        for p = 1:length(Model.Eccentricity)-1
+            pvx = svx(Eccentricity >= Model.Eccentricity(p) & Eccentricity < Model.Eccentricity(p+1)); % Patch vertices in seed ROI
+            pX = roi_1steigvar(Tc(:,pvx)); % 1st eigenvariate of patch
+            S(p) = mean(Model.Eccentricity(p:p+1)); % Polar angle of patch
+            X(:,p) = pX; % Store extracted time course
+        end
+    elseif isfield(Model, 'Sizes')
+        disp(' Using vertex-wise search space with circular CFs');
+        [X,S] = cf_generate_searchspace(Srf, svx, Model.Sizes); % Store time courses for each seed vertex
+    else
+        error('CF search space undefined!');
+    end
     save(SearchspaceFile, 'X', 'S', '-v7.3');
     t1 = toc(t0); 
     disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
@@ -124,8 +156,10 @@ else
     load([pwd filesep SearchspaceFile]);
     disp([' Loading ' SearchspaceFile]);
     % Does number of grid points match model?
-    if size(S,2) ~= length(svx) * length(Model.Sizes)
-        error('Mismatch between saved search space and model definition!');
+    if isfield(Model, 'Sizes')
+        if size(S,2) ~= length(svx) * length(Model.Sizes)
+            error('Mismatch between saved search space and model definition!');
+        end
     end
     % Does length of search parameter & prediction matrix match?
     if size(S,2) ~= size(X,2)
@@ -136,88 +170,67 @@ end
 disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);
 new_line; 
 
-%% Smooth for coarse fit?
-if Model.Smoothing > 0
-    Srf = samsrf_smooth_sphere(Srf, Model.Smoothing, Roi, 0); % Smooth within ROI
-    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field
-    Tc = Srf.Data; % Put smoothed data back into time course variable
-end
-
 %% Preprocess data
-% Store raw time courses
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 
 %% Coarse fit 
 disp('Coarse fitting...');
-Srf.X = zeros(size(Tc));  % Matrix with predictions
-Vimg = zeros(1, size(Srf.Vertices,1)); % Fitted vertex number map
-Simg = zeros(1, size(Srf.Vertices,1)); % Fitted size parameter map
-Pimg = zeros(2, size(Srf.Vertices,1)); % Template parameter maps
-Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
-Bimg = zeros(2, size(Srf.Vertices,1)); % Beta map
-  
-% Loop through mask vertices (in blocks if Matlab R2012a or higher)
-disp([' Block size: ' num2str(cfvb) ' vertices']);
-samsrf_progbar(0);
-for vs = 1:cfvb:length(mver)
-  % Starting index of current vertex block
-  ve = vs + cfvb - 1;
-  if ve > length(mver)
-      ve = length(mver);
-  end
-  vx = mver(vs:ve);
-  % Find best prediction
-  Y = Tc(:,vx);  % Time course of current vertex
-  if Model.Only_Positive_Coarse_Fits
-     R = corr(Y,X); % Mean corrected correlation 
-     mR = max(R,[],2).^2; % Find best fit & square now
-     R = R.^2; % Now turn others into R^2 too
-  else
-      R = corr(Y,X).^2; % Mean corrected correlation (squared to allow for negative betas!)
-      mR = max(R,[],2); % Find best fit
-  end
-  for v = 1:length(vx) 
-      rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
-      if ~isempty(rx)
-          rx = rx(1); % Only first instance 
-          % Store prediction
-          Srf.X(:,vx(v)) = X(:,rx);  % Best fitting prediction
-          % Store parameters
-          Vimg(1,vx(v)) = S(1,rx); % Add vertex number
-          Simg(1,vx(v)) = S(2,rx) / 3; % Add size parameter (rescaled to sigma)
-          Rimg(1,vx(v)) = mR(v);  % Variance explained
-          Pimg(:,vx(v)) = Temp.Srf.Data(2:3, S(1,rx)); % Retrieve template coordinates 
-          % Fit betas for amplitude & intercept
-          warning off % In case of rank deficient GLM
-          B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
-          warning on
-          Bimg(1,vx(v)) = B(2); % Amplitude
-          Bimg(2,vx(v)) = B(1); % Intercept
-      end
-      samsrf_progbar((vs+v-1)/length(mver));
-  end
+Xfits = zeros(size(Tc,1), length(mver));  % Matrix with predictions
+Rimg = zeros(1, length(mver)); % R^2 map
+Vimg = zeros(1, length(mver)); % Fitted vertex number/patch parameter map
+if isfield(Model, 'Sizes')
+    Simg = zeros(1, length(mver)); % Fitted size parameter map
+    Pimg = zeros(2, length(mver)); % Template parameter maps
+end
+
+% Loop through mask vertices 
+disp(' Please stand by...');
+parfor v = 1:length(mver)
+    % Current vertex index
+    vx = mver(v);
+    % Find best prediction
+    Pv = samsrf_georoi(vx, Model.Patch_Size, Srf.Vertices, Srf.Faces); % Circular patch
+    Y = roi_1steigvar(Tc(:,Pv));
+    if ~isempty(Y)
+        R = corr(Y,X); % Mean corrected correlation 
+        mR = max(R).^2; % Find best fit & square now
+        R = R.^2; % Now turn others into R^2 too
+        rx = find(R == mR,1); % Matrix position of best prediction
+        if ~isempty(rx)
+            % Store prediction
+            Xfits(:,v) = X(:,rx);  % Best fitting prediction
+            % Store parameters
+            Rimg(1,v) = mR;  % Variance explained
+            if isfield(Model, 'Sizes')
+                Vimg(1,v) = S(1,rx); % Add vertex number
+                Simg(1,v) = S(2,rx); % Add size parameter in geodesic steps
+                Pimg(:,v) = Temp.Srf.Data(2:3, S(1,rx)); % Retrieve template coordinates 
+            else
+                Vimg(1,v) = S(rx); % Patch parameter (whichever it may be)
+            end
+        end
+    end
 end
 t2 = toc(t0); 
 disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
 new_line;
 
 %% Store coarse fit parameters
-disp('Only running coarse fit!');
-Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
-fPimg = Pimg(:,mver); % Template parameter maps
-fRimg = Rimg(1,mver); % R^2 map
-fVimg = Vimg(1,mver); % Vertex number map
-fSimg = Simg(1,mver); % CF size map
-fBimg = Bimg(:,mver); % Beta map
+Srf.X = zeros(size(Tc)); % Matrix with best-fitting predictions
+Srf.X(:,mver) = Xfits; % Fill in best-fitting predictions 
 
 % Prepare surface structure
 Srf.Functional = 'Connective Field Fast-Fit'; % pRF function name
-Data = [fRimg; fPimg; fSimg; fBimg; fVimg];
+if isfield(Model, 'Sizes')
+    Data = [Rimg; Pimg; Simg; Vimg];
+    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Vx'}; % Add parameter names
+else
+    Data = [Rimg; Vimg];
+    Srf.Values = {'R^2'; 'Phase'}; % Add parameter name
+end
 Srf.Data = zeros(size(Data,1), size(Srf.Vertices,1));
 Srf.Data(:,mver) = Data; % Add parameter maps into full data matrix
-% Add parameter names
-Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'; 'Baseline'; 'Vx'}; 
 % Add noise ceiling if it has been calculated
 if isfield(Srf, 'Noise_Ceiling')
     Srf.Data = [Srf.Data; Srf.Noise_Ceiling];

@@ -104,7 +104,6 @@ end
 Srf.Version = samsrf_version;
 
 %% Preprocess data
-% Store raw time courses
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 

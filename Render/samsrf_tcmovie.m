@@ -3,11 +3,21 @@ function samsrf_tcmovie(Srf, Mesh, Thrsh, Paths, CamView, MapType, ColorMap)
 %
 % Displays a cortical mesh overlayed with a timecourse of the either 
 % a) the measured signal or b) the model fit timecourse. Each timepoint is 
-% rendered, and captured to form a movie saved to disk.
+% rendered, and captured to form a movie saved to disk. All parameters
+% should work like in samsrf_surf except the following:
 %
-% MapType = 'signal' or 'model'
+% MapType defines what is projected: 
+%   'Signal':   Srf.Y (assumes any pRF or CF data file)
+%   'Model':    Srf.X (assumes model-based pRF data file)
+%   'Data':     Srf.Data (assumes any other raw data file)
+%
+% ColorMap defines the colour map to use for projecting signal. 
+%   This can either be a 
 %
 % 17/07/2020 - SamSrf 7 version (DSS)
+% 10/07/2021 - Added option to project basic data time courses (DSS)
+%              Fixed some small bugs with loading labels (DSS)
+%              Added option for string colour maps & inversion (DSS)
 %
 
 %% Defaults
@@ -82,7 +92,7 @@ end
 
 % Input
 if isempty(MapType)
-    Values = {'Signal', 'Model'};
+    Values = {'Signal', 'Model', 'Data'};
     dt = listdlg('ListString', Values, 'SelectionMode', 'single');
     if isempty(dt)
         return
@@ -95,6 +105,8 @@ if strcmpi(MapType, 'Signal')
     X = Srf.Y;
 elseif strcmpi(MapType, 'Model')
     X = Srf.X;
+elseif strcmpi(MapType, 'Data')
+    X = Srf.Data;
 end
 
 % Add a dummy timepoint with baseline signal
@@ -119,7 +131,13 @@ if isempty(Paths)
     end
 end
 if ~isempty(Paths) 
+    % Ensure cell array
+    if ~iscell(Paths)
+        Paths = {Paths};
+    end
+    % Vector of path vertices
     Vs_paths = [];
+    % Loop thru paths
     for i = 1:length(Paths)
         if strfind(Paths{i}, '.label')
             % Load label
@@ -163,9 +181,24 @@ end
 Pha = round(X / abs(max(X(:))) * 100) + 100;
 Pha(Pha==0) = 1;
 
+% If colour map is string
+if ischar(ColorMap)
+    % Not explicitly inverted?
+    if ColorMap(1) ~= '-'
+        ColorMap = ['+' ColorMap]; % Label explictly as upright
+    end
+    % Create colour map
+    cmap = eval([ColorMap '(200)']);
+    % Inverted colour map?
+    if ColorMap(1) == '-'
+        cmap = flipud(cmap);
+    end
+    % Now store in original variable
+    ColorMap = cmap;
+end
+
 % Color map
-if isempty(ColorMap)
-    
+if isempty(ColorMap)    
     % Hot/cold colour map
     Cmap = [flipud(colormap(winter(100))); colormap(hot(100)); CurvGrey];
 else
@@ -173,7 +206,7 @@ else
 end
 
 % Loop volumes
-for i = 1:size(X, 1)
+for i = 1:size(X,1)
     Idx = Pha(i,:);
     Idx(:, r|isnan(Idx) | Idx == 100) = 200 + Curv(r | isnan(Idx) | Idx == 100);
     Idx(Idx < 0) = 1;
@@ -181,7 +214,7 @@ for i = 1:size(X, 1)
 end
 
 %% Draw paths
-Colours(Vs_paths,:) = repmat(PathColour, length(Vs_paths), 1);
+Colours(Vs_paths,:,:) = repmat(PathColour, [length(Vs_paths), 1, size(X,1)]);
 
 %% Initial mesh display
 
@@ -230,7 +263,8 @@ vidObj.FrameRate = 5;
 open(vidObj);
 
 % Loop timepoints
-for i = 1:size(X, 1)
+samsrf_progbar(0);
+for i = 1:size(X,1)
 
     % Draw frame
     patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colours(:,:,1), 'FaceColor', 'interp', 'EdgeColor', 'none');
@@ -241,6 +275,9 @@ for i = 1:size(X, 1)
     
     % Write to file
     writeVideo(vidObj, CurrFrame);
+    
+    % Report progress
+    samsrf_progbar(i/size(X,1));
 end
 
 % Close video file

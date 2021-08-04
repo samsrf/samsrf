@@ -81,7 +81,7 @@ end
 axis square
 axis off
 if nanmin(ApFrm(:)) < 0
-    colormap hotcold
+    colormap berlin
     set(gca, 'Clim', [-1 1]);
 else
     colormap gray
@@ -132,7 +132,7 @@ end
 axis square
 axis off
 if nanmin(ApFrm(:)) < 0
-    colormap hotcold
+    colormap berlin
     set(gca, 'Clim', [-1 1]);
 else
     colormap gray
@@ -187,7 +187,7 @@ try
         axis square
         axis off
         if nanmin(ApFrm(:)) < 0
-            colormap hotcold
+            colormap berlin
             set(gca, 'Clim', [-1 1]);
         else
             colormap gray

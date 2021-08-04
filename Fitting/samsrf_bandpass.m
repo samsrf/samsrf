@@ -9,13 +9,14 @@ function cSrf = samsrf_bandpass(Srf, Hz, Tr)
 %
 % 30/06/2021 - Written (DSS)
 % 01/07/2021 - Removed redundant expansion/compression (DSS)
+% 09/07/2021 - Fixed bug when TR is not 1 second (DSS) 
 %
 
 %% Band-pass filter
 cSrf = Srf; % Cleaned Srf
 Y = Srf.Data; % Time courses
 Nt = size(Y,1); % Number of time points
-Cps = round(Hz .* (Nt*Tr)) + 1; % Cycles per time series for each cutoff
+Cps = round(Hz .* (Nt/Tr)) + 1; % Cycles per time series for each cutoff
 Cps(Cps > Nt) = Nt; % Ensure it stays within bounds
 
 disp('Band-pass filtering time series...'); 

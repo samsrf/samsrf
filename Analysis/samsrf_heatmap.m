@@ -4,7 +4,9 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %
 % Plots a heat-color map of the image in Data using the coordinate matrices
 % X and Y (from samsrf_backproj_srclt). It further uses the weights in Wts 
-% to determine the saturation of the colors. Wts defaults to all 1s. 
+% to determine the saturation of the colors. Wts defaults to all 1s. If Wts
+% has two levels (3rd dimension) then the second level contains a greyscale
+% image to be blended with the heat map.
 %
 % Clipping is a vector defining above and below which value data are clipped.
 %  The 3rd value toggles whether clipping should take sign into account.
@@ -16,6 +18,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %  Use 0 for this when you turn weighting off but want a grey (unsaturated) background.
 %  If you Wts is undefined or you provide an empty Wts matrix, the background 
 %  is set to whatever colour 0 is (this is usually fine but may not always be desirable).
+%  If WtSatur is NaN, no further scaling is done & you need to define Wts directly.
 %
 % Cmap, the colour map, defaults to 'berlin'. Prefixing this with '-' inverts
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
@@ -27,6 +30,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 26/06/2021 - Changed default colour map (DSS)
+% 10/07/2021 - Added option to blend image with heat map (DSS)
 %
 
 %% Default inputs
@@ -55,6 +59,15 @@ if length(Clipping) == 1
     Clipping = [Clipping Inf 0];
 elseif length(Clipping) == 2
     Clipping = [Clipping 0];
+end
+
+%% Was greyscale image supplied?
+if size(Wts,3) > 1
+    Grey = Wts(:,:,2); % Use image
+    Wts = Wts(:,:,1);
+else
+    % Uniform grey image
+    Grey = ones(size(Data)) / 2;
 end
 
 %% Clipping data
@@ -121,8 +134,6 @@ else
     Rgb = Cmap;
 end
 colormap(Rgb);
-% Grey image
-Grey = ones(size(Data)) / 2;
 % Convert data to color indeces
 if Clipping(3)
     % If retaining sign for clipping

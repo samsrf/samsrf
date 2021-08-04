@@ -30,6 +30,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 %
 % 18/07/2020 - SamSrf 7 version (DSS)
 % 07/01/2020 - Fixed bug when smoothing concatenated runs (DSS) 
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 if ~exist('dijkstra.m', 'file')
@@ -134,6 +135,7 @@ if isfield(Srf, 'Sphere')
             end
             disp([' Smoothing vertices... (Block #' num2str(j) ')']); 
         end
+        disp(' Please stand by...');
         % Smooth data for each mask vertex
         SmoothedData = zeros(size(Data,1), length(Vs));
         parfor vi = 1:length(Vs) 

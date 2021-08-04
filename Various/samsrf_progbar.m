@@ -5,6 +5,7 @@ function samsrf_progbar(P)
 % Displays a progress bar in the command window with the proportion P being complete. 
 %
 % 30/06/2021 - Written (DSS)
+%
 
 % Empty progress bar
 B = [' Progress: ' repmat('-',1,40)];
@@ -25,3 +26,4 @@ end
 if P == 1
     new_line;
 end
+

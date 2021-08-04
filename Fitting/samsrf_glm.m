@@ -20,6 +20,7 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 27/06/2021 - Changed how design matrix is plotted (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
@@ -97,6 +98,7 @@ end
 
 %% Run linear regression 
 disp('Running GLM on vertices...'); 
+disp(' Please stand by...');
 B = NaN(size(X,2)+1, length(mver));
 parfor v = 1:length(mver)
     if ~isnan(sum(Y(:,mver(v))))

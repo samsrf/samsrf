@@ -36,6 +36,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %  not fully functional (contains no brain structure etc).
 %
 % 02/06/2020 - SamSrf 7 version (DSS) 
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 %% What type of input?
@@ -89,6 +90,8 @@ end
 new_line; 
 
 %% Simulate pRF timecourses
+disp('Simulating data...');
+disp(' Please stand by...');
 Gt = Srf.Ground_Truth; % Ground truth data
 Data = zeros(size(Srf.Data)); % Simulated data
 parfor v = 1:size(Srf.Data,2)

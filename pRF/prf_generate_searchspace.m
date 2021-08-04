@@ -15,6 +15,7 @@ function [Ptc, S] = prf_generate_searchspace(PrfFcn, ApFrm, Param1, Param2, Para
 % These are then internally converted into Cartesian coordinates.
 %
 % 28/06/2020 - SamSrf 7 version (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 if nargin < 8
@@ -39,6 +40,7 @@ end
 S = [S1(:) S2(:) S3(:) S4(:) S5(:)]'; 
 
 % Generating predictions
+disp(' Please stand by...');
 parfor n = 1:numel(S1)
     Rfp = PrfFcn([S1(n) S2(n) S3(n) S4(n) S5(n)], size(ApFrm,1)*2); % pRF profile
     cptc = prf_predict_timecourse(Rfp, ApFrm); % Prediction is in percent of pRF activated

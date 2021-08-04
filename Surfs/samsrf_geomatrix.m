@@ -12,6 +12,7 @@ function Ds = samsrf_geomatrix(V, F, Vs, MaxDist)
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
 % 23/07/2020 - Added support for parallel processing (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 %% Default parameters
@@ -27,6 +28,7 @@ Ds = NaN(N,N);
 
 %% Loop thru vertices
 disp('Calculating distance matrix...');
+disp(' Please stand by...');
 parfor v = 1:N
     [Nv,Nd] = samsrf_georoi(Vs(v), MaxDist, V, F); % Neighbourhood vertices & distances
     X = Inf(1,size(V,1)); % Dummy vector of vertices

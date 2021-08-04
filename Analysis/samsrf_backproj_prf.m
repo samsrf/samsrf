@@ -91,7 +91,8 @@ pRF_Data(4,:) = pRF_Data(4,:) / Eccentricity;
 Response = Response / max(abs(Response(:)));
 
 % Loop through volumes
-parfor t = 1:size(Response,1)
+for t = 1:size(Response,1)
+% parfor t = 1:size(Response,1)
     % Loop through vertices
     Curr = zeros(200,200); % Current response
     Dcur = zeros(200,200);

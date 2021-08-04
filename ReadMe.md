@@ -30,6 +30,18 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.22 (04-08-2021)
+- Forward-modelling connective field now uses 1st eigenvariates (DSS)  
+- New option for polar/eccentricity-definbed patches as CFs (DSS)  
+- Moved smoothing in CF fitting before search space generation (DSS)  
+- Receiving patch size in connective fields can now be adjusted (DSS)  
+- Added parallel computing to forward-model CF coarse fits (DSS)  
+- Fixed bug with bandpass filter function when TR is not 1 second (DSS)  
+- Added option to samsrf_heatmap to blend with an image (DSS)  
+- Changed default colour map in ViewApertures (DSS)  
+- Minor (hopefully cosmetic) change to pRF fitting function (DSS)  
+- Added stand-by message in lieu of progress bar to most parfor loops (DSS)  
+
 ### Version 7.21 (09-07-2021)
 - Fixed catastrophic bug when only allowing positive coarse fits (DSS)  
 - Removed redundant expansion/compression from filtering functions (DSS)  

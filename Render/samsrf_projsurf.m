@@ -16,6 +16,7 @@ function OutSrf = samsrf_projsurf(Srf, Mesh, Img, Eccen, Thrsh, CamView)
 % uses the pixel nearest to the pRF position rather than interpolating. 
 %
 % 10/07/2020 - SamSrf 6 version (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 %% Expand Srf if necessary
@@ -82,6 +83,7 @@ else
     % Calculate overlay
     Colours = NaN(size(Vertices,3),3);
     disp('Projecting pixels to cortical surface...');
+    disp(' Please stand by...');
     parfor v = 1:length(r)
         if ~r(v)
             % Convert image space into visual space

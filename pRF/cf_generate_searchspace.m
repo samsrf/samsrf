@@ -11,6 +11,7 @@ function [Ptc, S] = cf_generate_searchspace(Srf, SeedVx, Sizes)
 % Sizes defines the different CF sizes to fit for each ROI vertex (in geodesic steps).
 %
 % 22/05/2021 - Written (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 % Response time series
@@ -26,12 +27,11 @@ Ptc = NaN(size(Y,1), length(SeedVx)*length(Sizes));
 S = [S1(:) S2(:)]'; 
 
 % Generating predictions
+disp(' Please stand by...');
 parfor n = 1:numel(S1)
-    [Cir,D] = samsrf_georoi(S1(n), S2(n), Srf.Vertices, Srf.Faces); % Circular CF patch
+    Cir = samsrf_georoi(S1(n), S2(n), Srf.Vertices, Srf.Faces); % Circular CF patch
     svx = ismember(Cir,SeedVx); % Vertices in patch overlapping seed ROI
     Cir = Cir(svx); % Patch inside seed ROI
-    D = D(svx); % Corresponding distances of patch vertices
-    W = exp(-(D.^2 / (2*(S2(n)/3).^2)))'; % Gaussian modulation of distance  
     Yc = Y(:,Cir); % Time series in patch
-    Ptc(:,n) = nansum(Yc .* repmat(W,size(Yc,1),1),2) ./ sum(repmat(W,size(Yc,1),1),2); % Weighted mean time series
+    Ptc(:,n) = roi_1steigvar(Yc); % 1st eigenvariate of patch
 end

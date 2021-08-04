@@ -23,6 +23,8 @@ function Template2NativeMap(NatSrf, MeshFolder)
 % 28/03/2021 - Now automatically removes noise ceiling from NatSrf (DSS)
 % 14/04/2021 - Exports anatomical surfaces automatically now (DSS)
 % 10/06/2021 - Now only saves ROI labels if they exist (DSS) 
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+%
 
 % Load native map
 load(NatSrf);
@@ -65,6 +67,7 @@ Srf.Values = TmpSrf.Values;
 %% Vertex assignments
 t0 = tic;
 disp('Warping template into native surface...');
+disp(' Please stand by...');
 Sva = NaN(1,NtgtVx); % Source vertex assignment
 parfor v = 1:NtgtVx
     % Vector from current target vertex to all source vertices

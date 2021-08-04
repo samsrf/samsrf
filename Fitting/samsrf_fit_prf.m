@@ -25,6 +25,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
+% 11/07/2021 - Minor change which should be inconsequential - famous last words... (DSS) 
 %
 
 %% Defaults & constants
@@ -142,7 +143,6 @@ end
 Srf.Version = samsrf_version;
 
 %% Preprocess data
-% Store raw time courses
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 % Do aperture & data length match?
@@ -261,9 +261,8 @@ else
       	 mR = max(R,[],2); % Find best fit
       end
       for v = 1:length(vx)
-          rx = find(R(v,:) == mR(v)); % Matrix position of best prediction
+          rx = find(R(v,:) == mR(v),1); % Matrix position of best prediction
           if ~isempty(rx)
-              rx = rx(1); % Only first instance 
               % Store prediction
               Srf.X(:,vx(v)) = X(:,rx);  % Best fitting prediction
               % Store parameters

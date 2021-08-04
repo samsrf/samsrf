@@ -13,6 +13,7 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 26/06/2021 - Added support for parallel computing (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 %% Default parameters
@@ -67,6 +68,7 @@ if isfield(Srf, 'Sphere')
             disp(['   Calculating field signs... (Block #' num2str(j) ')']); 
         end
         fsD = zeros(1,length(Vs));
+        disp('    Please stand by...');
         parfor vi = 1:length(Vs)
             v = Vs(vi);
             % Vertices in geodesic ROI within radius 

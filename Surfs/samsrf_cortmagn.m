@@ -18,6 +18,7 @@ function Srf = samsrf_cortmagn(Srf, Roi)
 %
 % 17/07/2020 - SamSrf 7 version (DSS)
 % 23/10/2020 - Added support for parallel computing (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 %% Default parameters
@@ -43,6 +44,7 @@ Ctx = Ctx(mver); % Limit to ROI
 Vis = zeros(1,length(mver));
 Cmf = zeros(1,length(mver));
 disp('Calculating cortical magnification factors...');
+disp(' Please stand by...');
 t0 = tic;
 parfor v = 1:length(mver)
     if Srf.Data(1,mver(v)) >= 0.01  % No point doing this for crappy vertices

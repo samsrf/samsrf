@@ -9,6 +9,7 @@ function cSrf = samsrf_removenoise(Srf, X)
 % 29/06/2020 - SamSrf 7 version (DSS)
 % 24/05/2021 - Improved speed & removed expansion/compression (DSS)
 % 01/07/2021 - Removed utterly redundant expansion/compression again (DSS)
+% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 %
 
 %% Regression analysis
@@ -23,6 +24,7 @@ R = Y - mY; % Residuals
 
 % Loop thru vertices
 disp('Regressing out noise...'); 
+disp(' Please stand by...');
 Data = zeros(size(cSrf.Data));
 clear Srf
 parfor v = 1:Nv
