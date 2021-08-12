@@ -5,10 +5,11 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 % Fits a 2D pRF profile to the observed pRF profile. 
 %
 %   Rmap:       A reverse correlation pRF profile in square format (usually 50x50 pixels)
+%               You can use the prf_contour function to generate that.
 %
 %   PrfFcn:     Any 2D pRF function included in SamSrf or one you made yourself
 %               Use like in model-based pRF mapping so for example for standard 2D Gaussian:
-
+%
 %                   PrfFcn = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth)
 %
 %   SeedParams: A row vector to seed the parameter optimisation procedure 
@@ -29,6 +30,8 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 % If no output arguments are defined, the observed and modelled profiles are plotted.
 %
 % 26/06/2020 - SamSrf 7 version (DSS)
+% 10/08/2021 - Fixed help section (DSS)
+% 11/08/2021 - Reverted back to enforcing complete vector of seed parameters (DSS)         
 
 % Check seed parameters are row vector 
 if size(SeedParams,2) == 1
@@ -36,7 +39,7 @@ if size(SeedParams,2) == 1
 end
 % Check scaling vector matches seed parameter vector
 if length(SeedParams) ~= length(EccScaPars)-1
-    error('Mismatch betwen seed parameter vector & scaling vector!');
+    error('Length of seed parameter vector mismatches scaling vector!');
 end
 
 % Side length

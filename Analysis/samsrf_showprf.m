@@ -16,6 +16,7 @@ function samsrf_showprf(SrfEcc, IdxMat, Mode)
 %   Mode:   Whether to plot a contour plot ('C'), a surface plot ('S'), or a 3D scatter plot ('D')
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 06/08/2021 - Increase granularity of colour scheme (DSS)
 %
 
 if nargin < 3
@@ -47,7 +48,7 @@ end
 
 %% Plot data
 if Mode == 'C'
-    contourf(Xc, Yc, IdxMat, 100, 'EdgeColor', 'none');
+    contourf(Xc, Yc, IdxMat, 500, 'EdgeColor', 'none');
     axis square
 elseif Mode == 'S'
     surf(Xc, Yc, IdxMat, 'EdgeColor', 'none', 'FaceColor', 'interp');

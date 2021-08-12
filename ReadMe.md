@@ -30,6 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.3 (12-08-2021)  
+- New option to fit 2D pRF models to reverse correlation profiles (DSS)  
+- Increase granularity of colour scheme in samsrf_showprf (DSS)  
+- Updated example colour code images to new defaults (DSS)  
+
 ### Version 7.22 (04-08-2021)
 - Forward-modelling connective field now uses 1st eigenvariates (DSS)  
 - New option for polar/eccentricity-definbed patches as CFs (DSS)  

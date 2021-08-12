@@ -33,6 +33,9 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 29/03/2021 - Fixed horrendous bug when fitting bilateral surface meshes (DSS)    
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
+% 10/08/2021 - New option to fit 2D pRF models to pRF reverse correlation profiles (DSS)
+% 11/08/2021 - Seed parameters must now be generated with a function (DSS)
+% 12/08/2021 - Added completion time for pRF parameter fitting (DSS)
 %
 
 %% Defaults & constants
@@ -200,7 +203,8 @@ for v = 1:length(mver)
     samsrf_progbar(v/length(mver));
 end
 t2 = toc(t0); 
-disp(['Analysis completed in ' num2str(t2/60) ' minutes.']);
+disp(['pRF profiles completed in ' num2str(t2/60) ' minutes.']);
+new_line;
 
 % Coordinates for contour/surf plots
 Xc = imresize(xc,[Model.Rdim Model.Rdim]); 
@@ -222,7 +226,70 @@ if isfield(Srf, 'Noise_Ceiling')
     Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
 end
 
-% Save map files
+%% Fit 2D pRF models?
+if isfield(Model, 'Prf_Function')
+    disp('Fitting pRF models to reverse correlation profiles...');
+    Srf.Raw_Data = Srf.Data; % Store reverse correlations in raw data
+    Srf.Raw_Values = Srf.Values; % Also store value names cause they'll change
+    Srf.Values = {}; % Clear value field
+    % Only continue if parameter names defined
+    if isfield(Model, 'Param_Names') 
+        Srf.Values{1} = 'R^2'; % Goodness of model fit
+        Srf.Values(2:length(Model.Param_Names)+1) = Model.Param_Names; % pRF parameters
+        Srf.Values{end+1} = 'Beta'; % Amplitude 
+        Srf.Values{end+1} = 'Baseline'; % Baseline
+        Srf.Values = Srf.Values'; % Ensure not row vector
+        % Initialise data field
+        Srf.Data = NaN(length(Srf.Values), size(Srf.Raw_Data,2));
+    else
+        error('No pRF parameter names defined!');
+    end
+    
+    % Which reverse correlation data to include?
+    if ~isfield(Model, 'R2_Threshold')
+        Model.R2_Threshold = 0;
+    end
+    disp([' Using reverse correlations profiles with R^2 > ' num2str(Model.R2_Threshold)]);
+    gof = find(Srf.Raw_Data(1,:) > Model.R2_Threshold); % Vertices with good reverse correlation profiles 
+   
+    % Are scaled parameters defined?
+    if ~isfield(Model, 'Scaled_Param')
+        error('Scaled parameters are not defined!');
+    end
+    
+    % Is seed parameter function provided?
+    if ~isfield(Model, 'SeedPar_Function')
+        error('Seed parameter function is undefined!');
+    end
+    disp('Seeding parameters using:');
+    disp(Model.SeedPar_Function);
+    
+    % Fit 2D models
+    samsrf_progbar(0);
+    for i = 1:length(gof)
+        v = gof(i); % Current vertex
+        [fP,fR] = samsrf_fit2dprf(prf_contour(Srf,v), Model.Prf_Function, Model.SeedPar_Function(Srf.Raw_Data(:,v)), [Model.Scaling_Factor Model.Scaled_Param], ApFrm); % Fit 2D model
+        % Is good fit?
+        KeepFit = true;  
+        for p = 1:length(Model.Param_Names)
+            if Model.Scaled_Param(p)
+                if abs(fP(p)) > Model.Scaling_Factor*1.5
+                    KeepFit = false;
+                end
+            end
+        end
+        % Only store good fits
+        if KeepFit
+            Srf.Data(:,v) = [fR fP]';
+        end
+        samsrf_progbar(i/length(gof));
+    end
+    t3 = toc(t0); 
+    disp(['pRF parameter fitting completed in ' num2str(t3/60) ' minutes.']);
+end
+new_line;
+
+%% Save map files
 disp('Saving pRF results...');
 Srf = samsrf_compress_srf(Srf, mver);
 OutFile = [OutFile '_Rcp'];
@@ -230,8 +297,8 @@ save(OutFile, 'Model', 'Srf', '-v7.3');
 disp(['Saved ' OutFile '.mat']); 
 
 % End time
-t3 = toc(t0); 
-EndTime = num2str(t3/60);
+t4 = toc(t0); 
+EndTime = num2str(t4/60);
 new_line; disp(['Whole analysis completed in ' EndTime ' minutes.']);
 disp('******************************************************************');
 new_line; new_line;
