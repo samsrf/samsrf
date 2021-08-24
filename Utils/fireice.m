@@ -12,6 +12,7 @@ if nargin == 0
 end
 s = res / 4; % Steps from one colour to the next
 
+% Combine ice with fire colour map
 cmap = [linspace(.25,0,s)' linspace(1,0,s)' linspace(.75,1,s)'; ...
         zeros(s,2) linspace(1,0,s)'; ...
         fire(2*s)]; 
