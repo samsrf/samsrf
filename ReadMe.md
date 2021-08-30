@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.301 (25-08-2021)  
+### Version 7.302 (25-08-2021)  
+- Template maps can now contain ROI names for flexibility (DSS)  
 - Added new fireice colour map similar to hotcold (DSS)  
 
 ### Version 7.3 (12-08-2021)  

@@ -24,6 +24,7 @@ function Template2NativeMap(NatSrf, MeshFolder)
 % 14/04/2021 - Exports anatomical surfaces automatically now (DSS)
 % 10/06/2021 - Now only saves ROI labels if they exist (DSS) 
 % 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 30/08/2021 - Template maps can now contain a field with region names (DSS) 
 %
 
 % Load native map
@@ -86,7 +87,12 @@ Srf.Data = TmpSrf.Data(:,Sva);
 %% Save Srf & ROIs
 save([Srf.Hemisphere '_temp_map'], 'Srf');
 samsrf_anatomy_srf([Srf.Hemisphere '_temp_map']);
-Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
+if ~isfield(TmpSrf, 'Roi_Names')
+    warning('No ROI names defined in template map - assuming default names...');
+    Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
+else
+    Rois = TmpSrf.Roi_Names; 
+end
 mkdir('ROIs_temp_map');
 for r = 1:length(Rois)
     rvx = find(Srf.Data(5,:)==r);
