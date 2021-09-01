@@ -36,6 +36,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 10/08/2021 - New option to fit 2D pRF models to pRF reverse correlation profiles (DSS)
 % 11/08/2021 - Seed parameters must now be generated with a function (DSS)
 % 12/08/2021 - Added completion time for pRF parameter fitting (DSS)
+% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 %
 
 %% Defaults & constants
@@ -98,7 +99,7 @@ new_line;
 if isfield(Srf, 'Noise_Ceiling')
     if Model.Noise_Ceiling_Threshold > 0
         mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
-        disp(['Limiting analysis to ' num2str(size(mver,1)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
         new_line;
     end
 end

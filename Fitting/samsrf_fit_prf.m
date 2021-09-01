@@ -26,6 +26,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
 % 11/07/2021 - Minor change which should be inconsequential - famous last words... (DSS) 
+% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 %
 
 %% Defaults & constants
@@ -134,7 +135,7 @@ new_line;
 if isfield(Srf, 'Noise_Ceiling')
     if Model.Noise_Ceiling_Threshold > 0
         mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
-        disp(['Limiting analysis to ' num2str(size(mver,1)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
         new_line;
     end
 end
