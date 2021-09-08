@@ -30,11 +30,12 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.304 (07-09-2021)  
+### Version 7.305 (08-09-2021)  
 - Template maps can now contain ROI names for flexibility (DSS)  
 - Added new fireice colour map similar to hotcold (DSS)  
 - Fixed inconsequential bug with reporting noise ceiling threshold (DSS)  
 - Updated cookbook (DSS)  
+- Finally fixed issue with symbol size in scatter plots (DSS)  
 
 ### Version 7.3 (12-08-2021)  
 - New option to fit 2D pRF models to reverse correlation profiles (DSS)  

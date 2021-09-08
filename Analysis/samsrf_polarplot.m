@@ -1,32 +1,16 @@
-function Res = samsrf_polarplot(Srf, Roi, Scale, Val, Thr)
+function [Res, h] = samsrf_polarplot(Srf, Roi, Val, Thr)
 %
-% Res = samsrf_polarplot(Srf, [Roi='', Scale=10, Val='Sigma', Thr=[0.01 0 Inf]])
+% [Res, h] = samsrf_polarplot(Srf, [Roi='', Val='Sigma', Thr=[0.01 0 Inf]])
 %
 % Plots the pRFs inside a ROI as a scatter plot projected to the visual field. 
 %
 % ROI can be a string pointing to a ROI label or a vector of vertices.
 %
-% The X and Y coordinates are correct, but the exact size of the pRFs must 
+% Note: The X and Y coordinates are correct, but the exact size of the pRFs must 
 % be calibrated because of the incredibly stupid way Matlab handles marker sizes. 
-%
-% The optional input argument Scale defines the number of points for a
-% symbol of size 1. This is necessary if you want the size of symbols to
-% truely reflect the sigma of the vertex. This depends on the axis limits 
-% you choose, on the size of the figure, and most likely also differs for
-% different computers. To calibrate it, set this to a negative number:
-%
-%   samsrf_polarplot(Srf,'',-15,'Sigma');
-%
-% This will plot a red circle with the (absolute) width you defined. You
-% need to change this number until the circle fits snugly into the small 
-% square around the origin defined by the dotted lines. This is the 
-% calibrated width. When using this as a positive number will plot the data 
-% with this width. 
-%
-% If you subsequently want to rescale the axis limits, you will have to 
-% multiply the calibrated width by that factor: for example, if the axes
-% go up to 25 deg and you want to rescale the axis so they only go up to 
-% 5 deg, you will need to multiply the width with 5.
+% This function does this automatically but you will need to do this again
+% if you rescale the figure. To do so you simply need to run scatter_size(h) 
+% where h is the handle to the scatter plot (second output of this function).
 %
 % By default the colour of each circle also codes for the sigma though and 
 % can be read off the colourbar. The optional input argument Val defines 
@@ -43,18 +27,16 @@ function Res = samsrf_polarplot(Srf, Roi, Scale, Val, Thr)
 %   where Value stands for the value you plotted in the colour code.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 08/09/2021 - Finally fixed the issue with plotting pRF size properly (DSS)
 %
 
 if nargin < 2
     Roi = '';
 end
 if nargin < 3
-    Scale = 10;
-end
-if nargin < 4
     Val = 'Sigma';
 end
-if nargin < 5
+if nargin < 4
     Thr = 0.01;
 end
 
@@ -139,21 +121,13 @@ D = D(sx);
 
 %% Polar plot
 figure('name', Val);
-h = scatter(X, Y, (S*abs(Scale)).^2, D, 'filled');
+h = scatter(X, Y, S, D, 'filled');
+scatter_size(h);
 alpha(h, 0.1);
 Ecc = max([abs(X)+max(S) abs(Y)+max(S)]);
-if Scale < 0
-    scatter(0, 0, abs(Scale).^2, 'r');
-end
 axis([-Ecc Ecc -Ecc Ecc]);
 set(gca, 'fontsize', 12);
 hold on
-if Scale < 0
-    line(xlim, +[1 1], 'color', 'k', 'linestyle', ':');
-    line(xlim, -[1 1], 'color', 'k', 'linestyle', ':');
-    line(+[1 1], ylim, 'color', 'k', 'linestyle', ':');
-    line(-[1 1], ylim, 'color', 'k', 'linestyle', ':');
-end
 line(xlim, [0 0], 'color', 'k')
 line([0 0], ylim, 'color', 'k')
 axis square
