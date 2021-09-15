@@ -83,7 +83,7 @@ load(SrfName);
 [Srf, vx] = samsrf_expand_srf(Srf);
 
 % What ROI to display
-if RoiName(1) == '<' || RoiName(1) == '>'
+if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
     % If ROI defined by coordinates
     if length(RoiName) == 1
         error('You must define inflated mesh coordinate in def_disproi!');
@@ -133,7 +133,7 @@ end
 % Check if field sign exists
 if sum(strcmpi(Srf.Values, 'Field Sign')) == 0
     IsFsMap = false;
-    FsMapName = 'Beta map';
+    FsMapName = 'R^2 map';
 else
     FsMapName = 'Field Sign map';
 end
@@ -142,7 +142,7 @@ end
 if isfield(Srf, 'Y')  
     % If time course is saved
     Tval = tinv(1 - Pval/2, size(Srf.Y,1)-2); % t-statistic for this p-value
-    R = sign(Tval) .* (abs(Tval) ./ sqrt(size(Srf.Y,1)-2 + Tval.^2)); % Convert t-testistic into correlation coefficient
+    R = sign(Tval) .* (abs(Tval) ./ sqrt(size(Srf.Y,1)-2 + Tval.^2)); % Convert t-statistic into correlation coefficient
     R2 = R.^2; % Variance explained 
 else
     % Just default to zero
@@ -324,7 +324,7 @@ Vs = [];
 if LoadSavedDelins
     % Load any previously saved paths
     if exist(['del_' SrfName '.mat'], 'file')
-        Vs = samsrf_loadpaths(['del_' SrfName '.mat']);
+        [Vs, Paths] = samsrf_loadpaths(['del_' SrfName '.mat']);
         disp('Loaded previously saved paths.');
     end
 else
@@ -350,7 +350,7 @@ if def_cmap_eccen(1) == '-'
 end
 figure; Cmap = [Cmap; CurvGrey]; close
 EccRgb = Cmap(Pha,:);
-EccRgb(Vs,:) = repmat(BlackPath, size(Vs,1), 1); % Draw paths
+EccRgb(Vs,:) = repmat(WhitePath, size(Vs,1), 1); % Draw paths
 
 % Polar map
 Pha = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
@@ -383,8 +383,8 @@ if IsFsMap
     FsRgb(Fs'==+1,:) = (FsRgb(Fs'==+1,:) + repmat([1 0 0],sum(Fs==+1),1)) / 2;
     FsRgb(Vs,:) = repmat(YellowPath, size(Vs,1), 1); % Draw paths
 else
-    % Activation data
-    Fs = Srf.Data(end, :);
+    % Custom activation data
+    Fs = Srf.Data(1,:);
     Fs(Srf.Data(1,:) <= R2Thrsh | isnan(Rho)) = NaN;
     Thrsh = prctile(abs(Fs), ActPrct);
     Fs(Fs>0 & Fs<Thrsh(1)) = Thrsh(1);
@@ -395,7 +395,7 @@ else
     Fs(Fs<0) = Fs(Fs<0) + Thrsh(1);
     mThr = Thrsh - Thrsh(1);
     Pha = round(Fs / abs(mThr(2)) * 100) + 100;
-    Cmap = [flipud(colormap(winter(100))); colormap(hot(100)); CurvGrey];
+    Cmap = [berlin(200); CurvGrey];
     Pha(Pha==0) = 1;
     Pha(r|isnan(Pha)|Pha==100) = 200 + Curv(r|isnan(Pha)|Pha==100);
     FsRgb = Cmap(Pha,:);

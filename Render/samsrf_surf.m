@@ -50,7 +50,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % MapType is a string containing the name of the data entry to display
 %  (e.g. 'Polar', 'Eccentricity', 'R^2', etc.). It can also be a scalar in
 %  which case it will use this as the index for Srf.Data and Srf.Values.
-%  If undefined, the function opens a selection dialog.
+%  If undefined, the function opens a selection dialog. 
 %
 % PatchHandle is the handle to the patch with the mesh returned by the function.
 %  By adding this to the input arguments the figure will simply update the
@@ -72,6 +72,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %              Added some more documentation to the help section (DSS)
 % 18/05/2021 - Added rendering options for half-way inflation (DSS)
 % 21/05/2021 - Now uses scaled transparency for connective field profiles (DSS)
+% 14/09/2021 - Fixed camera bug when redrawing maps (DSS)
+% 16/09/2021 - Colour scheme for ROI numbers is now default for generic activity maps (DSS)
 %
 
 %% Create global variables
@@ -467,7 +469,7 @@ elseif strcmpi(Type, 'Mu')
         PathColour = [0 0 0];  
     end
     
-elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual Area') || strcmpi(Type, 'Spread') || strcmpi(Type, 'ROI') ...
+elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual Area') || strcmpi(Type, 'Spread') ...
         || strcmpi(Type, 'Centre') || strcmpi(Type, 'Surround') || strcmpi(Type, 'Sigma1') || strcmpi(Type, 'Sigma2') 
     % pRF size map
     Sigma = Srf.Data(dt,:);
@@ -612,10 +614,13 @@ if nargin < 5 || isempty(CamView)
         end
     end
 end
-set(gca, 'view', CamView(1:2));
-zoom(CamView(3));
-set(gca, 'projection', 'perspective');
-daspect([1 1 1]); % Correct aspect ratio
+% Don't update view if simply redrawing 
+if nargin < 7
+    set(gca, 'view', CamView(1:2));
+    zoom(CamView(3));
+    set(gca, 'projection', 'perspective');
+    daspect([1 1 1]); % Correct aspect ratio
+end
 
 %% Vertex selection hack
 dcm_obj = datacursormode(fh);

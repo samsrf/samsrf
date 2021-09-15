@@ -1,16 +1,19 @@
-function Vs = samsrf_loadpaths(Paths)
+function [Vs, Paths] = samsrf_loadpaths(PathFileName)
 %
-% Loads the vertex indeces of FreeSurfer paths in file Paths into Vs.
+% Loads the vertex indeces of FreeSurfer paths in file PathName into Vs.
+% The second output argument Paths contains the Paths cell array if PathFileName
+% is a delineation file from DelineationTool. Otherwise this is empty.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 15/09/2021 - Changed input argument name due to potential conflict with global variable (DSS)
 %
 
-if ~isempty(Paths)
-    [~,~,ext] = fileparts(Paths);
+if ~isempty(PathFileName)
+    [~,~,ext] = fileparts(PathFileName);
     if strcmpi(ext, '.mat')
-        load(Paths);
+        load(PathFileName);
     else
-        fid = fopen(Paths);
+        fid = fopen(PathFileName);
         cp = textscan(fid, repmat('%n',1,4), 'headerlines',4);
         cp = cell2mat(cp);
         Vs = cp(:,4)+1;
@@ -22,7 +25,9 @@ if ~isempty(Paths)
         end
 
         fclose(fid);
+        Paths = {};
     end
 else
     Vs = [];
+    Paths = {};
 end
