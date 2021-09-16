@@ -30,9 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.394 (16-09-2021)  
+### Version 7.399 (16-09-2021)  
 - Created AutoDelineation function - but not yet tested on a lot of maps (DSS)  
-- DelienationTool now displays R^2 or nR^2 by default if no field sign exists (DSS)  
+- DelineationTool loads auto-delineations if no manually saved paths exist (DSS)  
+- DelineationTool now displays R^2 or nR^2 by default if no field sign exists (DSS)  
 - Template maps can now contain ROI names for flexibility (DSS)  
 - Added new fireice colour map similar to hotcold (DSS)  
 - Fixed inconsequential bug with reporting noise ceiling threshold (DSS)  

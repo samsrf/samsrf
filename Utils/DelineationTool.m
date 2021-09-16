@@ -325,7 +325,12 @@ if LoadSavedDelins
     % Load any previously saved paths
     if exist(['del_' SrfName '.mat'], 'file')
         [Vs, Paths] = samsrf_loadpaths(['del_' SrfName '.mat']);
-        disp('Loaded previously saved paths.');
+        disp('Loaded saved delineation for this map.');
+    elseif exist(['autodel_' SrfName '.mat'], 'file')
+        [Vs, Paths] = samsrf_loadpaths(['autodel_' SrfName '.mat']);
+        disp('Loaded auto-delineation for this map.');
+    else
+        disp('No delineations exist yet for this map.');
     end
 else
     % Retrieve path vertices

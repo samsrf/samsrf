@@ -1,49 +1,51 @@
-function AutoDelineation(SrfName, NatMesh, TmpMesh, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad)
+function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad)
 %
-% AutoDelineation(Srf, NatMesh, TmpMesh, [R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad])
+% AutoDelineation(Srf, NatMesh, TmpMesh, [Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad])
 %
-% Fits the borders of visual regions V1-V3A/V4. It shows a movie of the 
-% process so you can see how well it's going. Then it saves a delineation 
-% file del_SrfName that you can use in DelineationTool for labelling ROIs.
+% Simple algorithm to fits the borders of visual regions. It shows a movie 
+% of the search process so you can see how well it's going. Then it saves a 
+% delineation file autodel_SrfName that you can load in DelineationTool. 
 % 
 % THIS IS NOT A MAGIC WANT! You -must- inspect the maps in DealineationTool 
-% & probably manually correct some smaller errors. Also, this algorithm 
-% expects gentle retinotopic map gradients, so you probably need to heavily 
-% smooth (spherical FWHM of 5-10mm?) your maps (see also samsrf_surfcalcs).
+% & probably manually correct some smaller errors. You still need to label
+% the regions manually (there may be another tool for that though...).
+% Also, this algorithm expects gentle retinotopic map gradients, so you 
+% probably need to heavily smooth (spherical FWHM of 5-10mm?) your maps &
+% apply other filtering (see also samsrf_surfcalcs for example).
 %
-% The automatic delineation is based on the visual field meridians of a 
-% group average map normalised to the fsaverage template. These initial
-% borders are stored in lh/rh_WayPoints.mat in SamSrf/Utils. This contains
-% waypoints for the meridians, ordered from the foveal confluence outwards
-% into the periphery & by ascending visual area. 
+% The automatic delineation is based on the visual field atlas normalised 
+% to the fsaverage template. These initial borders are stored in an atlas 
+% file called AutoDelinAtlas_[Atlas].mat in SamSrf/Utils. These files 
+% contain waypoints for cardinal meridians & some iso-eccentricity lines. 
 %
 % The algorithm works as follows:
-%   1.  The waypoints comprising the normalised meridians are warped back
+%   1.  The waypoints comprising the normalised borders are warped back
 %       into native brain space (so you need the fsaverage template).
 %   2.  Your retinotopic map is restricted to a particular range, using a
 %       goodness-of-fit threshold & minimum & maximum eccentricity.
-%   3.  The algorithm then searches the geodesic neighbourhood of each
-%       waypoint for the maximum/minimum polar angle (depends on which 
-%       meridian it is fitting). This search is constrained by being
-%       limited to the eccentriity band of its original position (the width
-%       of this band is adjustable). It is also constrained by the fact
-%       that the algorithm expects a minimum Euclidean distance in sphere 
-%       space from each waypoints to all others. 
-%   4.  The search process is repeated for several iterations (adjustable).
+%   3.  A path surrounding the whole thresholded region is also created to
+%       estimate the initial location of the peripheral extent of the map.
+%   4.  The algorithm then searches the geodesic neighbourhood of each
+%       waypoint for the best pRF (depends on which border it is fitting). 
+%       This search is constrained by being limited to the eccentriity band 
+%       of its original position (the width of this band is adjustable). 
+%       It is also constrained by expecting 0.5 mm minimum Euclidean 
+%       distance in sphere space between all waypoints. 
+%   5.  The search process is repeated for several iterations (adjustable).
 %       The size of the search region is gradually reduced from InitRad 
 %       geodesic steps down to 1 step over the course of Niter iterations.
-%   5.  Upon completion of the search process, the waypoints in each
-%       meridian are connected into complete paths. 
-%   6.  A path surrounding the whole thresholded region is also created.
-%   7.  The end points of the meridian lines are then connected to this
-%       surrounding path to complete the regional boundaries.
+%   6.  Upon completion of the search process, the waypoints in each path 
+%       are connected into complete paths. 
+%   7.  The end points of the meridian lines are then connected to the
+%       foveal & peripheral borders as appropriate.
 %   8.  Finally, the paths are expanded to be compatible with region
 %       filling in the DelineationTool & the delineation file is saved.
 %
-% The default thresholds & number of iterations was chosen based on my test
-% data. You may need to tweak this for your own needs. It should be robust
-% to relatively small differences in designs but it obviously cannot do a
-% great job if you used a much larger field of view for instance.
+% The default thresholds & number of iterations was defined by the atlas
+% you are using. You may need to tweak this for your own needs. It should 
+% be somewhat robust to relatively small differences in designs but it 
+% obviously cannot do a great job if you used a much larger field of view
+% than the atlas allows for.
 %
 % The parameters used are saved in the delineation file for posterity.
 % Even though you may need to correct & adjust the automatic delineation,
@@ -56,6 +58,7 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, R2Thresh, MinEcc, MaxEcc, Ec
 %   TmpMesh:    Template's surf folder which must contain lh/rh.sphere
 %
 % Optional additional input arguments:
+%   Atlas:      Atlas waypoints & parameters (default = 'InfernoSerpents')
 %   R2Thresh:   R^2 threshold (default = 0.1)
 %   MinEcc:     Central eccentricity limit (default = 0.5)
 %   MaxEcc:     Peripheral eccentricity limit (default = 9)
@@ -63,7 +66,7 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, R2Thresh, MinEcc, MaxEcc, Ec
 %   Niter:      Number of search iterations (default = 20)
 %   InitRad:    Initial search radius (default = 2)
 %
-% 16/09/2021 - Completed (DSS)
+% 16/09/2021 - Completed fully functional version (DSS)
 %
 
 %% ROIs in delineation file (Change at your own leisure/peril!) %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% 
@@ -71,38 +74,64 @@ RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2'
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% 
 
 %% Parameters
-RoiSeeds = NaN(length(RoiList),1); % Initialise list of ROI seed vertices
-if nargin < 4 
-    R2Thresh = 0.1; % Goodness-of-fit threshold
+if nargin < 4
+    Atlas = 'InfernoSerpents';
 end
+if ~exist(['AutoDelinAtlas_' Atlas '.mat'], 'file')
+    error(['Auto-delineation atlas ' Atlas ' does not exist on the path!']);
+end
+AtlasData = load(['AutoDelinAtlas_' Atlas '.mat']);
+% Assign default parameters from atlas file
+RoiSeeds = NaN(length(RoiList),1); % Initialise list of ROI seed vertices
 if nargin < 5 
-    MinEcc = 0.5; % Minimal eccentricity
+    R2Thresh = AtlasData.R2Thresh; % Goodness-of-fit threshold
 end
 if nargin < 6 
-    MaxEcc = 9; % Maximal eccentricity
+    MinEcc = AtlasData.MinEcc; % Minimal eccentricity
 end
 if nargin < 7 
-    EccBw = 0.5; % Eccentricity band width
+    MaxEcc = AtlasData.MaxEcc; % Maximal eccentricity
 end
-if nargin < 8
-    Niter = 20; % Number of search iterations
+if nargin < 8 
+    EccBw = AtlasData.EccBw; % Eccentricity band width
 end
 if nargin < 9
-    InitRad = 2; % Initial search radius
+    Niter = AtlasData.Niter; % Number of search iterations
+end
+if nargin < 10
+    InitRad = AtlasData.InitRad; % Initial search radius
 end
 new_line;
-disp('SamSrf - Automatic delineation tool');
+
+%% Welcome message
+[vn vd] = samsrf_version;
+clc; 
+disp('****************************************************************************');
+disp('   Welcome to the Seriously Annoying MatLab Surfer Auto-Delineation Tool!');
+disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+new_line;
+disp(['                 Version ' num2str(vn) ', Released on ' vd]);
+disp('      (see SamSrf/ReadMe.md for what is new in this version)');
+disp('****************************************************************************');
+new_line;
+disp(['Delineating map:         ' SrfName]);
+Rois = '';
+for i = 1:length(AtlasData.Rois)
+    Rois = [Rois ' ' AtlasData.Rois{i}];
+end
+disp(['Atlas:                   ' Atlas ':' Rois]);
+new_line;
+disp('Parameters:')
 disp([' R^2 threshold:          ' num2str(R2Thresh)]);
 disp([' Minimum eccentricity:   ' num2str(MinEcc)]);
 disp([' Maximum eccentricity:   ' num2str(MaxEcc)]);
 disp([' Eccentricity bandwidth: ' num2str(EccBw)]);
 disp([' Number of iterations:   ' num2str(Niter)]);
 disp([' Initial search radius:  ' num2str(InitRad)]);
-% mkdir('Png');
 
 %% Load map
 new_line;
-disp(['Loading map ' SrfName '.mat...']);
+disp('Loading map...');
 load(SrfName, 'Srf');
 Srf = samsrf_expand_srf(Srf);
 if ~isfield(Srf, 'Values')
@@ -167,7 +196,13 @@ else
 end
 
 %% Load waypoints
-Wpts = load([Srf.Hemisphere '_WayPoints']);
+if upper(Srf.Hemisphere(1)) == 'L'
+    Wpts = AtlasData.Lhem; % Left hemisphere waypoints
+elseif upper(Srf.Hemisphere(1)) == 'R'
+    Wpts = AtlasData.Rhem; % Right hemisphere waypoints
+else
+    error('Auto-delineation tool currently only works for left & right surface meshes!');
+end
 NatWpts = Wpts; % Waypoints after warping
 PathTypes = fieldnames(Wpts);
 
@@ -429,13 +464,16 @@ for p = 1:length(Paths)
 end
 
 %% Save delineation
-AutoDelinParams = struct;
-AutoDelinParams.R2_Threshold = R2Thresh;
-AutoDelinParams.Min_Eccentricity = MinEcc;
-AutoDelinParams.Max_Eccentricity = MaxEcc;
-AutoDelinParams.Eccentricity_Bandwidth = EccBw;
-AutoDelinParams.Number_of_Iterations = Niter;
-AutoDelinParams.Initial_Search_Radius = InitRad;
+AutoDelin = struct;
+AutoDelin.Atlas = Atlas; % Atlas used for auto-delineation
+AutoDelin.Version = samsrf_version; % SamSrf version of this atlas
+AutoDelin.R2_Threshold = R2Thresh; % Goodness-of-fit threshold
+AutoDelin.Min_Eccentricity = MinEcc; % Minimal eccentricity
+AutoDelin.Max_Eccentricity = MaxEcc; % Maximal eccentricity
+AutoDelin.Eccentricity_Bandwidth = EccBw; % Eccentricity band width
+AutoDelin.Number_of_Iterations = Niter; % Number of iterations
+AutoDelin.Initial_Search_Radius = InitRad; % Initial search radius
+AutoDelin.Paths = DrawPaths(1:end-1); % Save autodelineated paths without expansion
 % Vector with all path vertices 
 Vs = [];
 for i = 1:length(Paths)
@@ -443,8 +481,8 @@ for i = 1:length(Paths)
 end
 % Saves everything to disc
 new_line;
-save(['del_' SrfName], 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds', 'AutoDelinParams');
-disp(['Saved auto-delineation del_' SrfName '.mat']);
+save(['autodel_' SrfName], 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds', 'AutoDelin');
+disp(['Saved auto-delineation autodel_' SrfName '.mat']);
 
 %% Display final delineation
 samsrf_surf(Srf, 'Sphere', [R2Thresh 0 0 MinEcc MaxEcc -.1], DrawPaths, '', 'Polar', h);
