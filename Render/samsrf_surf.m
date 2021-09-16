@@ -74,6 +74,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 21/05/2021 - Now uses scaled transparency for connective field profiles (DSS)
 % 14/09/2021 - Fixed camera bug when redrawing maps (DSS)
 % 16/09/2021 - Colour scheme for ROI numbers is now default for generic activity maps (DSS)
+%              Changed default camera angles for optimal sphere view (DSS)
 %
 
 %% Create global variables
@@ -588,10 +589,10 @@ if nargin < 5 || isempty(CamView)
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
-            CamView = [36 -20 1.8];
+            CamView = [15 -30 1.8];
         elseif Srf.Hemisphere(1) == 'r'
             % Right hemisphere
-            CamView = [-35 -35 2.2];
+            CamView = [-13 -38 1.8];
         else
             % Both hemispheres
             CamView = [4 -30 2.2];

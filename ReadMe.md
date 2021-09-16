@@ -30,8 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.393 (16-09-2021)  
-- Created AutoDelineation function (DSS)  
+### Version 7.394 (16-09-2021)  
+- Created AutoDelineation function - but not yet tested on a lot of maps (DSS)  
 - DelienationTool now displays R^2 or nR^2 by default if no field sign exists (DSS)  
 - Template maps can now contain ROI names for flexibility (DSS)  
 - Added new fireice colour map similar to hotcold (DSS)  
@@ -43,6 +43,7 @@ be in the same format. You can also convert old data files from older versions
 - Changed activation colour map & path colours in DelineationTool (DSS)  
 - Fixed bug with camera when redrawing maps with samsrf_surf (DSS)  
 - Changed colour scheme for displaying ROI numbers in samsrf_surf (DSS)  
+- Adjusted default camera angles in samsrf_surf for sphere view (DSS)  
 
 ### Version 7.3 (12-08-2021)  
 - New option to fit 2D pRF models to reverse correlation profiles (DSS)  
