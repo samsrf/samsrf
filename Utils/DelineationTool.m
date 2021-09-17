@@ -77,10 +77,27 @@ EccThrsh = EccVec(1:2);
 
 %% Load map data & mesh folder & region of interest
 % Load data
-SrfName = uigetfile('*h_*.mat', 'Select pRF map');
+SrfName = uigetfile('*_*.mat', 'Select pRF map');
 SrfName = SrfName(1:end-4);
 load(SrfName);
 [Srf, vx] = samsrf_expand_srf(Srf);
+% Is this bilateral Srf?
+if upper(Srf.Hemisphere(1)) == 'B'
+    [lh_Srf, rh_Srf] = samsrf_hemi_srfs(Srf); % Split hemispheres
+    SelHem = questdlg('Choose hemisphere:', 'Bilateral Srf', 'Left', 'Right', 'Left'); % Choose hemisphere to delineate
+    % Restrict to desired hemisphere 
+    if SelHem(1) == 'L'
+        vx(vx > Srf.Nvert_Lhem) = []; % Remove right hemisphere ROI vertices
+        Srf = lh_Srf; % Srf is now left hemisphere
+        SrfName = ['lh_' SrfName(4:end)]; % Correct name for loading & saving later
+        clear lh_Srf rh_Srf % We already hog enough memory as it is...
+    elseif SelHem(1) == 'R'
+        vx(vx <= Srf.Nvert_Lhem) = []; % Remove left hemisphere ROI vertices
+        Srf = rh_Srf; % Srf is now right hemisphere
+        SrfName = ['rh_' SrfName(4:end)]; % Correct name for loading & saving later
+        clear lh_Srf rh_Srf % We already hog enough memory as it is...
+    end
+end
 
 % What ROI to display
 if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
