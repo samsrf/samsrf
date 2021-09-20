@@ -69,6 +69,7 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, Max
 %
 % 16/09/2021 - Completed fully functional version (DSS)
 % 17/09/2021 - Now supports bilateral Srfs (DSS)
+% 20/09/2021 - Added support for flexible peripheral borders (DSS)
 %
 
 %% ROIs in delineation file (Change at your own leisure/peril!) %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% 
@@ -238,6 +239,12 @@ for h = 1:length(Hemis)
         Wpts = AtlasData.Rhem; % Right hemisphere waypoints
     else
         error('Auto-delineation tool currently only works for left & right surface meshes!');
+    end
+    % Does atlas contain flexible peripheral border?
+    if isfield(Wpts, 'IsoEccentricityLines')
+        iel = abs(AtlasData.Eccens-MaxEcc); % Difference between iso-eccentricity lines & desired maximal eccentricity
+        Wpts.PeripheralBorder = {Wpts.IsoEccentricityLines{iel == min(iel)}}; % Set desired iso-eccentricity line as peripheral border
+        Wpts = rmfield(Wpts, 'IsoEccentricityLines'); % Remove these lines from process
     end
     NatWpts = Wpts; % Waypoints after warping
     PathTypes = fieldnames(Wpts);

@@ -4,15 +4,16 @@ function Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 % 
 % Warps whatever is in Srf.Data in the fiel NatSrf to the fsaverage template 
 % using the lh/rh.sphere.reg files in the subject's surf folder (defined in MeshFolder).
-% TempFolder points to the fsaverage template brain in the FreeSurfer subjects folder.
+% TmpFolder is the surf folder of the fsaverage template in the FreeSurfer subjects directory.
 %
 % This procedure is a simple nearest neighbour transformation. It achieves
-% very similar but non-identical results to FreeSurfer's tool.
+% very similar - but non-identical - results to FreeSurfer's own tool.
 %
 % Saves the spatially normalised Srf called the same as NatSrf with the suffix _sn.
 %
 % 09/04/2021 - Written (DSS)
 % 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/09/2021 - Changed how TmpFolder is defined to make consistent with AutoDelineation (DSS)
 %
 
 % Load native map
@@ -23,7 +24,6 @@ NatSrf = samsrf_expand_srf(Srf);
 % Create template Srf
 curdir = cd;
 cd(TmpFolder);
-cd surf
 
 % Load surface vertices
 [V0 F] = fs_read_surf([NatSrf.Hemisphere '.white']); % Grey-white surface
