@@ -30,6 +30,12 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.401 (20-09-2021)  
+- Changed default colour map in samsrf_backproj_prf to berlin (DSS)  
+- Fixed bug with default input arguments in samsrf_backproj_prf (DSS)  
+- Default clipping level in samsrf_backproj_prf is now 1 (DSS)  
+- Fixed bug with scatter_size that made all symbols the same size (DSS)  
+
 ### Version 7.4 (17-09-2021)  
 - Released AutoDelineation tool but still undergoing testing & tweaking parameters (DSS)  
 - DelineationTool loads auto-delineations if no manually saved paths exist (DSS)  

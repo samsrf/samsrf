@@ -1,6 +1,7 @@
 function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, SrclID, VtxInSrcl] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold, Resolution, Mode, SkipVtxInSrcl)
 %
-% [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, SrclID, VtxInSrcl] = samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold=[0, 0, Inf, 0, 360], Resolution=[0.1 1], Mode='Mean', SkipVtxInSrcl=true)
+% [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, SrclID, VtxInSrcl] = 
+%    samsrf_backproj_srclt(Response, pRF_Data, Eccentricity, Threshold=[0, 0, Inf, 0, 360], Resolution=[0.1 1], Mode='Mean', SkipVtxInSrcl=true)
 %
 % Projects the activity values in Response back into visual space using the
 %  pRF parameters in pRF_Data (a Srf.Data field with the vertices you want

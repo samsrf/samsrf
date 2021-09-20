@@ -1,6 +1,7 @@
 function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrfFcn, Eccentricity, Threshold, Stimulus, ColourMap, NormaliseByDensity)
 %
-% [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_Data, PrcFcn, Eccentricity, [Threshold=[0 Inf 0 Inf], Stimulus=[], ColourMap='hotcold', NormaliseByDensity=true])
+% [Visual_Space, Timecourses, Xysb] = 
+%    samsrf_backproj_prf(Response, pRF_Data, PrcFcn, Eccentricity, [Threshold=[0 1 0 Inf], Stimulus=[], ColourMap='berlin', NormaliseByDensity=true])
 %
 % Projects the activity values in Response back into visual space using the
 % pRF parameters in pRF_Data. Effectively, this is a sum of all pRF profiles 
@@ -28,7 +29,7 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % matrix of 100 x 100 x NumberOfVolumes.
 %
 % The optional input ColourMap defines the colour map to be used. This defaults 
-% to 'hotcold'. If the string is prefixed by '-' it inverts the scale.
+% to 'berlin'. If the string is prefixed by '-' it inverts the scale.
 %
 % The optional NormaliseByDensity toggles density normalisation on or off: 
 % In this normalisation, the final back-projection image is divided by a 
@@ -40,25 +41,28 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % rows the X and Y coordinates, the Sigma and the Response for each vertex.
 %
 % 29/06/2020 - SamSrf 7 version (DSS)
+% 20/09/2021 - Changed default colour map to berlin (DSS)
+%              Fixed bug with default inputs (DSS)
+%              Default clipping level is now 1 (DSS)
 %
 
-if nargin <= 5
+if nargin < 5
     Threshold = [];
 end
-if nargin <= 6
+if nargin < 6
     Stimulus = [];
 end  
-if nargin <= 7
-    ColourMap = 'hotcold';
+if nargin < 7
+    ColourMap = 'berlin';
 end
-if nargin <= 8
+if nargin < 8
     NormaliseByDensity = true;
 end
 
 if isempty(Threshold)
-    Threshold = [0 Inf 0 Inf];
+    Threshold = [0 1 0 Inf];
 elseif length(Threshold) == 1
-    Threshold = [Threshold Inf 0 Inf];
+    Threshold = [Threshold 1 0 Inf];
 elseif length(Threshold) == 2
     Threshold = [Threshold 0 Inf];
 elseif length(Threshold) == 3
