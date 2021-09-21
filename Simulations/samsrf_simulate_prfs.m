@@ -22,6 +22,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %
 % Model.Hrf can define the HRF to use just like in a normal model fit. 
 %  If Model is undefined, this defaults to the canonical HRF and TR = 1s.
+%  Model can also define downsampling of predictions if TR mismatches stimulus timing.
 %
 % Returns a Srf structure Srf which will contain the simulated timeseries
 %  in Srf.Data. Srf.Ground_Truth contains the ground truth parameters. 
@@ -37,6 +38,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %
 % 02/06/2020 - SamSrf 7 version (DSS) 
 % 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 22/09/2021 - Now also supports downsampling of simulated timeseries (DSS)
 %
 
 %% What type of input?
@@ -70,7 +72,13 @@ if nargin < 4
     Model = struct;
     Model.TR = 1;
     Model.Hrf = [];
+    Model.Downsample_Predictions = 1; 
 end
+% Downsampling timeseries?
+if ~isfield(Model, 'Downsample_Predictions')
+    Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
+end
+
 disp('Haemodynamic response function...')
 if isempty(Model.Hrf)
     disp(' Using canonical HRF');
@@ -97,7 +105,7 @@ Data = zeros(size(Srf.Data)); % Simulated data
 parfor v = 1:size(Srf.Data,2)
     Rfp = PrfFcn(Gt(:,v)', size(ApFrm,1)*2); % pRF profile
     Y = prf_predict_timecourse(Rfp, ApFrm); % Prediction without z-normalisation!
-    Y = prf_convolve_hrf(Y, Model.Hrf); % Convolve with HRF
+    Y = prf_convolve_hrf(Y, Model.Hrf, Model.Downsample_Predictions); % Convolve with HRF & downsample if desired
     Data(:,v) = Y; % Store simulation
 end
 Srf.Data = Data; % Save simulation in Srf

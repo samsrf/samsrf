@@ -1,13 +1,16 @@
-function R = samsrf_cfcorr(Y, X, S, TR, Hrf)
+function R = samsrf_cfcorr(Y, X, S, TR, Hrf, Downsampling)
 %
-% R = samsrf_cfcorr(Y, X, S, [TR=1, Hrf=[]])
+% R = samsrf_cfcorr(Y, X, S, [TR=1, Hrf=[], Downsampling=1])
 %
 % Plots the squared correlations of time course Y with the regressors in X 
 %   just as the coarse fit does. S contains the search space parameters. 
 % You can retrieve X and S from the search space file src_*.mat.
 %
 % TR is optional & defines the repetition time (TR) of your scans (default = 1).
+%   This can also be the temporal resolution of the stimulus if that is faster.
+%   In that case, use Downsampling to match with the true scanner TR.
 % Hrf is optional & contains the HRF vector. Use empty for canonical (default).
+% Downsampling is optional & defines the factor by which to match stimulus timing with true TR (default = 1).
 %
 % Returns the R^2 of Y with each search grid position.
 % Also plots the R^2 for each X and Y position (i.e. S(1:2,:) using 
@@ -25,6 +28,9 @@ end
 if nargin < 5
     Hrf = [];
 end
+if nargin < 6
+    Downsampling = 1;
+end
 
 % Canonical HRF?
 if isempty(Hrf)
@@ -32,9 +38,11 @@ if isempty(Hrf)
 end
 
 % Convolve with HRF
+cX = NaN(size(Y,1), size(X,2)); % Convolve X may mismatch number of volumes in X
 for p = 1:size(X,2)
-    X(:,p) = prf_convolve_hrf(X(:,p), Hrf);
+    X(:,p) = prf_convolve_hrf(X(:,p), Hrf, Downsampling); % Convolve & downsample if desired
 end
+X = cX; % Replace X with convolved X
 
 % Calculate R^2
 R = corr(Y,X).^2;

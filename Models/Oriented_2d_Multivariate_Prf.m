@@ -20,7 +20,7 @@ Model.Param_Names = {'x0'; 'y0'; 'Sigma1'; 'Sigma2'; 'Phi'}; % Names of paramete
 Model.Scaled_Param = [1 1 1 1 0]; % Which of these parameters are scaled 
 Model.Only_Positive = [0 0 1 1 0]; % Which parameters must be positive?
 Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentricity)
-Model.TR = 1; % Repetition time (TR) of pulse sequence
+Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than scanner TR if downsampling predictions)
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pRF'; % Aperture file
 
@@ -33,6 +33,7 @@ Model.Seed_Fine_Fit = ''; % Define a Srf file to use as seed map
 Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine fit
 Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
 Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
+% Model.Downsample_Predictions = 10; % Use for microtime resolution if stimulus timing is faster than TR
 
 % Search grid for coarse fit
 Model.Param1 = 0 : 10 : 350; % Polar search grid

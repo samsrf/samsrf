@@ -1,14 +1,23 @@
 
-function samsrf_timecourse_animation(Rfp, ApFrm, Hrf)
+function samsrf_timecourse_animation(Rfp, ApFrm, Hrf, Downsampling)
 %
-% samsrf_timecourse_animation(Rfp, ApFrm, [Hrf])
+% samsrf_timecourse_animation(Rfp, ApFrm, [Hrf, Downsampling])
 %
 % Predicts the time course resulting from receptive field profile Rfp and stimulus mask movie ApFrm. 
 % The time course is plotted as a movie and at the end it is convolved with the HRF. 
-% Hrf is a vector with the HRF by volume, e.g. samsrf_hrf(1)
+% Optional input Hrf is a vector with the HRF by volume for convolution, e.g. samsrf_hrf(1). Default = 1
+% Optional input Downsampling defines the factor by which the time series is downsampled. Default = 1
 %
 % 02/06/2020 - SamSrf 7 version (DSS) 
+% 22/09/2021 - Added option to downsample predictions (DSS)
 %
+
+if nargin < 3
+    Hrf = 1;
+end
+if nargin < 4
+    Downsampling = 1;
+end
 
 % Output time course vector
 Y = NaN(size(ApFrm,3),1); 
@@ -68,12 +77,10 @@ xlabel('Volume #');
 ylabel('Predicted response')
 title('Predicted time series');
 
-% Are we convolving with HRF?
-if nargin >= 3
-    cY = prf_convolve_hrf(Y, Hrf);
-    hold on
-    plot(cY,'r','linewidth',2);
-    hold off
-    legend('Neuronal only','Convolved with HRF');
-end
+% Convolving with HRF & downsample if desired
+cY = prf_convolve_hrf(Y, Hrf, Downsampling);
+hold on
+plot(1:Downsampling:length(Y), cY, 'r', 'linewidth',2);
+hold off
+legend('Neuronal only','Convolved (& downsampled?)');
 

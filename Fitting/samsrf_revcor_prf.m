@@ -37,6 +37,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 11/08/2021 - Seed parameters must now be generated with a function (DSS)
 % 12/08/2021 - Added completion time for pRF parameter fitting (DSS)
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
+% 22/09/2021 - Adapted to ensure it works with updated prf_convolve_hrf function (DSS)
 %
 
 %% Defaults & constants
@@ -142,7 +143,7 @@ if ~exist([pwd filesep RegressorFile], 'file')
     X = reshape(ApFrm, size(ApFrm,1)*size(ApFrm,2), size(ApFrm,3))';
     % Convolve with HRF
     for i = 1:size(X,2) 
-        X(:,i) = prf_convolve_hrf(X(:,i),Model.Hrf); 
+        X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf, 1); % Added 3rd input to ensure it works but dowwnsampling has not yet been implemented!
     end
     % X & Y coordinates
     [xc,yc] = meshgrid(linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,2)), ...

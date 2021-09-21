@@ -27,6 +27,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
 % 11/07/2021 - Minor change which should be inconsequential - famous last words... (DSS) 
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
+% 22/09/2021 - Now allows downsampling of predictions when TR does not match stimulus timing (DSS)
 %
 
 %% Defaults & constants
@@ -69,6 +70,9 @@ if ~isfield(Model, 'Only_Positive_Coarse_Fits')
 end
 if ~isfield(Model, 'Coarse_Fit_Block_Size')
     Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
+end
+if ~isfield(Model, 'Downsample_Predictions')
+    Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
 end
 
 %% If coarse fit only suffix filename
@@ -147,7 +151,7 @@ Srf.Version = samsrf_version;
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 % Do aperture & data length match?
-if size(Tc,1) ~= size(ApFrm,3)
+if size(Tc,1)*Model.Downsample_Predictions ~= size(ApFrm,3)
     error('Mismatch between length of apertures and data!');
 end
 
@@ -201,9 +205,11 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
 
     %% Convolution with HRF
     disp('Convolving predictions with HRF...');
+    cX = NaN(size(Tc,1),size(X,2)); % Convolved X (has lower number of volumes than X, if downsampling) 
     for p = 1:size(X,2)
-        X(:,p) = prf_convolve_hrf(X(:,p), Model.Hrf);
+        cX(:,p) = prf_convolve_hrf(X(:,p), Model.Hrf, Model.Downsample_Predictions); % Convolve each prediction & downsample if desired
     end
+    X = cX; % Replace X with convolution
     new_line; 
 end
 
@@ -233,7 +239,7 @@ if ~isempty(Model.Seed_Fine_Fit)
 else
   % Coarse fitting procedure
   disp('Coarse fitting...');
-  Srf.X = zeros(size(Tc));  % Matrix with predictions
+  Srf.X = zeros(size(Tc,1)*Model.Downsample_Predictions, size(Tc,2));  % Matrix with predictions
   Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
   Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
   % If only running coarse fit
@@ -362,8 +368,8 @@ else
         if IsGoodFit || Model.Replace_Bad_Fits
             % Time course of current vertex
             Y = Tc(:,v);  
-            % Convolve predicted time course with HRF
-            fX = prf_convolve_hrf(fX, Model.Hrf);
+            % Convolve predicted time course with HRF & downsample if desired
+            fX = prf_convolve_hrf(fX, Model.Hrf, Model.Downsample_Predictions);
             % Fit betas for amplitude & intercept
             warning off % In case of rank deficient GLM
             fB = [ones(length(Y),1) fX] \ Y; % GLM fit

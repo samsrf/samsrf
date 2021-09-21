@@ -8,6 +8,9 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 17/03/2021 - Removed redundant rounding function (DSS) 
+% 22/09/2021 - Now supports downsampling if stimulus timing mismatches TR (DSS)
+%              Removed dual-Y axis for tuning curves as no idea why that was there... (DSS) 
+%              Changed predicted timeseries colour to red (DSS)
 %
 
 % Expand Srf if necessary
@@ -17,7 +20,10 @@ Srf = samsrf_expand_srf(Srf);
 X = Srf.X(:,v); % Predicted time course
 Y = Srf.Y(:,v); % Observed time course
 % Convolve prediction with HRF
-X = prf_convolve_hrf(X, Model.Hrf);
+if ~isfield(Model, 'Downsample_Predictions')
+    Model.Downsample_Predictions = 1; % Backwards compatibility with versions prior to 7.5
+end
+X = prf_convolve_hrf(X, Model.Hrf, Model.Downsample_Predictions);
 
 % If raw data exists use that
 if isfield(Srf, 'Raw_Data')
@@ -33,21 +39,9 @@ X = X * S(br) + S(cr); % Scale predictor
 
 % Plot time courses
 figure('name', ['Vertex: ' num2str(v)]);
-
-if find(strcmpi(Srf.Values, 'Mu'))
-    [Ax, line1, line2] = plotyy(1:length(X), X, 1:length(Y), Y);
-    line1.Color = [1 1 1]/2;
-    line1.LineWidth = 2;
-    line2.Color = [0 0 1];
-    line2.LineWidth = 2;
-    Ax(2).FontSize = 15;
-    Ax(2).YColor = [1 1 1]/2;
-    ylabel(Ax(2), 'Observed');
-else    
-    plot(Y, 'color', [1 1 1]/2, 'linewidth', 2);
-    hold on
-    plot(X, 'b', 'linewidth', 2);
-end
+plot(Y, 'color', [1 1 1]/2, 'linewidth', 2);
+hold on
+plot(1:Model.Downsample_Predictions:length(Y), X, 'r', 'linewidth', 2);
 
 legend({'Observed' 'Predicted'});
 set(gcf, 'Units', 'normalized');

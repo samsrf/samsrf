@@ -18,6 +18,7 @@ function [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg)
 % 21/12/2020 - No progress reports if parallel computing but using older Matlab versions (DSS)
 % 22/12/2020 - Bugfix for when progress reports are turned off (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
+% 22/09/2021 - Now supports downsampling of predictions if TR mismatches stimulus timing (DSS)
 %
 
 % Number of vertices
@@ -65,7 +66,7 @@ if IsParallel
     parfor v = 1:nver
         if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
             % Find best prediction
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v)), Pimg(:,v)', OptimOpts);  
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
             fPimg(:,v) = fP;
             fRimg(1,v) = 1 - fR;
         end
@@ -80,7 +81,7 @@ else
     for v = 1:nver
         if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
             % Find best prediction
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v)), Pimg(:,v)', OptimOpts);  
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
             fPimg(:,v) = fP;
             fRimg(1,v) = 1 - fR;
         end
