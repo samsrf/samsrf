@@ -28,6 +28,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 11/07/2021 - Minor change which should be inconsequential - famous last words... (DSS) 
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 % 22/09/2021 - Now allows downsampling of predictions when TR does not match stimulus timing (DSS)
+%              Fixed bug with storing coarse fit predictions when downsampling (DSS)
 %
 
 %% Defaults & constants
@@ -239,7 +240,7 @@ if ~isempty(Model.Seed_Fine_Fit)
 else
   % Coarse fitting procedure
   disp('Coarse fitting...');
-  Srf.X = zeros(size(Tc,1)*Model.Downsample_Predictions, size(Tc,2));  % Matrix with predictions
+  Srf.X = zeros(size(Tc,1), size(Tc,2));  % Matrix with predictions
   Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
   Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
   % If only running coarse fit
@@ -271,7 +272,7 @@ else
           rx = find(R(v,:) == mR(v),1); % Matrix position of best prediction
           if ~isempty(rx)
               % Store prediction
-              Srf.X(:,vx(v)) = X(:,rx);  % Best fitting prediction
+              Srf.X(:,vx(v)) = X(:,rx);  % Best fitting convolved prediction
               % Store parameters
               for p = 1:length(Model.Param_Names)
                   Pimg(p,vx(v)) = S(p,rx); % Add the pth fitted parameter
@@ -321,7 +322,7 @@ else
     disp('Fitting beta parameters & storing fitted models...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
-    Srf.X = zeros(size(Tc,1), size(Srf.Vertices,1)); % Matrix with unconvolved predictions
+    Srf.X = zeros(size(Tc,1)*Model.Downsample_Predictions, size(Srf.Vertices,1)); % Matrix with unconvolved predictions
     
     % Process & fit betas for mask vertices
     samsrf_progbar(0);
