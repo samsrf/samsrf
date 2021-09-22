@@ -39,14 +39,29 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 % 02/06/2020 - SamSrf 7 version (DSS) 
 % 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 % 22/09/2021 - Now also supports downsampling of simulated timeseries (DSS)
+%              Fixed bug with data allocation when downsampling (DSS)
+%              Moved default parameter assigment to top (DSS)
 %
+
+%% Default parameters 
+if nargin < 4
+    % Use canonical HRF if undefined
+    Model = struct;
+    Model.TR = 1;
+    Model.Hrf = [];
+    Model.Downsample_Predictions = 1; 
+end
+% Downsampling timeseries?
+if ~isfield(Model, 'Downsample_Predictions')
+    Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
+end
 
 %% What type of input?
 if isstruct(GtPars)
     % Input is a map file
     Srf = samsrf_expand_srf(GtPars);
     Srf.Ground_Truth = Srf.Data(2:end,:); % Store ground truth 
-    Srf.Data = NaN(size(ApFrm,3), size(Srf.Ground_Truth,2)); % Time course data
+    Srf.Data = NaN(size(ApFrm,3) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
     % Rescale parameters
     if nargin < 4
         error('Model must be defined!');
@@ -63,20 +78,7 @@ else
     Srf.Hemisphere = 'sim'; % Dummy
     Srf.Vertices = NaN(size(GtPars,2),3); % Dummy
     Srf.Ground_Truth = GtPars; % Store ground truth
-    Srf.Data = NaN(size(ApFrm,3), size(Srf.Ground_Truth,2)); % Time course data
-end
-
-%% Load or generate HRF
-if nargin < 4
-    % Use canonical HRF if undefined
-    Model = struct;
-    Model.TR = 1;
-    Model.Hrf = [];
-    Model.Downsample_Predictions = 1; 
-end
-% Downsampling timeseries?
-if ~isfield(Model, 'Downsample_Predictions')
-    Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
+    Srf.Data = NaN(size(ApFrm,3) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
 end
 
 disp('Haemodynamic response function...')

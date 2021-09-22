@@ -30,7 +30,7 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.491 (22-09-2021)  
+### Version 7.492 (22-09-2021)  
 - Alpha version of prediction downsampling in samsrf_fit_prf - USE AT YOUR OWN PERIL! (DSS)  
 
 ### Version 7.41 (20-09-2021)  
