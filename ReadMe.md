@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.51 (07-10-2021)  
+- Added ROI list default option to make DelineationTool more flexible (SuS&DSS)  
+
 ### Version 7.5 (23-09-2021)  
 #### BETA version! Does not seem to break conventional pRF fits but use with care!
 - Forward model can now downsample predictors for high temporal resolution stimuli (DSS)  
