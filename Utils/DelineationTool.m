@@ -56,7 +56,7 @@ if ~exist('def_disproi')
 end
 if ~exist('def_roilist')
     % Default ROI list if undefined 
-    def_disproi = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
+    def_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 end
 
 %% Default parameters (Change at your own leisure/peril!)
