@@ -55,7 +55,7 @@ if ~exist('def_disproi')
     def_disproi = NaN; 
 end
 if ~exist('def_roilist')
-    % Default ROI list if undefined 
+    % ROI list if undefined in SamSrf_defaults
     def_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 end
 

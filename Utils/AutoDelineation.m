@@ -70,11 +70,18 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, Max
 % 16/09/2021 - Completed fully functional version (DSS)
 % 17/09/2021 - Now supports bilateral Srfs (DSS)
 % 20/09/2021 - Added support for flexible peripheral borders (DSS)
+% 08/10/2021 - Now uses ROI list from SamSrf_defaults if defined (DSS)
 %
 
-%% ROIs in delineation file (Change at your own leisure/peril!) %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% 
-RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % ROI list
-%%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% 
+% ROI list for delineation file 
+load('SamSrf_defaults.mat', 'def_roilist');
+if ~exist('def_roilist')
+    % ROI list if undefined in SamSrf_defaults
+    RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
+else
+    % Pre-defined default ROI list
+    RoiList = def_roilist;
+end
 
 %% Parameters
 if nargin < 4

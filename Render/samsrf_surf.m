@@ -47,10 +47,14 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %  default values defined in SamSrf_defaults. If they aren't included there, 
 %  it defaults to pointing to early visual cortex (assuming a FreeSurfer mesh).
 %
-% MapType is a string containing the name of the data entry to display
-%  (e.g. 'Polar', 'Eccentricity', 'R^2', etc.). It can also be a scalar in
-%  which case it will use this as the index for Srf.Data and Srf.Values.
-%  If undefined, the function opens a selection dialog. 
+% MapType determines which map is being displayed. This can be a...
+%   - String containing the name of the data entry in Srf.Values to display
+%      (e.g. 'R^2', 'Sigma', etc.). If this is a normal pRF map with x0 and y0 
+%      coordinates, you can also display 'Polar' and 'Eccentricity' maps.
+%   - Scalar (e.g. 5) defining the index for Srf.Data and Srf.Values.
+%   - Vector containing the actual map data to display. 
+%      This must have the same number of columns as Srf.Data. 
+%   - If undefined, the function opens a selection dialog to select from Srf.Values. 
 %
 % PatchHandle is the handle to the patch with the mesh returned by the function.
 %  By adding this to the input arguments the figure will simply update the
@@ -75,6 +79,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 14/09/2021 - Fixed camera bug when redrawing maps (DSS)
 % 16/09/2021 - Colour scheme for ROI numbers is now default for generic activity maps (DSS)
 %              Changed default camera angles for optimal sphere view (DSS)
+% 08/10/2021 - New option to directly provide a data vector with a map (DSS) 
 %
 
 %% Create global variables
@@ -239,19 +244,27 @@ if nargin < 6
         return
     end
 else
-    if isscalar(MapType)
+    if isvector(MapType) && length(MapType) == size(Srf.Data,2)
+        % Map provided as data vector
+        Type = 'Custom';
+        dt = NaN;
+    elseif isscalar(MapType)
         % Map type given by number
         dt = MapType;
-    else
+    elseif ischar(MapType)
         % Map type given by name
         dt = find(strcmpi(Values, MapType));
+    else
+        error('Invalid map selected!');
     end
 end
 if isempty(dt)
     close(gcf);
     error('Invalid map type specified!');
 end
-Type = Values{dt};
+if ~isnan(dt)
+    Type = Values{dt};
+end
 
 %% Select paths if desired
 if nargin < 4
@@ -511,7 +524,13 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     
 else
     % Any generic data
-    X = Srf.Data(dt,:);
+    if strcmpi(Type, 'Custom')
+        % Using a custom data vector as map
+        X = MapType;
+    else
+        % Any named or index field in Srf.Data
+        X = Srf.Data(dt,:);
+    end
     % Ensure Field Sign is binary
     if strcmpi(Type, 'Field Sign')
         X = sign(X);
