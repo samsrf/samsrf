@@ -31,7 +31,7 @@ if sum(isnan(Vs(:,1))) == 0
         fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', Vs(v,1), Vs(v,2), Vs(v,3), Vs(v,4), Vs(v,5));
     end
     fclose(fid);
-    disp(['Saved ' NewLabel '.label.']);
+    disp(['Saved ' NewLabel '.label']);
     Status = true;
 else
     Status = false;

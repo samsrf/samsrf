@@ -9,6 +9,7 @@ function samsrf_srf2label(srfdata, labelname, valnum, Vx)
 % to constrain its size (default is all vertices).
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 08/10/2021 - Turned command line report back on (DSS) 
 %
 
 if ischar(srfdata)
@@ -43,4 +44,4 @@ for v = Vx
     fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', v-1, Srf.Vertices(v,1), Srf.Vertices(v,2), Srf.Vertices(v,3), Srf.Data(valnum,v));
 end
 fclose(fid);
-% disp(['Saved ' labelname '.label.']);
+disp(['Saved ' labelname '.label']);

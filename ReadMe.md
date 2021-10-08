@@ -30,9 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.511 (08-10-2021)  
+### Version 7.512 (08-10-2021)  
 - New option in samsrf_surf to display data vector directly (DSS)  
 - AutoDelineation now also uses default ROI list if defined (DSS)  
+- Added new skewed Gaussian pRF model (DSS)  
+- Various minor cosmetic changes (DSS)  
 
 ### Version 7.51 (07-10-2021)  
 - Added ROI list default option to make DelineationTool more flexible (SuS&DSS)  
