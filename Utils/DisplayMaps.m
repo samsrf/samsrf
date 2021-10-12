@@ -91,6 +91,14 @@ if exist('Model', 'var')
     Srf.Model = Model;
     clear Model
 end
+% Backwards compatibility
+if ~isfield(Srf, 'Version')
+    % Compatible with some(!) files before version field was introduced
+    Srf.Version = -Inf; 
+end
+if Srf.Version < 6
+    Srf.Model = struct; % Empty structure
+end
 
 % Limit multi-subject Srf?
 if size(Srf.Data,3) > 1
@@ -204,20 +212,24 @@ set(handles.popupmenu2, 'String', Values, 'Value', 1);
 
 %% Update pRF inspector list
 PrfInspList = {'Vertex inspector off'};
-if isfield(Srf, 'ConFlds')
+if isfield(Srf, 'ConFlds') % Can display connective field profiles
     PrfInspList{2} = 'Connective field profiles';
 end
-if isfield(Srf, 'Rmaps')
+if isfield(Srf, 'Rmaps') % Can display reverse correlation profiles
     PrfInspList{2} = 'Reverse correlation profiles';
 end
-if isfield(Srf, 'Model')
+if isfield(Srf, 'Model') && isfield(Srf.Model, 'Prf_Function') % Only if a pRF model fit
     PrfInspList{end+1} = 'pRF parameter estimates';
 end
-if isfield(Srf, 'Y') && isfield(Srf, 'X')
+if isfield(Srf, 'Y') && (isfield(Srf, 'X') || isfield(Srf, 'X_glm')) % Can show both observed & predicted time series
     PrfInspList{end+1} = 'Observed vs predicted time series';
 end
-if isfield(Srf, 'Data') && ~isfield(Srf, 'Y') && ~isfield(Srf, 'X')
-    PrfInspList{end+1} = 'Observed time series only';
+if ~isfield(Srf, 'Y') && ~isfield(Srf, 'X') % Raw data file so observed time series only
+    if contains(Srf.Functional, 'GLM contrasts')
+        PrfInspList{end+1} = 'GLM contrasts';
+    else
+        PrfInspList{end+1} = 'Observed time series only';
+    end
 end
 % Update & set to first item in the list
 set(handles.popupmenu3, 'String', PrfInspList, 'Value', 1); 
@@ -291,7 +303,7 @@ elseif strcmpi(PrfInsp, 'Observed vs predicted time series')
         Srf.Model_ = Srf.Model;
         Srf = rmfield(Srf, 'Model');
     end
-elseif strcmpi(PrfInsp, 'Observed time series only')
+elseif strcmpi(PrfInsp, 'Observed time series only') || strcmpi(PrfInsp, 'GLM contrasts')
     % Plot observed time series
     if isfield(Srf, 'Y')
         Srf.Y_ = Srf.Y;

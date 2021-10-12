@@ -80,7 +80,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 16/09/2021 - Colour scheme for ROI numbers is now default for generic activity maps (DSS)
 %              Changed default camera angles for optimal sphere view (DSS)
 % 08/10/2021 - New option to directly provide a data vector with a map (DSS) 
-% 12/10/2021 - pRF inspector now also works for forward-model fits (DSS)
+% 12/10/2021 - Vertex inspector now also works for forward-model fits (DSS)
+% 13/10/2021 - Massively expanded remit of vertex inspector (DSS)
 %
 
 %% Create global variables
@@ -686,6 +687,7 @@ if isfield(Srf, 'Rmaps')
     title(['Vertex: ', num2str(v)]);
     set(gcf, 'Units', 'normalized');
     set(gcf, 'Position', [.6 .1 .3 .3]);
+    set(fv, 'name', 'Reverse correlation profile');
     figure(fh);
 elseif isfield(Srf, 'Model')
     % pRF profile based on fit parameters
@@ -697,6 +699,7 @@ elseif isfield(Srf, 'Model')
         title(['Vertex: ', num2str(v)]);
         set(gcf, 'Units', 'normalized');
         set(gcf, 'Position', [.6 .1 .3 .3]);
+        set(fv, 'name', 'pRF model fit');
         figure(fh);
     end
 elseif isfield(Srf, 'Y')
@@ -704,23 +707,54 @@ elseif isfield(Srf, 'Y')
     if isfield(Srf, 'Model_')
         figure(fv);
         samsrf_fitvsobs(Srf, Srf.Model_, v);
+        set(fv, 'name', 'Observed vs predicted time series');
         figure(fh);
     end
 elseif ~isfield(Srf, 'Y') && ~isfield(Srf, 'X') && ~isfield(Srf, 'Y_')
+    CurrData = Srf.Data(:,v);
+    ts = ['Vertex: ', num2str(v)];
+    if strcmpi(Srf.Values{1}, 'Noise Ceiling')
+        % If file includes noise ceiling in row one extract that
+        ts = [ts ', Noise ceiling: ' num2str(CurrData(1))];
+        CurrData = CurrData(2:end);
+    end
     figure(fv);
     hold off
-    plot(Srf.Data(:,v), 'color', [1 1 1]/2, 'linewidth', 2);
-    if isfield(Srf, 'Raw_Data')
-        plot(Srf.Raw_Data(:,v), 'color', [1 1 1]/3, 'linewidth', 2);
-        legend({'Smooth' 'Raw'});
+    if contains(Srf.Functional, 'GLM contrasts')
+        % Plot GLM contrasts
+        plot(Srf.Data(:,v), 'o-k', 'linewidth', 2);
+        xlim([.5 size(Srf.Data,1)+.5]);
+        ylim([nanmin(Srf.Data(:)) nanmax(Srf.Data(:))]);
+        line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
+        set(gca, 'fontsize', 12, 'xtick', 1:size(Srf.Data,1), 'xticklabel', Srf.Values);
+        title(ts);
+        xlabel('Contrast');
+        ylabel('Differential response');
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [.1 .1 .8 .4]);
+        set(fv, 'name', 'GLM contrasts');
+    else
+        % Plotting observed time series
+        if isfield(Srf, 'Raw_Data')
+            plot(Srf.Raw_Data(:,v), 'color', [.6 .6 1], 'linewidth', 2);
+            hold on
+        end
+        plot(CurrData, 'color', [0 0 1], 'linewidth', 2);
+        hold on
+        xlim([1 length(CurrData)]);
+        line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
+        if isfield(Srf, 'Raw_Data')
+            legend({'Smooth' 'Raw'});
+        end
+        title(ts);
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [.1 .1 .8 .4]);
+        set(gca, 'fontsize', 12);
+        xlabel('Volumes (#)');
+        ylabel('Response (z)');
+        set(fv, 'name', 'Observed time series');
     end
-    xlim([1 size(Srf.Data,1)]);
-    hold on
-    set(gcf, 'Units', 'normalized');
-    set(gcf, 'Position', [.1 .1 .8 .4]);
-    set(gca, 'fontsize', 12);
-    xlabel('Volumes (#)');
-    ylabel('Response (z)');
+    grid on
     figure(fh);
 elseif isfield(Srf, 'ConFlds')
     % Connective field profile
@@ -754,8 +788,8 @@ elseif isfield(Srf, 'ConFlds')
     Pha(isnan(Pha)|isinf(Pha)) = 100;  
     % Transparency
     Alpha = zeros(size(Vertices,1),3);
-    Alpha(Srf.SeedVx,:) = repmat(X(Srf.SeedVx)'/AdjThr * 0.9 + 0.1, [1 3]);
-    Alpha(isnan(Alpha)) = 0.1; % To remove white artifacts
+    Alpha(Srf.SeedVx,:) = repmat(X(Srf.SeedVx)'/AdjThr * 0.5 + 0.5, [1 3]);
+    Alpha(isnan(Alpha)) = 0.5; % To remove white artifacts
     % Colour map
     Cmap = hotcold(200);
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -775,6 +809,7 @@ elseif isfield(Srf, 'ConFlds')
         set(pv, 'FaceVertexCData', Colours); 
     end
     title(['Vertex: ', num2str(v)]);
+    set(fv, 'name', 'Connective field profile');
     figure(fh);
 end
 return

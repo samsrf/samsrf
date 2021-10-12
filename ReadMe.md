@@ -30,15 +30,17 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.514 (12-10-2021)  
+### Version 7.52 (13-10-2021)  
 - Major overhaul of DisplayMaps user interface, including vertex inspector (DSS)  
 - New option in samsrf_surf to display data vector directly (DSS)  
 - AutoDelineation now also uses default ROI list if defined (DSS)  
 - Added new skewed Gaussian pRF model (DSS)  
 - New option in samsrf_showprf & prf_contour supporting pRFs from model parameters (DSS)  
 - Fixed bug in samsrf_showprf when matrix has no variance (DSS)  
-- pRF inspector in DisplayMaps now also supports forward-model fits (DSS)  
-- Various minor cosmetic changes (DSS)  
+- Vertex inspector in DisplayMaps now also supports forward-model & GLM fits (DSS) 
+- DisplayMaps vertex inspector for CFs now shows whole seed ROI more clearly (DSS)  
+- Vertex inspector is now semi-compatible with pRF maps from versions prior to 6 (DSS)  
+- Various cosmetic changes (DSS)  
 
 ### Version 7.51 (07-10-2021)  
 - Added ROI list default option to make DelineationTool more flexible (SuS&DSS)  
