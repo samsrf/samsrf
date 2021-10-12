@@ -80,6 +80,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 16/09/2021 - Colour scheme for ROI numbers is now default for generic activity maps (DSS)
 %              Changed default camera angles for optimal sphere view (DSS)
 % 08/10/2021 - New option to directly provide a data vector with a map (DSS) 
+% 12/10/2021 - pRF inspector now also works for forward-model fits (DSS)
 %
 
 %% Create global variables
@@ -225,7 +226,7 @@ end
 %% Select data type
 Values = Srf.Values;
 % If connective field or reverse correlation profiles open second figure unless simply changing which map to display
-if (isfield(Srf, 'ConFlds') || isfield(Srf, 'Rmaps')) && nargin < 7
+if (isfield(Srf, 'ConFlds') || isfield(Srf, 'Rmaps') || isfield(Srf, 'Model')) && nargin < 7
     CallingFuncs = dbstack;
     % Only if using DisplayMaps tool
     if ~strcmpi(CallingFuncs(end).file, 'samsrf_surf.m')
@@ -681,6 +682,14 @@ if isfield(Srf, 'Rmaps')
     samsrf_showprf(Srf, v);
     s = max(abs([min(Srf.Rmaps(:)) max(Srf.Rmaps(:))]));
     caxis([-s s]);
+    title(['Vertex: ', num2str(v)]);
+    figure(fh);
+elseif isfield(Srf, 'Model')
+    % Reverse correlation profile
+    figure(fv);
+    samsrf_showprf(Srf, v, Srf.Model);
+    caxis([-1 1]);
+    title(['Vertex: ', num2str(v)]);
     figure(fh);
 elseif isfield(Srf, 'ConFlds')
     % Connective field profile
@@ -734,6 +743,7 @@ elseif isfield(Srf, 'ConFlds')
         % Simply redraw
         set(pv, 'FaceVertexCData', Colours); 
     end
+    title(['Vertex: ', num2str(v)]);
     figure(fh);
 end
 return
@@ -742,6 +752,11 @@ return
 function closereq(src, evnt)
 % Clear global variables when figure is closed
 global fv 
-close(fv);
+% Just in case it's already closed
+try
+    close(fv);
+catch
+    true; 
+end
 clear global Vertices Type Data CurvGrey fh fv pv
 delete(src);

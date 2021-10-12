@@ -23,6 +23,7 @@ function samsrf_showprf(SrfEcc, IdxMat, Model, PlotType)
 % 06/08/2021 - Increase granularity of colour scheme (DSS)
 % 11/10/2021 - Added option to plot pRF models from parameters (DSS)
 %              Changed colour scheme to berlin (DSS) 
+% 12/10/2021 - Fixed bug when matrix has no variance (DSS) 
 %
 
 if nargin < 3
@@ -89,6 +90,9 @@ if isstruct(Model)
     axis([-1 +1 -1 +1] * Model.Scaling_Factor);
 end
 Scale = max(abs([nanmin(IdxMat(:)) nanmax(IdxMat(:))]));
+if Scale == 0
+    Scale = 1;
+end
 set(gca, 'Clim', [-1 +1]*Scale);
 colormap berlin
 colorbar 

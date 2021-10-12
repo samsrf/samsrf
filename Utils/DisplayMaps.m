@@ -86,6 +86,11 @@ load(fn); % Load Srf
 new_line;
 disp(['Loading surface data file: ' pn fn]);
 new_line;
+% Is there a pRF model fit?
+if exist('Model', 'var')
+    Srf.Model = Model;
+    clear Model
+end
 
 % Limit multi-subject Srf?
 if size(Srf.Data,3) > 1
@@ -197,6 +202,20 @@ end
 % Set to first item in the list
 set(handles.popupmenu2, 'String', Values, 'Value', 1); 
 
+%% Update pRF inspector list
+PrfInspList = {'pRF inspector off'};
+if isfield(Srf, 'ConFlds')
+    PrfInspList{2} = 'Connective field profiles';
+end
+if isfield(Srf, 'Rmaps')
+    PrfInspList{2} = 'Reverse correlation profiles';
+end
+if isfield(Srf, 'Model')
+    PrfInspList{end+1} = 'pRF parameter estimates';
+end
+% Update & set to first item in the list
+set(handles.popupmenu3, 'String', PrfInspList, 'Value', 1); 
+
 %% Update R^2 threshold
 if isfield(Srf, 'Y')  
     % If time course is saved
@@ -228,6 +247,49 @@ contents = cellstr(get(handles.popupmenu2,'String'));
 MapNum = get(handles.popupmenu2,'Value');
 MapType = contents{MapNum};
 
+% pRF inspector mode? 
+contents = cellstr(get(handles.popupmenu3,'String'));
+PrfInsp = get(handles.popupmenu3,'Value');
+PrfInsp = contents{PrfInsp};
+if strcmpi(PrfInsp, 'pRF parameter estimates')
+    % Display model fit pRF
+    if isfield(Srf, 'Model_')
+        Srf.Model = Srf.Model_;
+        Srf = rmfield(Srf, 'Model_');
+    end
+    % Don't display reverse correlation profile!
+    if isfield(Srf, 'Rmaps')
+        Srf.Rmaps_ = Srf.Rmaps;
+        Srf = rmfield(Srf, 'Rmaps');
+    end
+elseif strcmpi(PrfInsp, 'Reverse correlation profiles')
+    % Display reverse correlation profile
+    if isfield(Srf, 'Rmaps_')
+        Srf.Rmaps = Srf.Rmaps_;
+        Srf = rmfield(Srf, 'Rmaps_');
+    end
+elseif strcmpi(PrfInsp, 'Connective field profiles')
+    % Display connective field profile
+    if isfield(Srf, 'ConFlds_')
+        Srf.ConFlds = Srf.ConFlds_;
+        Srf = rmfield(Srf, 'ConFlds_');
+    end
+else
+    % Not displaying pRFs
+    if isfield(Srf, 'Model')
+        Srf.Model_ = Srf.Model;
+        Srf = rmfield(Srf, 'Model');
+    end
+    if isfield(Srf, 'Rmaps')
+        Srf.Rmaps_ = Srf.Rmaps;
+        Srf = rmfield(Srf, 'Rmaps');
+    end
+    if isfield(Srf, 'ConFlds')
+        Srf.ConFlds_ = Srf.ConFlds;
+        Srf = rmfield(Srf, 'ConFlds');
+    end
+end    
+
 % What R^2 threshold?
 if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
     R2Thrsh = str2double(get(handles.edit1, 'String'));
@@ -252,7 +314,17 @@ ThrshVec = eval(['[' CutOffStr ']']);
 ThrshVec = [R2Thrsh ThrshVec];
 
 % Eccentricity range
-ThrshVec = [ThrshVec eval(['[' get(handles.edit4, 'String') ']'])];
+EccRng = eval(['[' get(handles.edit4, 'String') ']']);
+if isempty(EccRng)
+    EccRng = [0 Inf];
+elseif length(EccRng) == 1
+    EccRng(2) = Inf;
+end
+EccRng = EccRng(1:2);
+ThrshVec = [ThrshVec EccRng];
+
+% Map transparency level
+ThrshVec = [ThrshVec eval(['[' get(handles.edit6, 'String') ']'])];
 
 % Camera angle
 if IsNewFig
@@ -545,8 +617,36 @@ end
 RedrawMaps(handles, false);
 
 
-%% Denoise check box
-function checkbox1_Callback(hObject, eventdata, handles)
-% Hint: get(hObject,'Value') returns toggle state of checkbox1
+%% Map transparency 
+function edit6_Callback(hObject, eventdata, handles)
 
 RedrawMaps(handles, false);
+
+%%
+function edit6_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+%% pRF inspector menu
+function popupmenu3_Callback(hObject, eventdata, handles)
+global fv 
+
+PrfInsp = get(hObject,'Value');
+if PrfInsp > 1
+    try 
+        figure(fv);
+    catch
+        fv = figure;
+    end
+else
+    close(fv);
+end
+RedrawMaps(handles, false);
+
+%%
+function popupmenu3_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
