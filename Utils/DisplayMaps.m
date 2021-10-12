@@ -203,7 +203,7 @@ end
 set(handles.popupmenu2, 'String', Values, 'Value', 1); 
 
 %% Update pRF inspector list
-PrfInspList = {'pRF inspector off'};
+PrfInspList = {'Vertex inspector off'};
 if isfield(Srf, 'ConFlds')
     PrfInspList{2} = 'Connective field profiles';
 end
@@ -212,6 +212,12 @@ if isfield(Srf, 'Rmaps')
 end
 if isfield(Srf, 'Model')
     PrfInspList{end+1} = 'pRF parameter estimates';
+end
+if isfield(Srf, 'Y') && isfield(Srf, 'X')
+    PrfInspList{end+1} = 'Observed vs predicted time series';
+end
+if isfield(Srf, 'Data') && ~isfield(Srf, 'Y') && ~isfield(Srf, 'X')
+    PrfInspList{end+1} = 'Observed time series only';
 end
 % Update & set to first item in the list
 set(handles.popupmenu3, 'String', PrfInspList, 'Value', 1); 
@@ -274,6 +280,26 @@ elseif strcmpi(PrfInsp, 'Connective field profiles')
         Srf.ConFlds = Srf.ConFlds_;
         Srf = rmfield(Srf, 'ConFlds_');
     end
+elseif strcmpi(PrfInsp, 'Observed vs predicted time series')
+    % Plot observed vs predicted time series
+    if isfield(Srf, 'Y_')
+        Srf.Y = Srf.Y_;
+        Srf = rmfield(Srf, 'Y_');
+    end
+    % Don't display model fit pRF
+    if isfield(Srf, 'Model')
+        Srf.Model_ = Srf.Model;
+        Srf = rmfield(Srf, 'Model');
+    end
+elseif strcmpi(PrfInsp, 'Observed time series only')
+    % Plot observed time series
+    if isfield(Srf, 'Y')
+        Srf.Y_ = Srf.Y;
+        Srf = rmfield(Srf, 'Y');
+    end
+    if isfield(Srf, 'X') && isempty(Srf.X)
+        Srf = rmfield(Srf, 'X');
+    end
 else
     % Not displaying pRFs
     if isfield(Srf, 'Model')
@@ -287,6 +313,13 @@ else
     if isfield(Srf, 'ConFlds')
         Srf.ConFlds_ = Srf.ConFlds;
         Srf = rmfield(Srf, 'ConFlds');
+    end
+    if ~isfield(Srf, 'X')
+        Srf.X = [];
+    end
+    if isfield(Srf, 'Y')
+        Srf.Y_ = Srf.Y;
+        Srf = rmfield(Srf, 'Y');
     end
 end    
 
@@ -629,7 +662,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-%% pRF inspector menu
+%% Vertex inspector menu
 function popupmenu3_Callback(hObject, eventdata, handles)
 global fv 
 

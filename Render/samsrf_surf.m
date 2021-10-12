@@ -225,7 +225,7 @@ end
 
 %% Select data type
 Values = Srf.Values;
-% If connective field or reverse correlation profiles open second figure unless simply changing which map to display
+% If desired, open second figure for data inspector
 if (isfield(Srf, 'ConFlds') || isfield(Srf, 'Rmaps') || isfield(Srf, 'Model')) && nargin < 7
     CallingFuncs = dbstack;
     % Only if using DisplayMaps tool
@@ -680,16 +680,47 @@ if isfield(Srf, 'Rmaps')
         Srf.Rmaps(1,v)=.001;
     end
     samsrf_showprf(Srf, v);
+    legend off
     s = max(abs([min(Srf.Rmaps(:)) max(Srf.Rmaps(:))]));
     caxis([-s s]);
     title(['Vertex: ', num2str(v)]);
+    set(gcf, 'Units', 'normalized');
+    set(gcf, 'Position', [.6 .1 .3 .3]);
     figure(fh);
 elseif isfield(Srf, 'Model')
-    % Reverse correlation profile
+    % pRF profile based on fit parameters
+    if isfield(Srf.Model, 'Prf_Function')
+        figure(fv);
+        samsrf_showprf(Srf, v, Srf.Model);
+        legend off
+        caxis([-1 1]);
+        title(['Vertex: ', num2str(v)]);
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [.6 .1 .3 .3]);
+        figure(fh);
+    end
+elseif isfield(Srf, 'Y')
+    % Predicted & observed time series
+    if isfield(Srf, 'Model_')
+        figure(fv);
+        samsrf_fitvsobs(Srf, Srf.Model_, v);
+        figure(fh);
+    end
+elseif ~isfield(Srf, 'Y') && ~isfield(Srf, 'X') && ~isfield(Srf, 'Y_')
     figure(fv);
-    samsrf_showprf(Srf, v, Srf.Model);
-    caxis([-1 1]);
-    title(['Vertex: ', num2str(v)]);
+    hold off
+    plot(Srf.Data(:,v), 'color', [1 1 1]/2, 'linewidth', 2);
+    if isfield(Srf, 'Raw_Data')
+        plot(Srf.Raw_Data(:,v), 'color', [1 1 1]/3, 'linewidth', 2);
+        legend({'Smooth' 'Raw'});
+    end
+    xlim([1 size(Srf.Data,1)]);
+    hold on
+    set(gcf, 'Units', 'normalized');
+    set(gcf, 'Position', [.1 .1 .8 .4]);
+    set(gca, 'fontsize', 12);
+    xlabel('Volumes (#)');
+    ylabel('Response (z)');
     figure(fh);
 elseif isfield(Srf, 'ConFlds')
     % Connective field profile

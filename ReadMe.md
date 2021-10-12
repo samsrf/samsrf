@@ -31,7 +31,7 @@ be in the same format. You can also convert old data files from older versions
 ## LATEST UPDATES 
 
 ### Version 7.514 (12-10-2021)  
-- Major overhaul of DisplayMaps user interface & including pRF inspector (DSS)  
+- Major overhaul of DisplayMaps user interface, including vertex inspector (DSS)  
 - New option in samsrf_surf to display data vector directly (DSS)  
 - AutoDelineation now also uses default ROI list if defined (DSS)  
 - Added new skewed Gaussian pRF model (DSS)  

@@ -11,6 +11,8 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % 22/09/2021 - Now supports downsampling if stimulus timing mismatches TR (DSS)
 %              Removed dual-Y axis for tuning curves as no idea why that was there... (DSS) 
 %              Changed predicted timeseries colour to red (DSS)
+% 12/10/2021 - Now no longer opens a new figure & has fixed dimensions (DSS) 
+%              Can now also plot predictors that don't come from forward-model pRFs (DSS)
 %
 
 % Expand Srf if necessary
@@ -19,11 +21,14 @@ Srf = samsrf_expand_srf(Srf);
 % Time courses
 X = Srf.X(:,v); % Predicted time course
 Y = Srf.Y(:,v); % Observed time course
-% Convolve prediction with HRF
+% Backwards compatibility with versions prior to 7.5
 if ~isfield(Model, 'Downsample_Predictions')
-    Model.Downsample_Predictions = 1; % Backwards compatibility with versions prior to 7.5
+    Model.Downsample_Predictions = 1; % In case downsampling undefined
 end
-X = prf_convolve_hrf(X, Model.Hrf, Model.Downsample_Predictions);
+% Convolve prediction with HRF?
+if isfield(Model, 'Hrf')
+    X = prf_convolve_hrf(X, Model.Hrf, Model.Downsample_Predictions);
+end
 
 % If raw data exists use that
 if isfield(Srf, 'Raw_Data')
@@ -32,26 +37,41 @@ else
     S = Srf.Data(:,v);
 end
 
-% Multiply by Beta
-br = strcmpi(Srf.Values,'Beta'); % Which value contains beta?
-cr = strcmpi(Srf.Values,'Baseline'); % Which value contains baseline?
-X = X * S(br) + S(cr); % Scale predictor 
+% Scale predictor appropriately
+if sum(contains(Srf.Values, 'Beta')) 
+    % Multiply by Beta
+    br = strcmpi(Srf.Values,'Beta'); % Which value contains beta?
+    cr = strcmpi(Srf.Values,'Baseline'); % Which value contains baseline?
+    X = X * S(br) + S(cr); % Scale predictor
+else
+    % Z-transform time series
+    X = zscore(X);
+    Y = zscore(Y);
+end
 
 % Plot time courses
-figure('name', ['Vertex: ' num2str(v)]);
-plot(Y, 'color', [1 1 1]/2, 'linewidth', 2);
+if isfield(Model, 'TR')
+    TR = Model.TR;
+else
+    TR = 1;
+end
+hold off
+plot((1:length(Y))*TR, Y, 'color', [1 1 1]/2, 'linewidth', 2);
 hold on
-plot(1:Model.Downsample_Predictions:length(Y), X, 'r', 'linewidth', 2);
+plot((1:Model.Downsample_Predictions:length(Y))*TR, X, 'r', 'linewidth', 2);
 
 legend({'Observed' 'Predicted'});
 set(gcf, 'Units', 'normalized');
-pos = get(gcf, 'Position');
-set(gcf, 'Position', [pos(1)-pos(3) pos(2) pos(3)*3 pos(4)]);
-set(gca, 'fontsize', 15);
-xlabel('Volumes (#)');
+set(gcf, 'Position', [.1 .1 .8 .4]);
+set(gca, 'fontsize', 12);
+if isfield(Model, 'TR')
+    xlabel('Time (s)');
+else
+    xlabel('Volumes (#)');
+end
 ylabel('Response (z)');
 ts = '';
 for i = 1:size(S,1)
     ts = [ts Srf.Values{i} '=' num2str(round(S(i),2)) '   '];
 end
-title(ts);
+title({['Vertex: ' num2str(v)]; ts});
