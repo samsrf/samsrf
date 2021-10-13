@@ -17,7 +17,7 @@ function xysb = samsrf_backproj_sctr(Response, pRF_Data, Threshold)
 % Returns a cell array with as many components as there are rows in Response. 
 % Each component contains a 4-column matrix which you can use for a scatter plot:
 %
-%   h = scatter(xysb{1}(:,1), xysb{1}(:,2), 700*xysb{1}(:,3), xysb{1}(:,4), 'filled');
+%   h = scatter(xysb{1}(:,1), xysb{1}(:,2), xysb{1}(:,3), xysb{1}(:,4), 'filled');
 %   scatter_size(h);
 %   alpha(h, 0.2);
 %   axis square
@@ -29,6 +29,7 @@ function xysb = samsrf_backproj_sctr(Response, pRF_Data, Threshold)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 08/09/2021 - Finally fixed the issue with plotting pRF size properly (DSS)
+% 13/10/2021 - Fixed misleading typo in the help section (DSS)
 %
 
 if nargin < 3
