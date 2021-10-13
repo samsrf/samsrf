@@ -27,6 +27,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
+% 13/10/2021 - Added progress report to CF parameter estimation (DSS)
 %
 
 %% Defaults & constants
@@ -153,7 +154,8 @@ Srf.Data = [];
 disp('Estimating CF parameters...');
 % Keep track of redundancies
 Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
-% Loop through mask vertices (in blocks if Matlab R2012a or higher)
+% Loop through mask vertices 
+samsrf_progbar(0);
 for v = 1:length(mver)
     % Index of current vertex
     vx = mver(v);
@@ -176,6 +178,8 @@ for v = 1:length(mver)
     else
         Fitted(rd) = 1; % Mark all redundant vertices
     end
+    % Progress report
+    samsrf_progbar(v/length(mver));
 end
 t3 = toc(t0); 
 disp(['Parameter estimates completed in ' num2str(t3/60/60) ' hours.']);
