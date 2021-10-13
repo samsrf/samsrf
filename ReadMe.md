@@ -40,6 +40,7 @@ be in the same format. You can also convert old data files from older versions
 - Vertex inspector in DisplayMaps now also supports forward-model & GLM fits (DSS) 
 - DisplayMaps vertex inspector for CFs now shows whole seed ROI more clearly (DSS)  
 - Vertex inspector is now semi-compatible with pRF maps from versions prior to 6 (DSS)  
+- Fixed minor bug with samsrf_surf when called directly (DSS)  
 - Various cosmetic changes (DSS)  
 
 ### Version 7.51 (07-10-2021)  

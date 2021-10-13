@@ -82,6 +82,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 08/10/2021 - New option to directly provide a data vector with a map (DSS) 
 % 12/10/2021 - Vertex inspector now also works for forward-model fits (DSS)
 % 13/10/2021 - Massively expanded remit of vertex inspector (DSS)
+%              Fixed bug when not using DisplayMaps tool (DSS)
 %
 
 %% Create global variables
@@ -674,143 +675,146 @@ txt = {['Vertex: ', num2str(v)];...
        [Type ': ' num2str(Data(v))]}; % Datatip message
 
 % Update visualisation figure?   
-if isfield(Srf, 'Rmaps')
-    % Reverse correlation profile
-    figure(fv);
-    if var(Srf.Rmaps(:,v)) == 0
-        Srf.Rmaps(1,v)=.001;
-    end
-    samsrf_showprf(Srf, v);
-    legend off
-    s = max(abs([min(Srf.Rmaps(:)) max(Srf.Rmaps(:))]));
-    caxis([-s s]);
-    title(['Vertex: ', num2str(v)]);
-    set(gcf, 'Units', 'normalized');
-    set(gcf, 'Position', [.6 .1 .3 .3]);
-    set(fv, 'name', 'Reverse correlation profile');
-    figure(fh);
-elseif isfield(Srf, 'Model')
-    % pRF profile based on fit parameters
-    if isfield(Srf.Model, 'Prf_Function')
+if ~isempty(Srf)
+    % Which data to display?
+    if isfield(Srf, 'Rmaps')
+        % Reverse correlation profile
         figure(fv);
-        samsrf_showprf(Srf, v, Srf.Model);
+        if var(Srf.Rmaps(:,v)) == 0
+            Srf.Rmaps(1,v)=.001;
+        end
+        samsrf_showprf(Srf, v);
         legend off
-        caxis([-1 1]);
+        s = max(abs([min(Srf.Rmaps(:)) max(Srf.Rmaps(:))]));
+        caxis([-s s]);
         title(['Vertex: ', num2str(v)]);
         set(gcf, 'Units', 'normalized');
         set(gcf, 'Position', [.6 .1 .3 .3]);
-        set(fv, 'name', 'pRF model fit');
+        set(fv, 'name', 'Reverse correlation profile');
         figure(fh);
-    end
-elseif isfield(Srf, 'Y')
-    % Predicted & observed time series
-    if isfield(Srf, 'Model_')
+    elseif isfield(Srf, 'Model')
+        % pRF profile based on fit parameters
+        if isfield(Srf.Model, 'Prf_Function')
+            figure(fv);
+            samsrf_showprf(Srf, v, Srf.Model);
+            legend off
+            caxis([-1 1]);
+            title(['Vertex: ', num2str(v)]);
+            set(gcf, 'Units', 'normalized');
+            set(gcf, 'Position', [.6 .1 .3 .3]);
+            set(fv, 'name', 'pRF model fit');
+            figure(fh);
+        end
+    elseif isfield(Srf, 'Y')
+        % Predicted & observed time series
+        if isfield(Srf, 'Model_')
+            figure(fv);
+            samsrf_fitvsobs(Srf, Srf.Model_, v);
+            set(fv, 'name', 'Observed vs predicted time series');
+            figure(fh);
+        end
+    elseif ~isfield(Srf, 'Y') && ~isfield(Srf, 'X') && ~isfield(Srf, 'Y_')
+        CurrData = Srf.Data(:,v);
+        ts = ['Vertex: ', num2str(v)];
+        if strcmpi(Srf.Values{1}, 'Noise Ceiling')
+            % If file includes noise ceiling in row one extract that
+            ts = [ts ', Noise ceiling: ' num2str(CurrData(1))];
+            CurrData = CurrData(2:end);
+        end
         figure(fv);
-        samsrf_fitvsobs(Srf, Srf.Model_, v);
-        set(fv, 'name', 'Observed vs predicted time series');
+        hold off
+        if contains(Srf.Functional, 'GLM contrasts')
+            % Plot GLM contrasts
+            plot(Srf.Data(:,v), 'o-k', 'linewidth', 2);
+            xlim([.5 size(Srf.Data,1)+.5]);
+            ylim([nanmin(Srf.Data(:)) nanmax(Srf.Data(:))]);
+            line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
+            set(gca, 'fontsize', 12, 'xtick', 1:size(Srf.Data,1), 'xticklabel', Srf.Values);
+            title(ts);
+            xlabel('Contrast');
+            ylabel('Differential response');
+            set(gcf, 'Units', 'normalized');
+            set(gcf, 'Position', [.1 .1 .8 .4]);
+            set(fv, 'name', 'GLM contrasts');
+        else
+            % Plotting observed time series
+            if isfield(Srf, 'Raw_Data')
+                plot(Srf.Raw_Data(:,v), 'color', [.6 .6 1], 'linewidth', 2);
+                hold on
+            end
+            plot(CurrData, 'color', [0 0 1], 'linewidth', 2);
+            hold on
+            xlim([1 length(CurrData)]);
+            line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
+            if isfield(Srf, 'Raw_Data')
+                legend({'Smooth' 'Raw'});
+            end
+            title(ts);
+            set(gcf, 'Units', 'normalized');
+            set(gcf, 'Position', [.1 .1 .8 .4]);
+            set(gca, 'fontsize', 12);
+            xlabel('Volumes (#)');
+            ylabel('Response (z)');
+            set(fv, 'name', 'Observed time series');
+        end
+        grid on
+        figure(fh);
+    elseif isfield(Srf, 'ConFlds')
+        % Connective field profile
+        curcam = get(gca, 'view');
+        figure(fv);
+        % Curvature
+        Curv = Srf.Curvature;
+        Curv(isnan(Curv)) = 0;
+        Curv = -Curv + 0.5;
+        Curv(Curv <= 0) = 0.000001;
+        Curv(Curv > 1) = 1;
+        Curv = ceil(Curv * size(CurvGrey,1));
+        % Seed ROI correlations
+        Cf = Srf.ConFlds(:,v);
+        CfThrsh = [.01 max(Cf(:))];
+        X = NaN(1,size(Vertices,1));
+        X(1,Srf.SeedVx) = Cf;
+        % Set all below minimum to minimum
+        X(X>0 & X<+CfThrsh(1)) = NaN;
+        X(X<0 & X>-CfThrsh(1)) = NaN;
+        % Adjust minimum
+        AdjThr = CfThrsh(2) - CfThrsh(1);
+        X(X>0) = X(X>0) - CfThrsh(1);
+        X(X<0) = X(X<0) + CfThrsh(1);
+        % Set all above maximum to maximum
+        X(X>0 & X>+AdjThr) = +AdjThr;
+        X(X<0 & X<-AdjThr) = -AdjThr;
+        % Convert to integers
+        Pha = round(X / AdjThr * 100) + 100;    
+        Pha(Pha==0) = 1;
+        Pha(isnan(Pha)|isinf(Pha)) = 100;  
+        % Transparency
+        Alpha = zeros(size(Vertices,1),3);
+        Alpha(Srf.SeedVx,:) = repmat(X(Srf.SeedVx)'/AdjThr * 0.5 + 0.5, [1 3]);
+        Alpha(isnan(Alpha)) = 0.5; % To remove white artifacts
+        % Colour map
+        Cmap = hotcold(200);
+        Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
+        % Draw surface
+        set(gca, 'view', curcam);
+        if isempty(pv)
+            % New plot
+            pv = patch('vertices', Vertices, 'faces', Srf.Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none');
+            zoom(3);
+            axis off;
+            ax = gca;
+            ax.Clipping = 'off';
+            set(gca, 'projection', 'perspective');
+            daspect([1 1 1]); % Correct aspect ratio    
+        else
+            % Simply redraw
+            set(pv, 'FaceVertexCData', Colours); 
+        end
+        title(['Vertex: ', num2str(v)]);
+        set(fv, 'name', 'Connective field profile');
         figure(fh);
     end
-elseif ~isfield(Srf, 'Y') && ~isfield(Srf, 'X') && ~isfield(Srf, 'Y_')
-    CurrData = Srf.Data(:,v);
-    ts = ['Vertex: ', num2str(v)];
-    if strcmpi(Srf.Values{1}, 'Noise Ceiling')
-        % If file includes noise ceiling in row one extract that
-        ts = [ts ', Noise ceiling: ' num2str(CurrData(1))];
-        CurrData = CurrData(2:end);
-    end
-    figure(fv);
-    hold off
-    if contains(Srf.Functional, 'GLM contrasts')
-        % Plot GLM contrasts
-        plot(Srf.Data(:,v), 'o-k', 'linewidth', 2);
-        xlim([.5 size(Srf.Data,1)+.5]);
-        ylim([nanmin(Srf.Data(:)) nanmax(Srf.Data(:))]);
-        line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
-        set(gca, 'fontsize', 12, 'xtick', 1:size(Srf.Data,1), 'xticklabel', Srf.Values);
-        title(ts);
-        xlabel('Contrast');
-        ylabel('Differential response');
-        set(gcf, 'Units', 'normalized');
-        set(gcf, 'Position', [.1 .1 .8 .4]);
-        set(fv, 'name', 'GLM contrasts');
-    else
-        % Plotting observed time series
-        if isfield(Srf, 'Raw_Data')
-            plot(Srf.Raw_Data(:,v), 'color', [.6 .6 1], 'linewidth', 2);
-            hold on
-        end
-        plot(CurrData, 'color', [0 0 1], 'linewidth', 2);
-        hold on
-        xlim([1 length(CurrData)]);
-        line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
-        if isfield(Srf, 'Raw_Data')
-            legend({'Smooth' 'Raw'});
-        end
-        title(ts);
-        set(gcf, 'Units', 'normalized');
-        set(gcf, 'Position', [.1 .1 .8 .4]);
-        set(gca, 'fontsize', 12);
-        xlabel('Volumes (#)');
-        ylabel('Response (z)');
-        set(fv, 'name', 'Observed time series');
-    end
-    grid on
-    figure(fh);
-elseif isfield(Srf, 'ConFlds')
-    % Connective field profile
-    curcam = get(gca, 'view');
-    figure(fv);
-    % Curvature
-    Curv = Srf.Curvature;
-    Curv(isnan(Curv)) = 0;
-    Curv = -Curv + 0.5;
-    Curv(Curv <= 0) = 0.000001;
-    Curv(Curv > 1) = 1;
-    Curv = ceil(Curv * size(CurvGrey,1));
-    % Seed ROI correlations
-    Cf = Srf.ConFlds(:,v);
-    CfThrsh = [.01 max(Cf(:))];
-    X = NaN(1,size(Vertices,1));
-    X(1,Srf.SeedVx) = Cf;
-    % Set all below minimum to minimum
-    X(X>0 & X<+CfThrsh(1)) = NaN;
-    X(X<0 & X>-CfThrsh(1)) = NaN;
-    % Adjust minimum
-    AdjThr = CfThrsh(2) - CfThrsh(1);
-    X(X>0) = X(X>0) - CfThrsh(1);
-    X(X<0) = X(X<0) + CfThrsh(1);
-    % Set all above maximum to maximum
-    X(X>0 & X>+AdjThr) = +AdjThr;
-    X(X<0 & X<-AdjThr) = -AdjThr;
-    % Convert to integers
-    Pha = round(X / AdjThr * 100) + 100;    
-    Pha(Pha==0) = 1;
-    Pha(isnan(Pha)|isinf(Pha)) = 100;  
-    % Transparency
-    Alpha = zeros(size(Vertices,1),3);
-    Alpha(Srf.SeedVx,:) = repmat(X(Srf.SeedVx)'/AdjThr * 0.5 + 0.5, [1 3]);
-    Alpha(isnan(Alpha)) = 0.5; % To remove white artifacts
-    % Colour map
-    Cmap = hotcold(200);
-    Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
-    % Draw surface
-    set(gca, 'view', curcam);
-    if isempty(pv)
-        % New plot
-        pv = patch('vertices', Vertices, 'faces', Srf.Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none');
-        zoom(3);
-        axis off;
-        ax = gca;
-        ax.Clipping = 'off';
-        set(gca, 'projection', 'perspective');
-        daspect([1 1 1]); % Correct aspect ratio    
-    else
-        % Simply redraw
-        set(pv, 'FaceVertexCData', Colours); 
-    end
-    title(['Vertex: ', num2str(v)]);
-    set(fv, 'name', 'Connective field profile');
-    figure(fh);
 end
 return
    
