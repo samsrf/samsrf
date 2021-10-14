@@ -30,8 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.522 (13-10-2021)  
+### Version 7.524 (15-10-2021)  
+- Added progress bar to samsrf_backproj_prf (DSS)  
 - Fixed mislading typo in help section to samsrf_backproj_sctr (DSS)  
+- Further cosmetic changes to DisplayMaps tool (DSS)  
 
 ### Version 7.521 (13-10-2021)  
 - Major overhaul of DisplayMaps user interface, including vertex inspector (DSS)  

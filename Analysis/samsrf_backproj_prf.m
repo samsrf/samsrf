@@ -44,6 +44,7 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % 20/09/2021 - Changed default colour map to berlin (DSS)
 %              Fixed bug with default inputs (DSS)
 %              Default clipping level is now 1 (DSS)
+% 14/10/2021 - Now displays progress bar (DSS)
 %
 
 if nargin < 5
@@ -95,6 +96,9 @@ pRF_Data(4,:) = pRF_Data(4,:) / Eccentricity;
 Response = Response / max(abs(Response(:)));
 
 % Loop through volumes
+new_line;
+disp('Backprojecting data into visual space...');
+samsrf_progbar(0);
 for t = 1:size(Response,1)
 % parfor t = 1:size(Response,1)
     % Loop through vertices
@@ -108,6 +112,7 @@ for t = 1:size(Response,1)
     % Store current frame
     Timecourses(:,:,t) = Curr;
     Ds(:,:,t) = Dcur;
+    samsrf_progbar(t/size(Response,1));
 end
 
 % Normalize backprojected response by pRF density?
