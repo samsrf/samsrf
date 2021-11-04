@@ -580,7 +580,7 @@ elseif strcmpi(MapType, 'x0') || strcmpi(MapType, 'y0') || strcmpi(MapType, 'Sig
        || strcmpi(MapType, 'Suppression') || strcmpi(MapType, 'Cmf') || strcmpi(MapType, 'Visual Area') || strcmpi(MapType, 'Surface Area') 
     % Measures that should be positive
     MapData = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
-    set(handles.edit2, 'String', ['0 ' num2str(prctile(MapData(MapData > 0), 95))]) 
+    set(handles.edit2, 'String', ['0 ' num2str(prctile(MapData(MapData > 0), 75))]) 
 
 elseif strcmpi(MapType, 'Field Sign')
     % Field sign
@@ -592,7 +592,7 @@ elseif strcmpi(MapType, 'ROI') || strcmpi(MapType, 'ROIs')
 
 else
     % Anything else
-    set(handles.edit2, 'String', ['0 ' num2str(prctile(Srf.Data(MapNum,:), 95))]);
+    set(handles.edit2, 'String', ['0 ' num2str(prctile(Srf.Data(MapNum,:), 99))]);
 end
 RedrawMaps(handles, false);
 

@@ -11,16 +11,19 @@ function samsrf_clonecam(Z)
 % The optional input argument Z defines the zoom to apply to each figure.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 22/10/2021 - Now also adjusts axis limits (DSS)
 %
 
 % Get current view
 c = get(gca, 'CameraPosition');
+a = axis;
 % Loop through figures
 h = findobj('Type','Figure');
 for i = 1:length(h)
     figure(h(i));
     if ~strcmpi(get(gcf,'Name'), 'DisplayMaps')        
         set(gca, 'CameraPosition', c);
+        axis(a);
         if nargin > 0
             zoom(Z);
         end
