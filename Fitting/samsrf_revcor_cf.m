@@ -150,35 +150,6 @@ Srf.Data = zeros(5,size(Srf.Vertices,1)); % Output data structure
 disp('Estimating CF parameters...');
 % Run estimation loop
 [fVimg, fXimg, fYimg, fWimg, fRimg] = samsrf_cfparam_loop(Srf.Area, Srf.ConFlds(:,mver), svx, Temp.Srf.Data);
-% % Keep track of redundancies
-% Fitted = zeros(1,size(Srf.Vertices,1));   % Toggle if vertex was already analysed
-% % Loop through mask vertices 
-% samsrf_progbar(0);
-% parfor v = 1:length(mver)
-%     % Index of current vertex
-%     vx = mver(v);
-% 
-%     % Retrieve r-map
-%     R = Srf.ConFlds(:,vx); % Correlation of time courses with regressors
-%     % Determine parameters
-%     mR = max(R); % Find peak activation in each map
-%     mR = mR(1); % Ensure only one value
-%     fwhm = sqrt(sum(Srf.Area(R > mR/2))); % Square root of area above half maximum
-%     m = find(R==mR,1); % Find peak coordinate
-%     rd = samsrf_find_redundancy(Tc,vx); % Find redundant vertices 
-%     if ~isnan(mR) && mR > 0
-%         Fitted(rd) = 1; % Mark all redundant vertices
-%         fVimg(rd) = svx(m);  % Peak vertex in seed ROI
-%         fXimg(rd) = Temp.Srf.Data(2,svx(m)); % Left-Right coordinate
-%         fYimg(rd) = Temp.Srf.Data(3,svx(m)); % Inferior-Superior coordinate
-%         fWimg(rd) = fwhm; % Full width half maximum guestimate
-%         fRimg(rd) = mR^2;  % Peak correlation squared 
-%     else
-%         Fitted(rd) = 1; % Mark all redundant vertices
-%     end
-%     % Progress report
-%     samsrf_progbar(v/length(mver));
-% end
 t3 = toc(t0); 
 disp(['Parameter estimates completed in ' num2str(t3/60/60) ' hours.']);
 new_line;

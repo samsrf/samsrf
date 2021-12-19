@@ -30,6 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.54 (19-12-2021)  
+- Option to turn off automatic global regressor in samsrf_removenoise (DSS)  
+- Removing irrelevant commented sections from samsrf_revcor_cf (DSS)  
+- Updated Delineation Tutorial to include AutoDelineation tool (DSS)  
+
 ### Version 7.53 (05-11-2021)  
 - Parameter estimation in samsrf_revcor_cf now uses parallel computing (DSS)  
 - Added progress bar to samsrf_backproj_prf (DSS)  
