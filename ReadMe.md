@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.541 (14-01-2022)  
+- Inconsequential changes to help sections & command line reports (DSS)  
+
 ### Version 7.54 (19-12-2021)  
 - Option to turn off automatic global regressor in samsrf_removenoise (DSS)  
 - Removing irrelevant commented sections from samsrf_revcor_cf (DSS)  
