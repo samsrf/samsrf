@@ -83,6 +83,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 12/10/2021 - Vertex inspector now also works for forward-model fits (DSS)
 % 13/10/2021 - Massively expanded remit of vertex inspector (DSS)
 %              Fixed bug when not using DisplayMaps tool (DSS)
+% 14/03/2022 - Added option to recompute CF correlation profiles when not saved (DSS)
 %
 
 %% Create global variables
@@ -771,7 +772,13 @@ if ~isempty(Srf)
         Curv(Curv > 1) = 1;
         Curv = ceil(Curv * size(CurvGrey,1));
         % Seed ROI correlations
-        Cf = Srf.ConFlds(:,v);
+        if isnan(Srf.ConFlds)
+            % Recompute CF correlation profile
+            Cf = corr(Srf.Y_(:,v), Srf.Y_(:,Srf.SeedVx));
+        else
+            % CF correlation profile saved in file
+            Cf = Srf.ConFlds(:,v);
+        end
         CfThrsh = [.01 max(Cf(:))];
         X = NaN(1,size(Vertices,1));
         X(1,Srf.SeedVx) = Cf;

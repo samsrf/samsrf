@@ -29,6 +29,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 % 22/09/2021 - Now allows downsampling of predictions when TR does not match stimulus timing (DSS)
 %              Fixed bug with storing coarse fit predictions when downsampling (DSS)
+% 12/02/2022 - If running coarse-fit only, now stores convolved predictions in data file (DSS)
 %
 
 %% Defaults & constants
@@ -300,7 +301,6 @@ new_line;
 if Model.Coarse_Fit_Only 
     %% Store coarse fit parameters
     disp('Only running coarse fit!');
-    Srf.X = zeros(size(Tc)); % Matrix with unconvolved predictions
     fPimg = Pimg(:,mver); % Coarse fitted parameter maps
     fRimg = Rimg(1,mver); % R^2 map
     fBimg = Bimg(:,mver); % Beta map

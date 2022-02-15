@@ -23,6 +23,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 %
 % 16/07/2020 - SamSrf 7 version (DSS)
 % 21/12/2020 - Fixed bug where version number was restored from anatomy meshes (DSS)
+% 14/02/2022 - CF correlation profiles are not saved in data file by default (DSS)
 %
 
 %% In case no values defined
@@ -95,9 +96,11 @@ if isfield(Srf, 'Roi')
         Srf.Rmaps(:,vx) = Rm;
     end
     if isfield(Srf, 'ConFlds')
-        Cf = Srf.ConFlds;
-        Srf.ConFlds = zeros(size(Cf,1),nv);
-        Srf.ConFlds(:,vx) = Cf;
+        if ~isnan(Srf.ConFlds)
+            Cf = Srf.ConFlds;
+            Srf.ConFlds = zeros(size(Cf,1),nv);
+            Srf.ConFlds(:,vx) = Cf;
+        end
     end
     if isfield(Srf, 'Noise_Ceiling')
         Nc = Srf.Noise_Ceiling;

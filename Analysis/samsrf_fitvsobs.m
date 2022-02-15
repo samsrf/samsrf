@@ -15,6 +15,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 %              Can now also plot predictors that don't come from forward-model pRFs (DSS)
 % 13/10/2021 - Supports plotting predictors from a GLM now (DSS)
 %              Observed time series now in blue (DSS)
+% 12/02/2022 - Now allows plotting convolved predictions stored in coarse-fit data files (DSS)
 %
 
 % Expand Srf if necessary
@@ -39,7 +40,7 @@ elseif isfield(Srf, 'X')
         Model.Downsample_Predictions = 1; % In case downsampling undefined
     end
     % Convolve prediction with HRF?
-    if isfield(Model, 'Hrf')
+    if isfield(Model, 'Hrf') && ~Model.Coarse_Fit_Only % Only needed for fine-fits
         X = prf_convolve_hrf(X, Model.Hrf, Model.Downsample_Predictions);
     end
 

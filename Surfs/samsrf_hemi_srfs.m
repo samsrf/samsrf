@@ -15,6 +15,7 @@ function [SrfL, SrfR] = samsrf_hemi_srfs(Srf)
 % Warning: May fail with very large data files due to lack of memory.
 %
 % 09/06/2021 - Written (DSS)
+% 14/02/2022 - Now also splits seed vertices from CF maps (DSS)
 %
 
 % Expand Srf
@@ -76,7 +77,18 @@ for h = 1:2
         Cur.Rmaps = Srf.Rmaps(:,V); 
     end
     if isfield(Cur, 'ConFlds')
-        Cur.ConFlds = Srf.ConFlds(:,V); 
+        if ~isnan(Cur.ConFlds(1))
+            Cur.ConFlds = Srf.ConFlds(:,V); 
+        end
+    end
+    if isfield(Cur, 'SeedVx')
+        if h == 1
+            % Left hemisphere
+            Cur.SeedVx = Srf.SeedVx(Srf.SeedVx <= Srf.Nvert_Lhem);
+        elseif h == 2
+            % Right hemisphere
+            Cur.SeedVx = Srf.SeedVx(Srf.SeedVx > Srf.Nvert_Lhem) - Srf.Nvert_Lhem;
+        end
     end
     if isfield(Cur, 'Noise_Ceiling')
         Cur.Noise_Ceiling = Srf.Noise_Ceiling(:,V); 

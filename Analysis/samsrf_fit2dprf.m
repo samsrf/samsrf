@@ -31,7 +31,8 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 %
 % 26/06/2020 - SamSrf 7 version (DSS)
 % 10/08/2021 - Fixed help section (DSS)
-% 11/08/2021 - Reverted back to enforcing complete vector of seed parameters (DSS)         
+% 11/08/2021 - Reverted back to enforcing complete vector of seed parameters (DSS)  
+% 15/02/2022 - Added option to fit to pRF coordinate data for CF fitting (DSS)
 
 % Check seed parameters are row vector 
 if size(SeedParams,2) == 1
@@ -45,13 +46,19 @@ end
 % Side length
 dims = size(Rmap,1);
 
-% Generate mask
-Scaled = NaN(dims, dims, size(ApFrm,3));
-for i = 1:size(ApFrm,3)
-    % Rescale apertures to reverse correlation size
-    Scaled(:,:,i) = imresize(ApFrm(:,:,i), [dims dims]);
+% Apertures provided?
+if nargin < 5
+    % No apertures defined so no masking applied
+    Mask = 1;
+else
+    % Generate mask
+    Scaled = NaN(dims, dims, size(ApFrm,3));
+    for i = 1:size(ApFrm,3)
+        % Rescale apertures to reverse correlation size
+        Scaled(:,:,i) = imresize(ApFrm(:,:,i), [dims dims]);
+    end
+    Mask = sum(Scaled~=0,3)~=0;
 end
-Mask = sum(Scaled~=0,3)~=0;
 
 % Which parameters must be scaled?
 for p = 1:length(SeedParams)-2

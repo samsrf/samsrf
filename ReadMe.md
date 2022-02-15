@@ -30,7 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.541 (14-01-2022)  
+### Version 7.6 (16-02-2022)  
+- By default, reverse correlation CF now fits pRFs to template pRF coordinates (DSS)  
+- pRF model functions now accept pRF coordinates as input for CF fitting (DSS)  
+- CF reverse correlation profiles are no longer saved in data file by default (DSS)  
 - Inconsequential changes to help sections & command line reports (DSS)  
 
 ### Version 7.54 (19-12-2021)  

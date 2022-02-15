@@ -31,6 +31,7 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 %
 % 29/10/2020 - Written & further error corrections (DSS)
 % 21/12/2020 - Now removes mesh field if it exists (DSS)
+% 14/02/2022 - Now also combines seed vertices from CF maps (DSS)
 %
 
 % Expand Srfs
@@ -90,7 +91,14 @@ if isfield(SrfL, 'Rmaps')
     Srf.Rmaps = [SrfL.Rmaps SrfR.Rmaps];
 end
 if isfield(SrfL, 'ConFlds')
-    Srf.ConFlds = [SrfL.ConFlds SrfR.ConFlds];
+    if ~isnan(SrfL.ConFlds) && ~isnan(SrfR.ConFlds)
+        Srf.ConFlds = [SrfL.ConFlds SrfR.ConFlds];
+    else
+        Srf.ConFlds = NaN;
+    end
+end
+if isfield(SrfL, 'SeedVx')
+    Srf.SeedVx = [SrfL.SeedVx; SrfR.SeedVx + Srf.Nvert_Lhem];
 end
 if isfield(SrfL, 'Noise_Ceiling')
     Srf.Noise_Ceiling = [SrfL.Noise_Ceiling SrfR.Noise_Ceiling];

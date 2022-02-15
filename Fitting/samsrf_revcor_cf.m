@@ -28,7 +28,9 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 % 13/10/2021 - Added progress report to CF parameter estimation (DSS)
-% 05/11/2021 - Paramter estimation now uses parallel computing (DSS)
+% 05/11/2021 - Parameter estimation now uses parallel computing (DSS)
+% 14/02/2022 - By default now no longer stores correlation profiles (DSS)
+% 15/02/2022 - Added option to fit pRF parameters to pRF coordinates from template (DSS)
 %
 
 %% Defaults & constants
@@ -38,6 +40,12 @@ if nargin < 3
 end
 if ~isfield(Model, 'Noise_Ceiling_Threshold')
     Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
+end
+if ~isfield(Model, 'Save_Rmaps')
+    Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
+end
+if ~isfield(Model, 'Fit_pRF')
+    Model.Fit_pRF = true;
 end
 
 %% Start time of analysis
@@ -137,33 +145,59 @@ for v = 1:length(mver)
     % Progress report
     samsrf_progbar(v/length(mver));
 end
-Srf.Data = NaN(length(svx), size(Srf.Vertices,1));
-Srf.Data(:,mver) = Rmaps;
 t2 = toc(t0); 
 disp(['Correlation analysis completed in ' num2str(t2/60/60) ' hours.']);
 new_line;
 
 %% Determine CF parameters
 % CF parameters
-Srf.ConFlds = Srf.Data; % Smoothed correlation profile
-Srf.Data = zeros(5,size(Srf.Vertices,1)); % Output data structure
+if Model.Fit_pRF
+    Srf.Data = zeros(8,size(Srf.Vertices,1)); % Output data when fitting pRFs
+else
+    Srf.Data = zeros(5,size(Srf.Vertices,1)); % Output data when not fitting pRFs
+end
 disp('Estimating CF parameters...');
+if Model.Fit_pRF
+    disp(' Fitting pRF parameters to template pRF coordinates.');
+else
+    disp(' Only determining raw position coordinates from template map.');
+end
 % Run estimation loop
-[fVimg, fXimg, fYimg, fWimg, fRimg] = samsrf_cfparam_loop(Srf.Area, Srf.ConFlds(:,mver), svx, Temp.Srf.Data);
+[fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Srf.Area, Rmaps, svx, Temp.Srf.Data);
 t3 = toc(t0); 
 disp(['Parameter estimates completed in ' num2str(t3/60/60) ' hours.']);
 new_line;
 
 % Save as surface structure
 Srf.Functional = 'Connective field';
-Data = [fRimg; fXimg; fYimg; fWimg; fVimg];
+if Model.Fit_pRF 
+    % Fitting pRF parameters
+    Data = [fRimg; fXimg; fYimg; fSimg; fBimg; fWimg; fVimg];
+    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'; 'Baseline'; 'Fwhm'; 'Vx'};
+else
+    % Not fitting pRF parameters
+    Data = [fRimg; fXimg; fYimg; fWimg; fVimg];
+    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Vx'};
+end
 Srf.Data(:,mver) = Data;
-Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Vx'};
 % Add noise ceiling if it has been calculated
 if isfield(Srf, 'Noise_Ceiling')
     Srf.Data = [Srf.Data; Srf.Noise_Ceiling];
     Srf.Values{end+1} = 'Noise Ceiling'; 
     Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
+end
+
+% Are we saving correlation profiles?
+if Model.Save_Rmaps
+    disp('Saving CF profiles in data file.');
+    Srf.ConFlds = NaN(length(svx), size(Srf.Vertices,1));
+    Srf.ConFlds(:,mver) = Rmaps;
+else
+    disp('Not saving CF profiles...');
+    if Model.Smoothing > 0
+        warning('Smoothed profiles will be lost!');
+    end
+    Srf.ConFlds = NaN; % Remove Rmaps to save space
 end
 
 % Save map files

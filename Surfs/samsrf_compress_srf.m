@@ -13,6 +13,7 @@ function Srf = samsrf_compress_srf(Srf,vx)
 %   is no support for expanding or compressing multi-subbject Srfs.
 %
 % 16/07/2020 - SamSrf 7 version (DSS)
+% 14/02/2022 - CF correlation profiles are not saved in data file by default (DSS)
 %
 
 %% Remove data outside of region of interest
@@ -37,7 +38,9 @@ if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)
         Srf.Rmaps = Srf.Rmaps(:,vx);
     end
     if isfield(Srf, 'ConFlds')
-        Srf.ConFlds = Srf.ConFlds(:,vx);
+        if ~isnan(Srf.ConFlds)
+            Srf.ConFlds = Srf.ConFlds(:,vx);
+        end
     end
     if isfield(Srf, 'Noise_Ceiling')
         Srf.Noise_Ceiling = Srf.Noise_Ceiling(:,vx);

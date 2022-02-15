@@ -54,11 +54,13 @@ Model.Name = 'CF'; % File name for output map
 Model.SeedRoi = SeedRoi; % Seed ROI for analysis
 Model.Template = TempMap; % Vertex number of seed region origin
 Model.Smoothing = 0; % Smoothing kernel (works differently for forward-model & reverse-correlation)
-Model.Sizes = 5:5:20; % Range of sizes for CFs in geodesic steps (forward-model only)
+Model.Fit_pRF = true; % Fitting pRFs to template pRF coordinates (optional)
+Model.Save_Rmaps = false; % Not saving CF correlation profiles in data file (optional)
+% Model.Sizes = 5:5:20; % Range of sizes for CFs in geodesic steps (forward-model only)
 
 %% Fit pRF model
-MapFile = samsrf_fit_cf(Model, SrfFiles, Roi); % Forward-model fast fit
-% MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi); % Reverse correlation analysis
+MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi); % Reverse correlation analysis
+% MapFile = samsrf_fit_cf(Model, SrfFiles, Roi); % Forward-model fast fit (computationally expensive & not fully tested)
 
 %% Return home
 cd(HomePath); 
