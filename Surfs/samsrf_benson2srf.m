@@ -23,6 +23,7 @@ function samsrf_benson2srf(mghimg, surfdir)
 % 17/04/2021 - Renamed ROI variable to be consistent with SamSrf's template (DSS)
 %              Added a sigma row for consistency which contains only NaNs (DSS)
 % 18/05/2021 - Fixed bug with previous change that clearly nobody used since then (DSS) 
+% 16/02/2022 - Fixed bug when no NII is found for T1 (DSS)
 %
 
 %% Determine file parts 
@@ -50,10 +51,10 @@ strimg = dir([surfdir filesep '..' filesep 'mri' filesep '*.nii']);
 if isempty(strimg)
     strimg = dir([surfdir filesep '..' filesep 'mri' filesep 'orig' filesep '*.nii']);
 end
-strimg = strimg(1).name;
 if isempty(strimg)
     error('Couldn''t find any NII file for the T1!');
 end
+strimg = strimg(1).name;
 disp(['Saving Benson maps for ' strimg]);
 
 %% Load MGH data

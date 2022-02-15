@@ -30,6 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.601 (16-02-2022)  
+- Fixed minor bug with samsrf_benson2srf (DSS)  
+
 ### Version 7.6 (16-02-2022)  
 - By default, reverse correlation CF now fits pRFs to template pRF coordinates (DSS)  
 - pRF model functions now accept pRF coordinates as input for CF fitting (DSS)  
