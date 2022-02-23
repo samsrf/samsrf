@@ -83,7 +83,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 12/10/2021 - Vertex inspector now also works for forward-model fits (DSS)
 % 13/10/2021 - Massively expanded remit of vertex inspector (DSS)
 %              Fixed bug when not using DisplayMaps tool (DSS)
-% 14/03/2022 - Added option to recompute CF correlation profiles when not saved (DSS)
+% 14/02/2022 - Added option to recompute CF correlation profiles when not saved (DSS)
 %
 
 %% Create global variables

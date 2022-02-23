@@ -31,6 +31,8 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 05/11/2021 - Parameter estimation now uses parallel computing (DSS)
 % 14/02/2022 - By default now no longer stores correlation profiles (DSS)
 % 15/02/2022 - Added option to fit pRF parameters to pRF coordinates from template (DSS)
+% 22/02/2022 - Now includes default option to correct time series by global mean signal (DSS)
+%              CF correlation profiles are now also computed with parallel processing (DSS)
 %
 
 %% Defaults & constants
@@ -40,6 +42,9 @@ if nargin < 3
 end
 if ~isfield(Model, 'Noise_Ceiling_Threshold')
     Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
+end
+if ~isfield(Model, 'Global_Signal_Correction')
+    Model.Global_Signal_Correction = true; % Correct time series by global mean signal
 end
 if ~isfield(Model, 'Save_Rmaps')
     Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
@@ -75,6 +80,15 @@ for f = 1:length(SrfFiles)
     Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
+%% Correct by global mean signal?
+if Model.Global_Signal_Correction
+    new_line; disp('Applying global signal correction...');
+    Srf.Data = Tc;
+    Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2));
+    Tc = Srf.Data;
+    Srf.Data = [];
+end
+
 %% Load ROI mask
 if isempty(Roi)
     new_line; disp('Using all vertices (''tis gonna take forever!)...');
@@ -106,6 +120,8 @@ if Model.Smoothing > 0 % No point when not smoothing
     Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
     Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
     disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' seconds.']);
+else 
+    Ws = [];
 end
 
 %% Load template map
@@ -123,29 +139,8 @@ Srf.Data = []; % Needed for later
 
 %% Calculate reverse correlation map 
 disp('Calculating CF profiles...');
-% % Keep track of redundancies
-Rmaps = NaN(length(svx),length(mver)); % Connective field profile for each vertex 
-% Loop through mask vertices 
-samsrf_progbar(0);
-for v = 1:length(mver)
-    % Calculate r-map
-    Y = Tc(:,mver(v));  % Time course of current vertex
-    R = corr(Y,X); % Correlation of time courses with regressors
-    % Smooth profile if needed
-    if Model.Smoothing > 0
-        sR = repmat(R,length(svx),1) .* Ws; % Smoothed profiles for each seed vertex 
-        R = nansum(sR,2) ./ sum(Ws,2); % Smoothed seed ROI    
-    end
-    % Determine parameters
-    mR = max(R); % Find peak activation in each map
-    mR = mR(1); % Ensure only one value
-    if ~isnan(mR) && mR > 0
-        Rmaps(:,v) = R(:); % Activation map as vector 
-    end
-    % Progress report
-    samsrf_progbar(v/length(mver));
-end
-t2 = toc(t0); 
+Rmaps = samsrf_cfcorrel_loop(Tc(:,mver), X, Ws); % Connective field profile for each vertex
+t2 = toc(t0);
 disp(['Correlation analysis completed in ' num2str(t2/60/60) ' hours.']);
 new_line;
 

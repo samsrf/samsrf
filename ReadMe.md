@@ -30,7 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.601 (16-02-2022)  
+### Version 7.61 (23-02-2022)  
+- CF reverse correlation now defaults to using global signal correction (DSS)  
+- CF correlation profiles are now also computed using parallel processing (DSS)  
 - Fixed minor bug with samsrf_benson2srf (DSS)  
 
 ### Version 7.6 (16-02-2022)  

@@ -3,9 +3,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % [fVimg, fXimg, fZimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Area, ConFlds, SeedVx, Temp, FitPrf) 
 %
 % Internal function looping through solving the CF parameter fit for each mask vertex.
-%
-% Loops thru fitting parameters to reverse correlation CFs. Separated from
-%  main function for clarity & to allow progress bar.
+% Separated from main function for clarity & to allow progress bar.
 %
 %   Area:     Srf.Area from data structure 
 %   ConFlds:  Matrix with CF correlation profiles, restricted to mask
@@ -135,15 +133,5 @@ end
     function percentanalysed(~)
         samsrf_progbar(vc/nver);
         vc = vc + 1;
-    end
-end
-
-
-%% Output function to prevent loop from getting stuck  
-function stop = samsrf_fminsearch_outfun(x, optimValues, state) 
-    if isfinite(optimValues.fval)
-        stop = false;
-    else
-        stop = true;
     end
 end

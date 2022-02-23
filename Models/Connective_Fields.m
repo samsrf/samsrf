@@ -54,6 +54,7 @@ Model.Name = 'CF'; % File name for output map
 Model.SeedRoi = SeedRoi; % Seed ROI for analysis
 Model.Template = TempMap; % Vertex number of seed region origin
 Model.Smoothing = 0; % Smoothing kernel (works differently for forward-model & reverse-correlation)
+Model.Global_Signal_Correction = true; % Correct by global mean signal?
 Model.Fit_pRF = true; % Fitting pRFs to template pRF coordinates (optional)
 Model.Save_Rmaps = false; % Not saving CF correlation profiles in data file (optional)
 % Model.Sizes = 5:5:20; % Range of sizes for CFs in geodesic steps (forward-model only)
