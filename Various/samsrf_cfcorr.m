@@ -20,6 +20,7 @@ function R = samsrf_cfcorr(Y, X, S, TR, Hrf, Downsampling)
 %   and the peak correlation is shown by a green cross.
 %
 % 28/06/2020 - SamSrf 7 version (DSS) 
+% 26/02/2022 - Fixed bug with HRF convolution not being used (DSS) 
 %
 
 if nargin < 4
@@ -38,11 +39,9 @@ if isempty(Hrf)
 end
 
 % Convolve with HRF
-cX = NaN(size(Y,1), size(X,2)); % Convolve X may mismatch number of volumes in X
 for p = 1:size(X,2)
     X(:,p) = prf_convolve_hrf(X(:,p), Hrf, Downsampling); % Convolve & downsample if desired
 end
-X = cX; % Replace X with convolved X
 
 % Calculate R^2
 R = corr(Y,X).^2;
