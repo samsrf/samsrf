@@ -30,8 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.611 (26-02-2022)  
-- Fixed bug with HRF convolution in samsrf_cfcorr (DSS)  
+### Version 7.612 (26-02-2022)  
+- Fixed several bugs in samsrf_cfcorr (DSS)  
 
 ### Version 7.61 (23-02-2022)  
 - CF reverse correlation now defaults to using global signal correction (DSS)  

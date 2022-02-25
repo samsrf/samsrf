@@ -19,8 +19,13 @@ function R = samsrf_cfcorr(Y, X, S, TR, Hrf, Downsampling)
 %   The plot containing the maximum correlation is indicated by asterisks
 %   and the peak correlation is shown by a green cross.
 %
+% NOTE: This function is currently not designed to work very well with
+%       polar search grids. This will require a different way to visualise 
+%       the correlation matrices than a contour plot!
+%
 % 28/06/2020 - SamSrf 7 version (DSS) 
 % 26/02/2022 - Fixed bug with HRF convolution not being used (DSS) 
+%              Now supports polar search grids but this doesn't work very well (DSS) 
 %
 
 if nargin < 4
@@ -58,10 +63,16 @@ p = 0;
 for s = sU
     p = p + 1;
     subplot(ceil(sqrt(length(sU))), ceil(sqrt(length(sU))), p); 
-    Rc = NaN(length(xU), length(yU));
+    Rc = NaN(length(yU), length(xU));
     for x = 1:length(xU)
         for y = 1:length(yU)
-            Rc(x,y) = R(S(1,:)==Xc(x,y) & S(2,:)==Yc(x,y) & S(3,:)==s);
+            cr = R(S(1,:)==Xc(y,x) & S(2,:)==Yc(y,x) & S(3,:)==s);
+            if isempty(cr)
+                % Can happen with polar search grids
+                cr = 0;
+            end
+            % Store correlation
+            Rc(y,x) = cr;
         end
     end
     contourf(Xc, Yc, Rc, 40, 'edgecolor', 'none'); 
