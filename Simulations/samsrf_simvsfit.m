@@ -46,6 +46,7 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 %   or the modelled Betas (false).
 %
 % 13/07/2020 - SamSrf 7 version (DSS) 
+% 02/03/2022 - Fixed colour bar label if plotting R^2 (DSS)
 %
 
 if nargin < 2
@@ -169,4 +170,8 @@ xlabel('Horizontal position');
 ylabel('Vertical position');
 title(TitlStr);
 set(gcf, 'Units', 'Normalized', 'Position', [0 0 1 1]);
-set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');
+if PlotRsq
+    set(get(cb, 'Label'), 'String', 'Model fit R^2');
+else
+    set(get(cb, 'Label'), 'String', 'Modelled \beta amplitude');
+end
