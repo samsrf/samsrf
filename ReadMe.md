@@ -30,7 +30,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.613 (02-03-2022)  
+### Version 7.62 (02-03-2022)  
+- Inspection tool samsrf_cfcorr now supports 1D models & polar search grids (DSS)
 - Fixed several bugs in samsrf_cfcorr (DSS)  
 - Fixed cosmetic bug in samsrf_simvsfit (DSS)  
 
