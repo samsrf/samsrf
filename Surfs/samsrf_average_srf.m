@@ -18,7 +18,7 @@ if nargin == 1
 end
 
 % Initialise averaged Srf
-load(SrfCell{1});
+load(EnsurePath(SrfCell{1}));
 Srf = samsrf_expand_srf(Srf);
 mSrf = Srf;
 mSrf.Data = NaN(size(Srf.Data,1), size(Srf.Data,2), length(SrfCell));
@@ -29,7 +29,7 @@ end
 % Loop through surface files
 for i = 1:length(SrfCell)
     % Load current Srf
-    load(SrfCell{i});
+    load(EnsurePath(SrfCell{i}));
     [Srf,vx] = samsrf_expand_srf(Srf);
     mSrf.Data(:,:,i) = Srf.Data;
     if isfield(mSrf, 'Raw_Data')

@@ -12,21 +12,25 @@ function data = Read_FreeSurfer(fname)
 % If no file extension is given, the program assumes no headers.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 13/03/2022 - Now ensures that files aren't loaded from path (DSS)
+%              Produces an error if file cannot be loaded now (DSS)
+%              Reports full pathname of loaded file (DSS)
 %
 
+fname = EnsurePath(fname); % Ensure correct path
+[p, n, e] = fileparts(fname); % Deconstruct file name
 fid = fopen(fname);
-[p n e] = fileparts(fname);
 try 
     if strcmpi(e,'.label')
-        c = textscan(fid,repmat('%n',1,6),'headerlines',2);
+        c = textscan(fid, repmat('%n',1,6), 'headerlines', 2);
     else
-        c = textscan(fid,repmat('%n',1,5));
+        c = textscan(fid, repmat('%n',1,5));
     end
+    disp(['Loaded ' fname]);
 catch
     data = NaN;
-    return
+    error(['Error loading ' fname '!']);
 end
 fclose(fid);
-
 data = cell2mat(c);
 

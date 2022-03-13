@@ -28,7 +28,7 @@ if size(Conts,1) > 1 && size(Conts,2) == 1
 end
 
 % Load data
-load(SrfFile);
+load(EnsurePath(SrfFile));
 [Srf,vx] = samsrf_expand_srf(Srf);
 bSrf = Srf;
 Srf.Data = [];

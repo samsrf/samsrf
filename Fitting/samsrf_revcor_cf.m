@@ -126,7 +126,7 @@ end
 
 %% Load template map
 disp(['Loading template map: ' Model.Template]);
-Temp = load(Model.Template);
+Temp = load(EnsurePath(Model.Template));
 Temp.Srf = samsrf_expand_srf(Temp.Srf);
 new_line;
 

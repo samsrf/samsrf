@@ -20,7 +20,7 @@ function samsrf_srf2asc(srfdata, ascname, srfdir, valnum)
 %
 
 if ischar(srfdata)
-    load(srfdata);
+    load(EnsurePath(srfdata));
 else
     Srf = srfdata;
 end

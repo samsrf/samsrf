@@ -309,6 +309,7 @@ if nargin == 0
 end
 
 %% Load default parameters?
+disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 % Ensure colour maps have sign
 if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'

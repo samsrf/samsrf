@@ -47,7 +47,7 @@ for fi = 1:length(funimg)
 end
     
 %% Load functional image
-run1 = fs_load_mgh([funimg{1} '.mgh']);
+run1 = fs_load_mgh([EnsurePath(funimg{1}) '.mgh']);
 run1 = squeeze(run1)';
 fimg = NaN([size(run1) length(funimg)]);
 for fi = 1:length(funimg)

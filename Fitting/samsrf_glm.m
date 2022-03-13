@@ -49,7 +49,7 @@ Y = []; % Data matrix
 Ct = []; % Columns for constant term
 % Add each run to data matrix (& add constant terms)
 for r = 1:nRuns
-    load(SrfCell{r});
+    load(EnsurePath(SrfCell{r}));
     Srf = samsrf_expand_srf(Srf);
     Y = [Y; Srf.Data];
     % Add constant term

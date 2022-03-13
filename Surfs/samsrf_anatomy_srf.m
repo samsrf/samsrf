@@ -32,7 +32,7 @@ if nargin < 2
 end
 
 %% Load the full Srf 
-F = load(SrfName);
+F = load(EnsurePath(SrfName));
 F.Srf = samsrf_expand_srf(F.Srf);
 
 %% Only continue if anatomy present

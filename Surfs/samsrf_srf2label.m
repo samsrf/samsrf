@@ -13,7 +13,7 @@ function samsrf_srf2label(srfdata, labelname, valnum, Vx)
 %
 
 if ischar(srfdata)
-    load(srfdata);
+    load(EnsurePath(srfdata));
 else
     Srf = srfdata;
 end

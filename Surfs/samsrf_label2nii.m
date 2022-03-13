@@ -15,6 +15,8 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 04/03/2021 - Added clarification comments regarding hi-res T1s (DSS)
+% 13/03/2022 - Small change to error message (DSS)
+%              Ensures now that NIIs aren't loaded from MatLab path (DSS)
 %
 
 if nargin < 5
@@ -26,7 +28,7 @@ end
 
 %% Load structural header 
 if exist('spm', 'file')
-    hdr = spm_vol([strimg '.nii']);
+    hdr = spm_vol([EnsurePath(strimg) '.nii']);
     hdr = hdr(1);
     % Origin in the actual structural
     nii_orig = hdr.mat(1:3,4);
@@ -34,11 +36,11 @@ if exist('spm', 'file')
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
 else
-    error('Sorry but I need SPM to load NII files :(');
+    error('Sorry but I need SPM or the nifti-patch to load NII files :(');
 end
     
 %% Load functional image
-fhdr = spm_vol([funimg '.nii']);
+fhdr = spm_vol([EnsurePath(funimg) '.nii']);
 fhdr = fhdr(1);
 % Empty functional image
 fimg = zeros(fhdr.dim);

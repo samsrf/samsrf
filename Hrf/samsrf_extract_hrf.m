@@ -37,7 +37,7 @@ elseif nargin < 4
 end
 
 % Load data
-load(fname);
+load(EnsurePath(fname));
 Srf = samsrf_expand_srf(Srf);
 img = Srf.Data;
 

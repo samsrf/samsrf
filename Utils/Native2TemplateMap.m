@@ -2,7 +2,7 @@ function Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 %
 % Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 % 
-% Warps whatever is in Srf.Data in the fiel NatSrf to the fsaverage template 
+% Warps whatever is in Srf.Data in the file NatSrf to the fsaverage template 
 % using the lh/rh.sphere.reg files in the subject's surf folder (defined in MeshFolder).
 % TmpFolder is the surf folder of the fsaverage template in the FreeSurfer subjects directory.
 %
@@ -18,7 +18,7 @@ function Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 
 % Load native map
 NatSrfName = NatSrf;
-load(NatSrf);
+load(EnsurePath(NatSrf));
 NatSrf = samsrf_expand_srf(Srf);
 
 % Create template Srf

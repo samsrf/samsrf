@@ -20,7 +20,7 @@ end
 
 % Load file
 if ischar(ApFile)
-    load([ApFile '.mat']);
+    load([EnsurePath(ApFile) '.mat']);
 else
     error('Not a valid ApFile entry')
 end

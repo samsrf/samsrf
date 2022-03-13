@@ -13,7 +13,7 @@ function samsrf_mat2vol(SrfName)
 %
 
 % Load fake surface data
-load(SrfName);
+load(EnsurePath(SrfName));
 
 % Header information
 hdr = Srf.NiiHeader;

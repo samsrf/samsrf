@@ -15,7 +15,7 @@ if nargin < 1
     [fname, pname] = uigetfile('*.mat');
     fname = [pname fname];
 end
-load(fname);
+load(EnsurePath(fname));
 vols_per_trial = length(Raw_avg);
 
 if nargin < 2

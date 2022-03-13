@@ -66,7 +66,6 @@ ver = '$Revision: 1.5 $ $Date: 2005/07/12 21:52:47 $';
 TRIANGLE_FILE_MAGIC_NUMBER  =  16777214;
 QUAD_FILE_MAGIC_NUMBER      =  16777215;
 
-
 % open it as a big-endian file
 fid = fopen(fname, 'rb', 'b');
 if (fid < 0),

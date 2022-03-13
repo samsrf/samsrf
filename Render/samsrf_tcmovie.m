@@ -18,6 +18,7 @@ function samsrf_tcmovie(Srf, Mesh, Thrsh, Paths, CamView, MapType, ColorMap)
 % 10/07/2021 - Added option to project basic data time courses (DSS)
 %              Fixed some small bugs with loading labels (DSS)
 %              Added option for string colour maps & inversion (DSS)
+% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %
 
 %% Defaults
@@ -38,6 +39,7 @@ if nargin < 7
 end
 
 %% Load default parameters?
+disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 
 %% Create figure handle

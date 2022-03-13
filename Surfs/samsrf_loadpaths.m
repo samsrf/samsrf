@@ -11,7 +11,7 @@ function [Vs, Paths] = samsrf_loadpaths(PathFileName)
 if ~isempty(PathFileName)
     [~,~,ext] = fileparts(PathFileName);
     if strcmpi(ext, '.mat')
-        load(PathFileName);
+        load(EnsurePath(PathFileName));
     else
         fid = fopen(PathFileName);
         cp = textscan(fid, repmat('%n',1,4), 'headerlines',4);

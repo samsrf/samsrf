@@ -14,10 +14,11 @@ function samsrf_convert_old_srf(srfname, surfdir)
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 14/10/2020 - Fixed typo in help section (DSS)
 %              Will now load ASC files if binary files don't exist (DSS)
+% 13/03/2022 - Now ensures file isn't just loaded from path (DSS)
 %
 
 %% Load old file
-Mat = load(srfname);
+Mat = load(EnsurePath(srfname));
 
 %% Load required surface data
 P = fs_read_surf([surfdir filesep Mat.Srf.Hemisphere '.pial']); % Pial surface

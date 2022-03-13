@@ -12,10 +12,13 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 29/10/2020 - Added prefix for these files (DSS)
+% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
+%              Changes error message when NII loading fails (DSS)
 %
 
 %% Default parameters
 if exist('SamSrf_defaults.mat', 'file')
+    disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
     load('SamSrf_defaults.mat');
 end
 if nargin < 2
@@ -50,7 +53,7 @@ if exist('spm', 'file') % Use SPM
         fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
     end
 else 
-    error('Sorry but I need SPM to load NII files :(');
+    error('Sorry but I need SPM or nifti-patch to load NII files :(');
 end
 
 %% Load Roi

@@ -12,6 +12,7 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 % The output of this function is a bitmap which can be displayed or saved.
 % 
 % 17/07/2020 - SamSrf 7 version (DSS)
+% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %
 
 if nargin < 2
@@ -20,6 +21,7 @@ end
 
 % load defaults
 if nargin < 3
+    disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
     load('SamSrf_defaults.mat');
 else
     def_cmap_angle = colmap;

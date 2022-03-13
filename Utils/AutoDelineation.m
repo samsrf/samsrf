@@ -55,6 +55,7 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, Max
 % this to the final version.
 % 
 %   SrfName:    Name of input surface data file with retinotopic map 
+%               NOTE: Must be in current folder!
 %   NatMesh:    Subject's surf folder which must contain lh/rh.sphere.reg
 %   TmpMesh:    Template's surf folder which must contain lh/rh.sphere
 %

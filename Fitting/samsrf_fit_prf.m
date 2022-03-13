@@ -105,7 +105,7 @@ new_line;
 
 %% Load apertures
 disp('Load stimulus apertures...');
-load(Model.Aperture_File);  % Loads a variable called ApFrm
+load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
 disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
 new_line; 
 
@@ -228,7 +228,7 @@ end
 if ~isempty(Model.Seed_Fine_Fit)
   % Load a previous map as seeds for fine fit
   disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
-  SeedMap = load(Model.Seed_Fine_Fit);
+  SeedMap = load(EnsurePath(Model.Seed_Fine_Fit));
   SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
   Pimg = SeedMap.Srf.Data(2:length(Model.Scaled_Param)+1,:); % Fitted parameter maps
   Rimg = SeedMap.Srf.Data(1,:); % R^2 map

@@ -84,12 +84,15 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 13/10/2021 - Massively expanded remit of vertex inspector (DSS)
 %              Fixed bug when not using DisplayMaps tool (DSS)
 % 14/02/2022 - Added option to recompute CF correlation profiles when not saved (DSS)
+% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
+%              Fixed bug when trying to display white-matter surface (DSS)
 %
 
 %% Create global variables
 global Vertices Type Data CurvGrey fh fv pv
 
 %% Load default parameters?
+disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 % Ensure colour maps have sign
 if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
@@ -198,7 +201,11 @@ elseif strcmpi(Mesh, 'Inflated-50%')
 elseif strcmpi(Mesh, 'Pial-50%')
     Vertices = Srf.Pial + (Srf.Inflated-Srf.Pial)*0.5;
 else
-    error(['Unknown mesh ' Mesh ' specified!']);
+    if strcmpi(Mesh, 'White')
+        Vertices = Srf.Vertices;
+    else
+        error(['Unknown mesh ' Mesh ' specified!']);
+    end
 end
 Vertices(isnan(Srf.Vertices(:,1)),:) = NaN; 
 Faces = Srf.Faces;

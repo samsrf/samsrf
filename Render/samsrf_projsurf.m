@@ -17,6 +17,7 @@ function OutSrf = samsrf_projsurf(Srf, Mesh, Img, Eccen, Thrsh, CamView)
 %
 % 10/07/2020 - SamSrf 6 version (DSS)
 % 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %
 
 %% Expand Srf if necessary
@@ -121,6 +122,7 @@ patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colour
 axis off;
 if nargin < 7
     if exist('SamSrf_defaults.mat', 'file')
+        disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
         load('SamSrf_defaults.mat');
         if ~exist('def_views', 'var')
             % Focus on early visual cortex

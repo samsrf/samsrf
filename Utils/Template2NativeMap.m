@@ -1,11 +1,13 @@
-function Template2NativeMap(NatSrf, MeshFolder)
+function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 %
-% Template2NativeMap(NatSrf, MeshFolder)
+% Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % 
 % Warps the group average pRF map in the template lh/rh_pRF_fsaverage into 
 % the native space belonging to NatSrf. The second input MeshFolder is the 
 % path pointing to subject's surf folder which must contain the sphere.reg 
-% linking the subject's native space with the fsaverage template.
+% linking the subject's native space with the fsaverage template. Finally,
+% the third input TmpFolder points to the folder where the *h_pRF_fsaverage
+% surface data files with the template map are located.
 %
 % This procedure is a simple nearest neighbour transformation. It achieves
 % very similar but non-identical results to FreeSurfer's tool.
@@ -25,14 +27,19 @@ function Template2NativeMap(NatSrf, MeshFolder)
 % 10/06/2021 - Now only saves ROI labels if they exist (DSS) 
 % 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 % 30/08/2021 - Template maps can now contain a field with region names (DSS) 
+% 14/03/2022 - Now requires the pathname for the template map (DSS)
+%              Warped map data now contains row with template curvatures (DSS)
+%              Ensures now that random files aren't loaded from path (DSS)
 %
 
 % Load native map
-load(NatSrf);
+load(EnsurePath(NatSrf));
 NatSrf = samsrf_expand_srf(Srf);
 % Load template (on Matlab path)
-load([NatSrf.Hemisphere '_pRF_fsaverage']);
+load([TmpFolder filesep NatSrf.Hemisphere '_pRF_fsaverage']);
 TmpSrf = samsrf_expand_srf(Srf);
+TmpSrf.Data = [TmpSrf.Data; TmpSrf.Curvature]; % Add template curvature
+TmpSrf.Values{end+1} = 'TmpCurv';
 
 % Is there a noise ceiling in NatSrf?
 if isfield(NatSrf, 'Noise_Ceiling')

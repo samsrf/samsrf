@@ -32,6 +32,7 @@ end
 function DisplayMaps_OpeningFcn(hObject, eventdata, handles, varargin)
 global Srf RoiName Pval
 
+disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 if ~exist('def_disproi')
     def_disproi = NaN; 

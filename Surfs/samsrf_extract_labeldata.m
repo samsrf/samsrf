@@ -16,7 +16,7 @@ Vs = samsrf_loadlabel(Roi);
 
 % Load surface data if a file is given
 if ischar(SrfName)
-    load(SrfName);
+    load(EnsurePath(SrfName));
 else   
     Srf = SrfName;
 end

@@ -44,6 +44,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 22/07/2020 - Added progress reports but still no parallel processing (DSS)
 % 19/10/2020 - Will now also load ASC files if binary files don't exist (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
+% 13/03/2022 - Ensures now that random files aren't loaded from path (DSS)
 %
 
 %% Default parameters
@@ -84,7 +85,7 @@ end
 
 %% Load structural header
 if exist('spm', 'file') % Use SPM
-    hdr = spm_vol([strimg '.nii']);
+    hdr = spm_vol([EnsurePath(strimg) '.nii']);
     % Origin in the actual structural
     nii_orig = hdr.mat(1:3,4);
     % Origin in Freesurfer space (1/2 dimensions)
@@ -95,7 +96,7 @@ else % Sadly no way to load NIIs
 end
     
 %% Load functional image
-fhdr = spm_vol([funimg{1} '.nii']);
+fhdr = spm_vol([EnsurePath(funimg{1}) '.nii']);
 fimg = NaN([fhdr(1).dim length(fhdr) length(funimg)]);
 for fi = 1:length(funimg)
     fhdr = spm_vol([funimg{fi} '.nii']);

@@ -61,7 +61,7 @@ new_line;
 
 %% Load apertures
 disp('Load stimulus apertures...');
-load(Model.Aperture_File);  % Loads a variable called ApFrm
+load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
 disp([' Loading '  Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
 new_line; 
 % Regressor file name

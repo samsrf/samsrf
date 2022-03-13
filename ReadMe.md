@@ -30,8 +30,15 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.63 (14-03-2022)  
+- Template2NativeMap now requires pathname for template (DSS)  
+- Added function for making anonymised SamSrf data files for publishing (DSS)  
+- Template2NativeMap now includes the curvature from template file (DSS)  
+- Addressed path issues when loading files & default parameters (DSS)  
+- Fixed bug with samsrf_surf when displaying white-matter surface (DSS)  
+
 ### Version 7.62 (02-03-2022)  
-- Inspection tool samsrf_cfcorr now supports 1D models & polar search grids (DSS)
+- Inspection tool samsrf_cfcorr now supports 1D models & polar search grids (DSS)  
 - Fixed several bugs in samsrf_cfcorr (DSS)  
 - Fixed cosmetic bug in samsrf_simvsfit (DSS)  
 
@@ -43,7 +50,7 @@ be in the same format. You can also convert old data files from older versions
 ### Version 7.6 (16-02-2022)  
 - By default, reverse correlation CF now fits pRFs to template pRF coordinates (DSS)  
 - pRF model functions now accept pRF coordinates as input for CF fitting (DSS)  
-- CF reverse correlation profiles are no longer saved in data file by default (DSS)  
+- CF reverse correlation profiles are no longer saved in data file by default (DSS) 999999 
 - Inconsequential changes to help sections & command line reports (DSS)  
 
 ### Version 7.54 (19-12-2021)  
