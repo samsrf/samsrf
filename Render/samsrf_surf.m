@@ -86,6 +86,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 14/02/2022 - Added option to recompute CF correlation profiles when not saved (DSS)
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %              Fixed bug when trying to display white-matter surface (DSS)
+% 14/03/2022 - Vertex inspector no longer scales amplitude for reverse correlation profiles (DSS)
 %
 
 %% Create global variables
@@ -688,13 +689,14 @@ if ~isempty(Srf)
     if isfield(Srf, 'Rmaps')
         % Reverse correlation profile
         figure(fv);
-        if var(Srf.Rmaps(:,v)) == 0
-            Srf.Rmaps(1,v)=.001;
+        if ~isnan(Srf.Rmaps)
+            % pRF profiles stored in Srf
+            if var(Srf.Rmaps(:,v)) == 0
+                Srf.Rmaps(1,v)=.001;
+            end
         end
         samsrf_showprf(Srf, v);
         legend off
-        s = max(abs([min(Srf.Rmaps(:)) max(Srf.Rmaps(:))]));
-        caxis([-s s]);
         title(['Vertex: ', num2str(v)]);
         set(gcf, 'Units', 'normalized');
         set(gcf, 'Position', [.6 .1 .3 .3]);

@@ -4,7 +4,6 @@ function AnonymiseSrf(SrfFile, RoiVx, Curv)
 %
 % Removes potentially sensitive anatomical data from the Srf structure in
 % SrfFile and replaces the Srf.Vertices field with the Srf.Inflated field.
-% It also removes Srf.Meshes so anatomical information is saved in Srf.
 %
 % This function will redact the structural T1 file name. 
 % HOWEVER, the names of the functional files are NOT redacted! 
@@ -71,7 +70,9 @@ end
 % Compress the bastard
 Srf = samsrf_compress_srf(Srf, RoiVx);
 
-% Save new file 
+% Save new file
 disp(['Anonymised surface data file ' SrfFile curvstr]);
 clear RoiVx Curv curvstr
 save([SrfFile '_anon'], '-v7.3');
+% Separate anatomy
+samsrf_anatomy_srf([SrfFile '_anon']);

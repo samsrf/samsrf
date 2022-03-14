@@ -10,6 +10,9 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % a matrix where each row is a corresponding vertex in Rmaps and GoF and
 % each row is a response map (e.g. a volume from a time course).
 %
+% WARNING: This function assumes Rmaps have been saved in the Srf. If they 
+%          have been stripped it would take way to long to recompute them!
+%
 % The optional Threshold is a 1x2 vector defining the minimal R^2 of the 
 % pRFs to be projected and the proportion of the peak of the profile to be 
 % included. Both default to 0 if undefined. 
@@ -23,6 +26,7 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % display the outputs.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 14/03/2022 - Ensures an error if Rmaps is NaN, that is, from stripped Srf (DSS)
 %
 
 if nargin < 4
@@ -33,6 +37,11 @@ if length(Threshold) == 1
 end
 if nargin < 5
     NormaliseByDensity = true;
+end
+
+% Have pRF profiles been saved?
+if isnan(Rmaps)
+    error('pRF reverse correlation profiles were not saved in Srf!');
 end
 
 % Threshold based on R^2

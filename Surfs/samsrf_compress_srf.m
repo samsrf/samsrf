@@ -14,6 +14,8 @@ function Srf = samsrf_compress_srf(Srf,vx)
 %
 % 16/07/2020 - SamSrf 7 version (DSS)
 % 14/02/2022 - CF correlation profiles are not saved in data file by default (DSS)
+% 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
+%              Now supports anonymised Srfs (DSS)
 %
 
 %% Remove data outside of region of interest
@@ -35,7 +37,9 @@ if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)
         Srf.Raw_Data = Srf.Raw_Data(:,vx);
     end
     if isfield(Srf, 'Rmaps')
-        Srf.Rmaps = Srf.Rmaps(:,vx);
+        if ~isnan(Srf.Rmaps)
+            Srf.Rmaps = Srf.Rmaps(:,vx);
+        end
     end
     if isfield(Srf, 'ConFlds')
         if ~isnan(Srf.ConFlds)
@@ -47,16 +51,22 @@ if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)
     end
 end
 
-%% If anatomy is saves separately, remove it from Srf
+%% If anatomy is saved separately, remove it from Srf
 if isfield(Srf, 'Meshes')
     disp('Removing anatomical meshes...');
     Srf = rmfield(Srf, 'Vertices');
     Srf = rmfield(Srf, 'Faces');
-    Srf = rmfield(Srf, 'Normals');
-    Srf = rmfield(Srf, 'Pial');
+    if isfield(Srf, 'Normals')
+        % Don't exist for anonymised Srfs
+        Srf = rmfield(Srf, 'Normals');
+        Srf = rmfield(Srf, 'Pial');
+    end
     Srf = rmfield(Srf, 'Inflated');
     Srf = rmfield(Srf, 'Sphere');
     Srf = rmfield(Srf, 'Curvature');
-    Srf = rmfield(Srf, 'Area');
-    Srf = rmfield(Srf, 'Thickness');
+    if isfield(Srf, 'Area')
+        % Don't exist for anonymised Srfs
+        Srf = rmfield(Srf, 'Area');
+        Srf = rmfield(Srf, 'Thickness');
+    end
 end

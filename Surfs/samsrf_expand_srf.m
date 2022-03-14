@@ -24,6 +24,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 % 16/07/2020 - SamSrf 7 version (DSS)
 % 21/12/2020 - Fixed bug where version number was restored from anatomy meshes (DSS)
 % 14/02/2022 - CF correlation profiles are not saved in data file by default (DSS)
+% 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
 %
 
 %% In case no values defined
@@ -53,13 +54,19 @@ if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')
     Srf.Hemisphere = Anat.Hemisphere;
     Srf.Vertices = Anat.Vertices;
     Srf.Faces = Anat.Faces;
-    Srf.Normals = Anat.Normals;
-    Srf.Pial = Anat.Pial;
+    if isfield(Anat, 'Normals')
+        % Don't exist for anonymised Srfs
+        Srf.Normals = Anat.Normals;
+        Srf.Pial = Anat.Pial;
+    end
     Srf.Inflated = Anat.Inflated;
     Srf.Sphere = Anat.Sphere;
     Srf.Curvature = Anat.Curvature;
-    Srf.Area = Anat.Area;
-    Srf.Thickness = Anat.Thickness;
+    if isfield(Anat, 'Area')
+        % Don't exist for anonymised Srfs
+        Srf.Area = Anat.Area;
+        Srf.Thickness = Anat.Thickness;
+    end
 end
 
 %% Deal with region of interest 
@@ -91,9 +98,11 @@ if isfield(Srf, 'Roi')
         Srf.Raw_Data(:,vx) = Rd;
     end
     if isfield(Srf, 'Rmaps')
-        Rm = Srf.Rmaps;
-        Srf.Rmaps = zeros(size(Rm,1),nv);
-        Srf.Rmaps(:,vx) = Rm;
+        if ~isnan(Srf.Rmaps)
+        	Rm = Srf.Rmaps;
+        	Srf.Rmaps = zeros(size(Rm,1),nv);
+        	Srf.Rmaps(:,vx) = Rm;
+        end
     end
     if isfield(Srf, 'ConFlds')
         if ~isnan(Srf.ConFlds)

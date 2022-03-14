@@ -38,6 +38,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 12/08/2021 - Added completion time for pRF parameter fitting (DSS)
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 % 22/09/2021 - Adapted to ensure it works with updated prf_convolve_hrf function (DSS)
+% 14/03/2022 - Added option to remove reverse correlation profiles (DSS)
+%              Now also saves the noise ceiling if it exists in raw data file (DSS)
 %
 
 %% Defaults & constants
@@ -47,6 +49,9 @@ if nargin < 3
 end
 if ~isfield(Model, 'Noise_Ceiling_Threshold')
     Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
+end
+if ~isfield(Model, 'Save_Rmaps')
+    Model.Save_Rmaps = true; % Whether or not to save correlation profiles in data file
 end
 
 %% Start time of analysis
@@ -221,12 +226,6 @@ Srf.Data(:,mver) = [fRimg; fXimg; fYimg; fSimg; fBimg];
 Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
 Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));
 Srf.Rmaps(:,mver) = Rmaps; % Add activation maps 
-% Add noise ceiling if it has been calculated
-if isfield(Srf, 'Noise_Ceiling')
-    Srf.Data = [Srf.Data; Srf.Noise_Ceiling];
-    Srf.Values{end+1} = 'Noise Ceiling'; 
-    Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
-end
 
 %% Fit 2D pRF models?
 if isfield(Model, 'Prf_Function')
@@ -290,6 +289,21 @@ if isfield(Model, 'Prf_Function')
     disp(['pRF parameter fitting completed in ' num2str(t3/60) ' minutes.']);
 end
 new_line;
+
+% Add noise ceiling if it has been calculated
+if isfield(Srf, 'Noise_Ceiling')
+    Srf.Data = [Srf.Data; Srf.Noise_Ceiling];
+    Srf.Values{end+1} = 'Noise Ceiling'; 
+    Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
+end
+
+% Are we saving correlation profiles?
+if Model.Save_Rmaps
+    disp('Saving pRF profiles in data file.');
+else
+    disp('Not saving pRF profiles...');
+    Srf.Rmaps = NaN; % Remove Rmaps to save space
+end
 
 %% Save map files
 disp('Saving pRF results...');

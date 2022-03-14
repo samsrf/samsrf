@@ -175,6 +175,7 @@ else
     Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Vx'};
 end
 Srf.Data(:,mver) = Data;
+
 % Add noise ceiling if it has been calculated
 if isfield(Srf, 'Noise_Ceiling')
     Srf.Data = [Srf.Data; Srf.Noise_Ceiling];

@@ -24,6 +24,7 @@ function samsrf_anatomy_srf(SrfName, AnatPath)
 %  samsrf_vol2srf in SamSrf 6 will have automatically been separated though.
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
+% 14/03/2022 - Now supports anonymised Srfs (DSS)
 %
 
 %% Default path?
@@ -44,25 +45,37 @@ if isfield(F.Srf, 'Vertices')
     Anat.Hemisphere = F.Srf.Hemisphere;
     Anat.Vertices = F.Srf.Vertices;
     Anat.Faces = F.Srf.Faces;
-    Anat.Normals = F.Srf.Normals;
-    Anat.Pial = F.Srf.Pial;
+    if isfield(F.Srf, 'Normals')
+        % Don't exist for anonymised Srfs
+        Anat.Normals = F.Srf.Normals;
+        Anat.Pial = F.Srf.Pial;
+    end
     Anat.Inflated = F.Srf.Inflated;
     Anat.Sphere = F.Srf.Sphere;
     Anat.Curvature = F.Srf.Curvature;
-    Anat.Area = F.Srf.Area;
-    Anat.Thickness = F.Srf.Thickness;
+    if isfield(F.Srf, 'Area')
+        % Don't exist for anonymised Srfs
+        Anat.Area = F.Srf.Area;
+        Anat.Thickness = F.Srf.Thickness;
+    end    
     
     %% Remove fields from Srf
     F.Srf = rmfield(F.Srf, 'Vertices');
     F.Srf = rmfield(F.Srf, 'Faces');
-    F.Srf = rmfield(F.Srf, 'Normals');
-    F.Srf = rmfield(F.Srf, 'Pial');
+    if isfield(F.Srf, 'Normals')
+        % Don't exist for anonymised Srfs
+        F.Srf = rmfield(F.Srf, 'Normals');
+        F.Srf = rmfield(F.Srf, 'Pial');
+    end
     F.Srf = rmfield(F.Srf, 'Inflated');
     F.Srf = rmfield(F.Srf, 'Sphere');
     F.Srf = rmfield(F.Srf, 'Curvature');
-    F.Srf = rmfield(F.Srf, 'Area');
-    F.Srf = rmfield(F.Srf, 'Thickness');
-
+    if isfield(F.Srf, 'Area')
+        % Don't exist for anonymised Srfs
+        F.Srf = rmfield(F.Srf, 'Area');
+        F.Srf = rmfield(F.Srf, 'Thickness');
+    end
+    
     %% Anatomical mesh name
     AnatName = Anat.Structural;
     AnatName([strfind(AnatName,'/') strfind(AnatName,'\')]) = filesep;

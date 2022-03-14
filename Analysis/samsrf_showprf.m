@@ -24,6 +24,7 @@ function samsrf_showprf(SrfEcc, IdxMat, Model, PlotType)
 % 11/10/2021 - Added option to plot pRF models from parameters (DSS)
 %              Changed colour scheme to berlin (DSS) 
 % 12/10/2021 - Fixed bug when matrix has no variance (DSS) 
+% 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
 %
 
 if nargin < 3
@@ -53,8 +54,26 @@ else
         % Reverse correlation plots
         Xc = SrfEcc.X_coords;
         Yc = SrfEcc.Y_coords;
-        % Reshape vector into matrix
-        IdxMat = reshape(SrfEcc.Rmaps(:,IdxMat), size(Yc,1), size(Xc,2));
+        % Stripped Srf?
+        if isnan(SrfEcc.Rmaps)
+            % Compute pRF profile 
+            X = SrfEcc.Regs;  % Design matrix (regressors per pixel)
+            if isfield(SrfEcc, 'Y_')
+                Y = SrfEcc.Y_(:,IdxMat); % Observed time series
+            else
+                Y = SrfEcc.Y(:,IdxMat); % Observed time series
+            end
+            warning off
+            IdxMat = [Y ones(size(Y,1),1)] \ X; % Linear regression
+            warning on
+            IdxMat = IdxMat(1,:); % Remove intercept beta     	
+            IdxMat = reshape(IdxMat, [1 1] * sqrt(length(IdxMat))); % Reshape vector into matrix
+            IdxMat = imresize(IdxMat, [size(Yc,1) size(Xc,2)]); % Down-sample r-map
+        else
+            % Retrieve pRF profile from Srf
+            IdxMat = SrfEcc.Rmaps(:,IdxMat); % Data for this vertex
+            IdxMat = reshape(IdxMat, size(Yc,1), size(Xc,2)); % Reshape vector into matrix
+        end
     else
         % Use model parameters
         if ~isstruct(Model)
@@ -72,6 +91,11 @@ else
         Xc = Xc * Model.Scaling_Factor*2;
         Yc = Yc * Model.Scaling_Factor*2; 
     end
+end
+% If empty matrix
+if nansum(IdxMat(:)) == 0
+    IdxMat(:) = 0;
+    IdxMat(1,1) = .001; 
 end
 
 %% Plot data

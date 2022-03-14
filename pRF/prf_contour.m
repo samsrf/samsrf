@@ -15,6 +15,7 @@ function R = prf_contour(Srf, v, Model)
 %
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 12/10/2021 - New option for plotting pRFs from model parameters.
+% 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
 %
 
 if nargin > 2
@@ -32,10 +33,25 @@ else
     if ~isfield(Srf, 'Rmaps')
         error('No reverse correlation data in this Srf!');
     end
-    % Reverse correlation profile vector
-    Rmap = Srf.Rmaps(:,v);
+    % Stripped Srf?
+    if isnan(Srf.Rmaps)
+        % Compute reverse correlation profile
+		X = Srf.Regs;  % Design matrix (regressors per pixel)
+        if isfield(Srf, 'Y_')
+            Y = Srf.Y_(:,v); % Observed time series
+        else
+            Y = Srf.Y(:,v); % Observed time series
+        end
+        warning off
+    	Rmap = [Y ones(size(Y,1),1)] \ X; % Linear regression
+    	warning on
+	    Rmap = Rmap(1,:); % Remove intercept beta     	        
+    else
+        % Reverse correlation profile vector
+        Rmap = Srf.Rmaps(:,v);
+    end
     % Square side width
-    Width = sqrt(size(Rmap,1));
+    Width = sqrt(length(Rmap));
     % Reshape vector into a map
     R = reshape(Rmap, Width, Width);
 end
