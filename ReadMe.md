@@ -30,6 +30,12 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.71 (15-03-2022)  
+- Added function to add paths with different colours to a map (DSS)  
+- Fixed issue with DelineationTool being unable to load activation maps (DSS)  
+- If no field sign map, DelineationTool now loads the *last* row in Srf.Data (DSS)  
+- Fixed bug with DelineationTool when def_disproi is empty (DSS)  
+
 ### Version 7.7 (14-03-2022)  
 - Addressed issues loading files with too extensive Matlab paths (DSS)  
 - Template2NativeMap now requires pathname for template (DSS)  

@@ -50,6 +50,7 @@ guidata(hObject, handles);
 %% Global variables
 global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
 
+disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 if ~exist('def_disproi')
     def_disproi = NaN; 
@@ -132,6 +133,10 @@ if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
 elseif isnan(RoiName)
     % Use ROI from Srf
     disp('Using ROI from Srf if it exists');
+elseif isempty(RoiName)
+    % Show whole brain 
+    disp('Showing whole surface');
+    vx = NaN;
 else
     % Load region of interest
     Roi = [SrfName(1:2) '_' RoiName];
@@ -154,7 +159,7 @@ end
 % Check if field sign exists
 if sum(strcmpi(Srf.Values, 'Field Sign')) == 0
     IsFsMap = false;
-    FsMapName = 'R^2 map';
+    FsMapName = [Srf.Values{end} ' map'];
 else
     FsMapName = 'Field Sign map';
 end
@@ -411,7 +416,7 @@ if IsFsMap
     FsRgb(Vs,:) = repmat(YellowPath, size(Vs,1), 1); % Draw paths
 else
     % Custom activation data
-    Fs = Srf.Data(1,:);
+    Fs = Srf.Data(end,:);
     Fs(Srf.Data(1,:) <= R2Thrsh | isnan(Rho)) = NaN;
     Thrsh = prctile(abs(Fs), ActPrct);
     Fs(Fs>0 & Fs<Thrsh(1)) = Thrsh(1);
