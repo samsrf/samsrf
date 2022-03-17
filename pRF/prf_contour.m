@@ -3,8 +3,6 @@ function R = prf_contour(Srf, v, Model)
 % R = prf_contour(Srf, v, [Model])
 %
 % Returns the pRF profile for vertex v in Srf as a contour matrix. 
-% The matrix is flipped vertically to ensure it is correct in visual space.
-% (See also samsrf_showprf for a very similar function for plotting)
 %
 % If Model is undefined, the function requires reverse correlation data.
 %
@@ -16,6 +14,7 @@ function R = prf_contour(Srf, v, Model)
 % 19/07/2020 - SamSrf 7 version (DSS)
 % 12/10/2021 - New option for plotting pRFs from model parameters.
 % 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
+% 17/03/2022 - Fixed bug a nasty leprechaun added to break reverse-correlation! (DSS)
 %
 
 if nargin > 2
@@ -55,6 +54,3 @@ else
     % Reshape vector into a map
     R = reshape(Rmap, Width, Width);
 end
-
-% Flip vertically
-R = flipud(R);

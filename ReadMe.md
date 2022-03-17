@@ -30,6 +30,11 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.8 (17-03-2022)  
+#### CRITICAL BUGFIX: Recent updates broke reverse-correlation pRF fitting!  
+**Do not use reverse-correlation pRF parameters fit between v7.4 & v7.71!**
+- Fixed bug with inversion of matrix in prf_contour (DSS)  
+
 ### Version 7.71 (15-03-2022)  
 - Added function to add paths with different colours to a map (DSS)  
 - Fixed issue with DelineationTool being unable to load activation maps (DSS)  
