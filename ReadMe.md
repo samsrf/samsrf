@@ -32,7 +32,7 @@ be in the same format. You can also convert old data files from older versions
 
 ### Version 7.8 (17-03-2022)  
 #### CRITICAL BUGFIX: Recent updates broke reverse-correlation pRF fitting!  
-**Do not use reverse-correlation pRF parameters fit between v7.4 & v7.71!**
+**Do not use reverse-correlation pRF parameters fit between v7.4 & v7.71!**  
 - Fixed bug with inversion of matrix in prf_contour (DSS)  
 
 ### Version 7.71 (15-03-2022)  
