@@ -14,7 +14,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % 05/11/2021 - Written (DSS)
 % 15/02/2022 - Added option to fit to pRF coordinates (DSS)
 % 07/04/2022 - Fitting pRF now thresholds correlations by half-maximum (DSS)
-%              Now also uses coarse fit to home in on pRF size (DSS)
+% 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
 %
 
 % Number of vertices
@@ -89,26 +89,23 @@ if IsParallel
             fRimg(v) = mR^2;  % Peak correlation squared            
             % Fitting pRF parameters?
             if FitPrf
-                % Coarse fit for Sigma
-                cR = 0; % R^2 of current iteration
-                cS = NaN; % Coarse Sigma estimate
-                for s = 10.^(-2:.5:2)
-                    [~,fR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0]); % Fit 2D model to pRF coordinates
-                    if fR > cR
-                        cS = s; % Update coarse Sigma
-                    end
+                % Attempt mulitple searches for Sigma
+                fP = [];
+                fR = [];
+                for s = 10.^(-2:2)
+                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0]); % Fit 2D model to pRF coordinates
+                    fP = [fP; cP]; % Parameters per iteration
+                    fR = [fR; cR]; % Model fit per iteration
                 end
-                % Only if good coarse Sigma
-                if ~isnan(cS)
-                    % Optimisation procedure
-                    [fP,fR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) cS], [1 0 0 0]); % Fit 2D model to pRF coordinates
-                    % Store fit parameters
-                    fRimg(v) = fR; % Replace peak correlation with goodness of fit
-                    fXimg(v) = fP(1); % X-coordinate
-                    fYimg(v) = fP(2); % Y-coordinate
-                    fSimg(v) = fP(3); % Sigma parameter
-                    fBimg(:,v) = fP(4:5)'; % Beta parameters
-                end
+                ms = find(fR==nanmax(fR),1); % Search iteration with best correlation
+                fP = fP(ms,:); % Best parameters
+                fR = fR(ms); % Peak correlation
+                % Store fit parameters
+                fRimg(v) = fR; % Replace peak correlation with goodness of fit
+                fXimg(v) = fP(1); % X-coordinate
+                fYimg(v) = fP(2); % Y-coordinate
+                fSimg(v) = fP(3); % Sigma parameter
+                fBimg(:,v) = fP(4:5)'; % Beta parameters
             end
         end
         % Report back?
@@ -139,24 +136,23 @@ else
             fRimg(v) = mR^2;  % Peak correlation squared 
             % Fitting pRF parameters?
             if FitPrf
-                % Coarse fit for Sigma
-                cR = 0; % R^2 of current iteration
-                cS = NaN; % Coarse Sigma estimate
-                for s = 10.^(-2:.5:2)
-                    [~,fR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0]); % Fit 2D model to pRF coordinates
-                    if fR > cR
-                        cS = s; % Update coarse Sigma
-                    end
+                % Attempt mulitple searches for Sigma
+                fP = [];
+                fR = [];
+                for s = 10.^(-2:2)
+                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0]); % Fit 2D model to pRF coordinates
+                    fP = [fP; cP]; % Parameters per iteration
+                    fR = [fR; cR]; % Model fit per iteration
                 end
-                % Only if good coarse Sigma
-                if ~isnan(cS)
-                    [fP,fR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) 1], [1 0 0 0]); % Fit 2D model to pRF coordinates
-                    fRimg(v) = fR; % Replace peak correlation with goodness of fit
-                    fXimg(v) = fP(1); % X-coordinate
-                    fYimg(v) = fP(2); % Y-coordinate
-                    fSimg(v) = fP(3); % Sigma parameter
-                    fBimg(:,v) = fP(4:5)'; % Beta parameters
-                end
+                ms = find(fR==nanmax(fR),1); % Search iteration with best correlation
+                fP = fP(ms,:); % Best parameters
+                fR = fR(ms); % Peak correlation
+                % Store fit parameters
+                fRimg(v) = fR; % Replace peak correlation with goodness of fit
+                fXimg(v) = fP(1); % X-coordinate
+                fYimg(v) = fP(2); % Y-coordinate
+                fSimg(v) = fP(3); % Sigma parameter
+                fBimg(:,v) = fP(4:5)'; % Beta parameters
             end
         end
         % Reports back 

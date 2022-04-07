@@ -30,9 +30,9 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.809 (08-04-2022)  
+### Version 7.81 (08-04-2022)  
 - Improved pRF fitting to reverse-correlation CF profiles via thresholding (DSS)  
-- Fitting pRF to reverse-correlation CF now uses coarse fit for pRF size (DSS)  
+- Fitting pRF to reverse-correlation CF now uses nested search for fitting (DSS)  
 
 ### Version 7.8 (17-03-2022)  
 #### CRITICAL BUGFIX: Recent updates broke reverse-correlation pRF fitting!  

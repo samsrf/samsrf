@@ -34,7 +34,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 22/02/2022 - Now includes default option to correct time series by global mean signal (DSS)
 %              CF correlation profiles are now also computed with parallel processing (DSS)
 % 07/04/2022 - pRF fitting now thresholds correlations by half-maximum (DSS)
-%              Improved algorithm to narrow down pRF size estimates (DSS)
+% 08/04/2022 - Improved algorithm to home in on pRF size estimates (DSS)
 %
 
 %% Defaults & constants
