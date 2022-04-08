@@ -30,6 +30,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
+### Version 7.811 (09-04-2022)  
+- Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
+- Abandoned plan for SamOaSrf for Octave compatibility - the future is Python (DSS)  
+
 ### Version 7.81 (08-04-2022)  
 - Improved pRF fitting to reverse-correlation CF profiles via thresholding (DSS)  
 - Fitting pRF to reverse-correlation CF now uses nested search for fitting (DSS)  

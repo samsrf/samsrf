@@ -1,6 +1,6 @@
-function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mode, Colour, BootParams)
+function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Threshold, Mode, Colour, BootParams)
 %
-% [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, [Roi='', Threshold=[0.01 -Inf/0 Inf], Mode='Scatter', Colour='k', BootParams=[1000, 2.5, 97.5]])
+% [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, [Roi='', Threshold=[0.01 -Inf/0 Inf], Mode='Scatter', Colour='k', BootParams=[1000, 2.5, 97.5]])
 %
 % Plots the data defined by ValDv in SrfDv against the data in ValIv from SrfIv
 %  (thus, SrfDv is the dependent variable, SrfIv the independent variable).
@@ -89,6 +89,8 @@ function [Res FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thres
 %              Changed default model to Scatter (DSS)
 %              Removed nR^2 option as redundant - use samsrf_normr2 instead (DSS)
 % 31/05/2021 - Now includes option to plot mean of bin for independent variable (DSS)
+% 09/04/2022 - Changed scatter plot to use transparent dots instead of crosses (DSS)
+%              Removed Octave compatibility because never gonna happen (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -217,9 +219,6 @@ GoF(DataDv <= Threshold(2) | DataDv >= Threshold(3) ...
 if ~isempty(Roi)
     % ROI vertex indeces
     RoiVx = samsrf_loadlabel(Roi);
-    if isnan(RoiVx)
-        error(['Could not load ROI ' Roi '!']);
-    end
     % Label ROI vertices
     RoiLab = false(1,size(SrfIv.Data,2));
     RoiLab(RoiVx) = true;
@@ -302,40 +301,24 @@ else % Binning analysis
         %% Summary statistic & confidence interval
         if CurN > 1 
             if strcmpi(Mode, 'Mean')
-                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
-                  Bs = bootstrp(BootParams(1), @nanmean, CurDv); % Bootstrap distribution
-                else
-                  Bs = 0;
-                end
+                Bs = bootstrp(BootParams(1), @nanmean, CurDv); % Bootstrap distribution
                 CurDv = nanmean(CurDv); % Mean
             elseif strcmpi(Mode, 'Median')
-                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
-                  Bs = bootstrp(BootParams(1), @nanmedian, CurDv); % Bootstrap distribution
-                else
-                  Bs = 0;
-                end
+                Bs = bootstrp(BootParams(1), @nanmedian, CurDv); % Bootstrap distribution
                 CurDv = nanmedian(CurDv); % Median
             elseif strcmpi(Mode, 'Sum')
-                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!                
-                  Bs = bootstrp(BootParams(1), @nansum, CurDv); % Bootstrap distribution
-                else
-                  Bs = 0;
-                end
+                Bs = bootstrp(BootParams(1), @nansum, CurDv); % Bootstrap distribution
                 CurDv = nansum(CurDv); % Sum
             elseif strcmpi(Mode, 'Geomean')
-                if exist('OCTAVE_VERSION', 'builtin') == 0 % Doesn't work on Octave!
-                  Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDv))); % Bootstrap distribution
-                else
-                  Bs = 0;
-                end
+                Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDv))); % Bootstrap distribution
                 CurDv = exp(nanmean(log(CurDv))); % Geometric mean
             else
                 error('Invalid summary statistic specified!');
             end
             CurCi = prctile(Bs, BootParams(2:3)); % 95% confidence interval
-            % Octave 4 compatibility
+            % In case it is column vector
             if size(CurCi,1) > 1
-              CurCi = CurCi';
+                CurCi = CurCi'; % Was largely for Octave 4 compatibility & probably irrelevant
             end
             CurCi = CurCi - CurDv; % CIs relative to mean
         else
@@ -357,7 +340,8 @@ if strcmpi(Mode, 'Scatter')
         Bins = [-Inf Inf];
     end
     Res(Res(:,1)<Bins(1) | Res(:,1)>Bins(end),:) = []; % Restrict range 
-    FigHdl = scatter(Res(:,1), Res(:,2), '+', 'markeredgecolor', Colour);
+    FigHdl = scatter(Res(:,1), Res(:,2), 'filled', 'markerfacecolor', Colour);
+    alpha(FigHdl, 0.1);
     ylabel([ValDv RawLabelDv]);
     xlabel([ValIv RawLabelIv]);
 else
