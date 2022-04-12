@@ -22,6 +22,8 @@ Model.Param_Names = {'x0'; 'y0'; 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1]; % Which of these parameters are scaled 
 Model.R2_Threshold = 0.1; % Reverse correlation threshold
 Model.SeedPar_Function = @(V) [V(2:3); V(4)/(2*sqrt(2*log(2)))]; % Seed parameter function
+% Model.Hooke_Jeeves_Steps = [.1 .1 .1]; % Use Hooke-Jeeves algorithm with these initial step sizes (in visual space) 
+% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in visual space)
 
 %% Open dialogs if needed
 HomePath = pwd;

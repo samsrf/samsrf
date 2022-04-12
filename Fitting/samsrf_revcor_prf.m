@@ -288,11 +288,11 @@ if isfield(Model, 'Prf_Function')
     % Which fitting algorithm?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Use Hooke-Jeeves algorithm
-        AlgorithmParam = Model.Hooke_Jeeves_Steps;        
+        AlgorithmParam = [Model.Hooke_Jeeves_Steps .1 .01]; % Beta step size is pre-set        
     else
         % Use Nelder-Mead algorithm
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            AlgorithmParam = [NaN Model.Nelder_Mead_Tolerance];
+            AlgorithmParam = [NaN Model.Nelder_Mead_Tolerance]; % Define parameter tolerance
         else
             AlgorithmParam = NaN;
         end

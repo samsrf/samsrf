@@ -34,7 +34,7 @@ Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine 
 Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
 % Model.Downsample_Predictions = 10; % Use for microtime resolution if stimulus timing is faster than TR
 % Model.Hooke_Jeeves_Steps = [.01 .01 .01 .01 .02]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
-% Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in aperture space)
+% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in aperture space)
 
 % Search grid for coarse fit
 Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates

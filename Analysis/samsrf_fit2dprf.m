@@ -82,7 +82,7 @@ if isnan(FitParam(1))
     [fParams, R] = fminsearch(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], OptimOpts);
 else
     % Use Hooke-Jeeves algorithm
-    [fParams, R] = samsrf_hookejeeves(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], FitParam, false(1,length(SeedParams)+2));%, 15, 3);
+    [fParams, R] = samsrf_hookejeeves(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], FitParam, false(1,length(SeedParams)+2));
 end
 Resid = (Rmap - mean(Rmap(:))).^2; % Squared residuals
 R2 = 1 - R/sum(Resid(:)); % Convert to R^2
