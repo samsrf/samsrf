@@ -29,7 +29,6 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 14/03/2022 - Added option to remove reverse correlation profiles (DSS)
 %              Now also saves the noise ceiling if it exists in raw data file (DSS)
 % 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
-%              Added Hooke-Jeeves algorithm & customisable Nelder-Mead tolerance (DSS)
 %
 
 %% Defaults & constants
@@ -58,31 +57,6 @@ new_line;
 disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
-% Are we also fitting pRF model?
-if isfield(Model, 'Prf_Function')
-% Which optimisation algorithm is used?
-    if isfield(Model, 'Hooke_Jeeves_Steps')
-        % Hooke-Jeeves algorithm
-        disp('Using Hooke-Jeeves pattern search algorithm')
-        hjs = [' with step sizes: '];
-        for p = 1:length(Model.Hooke_Jeeves_Steps)
-            hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
-            if p < length(Model.Hooke_Jeeves_Steps)
-                hjs = [hjs ', '];
-            end
-        end
-        disp(hjs);
-    else
-        % Nelder-Mead algorithm
-        disp('Using Nelder-Mead (fminsearch) algorithm');
-        if isfield(Model, 'Nelder_Mead_Tolerance')
-            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
-        else
-            disp(' with default parameter tolerance');
-        end
-    end
-    new_line;
-end
 
 %% Load apertures
 disp('Load stimulus apertures...');
@@ -285,14 +259,12 @@ if isfield(Model, 'Prf_Function')
     disp('Seeding parameters using:');
     disp(Model.SeedPar_Function);
     
-    % Which fitting algorithm?
+    % Use Hooke-Jeeves algorithm?
     if isfield(Model, 'Hooke_Jeeves_Steps')
-        % Use Hooke-Jeeves algorithm
         AlgorithmParam = Model.Hooke_Jeeves_Steps;        
     else
-        % Use Nelder-Mead algorithm
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            AlgorithmParam = [NaN Model.Nelder_Mead_Tolerance];
+            Al
         else
             AlgorithmParam = NaN;
         end

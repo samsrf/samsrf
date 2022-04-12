@@ -10,9 +10,16 @@ as a faster alternative to the Nelder-Mead algorithm (fminsearch). This algorith
 performs well for standard 2D pRF models but YMMV. By default we still use the 
 Nelder-Mead algorithm & you can conduct the exact same analyses as in version 7. 
 
+SamSrf 8 was tested on Matlab R2020a & higher. The Nelder-Mead algorithm requires 
+Matlab's Optimization toolbox. The Hooke-Jeeves algorithm is implemented in SamSrf.
+SamSrf strongly relies on parallel computing for a number of time-intensive analyses,  
+so if you have Matlab's Parallel Computing Toolbox installed & you have a  
+multi-core computer or cluster it should run faster. Many stages of the analysis  
+are now geared towards parallel computing & may be quite slow without it.  
+
 ------
 
-As of Version 7.0 we completely overhauled of the toolbox. The GUI from SamSrf <=5 
+As of Version 7 we completely overhauled of the toolbox. The GUI from SamSrf <=5 
 has been abolished. Instead there are now example scripts for various pRF models 
 in SamSrf/Models.   
 
@@ -21,11 +28,6 @@ In addition, there are various GUI-based tools available for specific functions:
     2. Making map figures:          DisplayMaps  
     3. Delineating ROIs:            DelineationTool  
     4. Viewing stimulus apertures:  ViewApertures
-
-SamSrf now supports parallel computing for a number of time-intensive analyses,  
-so if you have Matlab's Parallel Computing Toolbox installed and you have a  
-multi-core computer or cluster it should run faster. Many stages of the analysis  
-are now geared towards parallel computing, so they may be quite slow without it.  
 
 By default the anatomical meshes for a reconstruction (recon-all) are kept  
 separate from the functional data in the folder ../anatomy/  
@@ -42,8 +44,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.921 (13-04-2022)  
-- Added Hooke-Jeeves algorithm for faster fine-fitting of pRFs (DSS)  
+### Version 7.922 (13-04-2022)  
+- Added Hooke-Jeeves algorithm as alternative for pRF model fitting (DSS)  
 - Now possible to define parameter tolerance for Nelder-Mead algorithm (DSS)  
 - Fitting functions now perform checks on parameter definition vectors (DSS)  
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
