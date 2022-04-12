@@ -26,20 +26,9 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 18/07/2020 - SamSrf 7 version (DSS)
-% 27/07/2020 - More info in command window (DSS)
-% 24/07/2020 - Added option to limit data by noise ceiling (DSS)
-%              Reorganised analysis loop but parallel processing isn't working yet (DSS)  
-% 29/03/2021 - Fixed horrendous bug when fitting bilateral surface meshes (DSS)    
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 10/08/2021 - New option to fit 2D pRF models to pRF reverse correlation profiles (DSS)
-% 11/08/2021 - Seed parameters must now be generated with a function (DSS)
-% 12/08/2021 - Added completion time for pRF parameter fitting (DSS)
-% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
-% 22/09/2021 - Adapted to ensure it works with updated prf_convolve_hrf function (DSS)
 % 14/03/2022 - Added option to remove reverse correlation profiles (DSS)
 %              Now also saves the noise ceiling if it exists in raw data file (DSS)
+% 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
 %
 
 %% Defaults & constants
@@ -52,6 +41,11 @@ if ~isfield(Model, 'Noise_Ceiling_Threshold')
 end
 if ~isfield(Model, 'Save_Rmaps')
     Model.Save_Rmaps = true; % Whether or not to save correlation profiles in data file
+end
+
+%% Ensure mandatory model vectors are sound
+if length(Model.Param_Names) ~= length(Model.Scaled_Param)
+    error('Mismatch between number of parameter names & scaled-parameter flags!');
 end
 
 %% Start time of analysis

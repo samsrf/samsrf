@@ -5,11 +5,10 @@ Latest major release but still compatible with version 7. The most recent update
 involved algorithms for fitting population receptive fields or connective fields 
 using reverse correlation combined with posthoc fitting of correlation profiles.
 
-For fitting forward-model pRFs we now added the Hooke-Jeeves pattern-search fit
+For fitting forward-model pRFs we added the option to use Hooke-Jeeves pattern-search 
 as a faster alternative to the Nelder-Mead algorithm (fminsearch). This algorithm
-necessitates some changes to how polar grid pRF work & therefore justifies a new
-main release. However, you can still conduct the same analyses as in version 7 
-and the two versions are fully compatible.
+performs well for standard 2D pRF models but YMMV. By default we still use the 
+Nelder-Mead algorithm & you can conduct the exact same analyses as in version 7. 
 
 ------
 
@@ -43,8 +42,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.91 (??-04-2022)  
-- Added Hooke-Jeeves algorithm for faster fine-fitting of pRFs (DSS) 
+### Version 7.921 (13-04-2022)  
+- Added Hooke-Jeeves algorithm for faster fine-fitting of pRFs (DSS)  
+- Now possible to define parameter tolerance for Nelder-Mead algorithm (DSS)  
+- Fitting functions now perform checks on parameter definition vectors (DSS)  
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
 - Abandoned plan for SamOaSrf for Octave compatibility for the future is Python (DSS)  
 

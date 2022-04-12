@@ -19,16 +19,6 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 18/07/2020 - SamSrf 7 version (DSS)
-% 23/07/2020 - Reorganised fitting loop but parallel processing isn't working yet (DSS)
-% 24/07/2020 - Added option to limit data by noise ceiling (DSS)
-% 19/05/2021 - Fixed bug with smoothing correlation profiles when NaNs present (DSS)
-% 22/05/2021 - Presumably inconsequential (famous last words) bugfix... (DSS)
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
-% 13/10/2021 - Added progress report to CF parameter estimation (DSS)
-% 05/11/2021 - Parameter estimation now uses parallel computing (DSS)
 % 14/02/2022 - By default now no longer stores correlation profiles (DSS)
 % 15/02/2022 - Added option to fit pRF parameters to pRF coordinates from template (DSS)
 % 22/02/2022 - Now includes default option to correct time series by global mean signal (DSS)

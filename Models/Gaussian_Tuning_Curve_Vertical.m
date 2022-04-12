@@ -28,10 +28,12 @@ Model.Coarse_Fit_Only = false; % If true, only runs the coarse fit
 Model.Seed_Fine_Fit = ''; % Define a Srf file to use as seed map
 Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine fit
 Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
-Model.Polar_Search_Space = false; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 % Model.Downsample_Predictions = 10; % Use for microtime resolution if stimulus timing is faster than TR
+% Model.Hooke_Jeeves_Steps = [.01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
+% Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in aperture space)
 
 % Search grid for coarse fit
+Model.Polar_Search_Space = false; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = -1.05 : 0.05 : 1.05; % Mu search grid
 Model.Param2 = 2 .^ (-5.6 : 0.1 : 1); % Sigma search grid
 Model.Param3 = 0; % Unused

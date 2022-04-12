@@ -28,6 +28,9 @@ Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentric
 Model.TR = 1; % Repetition time (TR) of pulse sequence - standard in our experiments
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = ['aps_' ModAps]; % Box standard sweeping bars design we typically use
+% Model.Downsample_Predictions = 10; % Use for microtime resolution if stimulus timing is faster than TR
+% Model.Hooke_Jeeves_Steps = [.01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
+% Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in aperture space)
 
 %% Search grid for coarse fit
 Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates

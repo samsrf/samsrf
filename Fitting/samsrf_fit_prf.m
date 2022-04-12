@@ -20,22 +20,9 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 20/07/2020 - SamSrf 7 version (DSS) 
-% 23/07/2020 - Cosmetic changes to command window outputs (DSS)
-% 03/02/2021 - Fixed crashing bug when replacing bad fine fits (DSS)
-% 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)  
-% 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)  
-% 29/04/2021 - Fixed show-stopping bug with incorrect model parameters! (DSS)  
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
-% 11/07/2021 - Minor change which should be inconsequential - famous last words... (DSS) 
-% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
-% 22/09/2021 - Now allows downsampling of predictions when TR does not match stimulus timing (DSS)
-%              Fixed bug with storing coarse fit predictions when downsampling (DSS)
-% 12/02/2022 - If running coarse-fit only, now stores convolved predictions in data file (DSS)
 % 12/04/2022 - Changed name of optimisation loop function (DSS)
 %              Added reports for optimisation algorithm & parameters used for it (DSS)
+% 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
 %
 
 %% Defaults & constants
@@ -90,6 +77,19 @@ if Model.Coarse_Fit_Only
     end
 end
 
+%% Ensure mandatory model vectors are sound
+if length(Model.Param_Names) ~= length(Model.Scaled_Param)
+    error('Mismatch between number of parameter names & scaled-parameter flags!');
+end
+if length(Model.Param_Names) ~= length(Model.Only_Positive)
+    error('Mismatch between number of parameter names & only-positive flags!');
+end
+if isfield(Model, 'Hooke_Jeeves_Steps')
+    if length(Model.Param_Names) ~= length(Model.Hooke_Jeeves_Steps)
+        error('Mismatch between number of parameter names & Hooke-Jeeves step sizes!');
+    end
+end
+
 %% MatLab R2012a or higher can do fast coarse-fit
 if verLessThan('matlab','7.13')
     cfvb = 1;
@@ -110,12 +110,21 @@ disp([' ' pwd]);
 new_line;
 % Which optimisation algorithm is used?
 if isfield(Model, 'Hooke_Jeeves_Steps')
+    % Hooke-Jeeves algorithm
     disp('Using Hooke-Jeeves pattern search algorithm')
-    disp([' with step sizes: ' Model.Hooke_Jeeves_Steps]);
+    hjs = [' with step sizes: '];
+    for p = 1:length(Model.Hooke_Jeeves_Steps)
+        hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
+        if p < length(Model.Hooke_Jeeves_Steps)
+            hjs = [hjs ', '];
+        end
+    end
+    disp(hjs);
 else
+    % Nelder-Mead algorithm
     disp('Using Nelder-Mead (fminsearch) algorithm');
     if isfield(Model, 'Nelder_Mead_Tolerance')
-        disp([' with parameter tolerance: ' Model.Nelder_Mead_Tolerance]);
+        disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
     else
         disp(' with default parameter tolerance');
     end
@@ -338,7 +347,7 @@ else
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
     new_line;
     
-    disp('Fitting beta parameters & storing fitted models...');   
+    disp('Fitting betas & storing parameter estimates...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
     Srf.X = zeros(size(Tc,1)*Model.Downsample_Predictions, size(Srf.Vertices,1)); % Matrix with unconvolved predictions

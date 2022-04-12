@@ -14,16 +14,6 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 22/05/2021 - Written (DSS) 
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
-% 11/07/2021 - Now uses 1st eigenvariate for both seed & target vertices (DSS)
-%              Added parallel computing to vertex-wise coarse fit (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
-%              Receiving patch size can now be adjusted (DSS) 
-% 04/08/2021 - New option to use polar or eccentricity-defined patches as CFs (DSS)
-%              Moved smoothing before search space generation (DSS)
 % 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
 %
 

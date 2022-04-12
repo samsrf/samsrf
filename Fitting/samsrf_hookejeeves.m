@@ -80,8 +80,6 @@ while CountIter < NumMaxIter && CountNoBetterFit < NumShrinks
     CountIter = CountIter + 1; % Count iterations
 end
 
-disp(CountIter);
-
 %% Finalise
 FinalParams = CurParams;
 FinalErr = CurErr;
