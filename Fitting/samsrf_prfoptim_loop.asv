@@ -1,6 +1,6 @@
-function [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg) 
+function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg) 
 %
-% [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg) 
+% [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg) 
 %
 % Internal function looping through solving the fine fit for each mask vertex.
 %
@@ -19,6 +19,7 @@ function [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Y, ApFrm, Rimg, Pimg)
 % 22/12/2020 - Bugfix for when progress reports are turned off (DSS)
 % 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 22/09/2021 - Now supports downsampling of predictions if TR mismatches stimulus timing (DSS)
+% 12/04/2022 - Added support for Hooke-Jeeves pattern search algorithm (DSS)
 %
 
 % Number of vertices
@@ -27,6 +28,13 @@ nver = size(Y,2);
 % Output matrices
 fPimg = zeros(length(Model.Param_Names), nver); % Parameter maps
 fRimg = zeros(1,nver); % R^2 map
+
+% Which algorithm?
+if isfield(Model.Hooke_Jeeves_Steps)
+    UseHookeJeeves = true; % Use HookeJeeves pattern search
+else
+    UseHookeJeeves = false; % Use Nelder-Mead (fminsearch)
+end
 
 % Parallel processing?
 try 
@@ -66,7 +74,13 @@ if IsParallel
     parfor v = 1:nver
         if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
             % Find best prediction
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
+            if UseHookeJeeves
+                % Use Hooke-Jeeves
+                [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', Model.);  
+            else
+                % Use Nelder-Mead
+                [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
+            end
             fPimg(:,v) = fP;
             fRimg(1,v) = 1 - fR;
         end

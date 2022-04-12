@@ -43,10 +43,10 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.9 (??-04-2022)  
+### Version 7.91 (??-04-2022)  
 - Added Hooke-Jeeves algorithm for faster fine-fitting of pRFs (DSS) 
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
-- Abandoned plan for SamOaSrf for Octave compatibility - the future is Python (DSS)  
+- Abandoned plan for SamOaSrf for Octave compatibility for the future is Python (DSS)  
 
 ## Questions/Comments?
 * Contact Sam Schwarzkopf at: s.schwarzkopf@auckland.ac.nz

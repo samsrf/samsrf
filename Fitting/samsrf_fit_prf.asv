@@ -115,7 +115,6 @@ if isfield(Model, 'Hooke_Jeeves_Steps')
 else
     disp('Using Nelder-Mead (fminsearch) algorithm');
     if isfield(Model, 'Nelder_Mead_Tolerance')
-        disp([' with parameter tolerance: ' Model.Nelder_Mead_Tolerance]);
     else
         disp(' with default parameter tolerance');
     end

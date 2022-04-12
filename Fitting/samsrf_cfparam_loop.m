@@ -15,6 +15,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % 15/02/2022 - Added option to fit to pRF coordinates (DSS)
 % 07/04/2022 - Fitting pRF now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
+% 12/04/2022 - Removed inconsequential erroneous comment (DSS)
 %
 
 % Number of vertices
@@ -110,7 +111,7 @@ if IsParallel
         end
         % Report back?
         if ProgReps
-            send(Q,v); % Only reports every 1000 vertices
+            send(Q,v); 
         end
     end
 else
