@@ -8,9 +8,9 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %                 Model fits using this version are by default -NOT- compatible with previous versions!
 %                 Under some conditions previous versions sometimes reverted to the search grid.
 %                   
-%                 In SamSrf 8, the option to use faster Hooke-Jeeves algorithm was added.
+%                 In SamSrf 8, the option to use the Hooke-Jeeves algorithm was added.
 %                 Moreover, you can now define parameter tolerance for Nelder-Mead algorithm,
-%                 but note that this can result in imprecise parameter esstimates.
+%                 but note that both of these can result in imprecise parameter esstimates.
 %
 %   Model:        Contains the parameters defining the eccentricity/scaling factor of the space.
 %   SrfFiles:     Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
@@ -24,6 +24,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %              Added reports for optimisation algorithm & parameters used for it (DSS)
 % 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
 % 14/04/2022 - Only reports optimisation parameters if fine-fitting (DSS) 
+%              Added option to calculate coarse fit over top percentile of search predictions (DSS)
 %
 
 %% Defaults & constants
@@ -70,15 +71,22 @@ end
 if ~isfield(Model, 'Downsample_Predictions')
     Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
 end
+if ~isfield(Model, 'Coarse_Fit_Percentile')
+    Model.Coarse_Fit_Percentile = 100; % Which percentile of correlations to include in coarse fit parameter estimates
+end
 
-%% If coarse fit only suffix filename
+%% Some parameter checks
+% If coarse fit percentile invalid
+if Model.Coarse_Fit_Percentile < 0 || Model.Coarse_Fit_Percentile > 100
+    error('Coarse fit percentile invalid! (It should probably be between 99-100...)');
+end
+% If coarse fit only suffix filename
 if Model.Coarse_Fit_Only 
     if ~isempty(Model.Seed_Fine_Fit) % In case stupid choices were made
         error('No point running only coarse fit when seeding the fine fit!');
     end
 end
-
-%% Ensure mandatory model vectors are sound
+% Ensure mandatory model vectors are sound
 if length(Model.Param_Names) ~= length(Model.Scaled_Param)
     error('Mismatch between number of parameter names & scaled-parameter flags!');
 end
@@ -281,6 +289,13 @@ else
       Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
   end
   
+  % Which percentile of correlations to include in parameter estimate
+  if Model.Coarse_Fit_Percentile == 100
+    disp(' Using only the maximal coarse fit R^2 as parameter estimate');
+  else
+    disp([' Including top ' num2str(100-Model.Coarse_Fit_Percentile) '% of coarse fit R^2s in parameter estimates']);
+  end
+  
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
   disp([' Block size: ' num2str(cfvb) ' vertices']);
   samsrf_progbar(0);
@@ -302,25 +317,33 @@ else
       	 mR = max(R,[],2); % Find best fit
       end
       for v = 1:length(vx)
-          rx = find(R(v,:) == mR(v),1); % Matrix position of best prediction
-          if ~isempty(rx)
-              % Store prediction
-              Srf.X(:,vx(v)) = X(:,rx);  % Best fitting convolved prediction
-              % Store parameters
-              for p = 1:length(Model.Param_Names)
-                  Pimg(p,vx(v)) = S(p,rx); % Add the pth fitted parameter
-              end
-              Rimg(1,vx(v)) = mR(v);  % Variance explained
-              % If running coarse fit only determine betas now
-              if Model.Coarse_Fit_Only 
-                % Fit betas for amplitude & intercept
-                warning off % In case of rank deficient GLM
-                B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
-                warning on
-                Bimg(1,vx(v)) = B(2); % Amplitude
-                Bimg(2,vx(v)) = B(1); % Intercept
-              end            
-          end
+          rx = R(v,:) >= prctile(R(v,:), Model.Coarse_Fit_Percentile); % Predictions with correlation above percentile
+          % Store parameters
+          Pimg(:,vx(v)) = mean(S(1:length(Model.Param_Names),rx),2); % Mean parameter across top percentile predictions
+
+          % Store prediction
+          if Model.Coarse_Fit_Percentile == 100
+            % Only take maximum
+            Srf.X(:,vx(v)) = X(:,rx);  % Best fitting convolved prediction
+            Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
+          else
+            % Top percentile of predictions
+            Rfp = Model.Prf_Function(Pimg(:,vx(v))', size(ApFrm,1)*2); % New pRF profile
+            nX = prf_predict_timecourse(Rfp, ApFrm); % New predicted time courase
+            nX = prf_convolve_hrf(nX, Model.Hrf, Model.Downsample_Predictions); % Convolve new time course with HRF
+            Rimg(1,vx(v)) = corr(Y(:,v),nX)^2; % New goodness of fit
+            Srf.X(:,vx(v)) = nX;  % Store new prediction with convolution
+          end              
+
+          % If running coarse fit only determine betas now
+          if Model.Coarse_Fit_Only 
+            % Fit betas for amplitude & intercept
+            warning off % In case of rank deficient GLM
+            B = [ones(length(Y(:,v)),1) Srf.X(:,vx(v))] \ Y(:,v); % GLM fit 
+            warning on
+            Bimg(1,vx(v)) = B(2); % Amplitude
+            Bimg(2,vx(v)) = B(1); % Intercept
+          end            
           samsrf_progbar((vs+v-1)/length(mver));
       end
   end

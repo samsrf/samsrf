@@ -19,6 +19,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
 % 12/04/2022 - Removed inconsequential erroneous comment (DSS)
 % 14/04/2022 - Added Hooke-Jeeves alogrithm & adjustable Nelder-Mead tolerance (DSS)
+%              
 %
 
 % Number of vertices

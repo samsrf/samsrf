@@ -6,15 +6,6 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % You must define Model to convolve the predicted time course with the HRF.
 % Also reports the model parameters (S) in the figure.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 17/03/2021 - Removed redundant rounding function (DSS) 
-% 22/09/2021 - Now supports downsampling if stimulus timing mismatches TR (DSS)
-%              Removed dual-Y axis for tuning curves as no idea why that was there... (DSS) 
-%              Changed predicted timeseries colour to red (DSS)
-% 12/10/2021 - Now no longer opens a new figure & has fixed dimensions (DSS) 
-%              Can now also plot predictors that don't come from forward-model pRFs (DSS)
-% 13/10/2021 - Supports plotting predictors from a GLM now (DSS)
-%              Observed time series now in blue (DSS)
 % 12/02/2022 - Now allows plotting convolved predictions stored in coarse-fit data files (DSS)
 %
 

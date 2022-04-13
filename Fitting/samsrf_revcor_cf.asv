@@ -170,7 +170,7 @@ if Model.Fit_pRF
     % Which fitting algorithm?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Use Hooke-Jeeves algorithm
-        AlgorithmParam = Model.Hooke_Jeeves_Steps; % Beta step size is pre-set 
+        AlgorithmParam = [Model.Hooke_Jeeves_Steps .1 .01 30 5]; % Beta step size is pre-set & also includes maximum number of iterations & shrinks       
     else
         % Use Nelder-Mead algorithm
         if isfield(Model, 'Nelder_Mead_Tolerance')
@@ -181,7 +181,6 @@ if Model.Fit_pRF
     end    
 else
     disp(' Only determining raw position coordinates from template map.');
-    AlgorithmParam = [];
 end
 % Run estimation loop
 [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Srf.Area, Rmaps, svx, Temp.Srf.Data, AlgorithmParam);

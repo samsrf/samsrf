@@ -28,6 +28,8 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 %                     NaN:     Standard Nelder-Mead (fminsearch) fitting 
 %                              If it is a vector then FitParam(2) defines parameter tolerance 
 %                     Vector:  Initial step sizes per parameter for Hooke-Jeeves algorithm
+%                               but the final two values define the number of iterations & shrinks!
+%                               (It they are undefined this defaults to 1000 & 10 respectively)
 %
 % Returns the fitted parameters fParams and the goodness-of-fit R2.
 %  The final two parameters are the betas for amplitude and intercept.
@@ -36,7 +38,13 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 %
 % 15/02/2022 - Added option to fit to pRF coordinate data for CF fitting (DSS)
 % 13/04/2022 - Added Hooke-Jeeves algorithm & adjustable Nelder-Mead tolerance (DSS)
+% 14/04/2022 - Function defaults to using standard Nelder-Mead algorithm (DSS)
 %
+
+% Use standard fit?
+if nargin < 6
+    FitParam = NaN;
+end
 
 % Check seed parameters are row vector 
 if size(SeedParams,2) == 1
@@ -82,7 +90,7 @@ if isnan(FitParam(1))
     [fParams, R] = fminsearch(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], OptimOpts);
 else
     % Use Hooke-Jeeves algorithm
-    [fParams, R] = samsrf_hookejeeves(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], FitParam, false(1,length(SeedParams)+2));
+    [fParams, R] = samsrf_hookejeeves(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], [FitParam .1 .01], false(1,length(SeedParams)+2));
 end
 Resid = (Rmap - mean(Rmap(:))).^2; % Squared residuals
 R2 = 1 - R/sum(Resid(:)); % Convert to R^2

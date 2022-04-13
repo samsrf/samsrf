@@ -1,6 +1,6 @@
 function  [FinalParams, FinalErr] = samsrf_hookejeeves(ErrFcn, SeedParams, InitStep, OnlyPos, NumMaxIter, NumShrinks)
 %
-% [FinalParams, FinalErr] = samsrf_hookejeeves(ErrFcn, SeedParams, InitStep, [OnlyPos="All-False", NumMaxIter=100, NumShrinks=10])
+% [FinalParams, FinalErr] = samsrf_hookejeeves(ErrFcn, SeedParams, InitStep, [OnlyPos="All-False", NumMaxIter=1000, NumShrinks=10])
 %
 % Optimises parameters for a function using the Hooke-Jeeves (pattern-search) algorithm.
 % This method is in many situations faster than fminsearch or fminunc
@@ -15,11 +15,12 @@ function  [FinalParams, FinalErr] = samsrf_hookejeeves(ErrFcn, SeedParams, InitS
 %   OnlyPos:        Boolean per parameter to define if it must be > 0 
 %                     (defaults to all false)
 %   NumMaxIter:     Maximal number of iterations 
-%                     (defaults to 100 but note that in pRF fitting this is only 15!) 
+%                     (defaults to 1000 but in forward-model pRF fitting this is only 15!) 
 %   NumShrinks:     Maximal number of shrinking steps 
-%                     (defaults to 10 but note that in pRF fitting this is only 3!)
+%                     (defaults to 10 but in forward-model pRF fitting this is only 3!)
 %
 % 13/04/2022 - Written (DSS)
+% 14/04/2022 - Changed default number of iterations (DSS)
 %
 
 %% Ensure sound inputs
@@ -36,7 +37,7 @@ end
 OnlyPos = logical(OnlyPos); % In case doubles 
 % Default number of maximum iterations
 if nargin < 5
-    NumMaxIter = 100;
+    NumMaxIter = 1000;
 end
 % Default number of shrinking steps allowed
 if nargin < 6
