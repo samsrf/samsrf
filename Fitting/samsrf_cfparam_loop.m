@@ -10,12 +10,15 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 %   SeedVx:   Seed ROI vertex indices
 %   Temp:     Srf.Data from template structure
 %   FitPrf:   Toggles wehther to fit a 2D Gaussian pRF to the CF correlation profile
+%               []:         Doesn't fit a 2D Gaussian pRF
+%               NaN:        Use Nelder-Mead algorithm with default tolerance
+%               [NaN Tol]:  Use Nelder-Mead algorithm with parameter tolerance Tol
+%               Vector:     Use Hooke-Jeeves algorithm with these initial step sizes
 %
-% 05/11/2021 - Written (DSS)
-% 15/02/2022 - Added option to fit to pRF coordinates (DSS)
 % 07/04/2022 - Fitting pRF now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
 % 12/04/2022 - Removed inconsequential erroneous comment (DSS)
+% 14/04/2022 - Added Hooke-Jeeves alogrithm & adjustable Nelder-Mead tolerance (DSS)
 %
 
 % Number of vertices
@@ -28,16 +31,16 @@ fYimg = zeros(1,nver); % Y map
 fWimg = zeros(1,nver); % Width map
 fRimg = zeros(1,nver); % R^2 map
 if nargin < 5
-    FitPrf = true;
+    FitPrf = NaN;
 end
-if FitPrf
-    % Fitting pRF parameters
-    fSimg = zeros(1,nver); % pRF parameter estimates 
-    fBimg = zeros(2,nver); % pRF parameter estimates 
-else
+if isempty(FitPrf)
     % No pRF fitting 
     fSimg = [];
     fBimg = [];
+else
+    % Fitting pRF parameters
+    fSimg = zeros(1,nver); % pRF parameter estimates 
+    fBimg = zeros(2,nver); % pRF parameter estimates 
 end
 
 % Parallel processing?
@@ -94,7 +97,7 @@ if IsParallel
                 fP = [];
                 fR = [];
                 for s = 10.^(-2:2)
-                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0]); % Fit 2D model to pRF coordinates
+                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
                     fP = [fP; cP]; % Parameters per iteration
                     fR = [fR; cR]; % Model fit per iteration
                 end
@@ -141,7 +144,7 @@ else
                 fP = [];
                 fR = [];
                 for s = 10.^(-2:2)
-                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0]); % Fit 2D model to pRF coordinates
+                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
                     fP = [fP; cP]; % Parameters per iteration
                     fR = [fR; cR]; % Model fit per iteration
                 end

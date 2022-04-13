@@ -44,8 +44,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.922 (13-04-2022)  
-- Added Hooke-Jeeves algorithm as alternative for pRF model fitting (DSS)  
+### Version 7.922 (14-04-2022)  
+- Added Hooke-Jeeves algorithm as alternative for pRF & CF model fitting (DSS)  
 - Now possible to define parameter tolerance for Nelder-Mead algorithm (DSS)  
 - Fitting functions now perform checks on parameter definition vectors (DSS)  
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  

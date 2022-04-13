@@ -60,7 +60,7 @@ disp([' ' pwd]);
 new_line;
 % Are we also fitting pRF model?
 if isfield(Model, 'Prf_Function')
-% Which optimisation algorithm is used?
+    % Which optimisation algorithm is used?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Hooke-Jeeves algorithm
         disp('Using Hooke-Jeeves pattern search algorithm')

@@ -23,6 +23,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 12/04/2022 - Changed name of optimisation loop function (DSS)
 %              Added reports for optimisation algorithm & parameters used for it (DSS)
 % 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
+% 14/04/2022 - Only reports optimisation parameters if fine-fitting (DSS) 
 %
 
 %% Defaults & constants
@@ -108,25 +109,28 @@ new_line;
 disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
-% Which optimisation algorithm is used?
-if isfield(Model, 'Hooke_Jeeves_Steps')
-    % Hooke-Jeeves algorithm
-    disp('Using Hooke-Jeeves pattern search algorithm')
-    hjs = [' with step sizes: '];
-    for p = 1:length(Model.Hooke_Jeeves_Steps)
-        hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
-        if p < length(Model.Hooke_Jeeves_Steps)
-            hjs = [hjs ', '];
+% Are we fine-fitting?
+if ~Model.Coarse_Fit_Only
+    % Which optimisation algorithm is used?
+    if isfield(Model, 'Hooke_Jeeves_Steps')
+        % Hooke-Jeeves algorithm
+        disp('Using Hooke-Jeeves pattern search algorithm')
+        hjs = [' with step sizes: '];
+        for p = 1:length(Model.Hooke_Jeeves_Steps)
+            hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
+            if p < length(Model.Hooke_Jeeves_Steps)
+                hjs = [hjs ', '];
+            end
         end
-    end
-    disp(hjs);
-else
-    % Nelder-Mead algorithm
-    disp('Using Nelder-Mead (fminsearch) algorithm');
-    if isfield(Model, 'Nelder_Mead_Tolerance')
-        disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+        disp(hjs);
     else
-        disp(' with default parameter tolerance');
+        % Nelder-Mead algorithm
+        disp('Using Nelder-Mead (fminsearch) algorithm');
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+        else
+            disp(' with default parameter tolerance');
+        end
     end
 end
 new_line;

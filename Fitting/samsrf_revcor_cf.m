@@ -19,10 +19,6 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 14/02/2022 - By default now no longer stores correlation profiles (DSS)
-% 15/02/2022 - Added option to fit pRF parameters to pRF coordinates from template (DSS)
-% 22/02/2022 - Now includes default option to correct time series by global mean signal (DSS)
-%              CF correlation profiles are now also computed with parallel processing (DSS)
 % 07/04/2022 - pRF fitting now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Improved algorithm to home in on pRF size estimates (DSS)
 %
@@ -54,6 +50,31 @@ new_line;
 disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
+% Are we also fitting pRF model?
+if isfield(Model, 'Prf_Function')
+    % Which optimisation algorithm is used?
+    if isfield(Model, 'Hooke_Jeeves_Steps')
+        % Hooke-Jeeves algorithm
+        disp('Using Hooke-Jeeves pattern search algorithm')
+        hjs = [' with step sizes: '];
+        for p = 1:length(Model.Hooke_Jeeves_Steps)
+            hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
+            if p < length(Model.Hooke_Jeeves_Steps)
+                hjs = [hjs ', '];
+            end
+        end
+        disp(hjs);
+    else
+        % Nelder-Mead algorithm
+        disp('Using Nelder-Mead (fminsearch) algorithm');
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+        else
+            disp(' with default parameter tolerance');
+        end
+    end
+    new_line;
+end
 
 %% Load images 
 if ischar(SrfFiles)
