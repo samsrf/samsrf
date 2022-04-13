@@ -13,14 +13,9 @@ function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg)
 %   Rimg:   Coarse fit/seed map R^2 data for thresholding, restricted to mask
 %   Pimg:   Coarse fit/seed map parameters, restricted to mask
 %
-% 20/07/2020 - SamSrf 7 version (DSS)
-% 03/08/2020 - Fixed bug where loop could get stuck on bad fits (IA & DSS)
-% 21/12/2020 - No progress reports if parallel computing but using older Matlab versions (DSS)
-% 22/12/2020 - Bugfix for when progress reports are turned off (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 22/09/2021 - Now supports downsampling of predictions if TR mismatches stimulus timing (DSS)
 % 12/04/2022 - Added support for Hooke-Jeeves pattern search algorithm (DSS)
 %              Removed inconsequential erroneous comment (DSS)
+% 14/04/2022 - Removed non-parallel computing option (DSS)
 %
 
 % Number of vertices
@@ -40,11 +35,9 @@ end
 % Parallel processing?
 try 
   gcp;
-  IsParallel = true;
   disp(' Parallel computing!');
 catch
-  IsParallel = false;
-  disp(' No parallel computing!');  
+  error(' No parallel computing!');  
 end
 
 % Prepare progress report
@@ -55,9 +48,7 @@ try
 catch
     Q = NaN; % No queue variable exists
     ProgReps = false; % No progress can be reported when using parallel computing
-    if IsParallel
-        disp(' No progress reports possible :(');
-    end
+    disp(' No progress reports possible :(');
 end
 
 % Display off & default tolerances (=slow)
@@ -71,48 +62,26 @@ end
 
 %% Loop thru mask vertices 
 vc = 1;
-if IsParallel
-    % Run parallel loop
-    if ProgReps
-        samsrf_progbar(0);
-    end
-    parfor v = 1:nver
-        if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
-            % Find best prediction
-            if UseHookeJeeves
-                % Use Hooke-Jeeves
-                [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
-            else
-                % Use Nelder-Mead
-                [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
-            end
-            fPimg(:,v) = fP;
-            fRimg(1,v) = 1 - fR;
-        end
-        % Report back?
-        if ProgReps
-            send(Q,v); 
-        end
-    end
-else
-    % Run normal loop
+% Run parallel loop
+if ProgReps
     samsrf_progbar(0);
-    for v = 1:nver
-        if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
-            % Find best prediction
-            if UseHookeJeeves
-                % Use Hooke-Jeeves
-                [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
-            else
-                % Use Nelder-Mead
-                [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
-            end
-            fPimg(:,v) = fP;
-            fRimg(1,v) = 1 - fR;
+end
+parfor v = 1:nver
+    if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
+        % Find best prediction
+        if UseHookeJeeves
+            % Use Hooke-Jeeves
+            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
+        else
+            % Use Nelder-Mead
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
         end
-        % Reports back 
-        samsrf_progbar(vc/nver);
-        vc = vc + 1;
+        fPimg(:,v) = fP;
+        fRimg(1,v) = 1 - fR;
+    end
+    % Report back?
+    if ProgReps
+        send(Q,v); 
     end
 end
 

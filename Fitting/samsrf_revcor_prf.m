@@ -30,6 +30,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %              Now also saves the noise ceiling if it exists in raw data file (DSS)
 % 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
 %              Added Hooke-Jeeves algorithm & customisable Nelder-Mead tolerance (DSS)
+% 14/04/2022 - pRF model fitting now uses parallel computing (DSS)
 %
 
 %% Defaults & constants
@@ -244,8 +245,7 @@ Srf.Functional = 'Reverse correlation';
 Srf.Data = zeros(5, size(Srf.Vertices,1));
 Srf.Data(:,mver) = [fRimg; fXimg; fYimg; fSimg; fBimg];
 Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
-Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));
-Srf.Rmaps(:,mver) = Rmaps; % Add activation maps 
+Srf.Rmaps = NaN; % If fitting pRF models, need to calculate profiles anew
 
 %% Fit 2D pRF models?
 if isfield(Model, 'Prf_Function')
@@ -271,7 +271,7 @@ if isfield(Model, 'Prf_Function')
         Model.R2_Threshold = 0;
     end
     disp([' Using reverse correlations profiles with R^2 > ' num2str(Model.R2_Threshold)]);
-    gof = find(Srf.Raw_Data(1,:) > Model.R2_Threshold); % Vertices with good reverse correlation profiles 
+    GoF = find(Srf.Raw_Data(1,:) > Model.R2_Threshold); % Vertices with good reverse correlation profiles 
    
     % Are scaled parameters defined?
     if ~isfield(Model, 'Scaled_Param')
@@ -299,25 +299,7 @@ if isfield(Model, 'Prf_Function')
     end
     
     % Fit 2D models
-    samsrf_progbar(0);
-    for i = 1:length(gof)
-        v = gof(i); % Current vertex
-        [fP,fR] = samsrf_fit2dprf(prf_contour(Srf,v), Model.Prf_Function, Model.SeedPar_Function(Srf.Raw_Data(:,v)), [Model.Scaling_Factor Model.Scaled_Param], ApFrm, AlgorithmParam); % Fit 2D model
-        % Is good fit?
-        KeepFit = true;  
-        for p = 1:length(Model.Param_Names)
-            if Model.Scaled_Param(p)
-                if abs(fP(p)) > Model.Scaling_Factor*1.5
-                    KeepFit = false;
-                end
-            end
-        end
-        % Only store good fits
-        if KeepFit
-            Srf.Data(:,v) = [fR fP]';
-        end
-        samsrf_progbar(i/length(gof));
-    end
+    Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, AlgorithmParam);
     t3 = toc(t0); 
     disp(['pRF parameter fitting completed in ' num2str(t3/60) ' minutes.']);
 end
@@ -333,9 +315,10 @@ end
 % Are we saving correlation profiles?
 if Model.Save_Rmaps
     disp('Saving pRF profiles in data file.');
+    Srf.Rmaps = zeros(Model.Rdim^2, size(Srf.Vertices,1));
+    Srf.Rmaps(:,mver) = Rmaps; % Add activation profiles
 else
     disp('Not saving pRF profiles...');
-    Srf.Rmaps = NaN; % Remove Rmaps to save space
 end
 
 %% Save map files

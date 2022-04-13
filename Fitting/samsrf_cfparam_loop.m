@@ -19,6 +19,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
 % 12/04/2022 - Removed inconsequential erroneous comment (DSS)
 % 14/04/2022 - Added Hooke-Jeeves alogrithm & adjustable Nelder-Mead tolerance (DSS)
+%              Removed non-parallel computing option (DSS)
 %
 
 % Number of vertices
@@ -46,11 +47,9 @@ end
 % Parallel processing?
 try 
   gcp;
-  IsParallel = true;
   disp(' Parallel computing!');
 catch
-  IsParallel = false;
-  disp(' No parallel computing!');  
+  error(' No parallel computing!');  
 end
 
 % Prepare progress report
@@ -61,107 +60,57 @@ try
 catch
     Q = NaN; % No queue variable exists
     ProgReps = false; % No progress can be reported when using parallel computing
-    if IsParallel
-        disp(' No progress reports possible :(');
-    end
+    disp(' No progress reports possible :(');
 end
 
 %% Loop thru mask vertices 
 vc = 1;
-if IsParallel
-    % Run parallel loop
-    if ProgReps
-        samsrf_progbar(0);
-    end
-    parfor v = 1:nver
-        % Retrieve r-map
-        R = ConFlds(:,v); % Correlation of time courses with regressors
-        % Determine parameters
-        mR = max(R); % Find peak activation in each map
-        mR = mR(1); % Ensure only one value
-        fwhm = sqrt(sum(Area(R > mR/2))); % Square root of area above half maximum
-        m = find(R==mR,1); % Find peak coordinate
-        % Threshold correlations
-        R = R - mR/2; % Threshold correlations by half maximum
-        R(R<0) = 0; % Subthreshold pRF coordinates set to zero
-        % If good correlation
-        if ~isnan(mR) && mR > 0
-            fVimg(v) = SeedVx(m);  % Peak vertex in seed ROI
-            fXimg(v) = Temp(2,SeedVx(m)); % Template X coordinate
-            fYimg(v) = Temp(3,SeedVx(m)); % Template Y coordinate
-            fWimg(v) = fwhm; % Full width half maximum guestimate
-            fRimg(v) = mR^2;  % Peak correlation squared            
-            % Fitting pRF parameters?
-            if ~isempty(FitPrf)
-                % Attempt mulitple searches for Sigma
-                fP = [];
-                fR = [];
-                for s = 10.^(-2:2)
-                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
-                    fP = [fP; cP]; % Parameters per iteration
-                    fR = [fR; cR]; % Model fit per iteration
-                end
-                ms = find(fR==nanmax(fR),1); % Search iteration with best correlation
-                fP = fP(ms,:); % Best parameters
-                fR = fR(ms); % Peak correlation
-                % Store fit parameters
-                fRimg(v) = fR; % Replace peak correlation with goodness of fit
-                fXimg(v) = fP(1); % X-coordinate
-                fYimg(v) = fP(2); % Y-coordinate
-                fSimg(v) = fP(3); % Sigma parameter
-                fBimg(:,v) = fP(4:5)'; % Beta parameters
-            end
-        end
-        % Report back?
-        if ProgReps
-            send(Q,v); 
-        end
-    end
-else
-    % Run normal loop
+% Run parallel loop
+if ProgReps
     samsrf_progbar(0);
-    for v = 1:nver
-        % Retrieve r-map
-        R = ConFlds(:,v); % Correlation of time courses with regressors
-        % Determine parameters
-        mR = max(R); % Find peak activation in each map
-        mR = mR(1); % Ensure only one value
-        fwhm = sqrt(sum(Area(R > mR/2))); % Square root of area above half maximum
-        m = find(R==mR,1); % Find peak coordinate
-        % Threshold correlations
-        R = R - mR/2; % Threshold correlations by half maximum
-        R(R<0) = 0; % Subthreshold pRF coordinates set to zero
-        % If good correlation
-        if ~isnan(mR) && mR > 0
-            fVimg(v) = SeedVx(m);  % Peak vertex in seed ROI
-            fXimg(v) = Temp(2,SeedVx(m)); % Left-Right coordinate
-            fYimg(v) = Temp(3,SeedVx(m)); % Inferior-Superior coordinate
-            fWimg(v) = fwhm; % Full width half maximum guestimate
-            fRimg(v) = mR^2;  % Peak correlation squared 
-            % Fitting pRF parameters?
-            if ~isempty(FitPrf)
-                % Attempt mulitple searches for Sigma
-                fP = [];
-                fR = [];
-                for s = 10.^(-2:2)
-                    [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
-                    fP = [fP; cP]; % Parameters per iteration
-                    fR = [fR; cR]; % Model fit per iteration
-                end
-                ms = find(fR==nanmax(fR),1); % Search iteration with best correlation
-                fP = fP(ms,:); % Best parameters
-                fR = fR(ms); % Peak correlation
-                % Store fit parameters
-                fRimg(v) = fR; % Replace peak correlation with goodness of fit
-                fXimg(v) = fP(1); % X-coordinate
-                fYimg(v) = fP(2); % Y-coordinate
-                fSimg(v) = fP(3); % Sigma parameter
-                fBimg(:,v) = fP(4:5)'; % Beta parameters
+end
+parfor v = 1:nver
+    % Retrieve r-map
+    R = ConFlds(:,v); % Correlation of time courses with regressors
+    % Determine parameters
+    mR = max(R); % Find peak activation in each map
+    mR = mR(1); % Ensure only one value
+    fwhm = sqrt(sum(Area(R > mR/2))); % Square root of area above half maximum
+    m = find(R==mR,1); % Find peak coordinate
+    % Threshold correlations
+    R = R - mR/2; % Threshold correlations by half maximum
+    R(R<0) = 0; % Subthreshold pRF coordinates set to zero
+    % If good correlation
+    if ~isnan(mR) && mR > 0
+        fVimg(v) = SeedVx(m);  % Peak vertex in seed ROI
+        fXimg(v) = Temp(2,SeedVx(m)); % Template X coordinate
+        fYimg(v) = Temp(3,SeedVx(m)); % Template Y coordinate
+        fWimg(v) = fwhm; % Full width half maximum guestimate
+        fRimg(v) = mR^2;  % Peak correlation squared            
+        % Fitting pRF parameters?
+        if ~isempty(FitPrf)
+            % Attempt mulitple searches for Sigma
+            fP = [];
+            fR = [];
+            for s = 10.^(-2:2)
+                [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
+                fP = [fP; cP]; % Parameters per iteration
+                fR = [fR; cR]; % Model fit per iteration
             end
+            ms = find(fR==nanmax(fR),1); % Search iteration with best correlation
+            fP = fP(ms,:); % Best parameters
+            fR = fR(ms); % Peak correlation
+            % Store fit parameters
+            fRimg(v) = fR; % Replace peak correlation with goodness of fit
+            fXimg(v) = fP(1); % X-coordinate
+            fYimg(v) = fP(2); % Y-coordinate
+            fSimg(v) = fP(3); % Sigma parameter
+            fBimg(:,v) = fP(4:5)'; % Beta parameters
         end
-        % Reports back 
-        samsrf_progbar(vc/nver);
-        vc = vc + 1;
+    end
+    % Report back?
+    if ProgReps
+        send(Q,v); 
     end
 end
 
