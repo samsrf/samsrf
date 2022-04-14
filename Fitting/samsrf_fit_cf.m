@@ -14,17 +14,8 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 22/05/2021 - Written (DSS) 
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
-% 11/07/2021 - Now uses 1st eigenvariate for both seed & target vertices (DSS)
-%              Added parallel computing to vertex-wise coarse fit (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
-%              Receiving patch size can now be adjusted (DSS) 
-% 04/08/2021 - New option to use polar or eccentricity-defined patches as CFs (DSS)
-%              Moved smoothing before search space generation (DSS)
-% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
+% 15/04/2022 - Outsourced check for default parameters so no longer needs to check these (DSS)
+%              Added option to apply global signal correction (DSS)
 %
 
 %% Defaults & constants
@@ -36,18 +27,7 @@ end
 SearchspaceFile = ['src_' Model.Name '.mat'];  
 
 %% Default model parameters
-if ~isfield(Model, 'Noise_Ceiling_Threshold')
-    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-end
-if ~isfield(Model, 'Smoothing')
-    Model.Smoothing = 0; % No smoothing on coarse fit
-end
-if ~isfield(Model, 'Coarse_Fit_Block_Size')
-    Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
-end
-if ~isfield(Model, 'Patch_Size')
-    Model.Patch_Size = 0; % Size of receiving patch in geodesic steps (0 = single vertex)
-end
+Model = samsrf_model_defaults('samsrf_fit_cf', Model);
 
 %% Start time of analysis
 t0 = tic; new_line;  
@@ -76,6 +56,15 @@ for f = 1:length(SrfFiles)
     Tc = [Tc; Srf.Data]; % Add run to time course
 end
 Srf.Data = Tc; % Store full time course in Srf
+
+%% Correct by global mean signal?
+if Model.Global_Signal_Correction
+    new_line; disp('Applying global signal correction...');
+    Srf.Data = Tc;
+    Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2));
+    Tc = Srf.Data;
+    Srf.Data = [];
+end
 
 %% Load ROI mask
 if isempty(Roi)
@@ -146,8 +135,6 @@ if ~exist([pwd filesep SearchspaceFile], 'file')
     elseif isfield(Model, 'Sizes')
         disp(' Using vertex-wise search space with circular CFs');
         [X,S] = cf_generate_searchspace(Srf, svx, Model.Sizes); % Store time courses for each seed vertex
-    else
-        error('CF search space undefined!');
     end
     save(SearchspaceFile, 'X', 'S', '-v7.3');
     t1 = toc(t0); 

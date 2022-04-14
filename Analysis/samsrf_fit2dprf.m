@@ -1,38 +1,50 @@
-function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, ApFrm)
+function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, ApFrm, FitParam)
 %
-% [fParams R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams])
+% [fParams R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, ApFrm, FitParam)
 %
 % Fits a 2D pRF profile to the observed pRF profile. 
 %
-%   Rmap:       A reverse correlation pRF profile in square format (usually 50x50 pixels)
-%               You can use the prf_contour function to generate that.
+%   Rmap:           A reverse correlation pRF profile in square format (usually 50x50 pixels)
+%                   You can use the prf_contour function to generate that.
 %
-%   PrfFcn:     Any 2D pRF function included in SamSrf or one you made yourself
-%               Use like in model-based pRF mapping so for example for standard 2D Gaussian:
+%   PrfFcn:         Any 2D pRF function included in SamSrf or one you made yourself
+%                   Use like in model-based pRF mapping so for example for standard 2D Gaussian:
 %
-%                   PrfFcn = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth)
+%                       PrfFcn = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth)
 %
-%   SeedParams: A row vector to seed the parameter optimisation procedure 
-%               Must have same number of parameters (ignoring betas which are always fit)
+%   SeedParams:     A row vector to seed the parameter optimisation procedure 
+%                   Must have same number of parameters (ignoring betas which are always fit)
 %
-%               Important: Must be in visual space & is internally divided 
-%                           by your eccentricity or scaling factor!
+%                   Important: Must be in visual space & is internally divided 
+%                   by your eccentricity or scaling factor!
 %
-%   EccScaPars: A vector where the first entry defines the eccentricity/scaling factor
-%               and the following entries are booleans toggling whether a
-%               model parameter is scaled by the eccentricity/scaling factor
+%   EccScaPars:     A vector where the first entry defines the eccentricity/scaling factor
+%                   and the following entries are booleans toggling whether a
+%                   model parameter is scaled by the eccentricity/scaling factor
 %
-%   ApFrm:      Aperture frames (only used for masking the pRF profiles)
+%   ApFrm:          Aperture frames (only used for masking the pRF profiles)
+%
+%   FitParam:       Defines the fitting algorithm & parameters for it:
+%                     NaN:     Standard Nelder-Mead (fminsearch) fitting 
+%                              If it is a vector then FitParam(2) defines parameter tolerance 
+%                     Vector:  Initial step sizes per parameter for Hooke-Jeeves algorithm
+%                               but the final two values define the number of iterations & shrinks!
+%                               (It they are undefined this defaults to 1000 & 10 respectively)
 %
 % Returns the fitted parameters fParams and the goodness-of-fit R2.
 %  The final two parameters are the betas for amplitude and intercept.
 %
 % If no output arguments are defined, the observed and modelled profiles are plotted.
 %
-% 26/06/2020 - SamSrf 7 version (DSS)
-% 10/08/2021 - Fixed help section (DSS)
-% 11/08/2021 - Reverted back to enforcing complete vector of seed parameters (DSS)  
 % 15/02/2022 - Added option to fit to pRF coordinate data for CF fitting (DSS)
+% 13/04/2022 - Added Hooke-Jeeves algorithm & adjustable Nelder-Mead tolerance (DSS)
+% 14/04/2022 - Function defaults to using standard Nelder-Mead algorithm (DSS)
+%
+
+% Use standard fit?
+if nargin < 6
+    FitParam = NaN;
+end
 
 % Check seed parameters are row vector 
 if size(SeedParams,2) == 1
@@ -47,7 +59,7 @@ end
 dims = size(Rmap,1);
 
 % Apertures provided?
-if nargin < 5
+if nargin < 5 || isempty(ApFrm)
     % No apertures defined so no masking applied
     Mask = 1;
 else
@@ -68,8 +80,18 @@ for p = 1:length(SeedParams)-2
 end
 
 % Fit model
-OptimOpts = optimset('Display', 'off');
-[fParams, R] = fminsearch(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], OptimOpts);
+if isnan(FitParam(1))
+    % Use Nelder-Mead algorithm
+    OptimOpts = optimset('Display', 'off');
+    if length(FitParam) > 1
+        % Define parameter tolerance for Nelder-Mead alogrithm
+        OptimOpts.TolX = FitParam(2);
+    end
+    [fParams, R] = fminsearch(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], OptimOpts);
+else
+    % Use Hooke-Jeeves algorithm
+    [fParams, R] = samsrf_hookejeeves(@(P) errfun(PrfFcn,Mask,Rmap,P), [SeedParams 1 0], [FitParam .1 .01], false(1,length(SeedParams)+2));
+end
 Resid = (Rmap - mean(Rmap(:))).^2; % Squared residuals
 R2 = 1 - R/sum(Resid(:)); % Convert to R^2
 Fmap = PrfFcn(fParams(1:end-2),dims).*Mask * fParams(end-1) + fParams(end); % Fitted profiles

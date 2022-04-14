@@ -1,10 +1,10 @@
-function R = samsrf_cfcorr(Y, X, S, Model) 
+function R = samsrf_gsr2(Y, X, S, Model) 
 %
-% R = samsrf_cfcorr(Y, X, S, [Model])
+% R = samsrf_gsr2(Y, X, S, [Model])
 %
 % Plots the squared correlations of time course Y with the regressors in X 
-%   just as the coarse fit does. S contains the search space parameters. 
-%   You can retrieve X and S from the search space file src_*.mat.
+%   just as the grid search (coarse fit) does. S contains the search space 
+%   parameters. You can retrieve X and S from the search space file src_*.mat.
 %
 % The third input Model is optional. This can be the model structure for
 %   your pRF analysis and it defines the TR, Hrf, Downsampling constant,
@@ -35,10 +35,8 @@ function R = samsrf_cfcorr(Y, X, S, Model)
 % The plot containing the maximum correlation is indicated by asterisks
 %   and the peak correlation is shown by a green cross.
 %
-% 28/06/2020 - SamSrf 7 version (DSS) 
-% 26/02/2022 - Fixed bug with HRF convolution not being used (DSS) 
-%              Now supports polar search grids but this doesn't work very well (DSS) 
 % 02/03/2022 - Added support for polar search grids & 1D models (DSS) 
+% 14/04/2022 - Renamed function to avoid confusion with CF analysis (DSS)
 %
 
 if ~isfield(Model, 'Downsampling')

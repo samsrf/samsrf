@@ -19,22 +19,11 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 18/07/2020 - SamSrf 7 version (DSS)
-% 23/07/2020 - Reorganised fitting loop but parallel processing isn't working yet (DSS)
-% 24/07/2020 - Added option to limit data by noise ceiling (DSS)
-% 19/05/2021 - Fixed bug with smoothing correlation profiles when NaNs present (DSS)
-% 22/05/2021 - Presumably inconsequential (famous last words) bugfix... (DSS)
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
-% 13/10/2021 - Added progress report to CF parameter estimation (DSS)
-% 05/11/2021 - Parameter estimation now uses parallel computing (DSS)
-% 14/02/2022 - By default now no longer stores correlation profiles (DSS)
-% 15/02/2022 - Added option to fit pRF parameters to pRF coordinates from template (DSS)
-% 22/02/2022 - Now includes default option to correct time series by global mean signal (DSS)
-%              CF correlation profiles are now also computed with parallel processing (DSS)
 % 07/04/2022 - pRF fitting now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Improved algorithm to home in on pRF size estimates (DSS)
+% 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
+%              Outsourced check for default parameters so no longer needs to check these (DSS)
+%              Fixed error with duration report for generating distance matrix (DSS)
 %
 
 %% Defaults & constants
@@ -42,18 +31,9 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 if nargin < 3
     Roi = ''; 
 end
-if ~isfield(Model, 'Noise_Ceiling_Threshold')
-    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-end
-if ~isfield(Model, 'Global_Signal_Correction')
-    Model.Global_Signal_Correction = true; % Correct time series by global mean signal
-end
-if ~isfield(Model, 'Save_Rmaps')
-    Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
-end
-if ~isfield(Model, 'Fit_pRF')
-    Model.Fit_pRF = true;
-end
+
+%% Default model parameters
+Model = samsrf_model_defaults('samsrf_revcor_cf', Model);
 
 %% Start time of analysis
 t0 = tic; new_line;  
@@ -64,6 +44,34 @@ new_line;
 disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
+% Are we also fitting pRF model?
+if isfield(Model, 'Prf_Function')
+    % Which optimisation algorithm is used?
+    if isfield(Model, 'Hooke_Jeeves_Steps')
+        % Hooke-Jeeves algorithm
+        disp('Using Hooke-Jeeves pattern search algorithm')
+        hjs = [' with step sizes: '];
+        for p = 1:length(Model.Hooke_Jeeves_Steps)
+            hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
+            if p < length(Model.Hooke_Jeeves_Steps)
+                hjs = [hjs ', '];
+            end
+        end
+        disp(hjs);
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
+        end
+    else
+        % Nelder-Mead algorithm
+        disp('Using Nelder-Mead (fminsearch) algorithm');
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+        else
+            disp(' with default parameter tolerance');
+        end
+    end
+    new_line;
+end
 
 %% Load images 
 if ischar(SrfFiles)
@@ -121,7 +129,7 @@ X = Tc(:,svx); % Time courses in seed ROI
 if Model.Smoothing > 0 % No point when not smoothing
     Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
     Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
-    disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' seconds.']);
+    disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' minutes.']);
 else 
     Ws = [];
 end
@@ -156,11 +164,24 @@ end
 disp('Estimating CF parameters...');
 if Model.Fit_pRF
     disp(' Fitting pRF parameters to template pRF coordinates.');
+    % Which fitting algorithm?
+    if isfield(Model, 'Hooke_Jeeves_Steps')
+        % Use Hooke-Jeeves algorithm
+        AlgorithmParam = Model.Hooke_Jeeves_Steps; % Beta step size is pre-set 
+    else
+        % Use Nelder-Mead algorithm
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            AlgorithmParam = [NaN Model.Nelder_Mead_Tolerance]; % Define parameter tolerance
+        else
+            AlgorithmParam = NaN;
+        end
+    end    
 else
     disp(' Only determining raw position coordinates from template map.');
+    AlgorithmParam = [];
 end
 % Run estimation loop
-[fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Srf.Area, Rmaps, svx, Temp.Srf.Data);
+[fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Srf.Area, Rmaps, svx, Temp.Srf.Data, AlgorithmParam);
 t3 = toc(t0); 
 disp(['Parameter estimates completed in ' num2str(t3/60/60) ' hours.']);
 new_line;

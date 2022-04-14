@@ -5,7 +5,7 @@ function Standard_2d_Gaussian_Prf(SrfFiles, Roi)
 %   Roi:        ROI label to restrict analysis 
 % Both inputs are optional. If undefined, a dialog is opened for user selection.
 %
-% This is an example model. Move this file to your parent data folder and
+% This is an example model. Copy this file to your parent data folder and
 % adapt the model parameters to suit your personal needs and desires.
 %
 
@@ -28,15 +28,15 @@ Model.Coarse_Fit_Only = false; % If true, only runs the coarse fit
 Model.Seed_Fine_Fit = ''; % Define a Srf file to use as seed map
 Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine fit
 Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
-Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
-% Model.Downsample_Predictions = 10; % Use for microtime resolution if stimulus timing is faster than TR
+Model.Downsample_Predictions = 1; % Use for microtime resolution if stimulus timing is faster than TR
+% Model.Hooke_Jeeves_Steps = [.01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
+% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in aperture space)
 
 % Search grid for coarse fit
+Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar search grid
 Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5.6 : 0.2 : 1); % Sigma search grid
-Model.Param4 = 0; % Unused
-Model.Param5 = 0; % Unused
         
 %% Open dialogs if needed
 HomePath = pwd;

@@ -1,6 +1,6 @@
-function [v,d,o] = samsrf_version
+function [v,d] = samsrf_version
 %
-% [v,d,o] = samsrf_version
+% [v,d] = samsrf_version
 %
 % Returns the current SamSrf version (Only exists since Version 4.0).
 % The second output d contains a string with the date of the version.
@@ -12,5 +12,5 @@ function [v,d,o] = samsrf_version
 % be used now. Fingers crossed that MapSrf will instead become a reality...
 %
 
-v = 7.811; % SamSrf version number (3rd digit is minor change)
-d = '09-04-2022'; % Release date 
+v = 7.94; % SamSrf version number (3rd digit is minor change)
+d = '15-04-2022'; % Release date 

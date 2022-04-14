@@ -9,6 +9,9 @@ function Connective_Fields(SrfFiles, Roi, SeedRoi, TempMap)
 %
 % Includes code examples for using either forward-model fast fit or reverse correlation analysis.
 %
+% This is an example model. Copy this file to your parent data folder and
+% adapt the model parameters to suit your personal needs and desires.
+%
 
 %% Open dialogs if needed
 HomePath = pwd;
@@ -49,15 +52,15 @@ if nargin <= 3
     end    
 end
 
-%% Parameters for analysis
+%% Mandatory parameters for CF analysis
 Model.Name = 'CF'; % File name for output map
 Model.SeedRoi = SeedRoi; % Seed ROI for analysis
 Model.Template = TempMap; % Vertex number of seed region origin
-Model.Smoothing = 0; % Smoothing kernel (works differently for forward-model & reverse-correlation)
-Model.Global_Signal_Correction = true; % Correct by global mean signal?
-Model.Fit_pRF = true; % Fitting pRFs to template pRF coordinates (optional)
-Model.Save_Rmaps = false; % Not saving CF correlation profiles in data file (optional)
-% Model.Sizes = 5:5:20; % Range of sizes for CFs in geodesic steps (forward-model only)
+
+%% Optional in forward-model CF - You can use only one in this order of priority!
+% Model.Polar = 0:15:315; % Use polar wedges as CFs
+% Model.Eccentricity = [0 1 2 4 8 16 32 64 90]; % Use eccentricity bands as CFs
+% Model.Sizes = 5:5:20; % Search space for CF sizes (in geodesic steps)
 
 %% Fit pRF model
 MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi); % Reverse correlation analysis

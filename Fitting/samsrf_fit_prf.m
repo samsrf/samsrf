@@ -5,31 +5,28 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % Fits a pRF model using the slow fine-fitting procedure (fminsearch in Optimization toolbox).
 %
 % IMPORTANT NOTE: In SamSrf 7 the precision of the model fitting algorithm was improved!
-%                 Model fits using this version are -NOT- compatible with previous versions!
+%                 Model fits using this version are by default -NOT- compatible with previous versions!
 %                 Under some conditions previous versions sometimes reverted to the search grid.
+%                   
+%                 In SamSrf 8, the option to use the Hooke-Jeeves algorithm was added.
+%                 Moreover, you can now define parameter tolerance for Nelder-Mead algorithm,
+%                 but note that both of these can result in imprecise parameter esstimates.
 %
-%   Model:          Contains the parameters defining the eccentricity/scaling factor of the space.
-%   SrfFiles:       Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
-%                       Files will be concatenated in this order.
-%   Roi:            ROI label to restrict the analysis (default = '') 
-%                       Optional, but without this the analysis can take forever.
+%   Model:        Contains the parameters defining the eccentricity/scaling factor of the space.
+%   SrfFiles:     Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
+%                     Files will be concatenated in this order.
+%   Roi:          ROI label to restrict the analysis (default = '') 
+%                     Optional, but without this the analysis can take forever.
 %
 % Returns the name of the map file it saved.
 %
-% 20/07/2020 - SamSrf 7 version (DSS) 
-% 23/07/2020 - Cosmetic changes to command window outputs (DSS)
-% 03/02/2021 - Fixed crashing bug when replacing bad fine fits (DSS)
-% 05/02/2021 - Fixed another smaller bug with time series when replacing bad fine fits (DSS)  
-% 07/04/2021 - Added parameter option for only allowing positive coarse fits to pass (DSS)  
-% 29/04/2021 - Fixed show-stopping bug with incorrect model parameters! (DSS)  
-% 24/05/2021 - Displays asterisks & new lines when analysis is complete (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
-% 09/07/2021 - Fixed catastrophic bug when only allowing positive coarse fits! (DSS) 
-% 11/07/2021 - Minor change which should be inconsequential - famous last words... (DSS) 
-% 01/09/2021 - Fixed inconsequential reporting bug with noise ceiling threshold (DSS)
-% 22/09/2021 - Now allows downsampling of predictions when TR does not match stimulus timing (DSS)
-%              Fixed bug with storing coarse fit predictions when downsampling (DSS)
-% 12/02/2022 - If running coarse-fit only, now stores convolved predictions in data file (DSS)
+% 12/04/2022 - Changed name of optimisation loop function (DSS)
+%              Added reports for optimisation algorithm & parameters used for it (DSS)
+% 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
+% 14/04/2022 - Only reports optimisation parameters if fine-fitting (DSS) 
+%              Added option to calculate coarse fit over top percentile of search predictions (DSS)
+% 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
+%              Outsourced check for default parameters so no longer needs to check these (DSS)
 %
 
 %% Defaults & constants
@@ -46,43 +43,7 @@ bo = strfind(PrfFcnName, '(');
 PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 
 %% Default model parameters
-if ~isfield(Model, 'Noise_Ceiling_Threshold')
-    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-end
-if ~isfield(Model, 'Polar_Search_Space')
-    Model.Polar_Search_Space = false; % Search space is Cartesian
-end
-if ~isfield(Model, 'Seed_Fine_Fit')
-    Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
-end 
-if ~isfield(Model, 'Replace_Bad_Fits')
-    Model.Replace_Bad_Fits = false; % Don't replace bad fine fits with coarse fit
-end
-if ~isfield(Model, 'Smoothed_Coarse_Fit')
-    Model.Smoothed_Coarse_Fit = 0; % No smoothing on coarse fit
-end
-if ~isfield(Model, 'Coarse_Fit_Only')
-    Model.Coarse_Fit_Only = false; % Only run coarse fit & then save
-end
-if ~isfield(Model, 'Fine_Fit_Threshold')
-    Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
-end
-if ~isfield(Model, 'Only_Positive_Coarse_Fits')
-    Model.Only_Positive_Coarse_Fits = false; % Coarse fit can either be negative or positive correlation to pass 
-end
-if ~isfield(Model, 'Coarse_Fit_Block_Size')
-    Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
-end
-if ~isfield(Model, 'Downsample_Predictions')
-    Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
-end
-
-%% If coarse fit only suffix filename
-if Model.Coarse_Fit_Only 
-    if ~isempty(Model.Seed_Fine_Fit) % In case stupid choices were made
-        error('No point running only coarse fit when seeding the fine fit!');
-    end
-end
+Model = samsrf_model_defaults('samsrf_fit_prf', Model);
 
 %% MatLab R2012a or higher can do fast coarse-fit
 if verLessThan('matlab','7.13')
@@ -101,6 +62,34 @@ disp([' pRF model: ' PrfFcnName]);
 new_line;
 disp('Current working directory:');
 disp([' ' pwd]);
+new_line;
+% Are we fine-fitting?
+if ~Model.Coarse_Fit_Only
+    % Which optimisation algorithm is used?
+    if isfield(Model, 'Hooke_Jeeves_Steps') 
+        % Hooke-Jeeves algorithm
+        disp('Using Hooke-Jeeves pattern search algorithm')
+        hjs = [' with step sizes: '];
+        for p = 1:length(Model.Hooke_Jeeves_Steps)
+            hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
+            if p < length(Model.Hooke_Jeeves_Steps)
+                hjs = [hjs ', '];
+            end
+        end
+        disp(hjs);
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
+        end
+    else
+        % Nelder-Mead algorithm
+        disp('Using Nelder-Mead (fminsearch) algorithm');
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+        else
+            disp(' with default parameter tolerance');
+        end
+    end
+end
 new_line;
 
 %% Load apertures
@@ -249,6 +238,13 @@ else
       Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
   end
   
+  % Which percentile of correlations to include in parameter estimate
+  if Model.Coarse_Fit_Percentile == 100
+    disp(' Using only the maximal coarse fit R^2 as parameter estimate');
+  else
+    disp([' Including top ' num2str(100-Model.Coarse_Fit_Percentile) '% of coarse fit R^2s in parameter estimates']);
+  end
+  
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
   disp([' Block size: ' num2str(cfvb) ' vertices']);
   samsrf_progbar(0);
@@ -270,25 +266,33 @@ else
       	 mR = max(R,[],2); % Find best fit
       end
       for v = 1:length(vx)
-          rx = find(R(v,:) == mR(v),1); % Matrix position of best prediction
-          if ~isempty(rx)
-              % Store prediction
-              Srf.X(:,vx(v)) = X(:,rx);  % Best fitting convolved prediction
-              % Store parameters
-              for p = 1:length(Model.Param_Names)
-                  Pimg(p,vx(v)) = S(p,rx); % Add the pth fitted parameter
-              end
-              Rimg(1,vx(v)) = mR(v);  % Variance explained
-              % If running coarse fit only determine betas now
-              if Model.Coarse_Fit_Only 
-                % Fit betas for amplitude & intercept
-                warning off % In case of rank deficient GLM
-                B = [ones(length(Y(:,v)),1) X(:,rx)] \ Y(:,v); % GLM fit 
-                warning on
-                Bimg(1,vx(v)) = B(2); % Amplitude
-                Bimg(2,vx(v)) = B(1); % Intercept
-              end            
-          end
+          rx = R(v,:) >= prctile(R(v,:), Model.Coarse_Fit_Percentile); % Predictions with correlation above percentile
+          % Store parameters
+          Pimg(:,vx(v)) = mean(S(1:length(Model.Param_Names),rx),2); % Mean parameter across top percentile predictions
+
+          % Store prediction
+          if Model.Coarse_Fit_Percentile == 100
+            % Only take maximum
+            Srf.X(:,vx(v)) = X(:,rx);  % Best fitting convolved prediction
+            Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
+          else
+            % Top percentile of predictions
+            Rfp = Model.Prf_Function(Pimg(:,vx(v))', size(ApFrm,1)*2); % New pRF profile
+            nX = prf_predict_timecourse(Rfp, ApFrm); % New predicted time courase
+            nX = prf_convolve_hrf(nX, Model.Hrf, Model.Downsample_Predictions); % Convolve new time course with HRF
+            Rimg(1,vx(v)) = corr(Y(:,v),nX)^2; % New goodness of fit
+            Srf.X(:,vx(v)) = nX;  % Store new prediction with convolution
+          end              
+
+          % If running coarse fit only determine betas now
+          if Model.Coarse_Fit_Only 
+            % Fit betas for amplitude & intercept
+            warning off % In case of rank deficient GLM
+            B = [ones(length(Y(:,v)),1) Srf.X(:,vx(v))] \ Y(:,v); % GLM fit 
+            warning on
+            Bimg(1,vx(v)) = B(2); % Amplitude
+            Bimg(2,vx(v)) = B(1); % Intercept
+          end            
           samsrf_progbar((vs+v-1)/length(mver));
       end
   end
@@ -314,12 +318,12 @@ else
     Pimg = Pimg(:,mver);
     
     % Run fine fit (must be separate function for parallel computing toolbox
-    [fPimg, fRimg] = samsrf_fminsearch_loop(Model, Tc, ApFrm, Rimg, Pimg);
+    [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Tc, ApFrm, Rimg, Pimg);
     t3 = toc(t0);
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
     new_line;
     
-    disp('Fitting beta parameters & storing fitted models...');   
+    disp('Fitting betas & storing parameter estimates...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
     Srf.X = zeros(size(Tc,1)*Model.Downsample_Predictions, size(Srf.Vertices,1)); % Matrix with unconvolved predictions
