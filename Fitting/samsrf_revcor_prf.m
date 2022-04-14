@@ -33,6 +33,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 14/04/2022 - pRF model fitting now uses parallel computing (DSS)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
+%              Final duration now reported in hours (DSS)
 %
 
 %% Defaults & constants
@@ -281,7 +282,7 @@ if isfield(Model, 'Prf_Function')
     % Fit 2D models
     Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, AlgorithmParam);
     t3 = toc(t0); 
-    disp(['pRF parameter fitting completed in ' num2str(t3/60) ' minutes.']);
+    disp(['pRF parameter fitting completed in ' num2str(t3/60/60) ' hours.']);
 end
 new_line;
 
@@ -310,8 +311,8 @@ disp(['Saved ' OutFile '.mat']);
 
 % End time
 t4 = toc(t0); 
-EndTime = num2str(t4/60);
-new_line; disp(['Whole analysis completed in ' EndTime ' minutes.']);
+EndTime = num2str(t4/60/60);
+new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
 disp('******************************************************************');
 new_line; new_line;
 

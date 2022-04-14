@@ -23,6 +23,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 08/04/2022 - Improved algorithm to home in on pRF size estimates (DSS)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
+%              Fixed error with duration report for generating distance matrix (DSS)
 %
 
 %% Defaults & constants
@@ -128,7 +129,7 @@ X = Tc(:,svx); % Time courses in seed ROI
 if Model.Smoothing > 0 % No point when not smoothing
     Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
     Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
-    disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' seconds.']);
+    disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' minutes.']);
 else 
     Ws = [];
 end
