@@ -26,6 +26,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 14/04/2022 - Only reports optimisation parameters if fine-fitting (DSS) 
 %              Added option to calculate coarse fit over top percentile of search predictions (DSS)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
+%              Outsourced check for default parameters so no longer needs to check these (DSS)
 %
 
 %% Defaults & constants
@@ -42,63 +43,7 @@ bo = strfind(PrfFcnName, '(');
 PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 
 %% Default model parameters
-if ~isfield(Model, 'Noise_Ceiling_Threshold')
-    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-end
-if ~isfield(Model, 'Polar_Search_Space')
-    Model.Polar_Search_Space = false; % Search space is Cartesian
-end
-if ~isfield(Model, 'Seed_Fine_Fit')
-    Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
-end 
-if ~isfield(Model, 'Replace_Bad_Fits')
-    Model.Replace_Bad_Fits = false; % Don't replace bad fine fits with coarse fit
-end
-if ~isfield(Model, 'Smoothed_Coarse_Fit')
-    Model.Smoothed_Coarse_Fit = 0; % No smoothing on coarse fit
-end
-if ~isfield(Model, 'Coarse_Fit_Only')
-    Model.Coarse_Fit_Only = false; % Only run coarse fit & then save
-end
-if ~isfield(Model, 'Fine_Fit_Threshold')
-    Model.Fine_Fit_Threshold = 0.01; % Include coarse fits with R^2>0.01 in fine fit
-end
-if ~isfield(Model, 'Only_Positive_Coarse_Fits')
-    Model.Only_Positive_Coarse_Fits = false; % Coarse fit can either be negative or positive correlation to pass 
-end
-if ~isfield(Model, 'Coarse_Fit_Block_Size')
-    Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
-end
-if ~isfield(Model, 'Downsample_Predictions')
-    Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
-end
-if ~isfield(Model, 'Coarse_Fit_Percentile')
-    Model.Coarse_Fit_Percentile = 100; % Which percentile of correlations to include in coarse fit parameter estimates
-end
-
-%% Some parameter checks
-% If coarse fit percentile invalid
-if Model.Coarse_Fit_Percentile < 0 || Model.Coarse_Fit_Percentile > 100
-    error('Coarse fit percentile invalid! (It should probably be between 99-100...)');
-end
-% If coarse fit only suffix filename
-if Model.Coarse_Fit_Only 
-    if ~isempty(Model.Seed_Fine_Fit) % In case stupid choices were made
-        error('No point running only coarse fit when seeding the fine fit!');
-    end
-end
-% Ensure mandatory model vectors are sound
-if length(Model.Param_Names) ~= length(Model.Scaled_Param)
-    error('Mismatch between number of parameter names & scaled-parameter flags!');
-end
-if length(Model.Param_Names) ~= length(Model.Only_Positive)
-    error('Mismatch between number of parameter names & only-positive flags!');
-end
-if isfield(Model, 'Hooke_Jeeves_Steps')
-    if length(Model.Param_Names) ~= length(Model.Hooke_Jeeves_Steps)
-        error('Mismatch between number of parameter names & Hooke-Jeeves step sizes!');
-    end
-end
+Model = samsrf_model_defaults('samsrf_fit_prf', Model);
 
 %% MatLab R2012a or higher can do fast coarse-fit
 if verLessThan('matlab','7.13')

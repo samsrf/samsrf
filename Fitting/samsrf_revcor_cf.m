@@ -22,6 +22,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 07/04/2022 - pRF fitting now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Improved algorithm to home in on pRF size estimates (DSS)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
+%              Outsourced check for default parameters so no longer needs to check these (DSS)
 %
 
 %% Defaults & constants
@@ -29,18 +30,9 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 if nargin < 3
     Roi = ''; 
 end
-if ~isfield(Model, 'Noise_Ceiling_Threshold')
-    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-end
-if ~isfield(Model, 'Global_Signal_Correction')
-    Model.Global_Signal_Correction = true; % Correct time series by global mean signal
-end
-if ~isfield(Model, 'Save_Rmaps')
-    Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
-end
-if ~isfield(Model, 'Fit_pRF')
-    Model.Fit_pRF = true;
-end
+
+%% Default model parameters
+Model = samsrf_model_defaults('samsrf_revcor_cf', Model);
 
 %% Start time of analysis
 t0 = tic; new_line;  

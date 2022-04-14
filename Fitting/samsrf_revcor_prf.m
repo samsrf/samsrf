@@ -32,6 +32,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %              Added Hooke-Jeeves algorithm & customisable Nelder-Mead tolerance (DSS)
 % 14/04/2022 - pRF model fitting now uses parallel computing (DSS)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
+%              Outsourced check for default parameters so no longer needs to check these (DSS)
 %
 
 %% Defaults & constants
@@ -39,17 +40,9 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 if nargin < 3
     Roi = ''; 
 end
-if ~isfield(Model, 'Noise_Ceiling_Threshold')
-    Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-end
-if ~isfield(Model, 'Save_Rmaps')
-    Model.Save_Rmaps = true; % Whether or not to save correlation profiles in data file
-end
 
-%% Ensure mandatory model vectors are sound
-if length(Model.Param_Names) ~= length(Model.Scaled_Param)
-    error('Mismatch between number of parameter names & scaled-parameter flags!');
-end
+%% Default model parameters
+Model = samsrf_model_defaults('samsrf_revcor_prf', Model);
 
 %% Start time of analysis
 t0 = tic; new_line;  
@@ -257,35 +250,18 @@ if isfield(Model, 'Prf_Function')
     Srf.Raw_Data = Srf.Data; % Store reverse correlations in raw data
     Srf.Raw_Values = Srf.Values; % Also store value names cause they'll change
     Srf.Values = {}; % Clear value field
-    % Only continue if parameter names defined
-    if isfield(Model, 'Param_Names') 
-        Srf.Values{1} = 'R^2'; % Goodness of model fit
-        Srf.Values(2:length(Model.Param_Names)+1) = Model.Param_Names; % pRF parameters
-        Srf.Values{end+1} = 'Beta'; % Amplitude 
-        Srf.Values{end+1} = 'Baseline'; % Baseline
-        Srf.Values = Srf.Values'; % Ensure not row vector
-        % Initialise data field
-        Srf.Data = NaN(length(Srf.Values), size(Srf.Raw_Data,2));
-    else
-        error('No pRF parameter names defined!');
-    end
+    Srf.Values{1} = 'R^2'; % Goodness of model fit
+    Srf.Values(2:length(Model.Param_Names)+1) = Model.Param_Names; % pRF parameters
+    Srf.Values{end+1} = 'Beta'; % Amplitude 
+    Srf.Values{end+1} = 'Baseline'; % Baseline
+    Srf.Values = Srf.Values'; % Ensure not row vector
+    % Initialise data field
+    Srf.Data = NaN(length(Srf.Values), size(Srf.Raw_Data,2));
     
     % Which reverse correlation data to include?
-    if ~isfield(Model, 'R2_Threshold')
-        Model.R2_Threshold = 0;
-    end
     disp([' Using reverse correlations profiles with R^2 > ' num2str(Model.R2_Threshold)]);
     GoF = find(Srf.Raw_Data(1,:) > Model.R2_Threshold); % Vertices with good reverse correlation profiles 
    
-    % Are scaled parameters defined?
-    if ~isfield(Model, 'Scaled_Param')
-        error('Scaled parameters are not defined!');
-    end
-    
-    % Is seed parameter function provided?
-    if ~isfield(Model, 'SeedPar_Function')
-        error('Seed parameter function is undefined!');
-    end
     disp('Seeding parameters using:');
     disp(Model.SeedPar_Function);
     
