@@ -25,6 +25,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
 % 14/04/2022 - Only reports optimisation parameters if fine-fitting (DSS) 
 %              Added option to calculate coarse fit over top percentile of search predictions (DSS)
+% 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %
 
 %% Defaults & constants
@@ -120,7 +121,7 @@ new_line;
 % Are we fine-fitting?
 if ~Model.Coarse_Fit_Only
     % Which optimisation algorithm is used?
-    if isfield(Model, 'Hooke_Jeeves_Steps')
+    if isfield(Model, 'Hooke_Jeeves_Steps') 
         % Hooke-Jeeves algorithm
         disp('Using Hooke-Jeeves pattern search algorithm')
         hjs = [' with step sizes: '];
@@ -131,6 +132,9 @@ if ~Model.Coarse_Fit_Only
             end
         end
         disp(hjs);
+        if isfield(Model, 'Nelder_Mead_Tolerance')
+            warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
+        end
     else
         % Nelder-Mead algorithm
         disp('Using Nelder-Mead (fminsearch) algorithm');
