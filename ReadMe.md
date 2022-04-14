@@ -28,8 +28,8 @@ for standard 2D pRF models but YMMV. It can be faster but you can also lose accu
 
 SamSrf 8 was tested on Matlab R2020a. The Nelder-Mead algorithm requires Matlab's 
 Optimization toolbox. The Hooke-Jeeves algorithm is implemented directly in SamSrf.
-SamSrf strongly relies on parallel computing for a number of time-intensive analyses,  
-so if you have Matlab's Parallel Computing Toolbox installed & you have a  
+SamSrf strongly relies on parallel computing for a number of time-intensive analyses, 
+so if you have Matlab's Parallel Computing Toolbox installed & you have a 
 multi-core computer or cluster it should run faster. Many stages of the analysis  
 are now geared towards parallel computing & may be quite slow without it.  
 
