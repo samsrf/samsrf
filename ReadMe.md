@@ -57,12 +57,14 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.931 (15-04-2022)  
+### Version 7.932 (15-04-2022)  
+- Defaults for optional parameters are now set by a separate function (DSS)  
 - New fast fit option to average top predictions in coarse fit (DSS)  
 - Added Hooke-Jeeves algorithm as alternative for pRF & CF model fitting (DSS)  
 - Now possible to define parameter tolerance for Nelder-Mead algorithm (DSS)  
 - If both Nelder-Mead & Hooke-Jeeves are defined there is now a warning (DSS)  
 - Fitting functions now perform checks on parameter definition vectors (DSS)  
+- Renamed samsrf_cfcorr to samsrf_gsr2 to avoid confusion with CF analysis (DSS)
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
 - Abandoned plan for SamOaSrf for Octave compatibility for the future is Python (DSS)  
 
