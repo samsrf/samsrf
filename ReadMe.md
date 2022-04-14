@@ -3,9 +3,10 @@ Version 8.0 (??-??-2022)
 
 This major release includes the most recent updates which involved algorithms for 
 fitting population receptive fields or connective fields using reverse correlation 
-combined with posthoc fitting of correlation profiles. Importantly, SamSrf 8 also 
-introduces several new fitting algorithms. By default we however still use the 
-standard Nelder-Mead algorithm & you can run the exact same analyses as in SamSrf 7:
+combined with posthoc fitting of correlation profiles. Importantly, it also introduces 
+several new fitting algorithms (see Cookbook & ModelHelp for details). 
+By default we however still use the standard Nelder-Mead algorithm & you can run the 
+exact same analyses as in SamSrf 7.
 
 1. *Slow Coarse Fit:* Instead of only taking the best correlating prediction from
 the search space it averages the parameters of a top percentile you can define.
@@ -57,7 +58,8 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.932 (15-04-2022)  
+### Version 7.94 (15-04-2022)  
+- Added ModelHelp tool to document the various Model parameters (DSS)  
 - Defaults for optional parameters are now set by a separate function (DSS)  
 - New fast fit option to average top predictions in coarse fit (DSS)  
 - Added Hooke-Jeeves algorithm as alternative for pRF & CF model fitting (DSS)  
