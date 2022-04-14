@@ -30,7 +30,7 @@ SamSrf 8 was tested on Matlab R2020a. The Nelder-Mead algorithm requires Matlab'
 Optimization toolbox. The Hooke-Jeeves algorithm is implemented directly in SamSrf.
 SamSrf strongly relies on parallel computing for a number of time-intensive analyses, 
 so if you have Matlab's Parallel Computing Toolbox installed & you have a 
-multi-core computer or cluster it should run faster. Many stages of the analysis  
+multi-core computer or cluster it should run faster. Many stages of the analysis 
 are now geared towards parallel computing & may be quite slow without it.  
 
 As of SamSrf 7 we completely overhauled of the toolbox. The GUI from SamSrf <=5 
