@@ -7,7 +7,8 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %  Responses are modelled in terms of percentage of pRF activation. 
 %
 % Note: When generating noisy time courses it is advisable to z-normalise 
-%  them but you must do this *after* adding noise.
+%  them but you must do this *after* adding noise because otherwise the mean
+%  and baseline level of the time series are probably unrealistic. 
 %
 % GtPars can be a matrix where each column is a "vertex" and each row 
 %  is a parameter necessary for the pRF function (excluding betas).
@@ -36,11 +37,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %  If the input was just a matrix with parameters then this output Srf is
 %  not fully functional (contains no brain structure etc).
 %
-% 02/06/2020 - SamSrf 7 version (DSS) 
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
-% 22/09/2021 - Now also supports downsampling of simulated timeseries (DSS)
-%              Fixed bug with data allocation when downsampling (DSS)
-%              Moved default parameter assigment to top (DSS)
+% 16/04/2022 - Added some more explanation on normalising noisy time series (DSS).
 %
 
 %% Default parameters 

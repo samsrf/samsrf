@@ -28,17 +28,12 @@ Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentric
 Model.TR = 1; % Repetition time (TR) of pulse sequence - standard in our experiments
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = ['aps_' ModAps]; % Box standard sweeping bars design we typically use
-% Model.Downsample_Predictions = 10; % Use for microtime resolution if stimulus timing is faster than TR
-% Model.Hooke_Jeeves_Steps = [.01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
-% Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in aperture space)
 
 %% Search grid for coarse fit
 Model.Polar_Search_Space = true; % (Optional) If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar angle search grid
 Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5.6 : 0.2 : 1); % Sigma search grid
-Model.Param4 = 0; % Unused
-Model.Param5 = 0; % Unused
 
 %% Simulate pRFs 
 [Theta, Rho, Sigma] = ndgrid(0:15:345, 2.^[-4.5 -3.5:.5:.5], .05*2.^(0:5)); % A simulated visual field with a range of pRF sizes

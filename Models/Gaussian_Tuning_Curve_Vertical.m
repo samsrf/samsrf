@@ -1,6 +1,7 @@
-function Gaussian_Tuning_Curve_Vertical(SrfFiles, Roi)
+function Gaussian_Tuning_Curve_Vertical(DataPath, SrfFiles, Roi)
 %
 % Fits a 1D Gaussian tuning curve model with (horizontal) bars moving vertically
+%	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
 %   Roi:        ROI label to restrict analysis 
 % Both inputs are optional. If undefined, a dialog is opened for user selection.
@@ -9,7 +10,7 @@ function Gaussian_Tuning_Curve_Vertical(SrfFiles, Roi)
 % adapt the model parameters to suit your personal needs and desires.
 %
 
-%% Standard 2D Gaussian pRF
+%% Mandatory parameters 
 Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(0, P(1), P(2), ApWidth); % Which pRF model function? 
 Model.Name = 'pTC_ver'; % File name to indicate type of pRF model
 Model.Param_Names = {'Mu'; 'Sigma'}; % Names of parameters to be fitted
@@ -20,15 +21,7 @@ Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than sc
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pTC_ver'; % Aperture file
 
-% Optional parameters
-Model.Noise_Ceiling_Threshold = 0; % Limit data to above certain noise ceiling?
-Model.Replace_Bad_Fits = false; % If true, uses coarse fit for bad slow fits
-Model.Smoothed_Coarse_Fit = 0; % If > 0, smoothes data for coarse fit
-Model.Coarse_Fit_Only = false; % If true, only runs the coarse fit
-Model.Seed_Fine_Fit = ''; % Define a Srf file to use as seed map
-Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine fit
-Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
-Model.Downsample_Predictions = 1; % Use for microtime resolution if stimulus timing is faster than TR
+%% Optional fine-fitting parameters
 % Model.Hooke_Jeeves_Steps = [.01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
 % Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in aperture space)
 
@@ -37,26 +30,9 @@ Model.Polar_Search_Space = false; % If true, parameter 1 & 2 are polar (in degre
 Model.Param1 = -1.05 : 0.05 : 1.05; % Mu search grid
 Model.Param2 = 2 .^ (-5.6 : 0.1 : 1); % Sigma search grid
         
-%% Open dialogs if needed
+%% Go to data 
 HomePath = pwd;
-% Choose data files
-if nargin == 0
-    [SrfFiles, PathName] = uigetfile('*h_*.mat', 'Choose SamSrf files', 'MultiSelect', 'on');
-    if SrfFiles ~= 0
-        cd(PathName);
-    else
-        error('No data files selected!');
-    end
-end
-% Choose ROI label
-if nargin <= 1
-    [Roi, RoiPath] = uigetfile('*.label', 'Choose ROI label');
-    if Roi ~= 0 
-        Roi = [RoiPath Roi(1:end-6)];
-    else
-        Roi = '';
-    end    
-end
+cd(DataPath);
 
 %% Fit pRF model
 MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);

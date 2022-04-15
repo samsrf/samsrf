@@ -1,6 +1,7 @@
-function Radial_2d_Multivariate_Prf(SrfFiles, Roi)
+function Radial_2d_Multivariate_Prf(DataPath, SrfFiles, Roi)
 %
 % Fits a radially oriented multivariate 2D pRF model
+%	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
 %   Roi:        ROI label to restrict analysis 
 % Both inputs are optional. If undefined, a dialog is opened for user selection.
@@ -13,7 +14,7 @@ function Radial_2d_Multivariate_Prf(SrfFiles, Roi)
 % standard 2D Gaussian instead of a coarse fit.
 %
 
-%% Radial 2D multivariate pRF
+%% Mandatory parameters 
 Model.Prf_Function = @(P,ApWidth) prf_multivariate_rf(P(1), P(2), P(3), P(4), atan2(P(2),P(1))/pi*180, ApWidth); % Which pRF model function? 
 Model.Name = 'pRF_Radial'; % File name to indicate type of pRF model
 Model.Param_Names = {'x0'; 'y0'; 'Sigma1'; 'Sigma2'}; % Names of parameters to be fitted
@@ -24,58 +25,31 @@ Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than sc
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pRF'; % Aperture file
 
-% Optional parameters
-Model.Noise_Ceiling_Threshold = 0; % Limit data to above certain noise ceiling?
-Model.Replace_Bad_Fits = false; % If true, uses coarse fit for bad slow fits
-Model.Smoothed_Coarse_Fit = 0; % If > 0, smoothes data for coarse fit
-Model.Coarse_Fit_Only = false; % If true, only runs the coarse fit
-Model.Seed_Fine_Fit = ''; % Define a Srf file to use as seed map
-Model.Fine_Fit_Threshold = 0.01; % Define threshold for what to include in fine fit
-Model.Coarse_Fit_Block_Size = 10000; % Defines block size for coarse fit (reduce if using large search space)
-Model.Downsample_Predictions = 1; % Use for microtime resolution if stimulus timing is faster than TR
+%% Optional fine-fitting parameters
 % Model.Hooke_Jeeves_Steps = [.01 .01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
 % Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in aperture space)
 
-% Search grid for coarse fit
+%% Search grid for coarse fit
 Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar search grid
 Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5:1); % Horizontal sigma search grid
 Model.Param4 = 2 .^ (-5:1); % Vertical sigma search grid
 
-%% Open dialogs if needed
+%% Go to data 
 HomePath = pwd;
-% Choose data files
-if nargin == 0
-    [SrfFiles, PathName] = uigetfile('*h_*.mat', 'Choose SamSrf files', 'MultiSelect', 'on');
-    if SrfFiles ~= 0
-        cd(PathName);
-    else
-        error('No data files selected!');
-    end
-end
-% Choose ROI label
-if nargin <= 1
-    [Roi, RoiPath] = uigetfile('*.label', 'Choose ROI label');
-    if Roi ~= 0 
-        Roi = [RoiPath Roi(1:end-6)];
-    else
-        Roi = '';
-    end    
-end
+cd(DataPath);
 
 %% Fit pRF model
 MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 
 %% Post-processing
 load(MapFile); % Load map we just analysed
-
 % Add aspect ratio
 Srf.Values{8} = 'Aspect Ratio'; 
 Srf.Data(8,:) = log(abs(Srf.Data(4,:)) ./ abs(Srf.Data(5,:))); % Logarithm of Radial/Tangential 
-
-% Standard post-processing
-save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
+% Save again
+save(MapFile, 'Srf', 'Model', '-v7.3'); 
 
 %% Return home
 cd(HomePath); 

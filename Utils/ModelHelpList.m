@@ -12,8 +12,8 @@ function ParamList = ModelHelpList(AnalysisFunc)
 switch AnalysisFunc
     % Forward model pRF
     case 'samsrf_fit_prf'
-        ParamList = {   'Prf_Function';
-                        'Name';
+        ParamList = {   'Name';
+						'Prf_Function';                        
                         'Param_Names';
                         'Scaled_Param';
                         'Only_Positive';
@@ -23,15 +23,20 @@ switch AnalysisFunc
                         'Aperture_File';
                         'Noise_Ceiling_Threshold';
                         'Polar_Search_Space';
-                        'Seed_Fine_Fit';
-                        'Replace_Bad_Fits';
-                        'Smoothed_Coarse_Fit';
+						'Param1';
+						'Param2';
+						'Param3';
+						'Param4';
+						'Param5';
                         'Coarse_Fit_Only';
-                        'Fine_Fit_Threshold';
+                        'Smoothed_Coarse_Fit';
                         'Only_Positive_Coarse_Fits';
                         'Coarse_Fit_Block_Size';
-                        'Downsample_Predictions';
                         'Coarse_Fit_Percentile';
+                        'Seed_Fine_Fit';
+                        'Fine_Fit_Threshold';
+                        'Replace_Bad_Fits';
+                        'Downsample_Predictions';
                         'Hooke_Jeeves_Steps';
                         'Nelder_Mead_Tolerance'  };
     
@@ -42,14 +47,14 @@ switch AnalysisFunc
                         'TR';
                         'Hrf';
                         'Aperture_File';
+                        'Noise_Ceiling_Threshold';
                         'Prf_Function';
                         'Param_Names';
                         'Scaled_Param';
                         'SeedPar_Function';
                         'R2_Threshold';
-                        'Rdim';
-                        'Noise_Ceiling_Threshold';
                         'Save_Rmaps';
+                        'Rdim';
                         'Hooke_Jeeves_Steps';
                         'Nelder_Mead_Tolerance'  };
 

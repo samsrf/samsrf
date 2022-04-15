@@ -16,6 +16,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 %
 % 15/04/2022 - Outsourced check for default parameters so no longer needs to check these (DSS)
 %              Added option to apply global signal correction (DSS)
+% 16/04/2022 - Now saves final map with _Fwd suffix (DSS)
 %
 
 %% Defaults & constants
@@ -230,7 +231,8 @@ new_line;
 
 % Compress to save space
 Srf = samsrf_compress_srf(Srf, mver);
-% Save fine fit map files
+% Save map files
+OutFile = [OutFile '_Fwd'];
 disp('Saving CF fitting results...');
 save(OutFile, 'Model', 'Srf', '-v7.3');
 disp(['Saved ' OutFile '.mat']); 

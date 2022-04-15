@@ -1,6 +1,7 @@
-function Connective_Fields(SrfFiles, Roi, SeedRoi, TempMap)
+function Connective_Fields(DataPath, SrfFiles, Roi, SeedRoi, TempMap)
 %
 % Runs a connective field reverse correlation analysis
+%	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
 %   Roi:        ROI label to restrict analysis 
 %   SeedRoi:    Seed ROI label 
@@ -13,46 +14,7 @@ function Connective_Fields(SrfFiles, Roi, SeedRoi, TempMap)
 % adapt the model parameters to suit your personal needs and desires.
 %
 
-%% Open dialogs if needed
-HomePath = pwd;
-% Choose data files
-if nargin == 0
-    [SrfFiles, PathName] = uigetfile('*h_*.mat', 'Choose SamSrf files', 'MultiSelect', 'on');
-    if SrfFiles ~= 0
-        cd(PathName);
-    else
-        error('No data files selected!');
-    end
-end
-% Choose ROI label
-if nargin <= 1
-    [Roi, RoiPath] = uigetfile('*.label', 'Choose ROI label');
-    if Roi ~= 0 
-        Roi = [RoiPath Roi(1:end-6)];
-    else
-        Roi = '';
-    end    
-end
-% Choose seed ROI label
-if nargin <= 2
-    [SeedRoi, SeedRoiPath] = uigetfile('*.label', 'Choose seed ROI label');
-    if SeedRoi ~= 0 
-        SeedRoi = [SeedRoiPath SeedRoi(1:end-6)];
-    else
-        error('Seed region undefined!');
-    end    
-end
-% Choose template map
-if nargin <= 3
-    [TempMap, TempMapPath] = uigetfile('*h_*.mat', 'Choose template map');
-    if TempMap ~= 0 
-        TempMap = [TempMapPath TempMap(1:end-4)];
-    else
-        error('Template map undefined!');
-    end    
-end
-
-%% Mandatory parameters for CF analysis
+%% Mandatory parameters 
 Model.Name = 'CF'; % File name for output map
 Model.SeedRoi = SeedRoi; % Seed ROI for analysis
 Model.Template = TempMap; % Vertex number of seed region origin
@@ -62,7 +24,11 @@ Model.Template = TempMap; % Vertex number of seed region origin
 % Model.Eccentricity = [0 1 2 4 8 16 32 64 90]; % Use eccentricity bands as CFs
 % Model.Sizes = 5:5:20; % Search space for CF sizes (in geodesic steps)
 
-%% Fit pRF model
+%% Go to data 
+HomePath = pwd;
+cd(DataPath);
+
+%% Fit CF model (either reverse-correlation or forward-model)
 MapFile = samsrf_revcor_cf(Model, SrfFiles, Roi); % Reverse correlation analysis
 % MapFile = samsrf_fit_cf(Model, SrfFiles, Roi); % Forward-model fast fit (computationally expensive & not fully tested)
 

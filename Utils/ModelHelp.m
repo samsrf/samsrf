@@ -66,7 +66,7 @@ contents = cellstr(get(handles.popupmenu1,'String'));
 analfunc = contents{get(handles.popupmenu1,'Value')}; 
 analfunc = analfunc(strfind(analfunc, '(')+1:strfind(analfunc, ')')-1);
 set(handles.listbox1, 'String', ModelHelpList(analfunc));
-
+set(handles.text2, 'String', ModelHelpText(analfunc, 'Name'));
 
 %% --- Outputs from this function are returned to the command line.
 function varargout = ModelHelp_OutputFcn(hObject, eventdata, handles) 
@@ -89,8 +89,9 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 contents = cellstr(get(hObject,'String')); 
 analfunc = contents{get(hObject,'Value')}; 
 analfunc = analfunc(strfind(analfunc, '(')+1:strfind(analfunc, ')')-1);
+set(handles.listbox1, 'Value', 1);
 set(handles.listbox1, 'String', ModelHelpList(analfunc));
-
+set(handles.text2, 'String', ModelHelpText(analfunc, 'Name'));
 
 
 %% --- Executes during object creation, after setting all properties.
