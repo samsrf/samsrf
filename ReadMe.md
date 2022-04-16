@@ -38,7 +38,7 @@ be in the same format. You can also convert old data files from older versions
 
 ## LATEST UPDATES 
 
-### Version 7.98 (17-04-2022)  
+### Version 7.99 (17-04-2022)  
 - Added ModelHelp tool to document the various Model parameters (DSS)  
 - Defaults for optional parameters are now set by a separate function (DSS)  
 - New fast fit option to average top predictions in coarse fit (DSS)  
@@ -48,6 +48,7 @@ be in the same format. You can also convert old data files from older versions
 - Fitting functions now perform checks on parameter definition vectors (DSS)  
 - Renamed samsrf_cfcorr to samsrf_gsr2 to avoid confusion with CF analysis (DSS)
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
+- HRF fitting functions now also have option for Hooke-Jeeves algorithm (DSS)  
 - Simplified Model examples by removing GUI functionality & optional parameters (DSS)  
 - Updated the Cookbooks with information about the new major release (DSS)  
 - Abandoned plan for SamOaSrf for Octave compatibility for the future is Python (DSS)  
