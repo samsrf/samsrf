@@ -27,6 +27,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %              Added option to calculate coarse fit over top percentile of search predictions (DSS)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
+% 16/04/2022 - Only-positive check now rejects zeros as it should (DSS) 
 %
 
 %% Defaults & constants
@@ -339,7 +340,7 @@ else
                 IsGoodFit = false;
             end
             % If a parameter is negative but shouldn't be
-            if Model.Only_Positive(p) && fPimg(p,v) < 0
+            if Model.Only_Positive(p) && fPimg(p,v) <= 0
                 IsGoodFit = false;
             end
         end
