@@ -68,10 +68,7 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, Max
 %   Niter:      Number of search iterations (default = 20)
 %   InitRad:    Initial search radius (default = 2)
 %
-% 16/09/2021 - Completed fully functional version (DSS)
-% 17/09/2021 - Now supports bilateral Srfs (DSS)
-% 20/09/2021 - Added support for flexible peripheral borders (DSS)
-% 08/10/2021 - Now uses ROI list from SamSrf_defaults if defined (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % ROI list for delineation file 

@@ -10,7 +10,7 @@ function [vertex,face,points] = Read_vtk(filename, verbose)
 %
 %   Copyright (c) Mario Richtsfeld
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin<2

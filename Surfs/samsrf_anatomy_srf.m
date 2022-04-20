@@ -23,8 +23,8 @@ function samsrf_anatomy_srf(SrfName, AnatPath)
 %  convert it using samsrf_convert_old_srf. Any new Srfs generated using
 %  samsrf_vol2srf in SamSrf 6 will have automatically been separated though.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
 % 14/03/2022 - Now supports anonymised Srfs (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default path?

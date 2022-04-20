@@ -7,6 +7,7 @@ function ExampleVertexFunction
 % the name to something descriptive and adapt it according to your needs.
 %
 % 11/09/2021 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 
 rotate3d; % Ensure rotation mode since MatLab 2020 figure defaults to auto-selection
 dcm_obj = datacursormode(gcf); % Data cursor mode object

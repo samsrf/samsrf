@@ -16,6 +16,7 @@ function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg)
 % 12/04/2022 - Added support for Hooke-Jeeves pattern search algorithm (DSS)
 %              Removed inconsequential erroneous comment (DSS)
 % 14/04/2022 - Removed non-parallel computing option (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Number of vertices

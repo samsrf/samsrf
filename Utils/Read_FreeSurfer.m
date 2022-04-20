@@ -11,10 +11,10 @@ function data = Read_FreeSurfer(fname)
 % (in which the first 2 lines are header information and thus ignored).
 % If no file extension is given, the program assumes no headers.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
 % 13/03/2022 - Now ensures that files aren't loaded from path (DSS)
 %              Produces an error if file cannot be loaded now (DSS)
 %              Reports full pathname of loaded file (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 fname = EnsurePath(fname); % Ensure correct path

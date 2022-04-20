@@ -5,7 +5,7 @@ function Srf = samsrf_dog_fwhm(Srf)
 % Calculates the parameters of a Difference-of-Gaussians pRF model into 
 % the full-width at half-maximum and adds this to the Srf.
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Expand Srf if necessary

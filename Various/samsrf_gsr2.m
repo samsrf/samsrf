@@ -37,6 +37,7 @@ function R = samsrf_gsr2(Y, X, S, Model)
 %
 % 02/03/2022 - Added support for polar search grids & 1D models (DSS) 
 % 14/04/2022 - Renamed function to avoid confusion with CF analysis (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ~isfield(Model, 'Downsampling')

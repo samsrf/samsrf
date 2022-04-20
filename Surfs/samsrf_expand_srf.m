@@ -21,10 +21,8 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 % Note: this function only works for single-subject Srfs. There currently
 %   is no support for expanding or compressing multi-subbject Srfs.
 %
-% 16/07/2020 - SamSrf 7 version (DSS)
-% 21/12/2020 - Fixed bug where version number was restored from anatomy meshes (DSS)
-% 14/02/2022 - CF correlation profiles are not saved in data file by default (DSS)
 % 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% In case no values defined

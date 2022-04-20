@@ -8,7 +8,7 @@ function CreateAnatV1(Srf, hemi, crit)
 % define the direct path to the label folder in addition. The third input
 % crit defines the minimum probability value to include.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Split path & hemisphere

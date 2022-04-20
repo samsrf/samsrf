@@ -11,6 +11,7 @@ function Rmaps = samsrf_cfcorrel_loop(Tc, X, Ws)
 %
 % 22/02/2022 - Written (DSS)
 % 14/04/2022 - Removed non-parallel computing option (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Dimensions

@@ -45,8 +45,8 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 % PlotRsq is a boolean that toogles whether dot colours denote R^2 (true) 
 %   or the modelled Betas (false).
 %
-% 13/07/2020 - SamSrf 7 version (DSS) 
 % 02/03/2022 - Fixed colour bar label if plotting R^2 (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

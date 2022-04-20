@@ -17,6 +17,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 % 15/04/2022 - Outsourced check for default parameters so no longer needs to check these (DSS)
 %              Added option to apply global signal correction (DSS)
 % 16/04/2022 - Now saves final map with _Fwd suffix (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Defaults & constants

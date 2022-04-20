@@ -55,13 +55,7 @@ function Res = samsrf_wedgeplot(SrfDv, Value, SrfIv, Wedges, Rings,  Roi, Thresh
 %
 % Cmap:         Colour map as string. Defaults to 'jet'.
 %
-% 28/10/2020 - Written (DSS)
-% 26/11/2020 - Fixed bug with default inputs (DSS)
-% 09/12/2020 - Changed output so it now contains NaN data for 0 vertex ROIs (DSS)
-% 18/12/2020 - Now produces a proper wedge plot rather than scatter plot (EA)
-%              Adjusted alpha scaling based on number of vertices per segment (DSS)
-% 29/04/2021 - Added note about regression artifacts (DSS)
-%              Removed nR^2 option as redundant - use samsrf_normr2 instead (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Expand Srfs if necessary

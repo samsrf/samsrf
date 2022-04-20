@@ -15,8 +15,7 @@ function Srf = samsrf_normr2(Srf, NcThr)
 % Note, this function only works on Srf.Data so don't apply that to
 % smoothed data. If smoothing is desired, do that afterwards.
 %
-% 20/07/2020 - SamSrf 7 version (DSS)
-% 29/04/2021 - Removed false advice from help section (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

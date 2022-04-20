@@ -11,7 +11,7 @@ function [y, overlaid, stim_mask] = prf_predict_response(Stim, Rfp)
 %
 % Also returns the stimulus aperture and the overlay of pRF and aperture.
 %
-% 02/06/2020 - SamSrf 7 version (DSS) 
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

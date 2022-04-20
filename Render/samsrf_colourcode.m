@@ -11,8 +11,7 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 %
 % The output of this function is a bitmap which can be displayed or saved.
 % 
-% 17/07/2020 - SamSrf 7 version (DSS)
-% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

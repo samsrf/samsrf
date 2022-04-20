@@ -6,7 +6,7 @@ function cR = prf_centre_prf(R)
 %
 % Note: This function requires a Srf analysed with reverse correlation.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Transformation parameters

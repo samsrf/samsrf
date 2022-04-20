@@ -5,7 +5,7 @@ function Y = prf_predict_timecourse(Rfp, ApFrm)
 %
 % Predicts the time course resulting from receptive field profile Rfp and stimulus mask movie ApFrm. 
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Output time course vector

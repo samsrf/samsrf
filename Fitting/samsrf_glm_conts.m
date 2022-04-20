@@ -13,8 +13,7 @@ function samsrf_glm_conts(SrfFile, Conts, ContNames)
 % Crit_Ts that defines the critical t-statistics for p=0.05, p=0.001, and
 % p=0.05 (Bonferroni corrected).
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 29/06/2021 - Now allows use of GLM file with time course data (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Convert ContNames into cell if it's a string

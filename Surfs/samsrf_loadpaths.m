@@ -4,8 +4,7 @@ function [Vs, Paths] = samsrf_loadpaths(PathFileName)
 % The second output argument Paths contains the Paths cell array if PathFileName
 % is a delineation file from DelineationTool. Otherwise this is empty.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 15/09/2021 - Changed input argument name due to potential conflict with global variable (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ~isempty(PathFileName)

@@ -11,9 +11,7 @@ function Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 %
 % Saves the spatially normalised Srf called the same as NatSrf with the suffix _sn.
 %
-% 09/04/2021 - Written (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
-% 20/09/2021 - Changed how TmpFolder is defined to make consistent with AutoDelineation (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Load native map

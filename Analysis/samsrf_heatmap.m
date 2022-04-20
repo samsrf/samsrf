@@ -28,9 +28,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 %
 % Optionally returns the image matrix Img, in which case plotting is turned off.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 26/06/2021 - Changed default colour map (DSS)
-% 10/07/2021 - Added option to blend image with heat map (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default inputs

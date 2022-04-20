@@ -6,6 +6,7 @@ function HelpText = ModelHelpText(AnalysisFunc, ParameterName)
 % This is called internally by ModelHelp but you can also use it directly.
 %
 % 15/04/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Which analysis function?

@@ -8,7 +8,7 @@ function Data = samsrf_extract_labeldata(SrfName, Roi)
 % from Srf.Data, so if you want the unsmoothed data you must first replace
 % Srf.Data with Srf.Raw_Data.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Load label vertices

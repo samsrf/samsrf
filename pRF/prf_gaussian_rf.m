@@ -15,8 +15,7 @@ function Rfp = prf_gaussian_rf(x0, y0, sigma, screen_width)
 %   not apertures space! This is used internally for fitting CFs but you 
 %   may find other uses for this feature.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 11/02/2022 - Now allows pRF coordinates as input for CF fitting (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 4

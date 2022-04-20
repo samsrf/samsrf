@@ -18,9 +18,7 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile)
 % you define in GlmFile). This contains in each row the beta estimates of
 % each regressor in the design matrix. The final row contains the residuals.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 27/06/2021 - Changed how design matrix is plotted (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if length(Xnames) ~= size(X,2)

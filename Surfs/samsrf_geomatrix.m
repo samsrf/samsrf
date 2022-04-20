@@ -10,9 +10,7 @@ function Ds = samsrf_geomatrix(V, F, Vs, MaxDist)
 % Returns a N x N matrix Ds containing the cortical distances between each 
 % of the N vertices and all the others.
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
-% 23/07/2020 - Added support for parallel processing (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters

@@ -5,7 +5,7 @@ function cmap = fscol(res)
 % Returns the FreeSurfer colour map (like MatLab colour maps) with the
 % resolution res, which must be a multiple of 4. By default res is 360.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin == 0

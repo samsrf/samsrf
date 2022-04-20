@@ -20,7 +20,7 @@ function AvgPrf = samsrf_meanprf(SrfDv, SrfIv, Roi, Eccs, Thrsh, Nrmls)
 %
 % Note: This function requires Srf's analysed with reverse correlation!
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

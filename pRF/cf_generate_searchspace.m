@@ -10,8 +10,7 @@ function [Ptc, S] = cf_generate_searchspace(Srf, SeedVx, Sizes)
 % SeedVx defines the vertices of the seed ROI label.
 % Sizes defines the different CF sizes to fit for each ROI vertex (in geodesic steps).
 %
-% 22/05/2021 - Written (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Response time series

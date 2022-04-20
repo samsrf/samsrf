@@ -9,7 +9,7 @@ function samsrf_mat2vol(SrfName)
 %                 removing the vol_ prefix. If Srf.Values doesn't exist
 %                 it simply saves each row as _tr#.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Load fake surface data

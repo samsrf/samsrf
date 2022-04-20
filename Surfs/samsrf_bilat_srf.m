@@ -29,9 +29,7 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 %
 % Warning: May fail with very large data files due to lack of memory.
 %
-% 29/10/2020 - Written & further error corrections (DSS)
-% 21/12/2020 - Now removes mesh field if it exists (DSS)
-% 14/02/2022 - Now also combines seed vertices from CF maps (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Expand Srfs

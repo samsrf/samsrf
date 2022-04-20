@@ -11,9 +11,7 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 %
 % Adds the field sign map to Srf.Data as the bottom row. 
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 26/06/2021 - Added support for parallel computing (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters

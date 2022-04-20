@@ -82,15 +82,9 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 %                If only two inputs are defined, the second input defines
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
-% 17/07/2020 - SamSrf 7 version (DSS & SuSt)
-% 23/09/2020 - Bins is now used to restrict range of scatter plot (DSS)
-% 28/20/2020 - Minor changes (DSS)
-% 29/04/2021 - Added note about regression artifacts (DSS)
-%              Changed default model to Scatter (DSS)
-%              Removed nR^2 option as redundant - use samsrf_normr2 instead (DSS)
-% 31/05/2021 - Now includes option to plot mean of bin for independent variable (DSS)
 % 09/04/2022 - Changed scatter plot to use transparent dots instead of crosses (DSS)
 %              Removed Octave compatibility because never gonna happen (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Expand Srfs if necessary

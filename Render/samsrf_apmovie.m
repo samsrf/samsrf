@@ -8,7 +8,7 @@ function samsrf_apmovie(ApFile, Framerate)
 % Framerate allows you to change the number of stimulus frames per second
 % in the final movie. Default is 5 frames/second, to match samsrf_tcmovie.
 %
-% 30/06/2020 SamSrf 7 version (DSS) 
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Defaults

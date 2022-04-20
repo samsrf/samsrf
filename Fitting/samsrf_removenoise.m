@@ -8,11 +8,7 @@ function cSrf = samsrf_removenoise(Srf, X, globalcovar)
 %  A global regressor is added automatically so do not include one, 
 %  unless you turn this off with the optional boolean input globalcovar.
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
-% 24/05/2021 - Improved speed & removed expansion/compression (DSS)
-% 01/07/2021 - Removed utterly redundant expansion/compression again (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
-% 08/11/2021 - Optional input now allows you to turn off automatical global covariate (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

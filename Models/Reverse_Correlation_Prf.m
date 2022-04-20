@@ -3,11 +3,15 @@ function Reverse_Correlation_Prf(DataPath, SrfFiles, Roi)
 % Runs a reverse correlation pRF analysis
 %	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
-%   Roi:        ROI label to restrict analysis 
+%   Roi:        ROI label to restrict analysis (see note below)
 % Both inputs are optional. If undefined, a dialog is opened for user selection.
 %
 % This is an example model. Copy this file to your parent data folder and
 % adapt the model parameters to suit your personal needs and desires.
+%
+% NOTE: This analysis uses a lot of memory. You will need a ROI as you will 
+%       probably run out of memory otherwise. If you run a whole-brain analysis
+%       it may be necessary to split that up into several ROIs.
 %
 
 %% Mandatory parameters 

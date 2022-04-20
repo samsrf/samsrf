@@ -17,8 +17,7 @@ function Rfp = prf_multivariate_rf(x0, y0, s1, s2, phi, screen_width)
 % the postprocessing of your model data (see e.g. Oriented_2d_Multivariate_Prf
 % or Circular_Tuning_Curve in SamSrf/Models).
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 11/02/2022 - Now allows pRF coordinates as input for CF fitting (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 6

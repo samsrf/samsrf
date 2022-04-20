@@ -11,10 +11,9 @@ function R = prf_contour(Srf, v, Model)
 %  In this case, the matrix is truncated to remove the padding space that
 %  the pRF model functions automatically add.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 12/10/2021 - New option for plotting pRFs from model parameters.
 % 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
 % 17/03/2022 - Fixed bug a nasty leprechaun added to break reverse-correlation! (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin > 2

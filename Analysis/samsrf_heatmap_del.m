@@ -13,8 +13,7 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 % Cmap, the colour map, defaults to 'berlin'. Prefixing this with '-' inverts
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 26/06/2021 - Changed default colour map (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default inputs

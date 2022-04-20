@@ -4,6 +4,8 @@ function newname = EnsurePath(oldname)
 % Use this to avoid random files being loaded from the MatLab path in error.
 % (This particularly happens on public machines when people edit the path...)
 %
+% 20/04/2022 - SamSrf 8 version (DSS)
+%
 
 [p, n, e] = fileparts(oldname); % Deconstruct file name
 % Path undefined

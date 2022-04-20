@@ -63,30 +63,10 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
-% 07/08/2020 - Changed default camera view for right hemisphere (DSS)
-%              Added support for displaying ROI numbers (DSS)
-% 16/10/2020 - Fixed bug with determining transparency when no goodness-of-fit exists (DSS)
-% 29/10/2020 - Polar/phase colour schemes now account for bilateral data files (DSS)
-% 26/11/2020 - Added default camera angle for bilateral data files (DSS)  
-% 29/03/2021 - Fixed bugs with directly assigning path colours (DSS)  
-% 07/04/2021 - Added logarithmic scaling option for eccentricy, mu & sigma-style maps (DSS)
-%              Fixed incorrect description of greyscale curvature (DSS) 
-% 18/04/2021 - DisplayMaps now visualises reverse correlation & connective field profiles (DSS)
-%              Added some more documentation to the help section (DSS)
-% 18/05/2021 - Added rendering options for half-way inflation (DSS)
-% 21/05/2021 - Now uses scaled transparency for connective field profiles (DSS)
-% 14/09/2021 - Fixed camera bug when redrawing maps (DSS)
-% 16/09/2021 - Colour scheme for ROI numbers is now default for generic activity maps (DSS)
-%              Changed default camera angles for optimal sphere view (DSS)
-% 08/10/2021 - New option to directly provide a data vector with a map (DSS) 
-% 12/10/2021 - Vertex inspector now also works for forward-model fits (DSS)
-% 13/10/2021 - Massively expanded remit of vertex inspector (DSS)
-%              Fixed bug when not using DisplayMaps tool (DSS)
-% 14/02/2022 - Added option to recompute CF correlation profiles when not saved (DSS)
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %              Fixed bug when trying to display white-matter surface (DSS)
 % 14/03/2022 - Vertex inspector no longer scales amplitude for reverse correlation profiles (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Create global variables

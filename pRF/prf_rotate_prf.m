@@ -2,12 +2,11 @@ function tR = prf_rotate_prf(R, alpha)
 %
 % tR = prf_rotate_prf(R, [alpha=Inf])
 %
-% Rotate the pRF in the r-map R by angle alpha. It also sets all NaNs to zero.
-% If alpha is set to Inf, it rotates the pRF so that the peak is in the 3 o'clock position.
+% Rotate the reverse correlation pRF profile in the r-map R by angle alpha. 
+% It also sets all NaNs to zero. If alpha is set to Inf, it rotates the pRF 
+% so that the peak is in the 3 o'clock position.
 %
-% Note: This function requires a Srf analysed with reverse correlation.
-%
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

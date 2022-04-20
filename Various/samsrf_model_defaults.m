@@ -11,7 +11,7 @@ function Model = samsrf_model_defaults(AnalysisFunc, Model)
 %
 % It also performs a few checks on the soundness of parameters.
 %
-% 14/04/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Which analysis function?

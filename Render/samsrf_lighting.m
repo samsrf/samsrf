@@ -4,7 +4,7 @@ function samsrf_lighting(tog)
 %
 % Toggles the camera lighting in the surface renderer 'on' or 'off'.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Loop through figures

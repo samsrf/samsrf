@@ -21,6 +21,7 @@ function  [FinalParams, FinalErr] = samsrf_hookejeeves(ErrFcn, SeedParams, InitS
 %
 % 13/04/2022 - Written (DSS)
 % 14/04/2022 - Changed default number of iterations (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Ensure sound inputs

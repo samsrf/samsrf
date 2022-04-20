@@ -21,15 +21,10 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 %       SamSrf OSF website or create your own template and this must be on
 %       the Matlab path, using the name lh/rh_pRF_fsaverage. 
 %
-% 07/08/2020 - Written (DSS)
-% 28/03/2021 - Now automatically removes noise ceiling from NatSrf (DSS)
-% 14/04/2021 - Exports anatomical surfaces automatically now (DSS)
-% 10/06/2021 - Now only saves ROI labels if they exist (DSS) 
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
-% 30/08/2021 - Template maps can now contain a field with region names (DSS) 
 % 14/03/2022 - Now requires the pathname for the template map (DSS)
 %              Warped map data now contains row with template curvatures (DSS)
 %              Ensures now that random files aren't loaded from path (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Load native map

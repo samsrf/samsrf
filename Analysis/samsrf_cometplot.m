@@ -30,6 +30,7 @@ function [D, gx, gy] = samsrf_cometplot(SrfDv, ValDv, SrfIv, ValIv, Limits, Roi,
 % Returns in D the density matrix & in gx and gy the coordinates for making a contour plot.
 %
 % 29/04/2021 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if length(Limits) < 4

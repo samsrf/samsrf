@@ -22,8 +22,7 @@ function [Img, Mov] = samsrf_vfcoverage(Srf, Ecc, Roi, R2Thrsh, Clipping, Raw)
 %
 % The optional output Mov contains all the pRF profiles as individual frames.
 %
-% 01/07/2020 - SamSrf 7 version (DSS)
-% 07/04/2021 - Using logarithmic scale now (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

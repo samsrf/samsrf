@@ -16,7 +16,7 @@ function samsrf_srf2asc(srfdata, ascname, srfdir, valnum)
 % saves a FreeSurfer ASCII file that can be converted into binary format
 % using mris_convert. It always saves the entire hemisphere.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ischar(srfdata)

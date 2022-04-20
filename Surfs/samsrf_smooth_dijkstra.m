@@ -28,9 +28,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 % IMPORTANT: Requires the external dijkstra.m function from MatLab Central:
 %            https://au.mathworks.com/matlabcentral/fileexchange/20025-dijkstra-s-minimum-cost-path-algorithm
 %
-% 18/07/2020 - SamSrf 7 version (DSS)
-% 07/01/2020 - Fixed bug when smoothing concatenated runs (DSS) 
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ~exist('dijkstra.m', 'file')

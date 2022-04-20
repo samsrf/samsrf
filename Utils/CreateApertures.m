@@ -1,6 +1,6 @@
 function ApName = CreateApertures
 
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 
 [f,p] = uigetfile('*.mat', 'Select results files', 'MultiSelect', 'on');
 if isnumeric(f) && f == 0

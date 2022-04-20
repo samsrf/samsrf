@@ -15,7 +15,7 @@ function Mesh = samsrf_backproj_del(Response, pRF_Data, Threshold)
 % a matrix with the responses per vertex in rows and conditions in columns. 
 % You can use samsrf_heatmap_del for plotting.
 %           
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

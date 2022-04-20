@@ -19,12 +19,8 @@ function samsrf_showprf(SrfEcc, IdxMat, Model, PlotType)
 %   PlotType:  Whether to plot a contour plot ('C'), a surface plot ('S'), or a 3D scatter plot ('D')
 %
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 06/08/2021 - Increase granularity of colour scheme (DSS)
-% 11/10/2021 - Added option to plot pRF models from parameters (DSS)
-%              Changed colour scheme to berlin (DSS) 
-% 12/10/2021 - Fixed bug when matrix has no variance (DSS) 
 % 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

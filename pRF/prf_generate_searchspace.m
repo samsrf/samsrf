@@ -14,8 +14,7 @@ function [Ptc, S] = prf_generate_searchspace(PrfFcn, ApFrm, Param1, Param2, Para
 % polar angle (in degrees) and ecceendntricity (in aperture space), respectively. 
 % These are then internally converted into Cartesian coordinates.
 %
-% 28/06/2020 - SamSrf 7 version (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 8

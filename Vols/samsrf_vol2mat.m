@@ -10,10 +10,9 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %   roi:        name of binary mask, in NII format (without extension)
 %   nrmls:      if true, it will detrend & z-score the time series in each voxel.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 29/10/2020 - Added prefix for these files (DSS)
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %              Changes error message when NII loading fails (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters

@@ -12,7 +12,7 @@ function samsrf_drawpaths(PatchHdl, Paths, Colour, Srf)
 %   Colour:     1x3 vector with colour RGB value or Inf to make transparent path
 %   Srf:        Srf with surface data - only required if loading .label files
 %
-% 15/03/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Load default parameters?

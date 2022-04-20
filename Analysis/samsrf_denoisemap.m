@@ -23,10 +23,7 @@ function [Srf, vx] = samsrf_denoisemap(Srf, BetaThr, RemoveOrigins, SigmaThr)
 %
 % Returns the denoised Srf. The second output vx contains the removed vertex indeces.
 %
-% 16/07/2020 - SamSrf 7 version (DSS)
-% 23/07/2020 - Input option for tweaking the thresholds (DSS)
-%              Added flexibility for different models (DSS)
-% 23/09/2020 - Added a thresholding option for Sigma (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

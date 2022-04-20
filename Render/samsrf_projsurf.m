@@ -15,9 +15,8 @@ function OutSrf = samsrf_projsurf(Srf, Mesh, Img, Eccen, Thrsh, CamView)
 % This projection does not use pRF size but only position. It also simply 
 % uses the pixel nearest to the pRF position rather than interpolating. 
 %
-% 10/07/2020 - SamSrf 6 version (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Expand Srf if necessary

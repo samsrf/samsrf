@@ -6,7 +6,7 @@ function [Vs, Ds] = samsrf_georoi(v, s, V, F)
 % geodesic ROI. Requires vertices V and faces F. Returns the vertices in 
 % Vs and in Ds the distances in steps from the centre.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 n = size(V,1);

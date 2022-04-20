@@ -24,6 +24,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
 %              Fixed error with duration report for generating distance matrix (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Defaults & constants

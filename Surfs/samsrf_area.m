@@ -10,7 +10,7 @@ function A = samsrf_area(V, F, Vs)
 % cortical magnification. FreeSurfer already calculates the cortical surface 
 % area for each vertex (but see the note in samsrf_vertexarea.m about this!)
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

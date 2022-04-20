@@ -32,7 +32,7 @@ function samsrf_simvsfit_hist(Srf, Thresholds, Nreps)
 %   simulation which defaults to 1. This only affects how often the
 %   ground truths are being replotted so it's not very crucial.
 %
-% 23/06/2020 - SamSrf 7 version (DSS) 
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

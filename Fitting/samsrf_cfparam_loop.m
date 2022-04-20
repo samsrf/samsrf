@@ -20,6 +20,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % 12/04/2022 - Removed inconsequential erroneous comment (DSS)
 % 14/04/2022 - Added Hooke-Jeeves alogrithm & adjustable Nelder-Mead tolerance (DSS)
 %              Removed non-parallel computing option (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Number of vertices

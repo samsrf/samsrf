@@ -7,9 +7,7 @@ function cSrf = samsrf_bandpass(Srf, Hz, Tr)
 %   defining the high-pass & low-pass cutoff, respectively, in Hz. 
 %   In order to calculate this, the TR must be defined in seconds. 
 %
-% 30/06/2021 - Written (DSS)
-% 01/07/2021 - Removed redundant expansion/compression (DSS)
-% 09/07/2021 - Fixed bug when TR is not 1 second (DSS) 
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Band-pass filter

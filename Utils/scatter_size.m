@@ -5,8 +5,8 @@ function scatter_size(h)
 % Adjusts the size of symbols in the scatter plot in handle h to ensure
 % that Sigma corresponds to the radius of the circles in the plot.
 %
-% 08/09/2021 - Written (DSS)
-% 20/09/2021 - Fixed facepalming bug where all sizes where the same (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
+%
 
 U = get(gca, 'Units'); % What are current units of axes?
 set(gca, 'Units', 'Points'); % Set units to points

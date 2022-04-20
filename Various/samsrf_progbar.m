@@ -4,7 +4,7 @@ function samsrf_progbar(P)
 %
 % Displays a progress bar in the command window with the proportion P being complete. 
 %
-% 30/06/2021 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Empty progress bar

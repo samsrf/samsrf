@@ -17,9 +17,7 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Method, Fwhms)
 %                'Dijkstra':    Distance determined by Dijkstra's geodesic distance (best method, but slow)
 %   Fwhms:      Smoothing kernels (1x2 vector, first kernel is for field sign, second is for everything else)
 %
-% 05/07/2020 - SamSrf 7 version (DSS)
-% 21/12/2020 - Inconsequential bug fix (DSS)
-% 22/12/2020 - Fixed typo in help section (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

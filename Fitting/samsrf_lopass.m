@@ -7,7 +7,7 @@ function Srf = samsrf_lopass(InSrf, StdDev)
 % the number of volumes (TRs). Filtered data is returned in Srf.Data but 
 % raw data are not kept so save this separately if needed.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 Srf = InSrf;

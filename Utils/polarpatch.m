@@ -6,6 +6,7 @@ function h = polarpatch(X, Y, C)
 % coordinates, and C contains the associated intensity values.
 %
 % 02/03/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Ensure column vectors

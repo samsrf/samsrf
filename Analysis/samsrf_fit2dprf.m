@@ -39,6 +39,7 @@ function [fParams, R2] = samsrf_fit2dprf(Rmap, PrfFcn, SeedParams, EccScaPars, A
 % 15/02/2022 - Added option to fit to pRF coordinate data for CF fitting (DSS)
 % 13/04/2022 - Added Hooke-Jeeves algorithm & adjustable Nelder-Mead tolerance (DSS)
 % 14/04/2022 - Function defaults to using standard Nelder-Mead algorithm (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Use standard fit?

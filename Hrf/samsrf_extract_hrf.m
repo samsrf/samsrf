@@ -15,6 +15,7 @@ function samsrf_extract_hrf(Fname, tr, Roi, Ntrials, UseHookeJeeves)
 % This fit is done for all active vertices.
 %
 % 17/04/2022 - Added option to use Hooke-Jeeves algorithm (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 1

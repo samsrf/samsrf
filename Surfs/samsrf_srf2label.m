@@ -8,8 +8,7 @@ function samsrf_srf2label(srfdata, labelname, valnum, Vx)
 % You can also define the vertex indeces you want to include in your label
 % to constrain its size (default is all vertices).
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 08/10/2021 - Turned command line report back on (DSS) 
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ischar(srfdata)

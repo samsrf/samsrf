@@ -12,10 +12,10 @@ function Srf = samsrf_compress_srf(Srf,vx)
 % Note: this function only works for single-subject Srfs. There currently
 %   is no support for expanding or compressing multi-subbject Srfs.
 %
-% 16/07/2020 - SamSrf 7 version (DSS)
 % 14/02/2022 - CF correlation profiles are not saved in data file by default (DSS)
 % 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
 %              Now supports anonymised Srfs (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Remove data outside of region of interest

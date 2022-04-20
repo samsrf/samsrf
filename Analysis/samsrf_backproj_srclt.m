@@ -115,9 +115,7 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %  searchlight. The row number corresponds to the identifier in SrclID.
 %
 %
-% 19/07/2020 - SamSrf 7 version (DSS & SuSt)
-% 03/08/2020 - Removed dependency on external circular statistics toolbox (DSS)
-% 05/07/2021 - Fixed bug when Response has only one row (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default inputs

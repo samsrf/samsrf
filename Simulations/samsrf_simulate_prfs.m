@@ -38,6 +38,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
 %  not fully functional (contains no brain structure etc).
 %
 % 16/04/2022 - Added some more explanation on normalising noisy time series (DSS).
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters 

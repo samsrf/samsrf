@@ -40,11 +40,7 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % same movie but in intensity image format. The third output contains in 
 % rows the X and Y coordinates, the Sigma and the Response for each vertex.
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
-% 20/09/2021 - Changed default colour map to berlin (DSS)
-%              Fixed bug with default inputs (DSS)
-%              Default clipping level is now 1 (DSS)
-% 14/10/2021 - Now displays progress bar (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 5

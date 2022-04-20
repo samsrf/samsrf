@@ -14,10 +14,7 @@ function samsrf_bilat_label(Srf, Roi)
 % The function returns an error if Srf.Nvert_Lhem doesn't exist, as this
 %  indicates that the Srf is not for combined hemispheres.
 %
-% 29/10/2020 - Written (DSS)
-% 26/11/2020 - Fixed bug with file names (DSS)
-% 29/06/2021 - Now reports that the label was saved (DSS)
-% 14/01/2022 - Removed saving report because redundant (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ~isfield(Srf, 'Nvert_Lhem')

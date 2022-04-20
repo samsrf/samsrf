@@ -16,9 +16,7 @@ function Srf = samsrf_cortmagn(Srf, Roi)
 % Adds a 2*n matrix with the CMF and visual area values to the Srf.
 % (Surface area is already stored in the anatomical data)
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
-% 23/10/2020 - Added support for parallel computing (DSS)
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters

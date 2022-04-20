@@ -12,6 +12,7 @@ function samsrf_fix_broken_hrf(Fname, UseHookeJeeves, BadVols)
 % Saves the fixed data file under the same name suffixed by '_fixed'.
 %
 % 17/04/2022 - Added option to use Hooke-Jeeves algorithm (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 1

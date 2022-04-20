@@ -27,9 +27,7 @@ function xysb = samsrf_backproj_sctr(Response, pRF_Data, Threshold)
 % you need to manually adjust the sizes with this utility function scatter_size.
 % (The same problem also applies to samsrf_polarplot)
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 08/09/2021 - Finally fixed the issue with plotting pRF size properly (DSS)
-% 13/10/2021 - Fixed misleading typo in the help section (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

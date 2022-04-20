@@ -13,7 +13,7 @@ function Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, FitParam)
 %
 % Returns the surface data structure with the parameter fits.
 %
-% 14/04/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Parallel processing?

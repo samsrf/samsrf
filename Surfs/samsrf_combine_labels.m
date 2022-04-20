@@ -8,8 +8,7 @@ function Status = samsrf_combine_labels(OldLabels, NewLabel)
 % Note: This function assumes labels are from the same hemisphere! You can use
 %       samsrf_bilat_label to create labels combining left & right hemispheres.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 29/10/2020 - Updated help section for clarification (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 Vs = [];

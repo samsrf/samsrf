@@ -10,7 +10,7 @@ function Vs = samsrf_clusterroi(v, Statistic, Threshold, Faces)
 %
 % Returns a list of vertex indices in Vs.
 %
-% 08/04/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Is core vertex above threshold?

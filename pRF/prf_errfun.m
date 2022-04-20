@@ -12,8 +12,7 @@ function err = prf_errfun(PrfFcn, ApFrm, Hrf, P, Y, Downsampling)
 %   Hrf is the hemodynamic response function
 %   Downsampling is the factor by which the prediction is sampled to match the scanner TR
 %
-% 02/06/2020 - SamSrf 7 version (DSS) 
-% 22/09/2021 - Added argument to downsample predictions (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 Rfp = PrfFcn(P, size(ApFrm,1)*2); % pRF profile

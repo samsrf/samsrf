@@ -4,7 +4,7 @@ function y = rem_redcols(x)
 %
 % Removes redundant columns from a matrix of time courses
 %
-% 11/07/2021 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 y = x(:,1);

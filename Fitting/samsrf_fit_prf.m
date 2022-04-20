@@ -28,6 +28,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
 % 16/04/2022 - Only-positive check now rejects zeros as it should (DSS) 
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Defaults & constants

@@ -33,7 +33,7 @@ function V = samsrf_checkreg_temp(ctxsmp)
 % details). This is most easily seen when using the structural as a template 
 % because this has the best resolution.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin == 0

@@ -4,6 +4,9 @@ function cmap = hotcold(res)
 %
 % Returns a hot-cold colour map with the resolution res, which must be a 
 % multiple of 4. By default res is 256. 
+%
+% 20/04/2022 - SamSrf 8 version (DSS)
+%
 
 if nargin == 0
     res = 256;

@@ -11,7 +11,7 @@ function samsrf_export_labels(Srf, Ecc, OutFile, Raw)
 %
 % You can use this function to load maps in FreeSurfer.
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Default

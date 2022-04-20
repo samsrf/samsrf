@@ -5,8 +5,7 @@ function [tY, r2] = roi_1steigvar(Ys)
 % Returns the first eigenvariate for the time series in Ys (row = time points, columns = individual vertices).
 % The second output argument contains the variance explained by this component.
 %
-% 11/07/2021 - Written (DSS)
-% 04/08/2021 - Now returns NaNs when input is empty (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if ~isempty(Ys)

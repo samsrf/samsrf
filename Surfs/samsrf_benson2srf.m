@@ -19,11 +19,8 @@ function samsrf_benson2srf(mghimg, surfdir)
 % The function automatically finds the NII file for the T1 in <SubjectID>/mri
 % and adds this to Srf.Structural.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 17/04/2021 - Renamed ROI variable to be consistent with SamSrf's template (DSS)
-%              Added a sigma row for consistency which contains only NaNs (DSS)
-% 18/05/2021 - Fixed bug with previous change that clearly nobody used since then (DSS) 
 % 16/02/2022 - Fixed bug when no NII is found for T1 (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Determine file parts 

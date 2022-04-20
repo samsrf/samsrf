@@ -8,8 +8,7 @@ function samsrf_timecourse_animation(Rfp, ApFrm, Hrf, Downsampling)
 % Optional input Hrf is a vector with the HRF by volume for convolution, e.g. samsrf_hrf(1). Default = 1
 % Optional input Downsampling defines the factor by which the time series is downsampled. Default = 1
 %
-% 02/06/2020 - SamSrf 7 version (DSS) 
-% 22/09/2021 - Added option to downsample predictions (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3

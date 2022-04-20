@@ -40,11 +40,8 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % this step is skipped. 
 % IT IS YOUR RESPONSIBILITY TO CHECK YOU'RE USING THE RIGHT ANATOMICAL DATA!
 %
-% 29/06/2020 - SamSrf 7 version (DSS)
-% 22/07/2020 - Added progress reports but still no parallel processing (DSS)
-% 19/10/2020 - Will now also load ASC files if binary files don't exist (DSS)
-% 30/06/2021 - Added new-fangled old-school command-line progress-bars (DSS)
 % 13/03/2022 - Ensures now that random files aren't loaded from path (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters

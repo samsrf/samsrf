@@ -15,7 +15,7 @@ function [Hrf, p] = samsrf_doublegamma(TR, P)
 % Generate a BOLD haemodynamic response function from discrete samples of the 
 % Gamma probability density function. All values in seconds. Based on spm_hrf.m
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Main

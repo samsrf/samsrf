@@ -9,9 +9,10 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % thresholded, downsampled, and saved. A standard retinotopic map with
 % X0 and Y0 coordinates (peak correlation position) is also saved.
 %
-% Note that this procedure does not estimate pRF size. In order to do this,
-% you will need to run a post-processing function to fit pRF models to the
-% reverse correlation profiles.
+% Note that by default this procedure does not estimate pRF size, only a 
+% guestimate based on the area the pRF profile subtends in visual space. 
+% In order to estimate a pRF size, you will need to fit a 2D pRF model to 
+% the reverse correlation profiles (Model.Prf_Function).
 %
 %   Model:          Contains the parameters defining the pRF model,
 %                       the search space for the coarse fitting,
@@ -26,6 +27,21 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
+% IMPORTANT: Results are not completely identical to those from SamSrf 7!
+%            While parameter estimates are mostly very similar, there are 
+%            some small differences (& also larger ones especially for 
+%            peripheral pRFs). Goodness-of-fit (R^2_{pRF}) is subtly but
+%            (extremely) significantly greater; however, some voxels that 
+%            surpassed thresholding in SamSrf 7 are rejected in SamSrf 8. 
+%            
+%            The reason for this is that SamSrf 7 used the downscaled
+%            correlation profiles for 2D model fitting while SamSrf 8 
+%            recomputes the full profiles before fitting. Since this seems 
+%            objectively more appropriate, we decided not to add full 
+%            compatibility as an option in SamSrf 8. 
+%            (Obviously, this issue only relates to the 2D fits but the 
+%             reverse correlation results should be perfectly identical)
+%
 % 14/03/2022 - Added option to remove reverse correlation profiles (DSS)
 %              Now also saves the noise ceiling if it exists in raw data file (DSS)
 % 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
@@ -34,6 +50,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
 %              Final duration now reported in hours (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
+%              Added explanation about discrepancies with SamSrf 7 fits (DSS)
 %
 
 %% Defaults & constants

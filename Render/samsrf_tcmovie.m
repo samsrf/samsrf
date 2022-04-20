@@ -14,11 +14,8 @@ function samsrf_tcmovie(Srf, Mesh, Thrsh, Paths, CamView, MapType, ColorMap)
 % ColorMap defines the colour map to use for projecting signal. 
 %   This can either be a 
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
-% 10/07/2021 - Added option to project basic data time courses (DSS)
-%              Fixed some small bugs with loading labels (DSS)
-%              Added option for string colour maps & inversion (DSS)
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Defaults

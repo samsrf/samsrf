@@ -18,9 +18,8 @@ function varargout = ViewApertures(varargin)
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
-% See also: GUIDE, GUIDATA, GUIHANDLES
-
-% Edit the above text to modify the response to help ViewApertures
+% 20/04/2022 - SamSrf 8 version (DSS)
+%
 
 % Last Modified by GUIDE v2.5 23-May-2018 15:22:39
 

@@ -7,6 +7,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % Also reports the model parameters (S) in the figure.
 %
 % 12/02/2022 - Now allows plotting convolved predictions stored in coarse-fit data files (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Expand Srf if necessary

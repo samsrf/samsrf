@@ -26,9 +26,7 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 % Stores the smoothed data in Srf.Data. The original raw data are stored 
 % inside Srf.Raw_Data.
 %
-% 18/07/2020 - SamSrf 7 version (DSS)
-% 07/01/2020 - Fixed bug when smoothing concatenated runs (DSS) 
-% 12/07/2021 - Added stand-by message since parallel progress reports are a pain (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Default parameters

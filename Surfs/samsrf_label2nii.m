@@ -13,10 +13,9 @@ function samsrf_label2nii(labelfile, funimg, strimg, hemsurf, ctxsteps, scalar)
 %                   (Optional, defaults to [0.5] but [0.1] is closer to what FreeSurfer does)
 %   scalar:     save scalar values stored in labelfile (true/false)
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 04/03/2021 - Added clarification comments regarding hi-res T1s (DSS)
 % 13/03/2022 - Small change to error message (DSS)
 %              Ensures now that NIIs aren't loaded from MatLab path (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 5

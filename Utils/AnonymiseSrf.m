@@ -26,6 +26,7 @@ function AnonymiseSrf(SrfFile, RoiVx, Curv)
 % Saves a new Srf file with the suffix _anon.
 %
 % 14/03/2022 - Written (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

@@ -12,7 +12,7 @@ function SurfaceProjection
 % If using MGH files, you must follow a strict naming convention where your files 
 % for the left & right hemispheres are prefixed 'lh' & 'rh', respectively.
 % 
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Select paths 

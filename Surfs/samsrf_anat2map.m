@@ -16,7 +16,7 @@ function samsrf_anat2map
 % The function will then calculate the relative anatomical coordinates, 
 % and display these as a polar map. The Srf is then saved as ?h_anatmap.
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Load Srf

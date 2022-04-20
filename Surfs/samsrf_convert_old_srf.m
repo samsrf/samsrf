@@ -11,10 +11,8 @@ function samsrf_convert_old_srf(srfname, surfdir)
 %   srfname:    Name of the SamSrf file (without .mat extension!)
 %   surfdir:    Pathname to the 'surf' folder in the subject's Freesurfer folder
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
-% 14/10/2020 - Fixed typo in help section (DSS)
-%              Will now load ASC files if binary files don't exist (DSS)
 % 13/03/2022 - Now ensures file isn't just loaded from path (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 %% Load old file

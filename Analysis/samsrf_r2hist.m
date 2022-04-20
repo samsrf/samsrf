@@ -9,7 +9,7 @@ function [p75, med, r2h] = samsrf_r2hist(Srf, Roi)
 % The X-axis label states what the name of this field is so if this doesn't
 % say R^2 or nR^2 you aren't plotting goodness-of-fit values...
 %
-% 17/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 2

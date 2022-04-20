@@ -10,7 +10,7 @@ function mSrf = samsrf_average_srf(SrfCell, mSrfFile)
 % If mSrfFile is defined, the averaged Srf is saved in this file 
 % (name is prepended by the hemisphere as with all Srf files).
 %
-% 19/07/2020 - SamSrf 7 version (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin == 1

@@ -14,8 +14,7 @@ function [SrfL, SrfR] = samsrf_hemi_srfs(Srf)
 %
 % Warning: May fail with very large data files due to lack of memory.
 %
-% 09/06/2021 - Written (DSS)
-% 14/02/2022 - Now also splits seed vertices from CF maps (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 % Expand Srf

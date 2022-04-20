@@ -15,8 +15,7 @@ function samsrf_simvsfit_ecc(Srf, Bins, Threshold)
 % Threshold defines the R^2 threshold of the model fits to include in 
 %   the comparison. Defaults to -Inf (includes all).
 %
-% 23/06/2020 - SamSrf 7 version (DSS) 
-% 18/09/2020 - Fixed typo in output message (DSS)
+% 20/04/2022 - SamSrf 8 version (DSS)
 %
 
 if nargin < 3
