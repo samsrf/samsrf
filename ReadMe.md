@@ -11,11 +11,11 @@ By default we however still use the standard Nelder-Mead algorithm. With one exc
 There are various GUI-based tools available for specific functions:  
     1. Projecting data to surface:              SurfaceProjection  
     2. Making map figures:                      DisplayMaps  
-    3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap
-	4. Automatic ROI delineation:               AutoDelineation
+    3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
+	4. Automatic ROI delineation:               AutoDelineation  
     5. Delineating ROIs:                        DelineationTool  
-    6. Viewing stimulus apertures:              ViewApertures
-	7. Help on model parameters:                ModelHelp
+    6. Viewing stimulus apertures:              ViewApertures  
+	7. Help on model parameters:                ModelHelp  
 
 ## DIFFERENCE TO EARLIER VERSIONS
 
