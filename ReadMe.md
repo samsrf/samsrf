@@ -56,7 +56,7 @@ from the Srf structure.
 - Now possible to define parameter tolerance for Nelder-Mead algorithm (DSS)  
 - If both Nelder-Mead & Hooke-Jeeves are defined there is now a warning (DSS)  
 - Fitting functions now perform checks on parameter definition vectors (DSS)  
-- Renamed samsrf_cfcorr to samsrf_gsr2 to avoid confusion with CF analysis (DSS)
+- Renamed samsrf_cfcorr to samsrf_gsr2 to avoid confusion with CF analysis (DSS)  
 - Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
 - HRF fitting functions now also have option for Hooke-Jeeves algorithm (DSS)  
 - Simplified Model examples by removing GUI functionality & optional parameters (DSS)  
