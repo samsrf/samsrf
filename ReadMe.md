@@ -39,10 +39,10 @@ so if you have Matlab's **Parallel Computing Toolbox** installed & you have a
 **multi-core computer or cluster** it should run faster. You will need to modify 
 the code yourself to use the toolbox without parallel computing.    
  
-By default the anatomical meshes for a reconstruction (recon-all) are kept  
-separate from the functional data in the folder ../anatomy/  
-You can use samsrf_expand_srf and samsrf_compress_srf to load and remove  
-these fields from the Srf structure.  
+By default the anatomical meshes for a reconstruction (recon-all) are kept separate from 
+the functional data in the folder ../anatomy/  
+You can use samsrf_expand_srf and samsrf_compress_srf to load and remove these fields 
+from the Srf structure.  
 
 ## LATEST UPDATES 
 
