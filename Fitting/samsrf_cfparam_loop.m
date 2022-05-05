@@ -14,6 +14,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 %               NaN:        Use Nelder-Mead algorithm with default tolerance
 %               [NaN Tol]:  Use Nelder-Mead algorithm with parameter tolerance Tol
 %               Vector:     Use Hooke-Jeeves algorithm with these initial step sizes
+%               Inf:        Use convex hull to estimate parameters 
 %
 % 07/04/2022 - Fitting pRF now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
@@ -21,28 +22,22 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 % 14/04/2022 - Added Hooke-Jeeves alogrithm & adjustable Nelder-Mead tolerance (DSS)
 %              Removed non-parallel computing option (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 06/05/2022 - Implemented parameter estimation based on convex hull (DSS)
 %
 
 % Number of vertices
 nver = size(ConFlds,2);
 
 % Output matrices
+fRimg = zeros(1,nver); % R^2 map
 fVimg = zeros(1,nver); % Seed vertex map
 fXimg = zeros(1,nver); % X map
 fYimg = zeros(1,nver); % Y map
 fWimg = zeros(1,nver); % Width map
-fRimg = zeros(1,nver); % R^2 map
+fSimg = zeros(1,nver); % Sigma map
+fBimg = zeros(2,nver); % Beta estimates 
 if nargin < 5
     FitPrf = NaN;
-end
-if isempty(FitPrf)
-    % No pRF fitting 
-    fSimg = [];
-    fBimg = [];
-else
-    % Fitting pRF parameters
-    fSimg = zeros(1,nver); % pRF parameter estimates 
-    fBimg = zeros(2,nver); % pRF parameter estimates 
 end
 
 % Parallel processing?
@@ -84,17 +79,33 @@ parfor v = 1:nver
     % If good correlation
     if ~isnan(mR) && mR > 0
         fVimg(v) = SeedVx(m);  % Peak vertex in seed ROI
-        fXimg(v) = Temp(2,SeedVx(m)); % Template X coordinate
-        fYimg(v) = Temp(3,SeedVx(m)); % Template Y coordinate
-        fWimg(v) = fwhm; % Full width half maximum guestimate
+        fWimg(v) = fwhm; % Cortical full width half maximum guestimate
         fRimg(v) = mR^2;  % Peak correlation squared            
         % Fitting pRF parameters?
-        if ~isempty(FitPrf)
-            % Attempt mulitple searches for Sigma
+        if isempty(FitPrf)
+            % Convex hull estimation
+            txy = Temp(2:3,SeedVx)'; % Template X & Y coordinates
+            txy = unique(txy(R>0,:), 'rows'); % Unique coordinates in CF profile
+            Dt = delaunayTriangulation(txy); % Delaunay triangulation of CF profile
+            try
+                % Determine pRF parameters
+                [chp, cha] = convexHull(Dt); % Points & area of convex hull
+                ps = polyshape(Dt.Points(chp,:)); % Polygon of convex hull
+                [chx, chy] = ps.centroid; % Centroid of convex hull
+                fXimg(v) = chx; % X-coordinate
+                fYimg(v) = chy; % Y-coordinate
+                fSimg(v) = sqrt(cha) / (2*sqrt(2*log(2))); % Visual FWHM converted to Sigma
+            catch
+                % Failed determining parameters
+                fRimg(v) = 0;
+            end
+        else
+            % Explicit model fitting
             fP = [];
             fR = [];
+            % Attempt multiple searches for Sigma
             for s = 10.^(-2:2)
-                [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [fXimg(v) fYimg(v) s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
+                [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [Temp(2:3,SeedVx(m))' s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
                 fP = [fP; cP]; % Parameters per iteration
                 fR = [fR; cR]; % Model fit per iteration
             end

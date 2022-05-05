@@ -25,6 +25,8 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
 %              Fixed error with duration report for generating distance matrix (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 06/05/2022 - Now can estimate CF parameters using convex hull algorithm (DSS)
+%              Fixed inconsequential error with command window reports (DSS)
 %
 
 %% Defaults & constants
@@ -46,7 +48,7 @@ disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
 % Are we also fitting pRF model?
-if isfield(Model, 'Prf_Function')
+if Model.Fit_pRF
     % Which optimisation algorithm is used?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Hooke-Jeeves algorithm
@@ -71,8 +73,11 @@ if isfield(Model, 'Prf_Function')
             disp(' with default parameter tolerance');
         end
     end
-    new_line;
+else
+    % Convex hull algorithm instead of model fitting
+    disp('Using convex hull algorithm instead of model fitting')    
 end
+new_line;
 
 %% Load images 
 if ischar(SrfFiles)
@@ -160,7 +165,7 @@ new_line;
 if Model.Fit_pRF
     Srf.Data = zeros(8,size(Srf.Vertices,1)); % Output data when fitting pRFs
 else
-    Srf.Data = zeros(5,size(Srf.Vertices,1)); % Output data when not fitting pRFs
+    Srf.Data = zeros(6,size(Srf.Vertices,1)); % Output data when not fitting pRFs
 end
 disp('Estimating CF parameters...');
 if Model.Fit_pRF
@@ -178,7 +183,7 @@ if Model.Fit_pRF
         end
     end    
 else
-    disp(' Only determining raw position coordinates from template map.');
+    disp(' Using convex hull algorithm to estimate parameters.');
     AlgorithmParam = [];
 end
 % Run estimation loop
@@ -195,8 +200,8 @@ if Model.Fit_pRF
     Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'; 'Baseline'; 'Fwhm'; 'Vx'};
 else
     % Not fitting pRF parameters
-    Data = [fRimg; fXimg; fYimg; fWimg; fVimg];
-    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Vx'};
+    Data = [fRimg; fXimg; fYimg; fSimg; fWimg; fVimg];
+    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Fwhm'; 'Vx'};
 end
 Srf.Data(:,mver) = Data;
 

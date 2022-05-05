@@ -354,10 +354,12 @@ switch AnalysisFunc
                HelpText = { '[Optional] Boolean'
 							''
 							'If true, the function fits a 2D Gaussian pRF model to the reverse correlation profile projected into visual space via the template map. For the time being, no other pRF shapes are possible.'
+                            ''
+                            'If false, the function uses the convex hull algorithm to estimate the centroid & size (expressed as Sigma, converted from the square root of the area) of the CF profile.'
 							''
-							'In SamSrf 8.0, before fitting the reverse correlation profile is clipped to only those vertices above half the peak correlation. This is necessary because otherwise the estimated pRF size tends to be constant across eccentricities. However, this feature is still likely to evolve & we may add an option to specify this in later versions.'
+							'Since SamSrf 8.0, before parameter estimation the reverse correlation profile is clipped to only those vertices above half the peak correlation. This is necessary because otherwise the estimated pRF size tends to be constant across eccentricities. However, this feature is still likely to evolve & we may add an option to specify this in later versions.'
 							''
-							'Defaults to true, meaning that CF parameters are only roughly estimated from the reverse correlation profiles.' };
+							'Defaults to false, meaning that CF parameters are estimated from the reverse correlation profiles via the convex hull algorithm.' };
            case 'Hooke_Jeeves_Steps'
                HelpText = { '[Optional] Vector of scalars'
 							''

@@ -12,6 +12,7 @@ function Model = samsrf_model_defaults(AnalysisFunc, Model)
 % It also performs a few checks on the soundness of parameters.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 06/05/2022 - Changed CF model fitting default (DSS)
 %
 
 %% Which analysis function?
@@ -200,7 +201,7 @@ switch AnalysisFunc
                 Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
             end
             if ~isfield(Model, 'Fit_pRF')
-                Model.Fit_pRF = true;
+                Model.Fit_pRF = false; % Whether fitting a Gaussian model or use convex hull to estimate CF parameters
             end
         else 
             % Is forward-model search space defined?

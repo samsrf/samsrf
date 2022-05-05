@@ -46,7 +46,12 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 8.0 Beta (20-04-2022)  
+### Version 8.1 *Beta* (06-05-2022)  
+- CF parameters can now be estimated with convex hull algorithm (DSS)  
+- Convex hull algorithm is now the default for CF reverse correlation (DSS)  
+- Fixed inconsequential error in CF reverse correlation progress reports (DSS)  
+
+### Version 8.0 *Beta* (20-04-2022)  
 **WARNING: Beta version - some issues may remain despite numerous tests!**  
 *Please notify us about any unknown discrepancies with results from SamSrf 7*  
 - Added ModelHelp tool to document the various Model parameters (DSS)  
