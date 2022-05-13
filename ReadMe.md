@@ -1,5 +1,4 @@
 # SamSrf VIII - Read Me
-Version 8.0 *Beta* (Released 20-04-2022)
 
 This major release includes the most recent updates which involved algorithms for 
 fitting population receptive fields or connective fields using reverse correlation 
@@ -45,6 +44,9 @@ You can use samsrf_expand_srf and samsrf_compress_srf to load and remove these f
 from the Srf structure.  
 
 ## LATEST UPDATES 
+
+### Version 8.2 (14-05-2022)  
+- Now includes option to read GIfTI tiles (DSS)  
 
 ### Version 8.1 *Beta* (06-05-2022)  
 - CF parameters can now be estimated with convex hull algorithm (DSS)  

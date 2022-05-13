@@ -5,14 +5,15 @@ function SurfaceProjection
 % Use this tool to project NII data to the cortical surfaces created by recon-all.
 % This creates SamSrf surface data files using samsrf_vol2srf.
 %
-% You can -also- use this tool to convert MGH files created by mri_vol2surf into SamSrf files.
+% You can -also- use this tool to convert MGH or GII files created by other tools into SamSrf files.
 % If doing the latter, you will need to run this twice for files for each cortical hemisphere
-% unless you are converting MGH files separately (no averaging or concatenation).
+% unless you are converting MGH/GII files separately (no averaging or concatenation).
 %
-% If using MGH files, you must follow a strict naming convention where your files 
+% If using MGH/GII files, you must follow a strict naming convention where your files 
 % for the left & right hemispheres are prefixed 'lh' & 'rh', respectively.
 % 
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 14/05/2022 - Added option to read GIfTI files (DSS)
 %
 
 %% Select paths 
@@ -38,7 +39,7 @@ disp('**************************************************************************
 new_line;
 
 %% Select functional data files
-[ef,ep] = uigetfile({'*.nii'; '*.mgh'}, 'Select 4D-NIfTI/MGH files', 'MultiSelect', 'on');
+[ef,ep] = uigetfile({'*.nii'; '*.mgh'; '*.gii'}, 'Select 4D-NIfTI/MGH/GII files', 'MultiSelect', 'on');
 if isnumeric(ef) && ef == 0
     disp('No functional scans selected.');
     return
@@ -133,24 +134,36 @@ if strcmpi(ft,'nii')
             end
         end
     end
-%% Convert MGH surfaces to Srf files    
-elseif strcmpi(ft,'mgh')
+%% Convert MGH/GII surfaces to Srf files    
+else
     if strcmpi(avrg, 'Average')
         % Average all the runs after projection
         [~,fn] = fileparts(ef{1});
         hemsurf = fn(1:2); % Use hemisphere as indicated by -first- file name!
-        samsrf_mgh2srf(ef, [hemfolder hemsurf], nrmls, true);
+        if strcmpi(ft,'mgh')
+            samsrf_mgh2srf(ef, [hemfolder hemsurf], nrmls, true); % MGH files
+        elseif strcmpi(ft,'gii')
+            samsrf_gii2srf(ef, [hemfolder hemsurf], nrmls, true); % GIfTI files
+        end
     elseif strcmpi(avrg, 'Concatenate')
         % Concatenate all the runs after projection
         [~,fn] = fileparts(ef{1});
         hemsurf = fn(1:2); % Use hemisphere as indicated by -first- file name!
-        samsrf_mgh2srf(ef, [hemfolder hemsurf], nrmls, false);
+        if strcmpi(ft,'mgh')            
+            samsrf_mgh2srf(ef, [hemfolder hemsurf], nrmls, false); % MGH files
+        elseif strcmpi(ft,'gii')
+            samsrf_gii2srf(ef, [hemfolder hemsurf], nrmls, false); % GIfTI files
+        end
     else
         % Project each run separately
         for i = 1:length(ef)
             [~,fn] = fileparts(ef{i});
             hemsurf = fn(1:2); % Use hemisphere as indicated by -this- file name!
-            samsrf_mgh2srf(ef{i}, [hemfolder hemsurf], nrmls);
+            if strcmpi(ft,'mgh')            
+                samsrf_mgh2srf(ef{i}, [hemfolder hemsurf], nrmls); % MGH files
+            elseif strcmpi(ft,'gii')
+                samsrf_gii2srf(ef{i}, [hemfolder hemsurf], nrmls); % GIfTI files
+            end
         end
     end
 end
