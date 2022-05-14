@@ -47,6 +47,7 @@ from the Srf structure.
 
 ### Version 8.2 (14-05-2022)  
 - Now includes option to read GIfTI tiles (DSS)  
+- Updated cookbook to reflect this change (DSS)  
 
 ### Version 8.1 *Beta* (06-05-2022)  
 - CF parameters can now be estimated with convex hull algorithm (DSS)  
