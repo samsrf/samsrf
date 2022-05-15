@@ -351,15 +351,17 @@ switch AnalysisFunc
 							''
 							'Defaults to false.' };
            case 'Fit_pRF'
-               HelpText = { '[Optional] Boolean'
+               HelpText = { '[Optional] Scalar'
 							''
-							'If true, the function fits a 2D Gaussian pRF model to the reverse correlation profile projected into visual space via the template map. For the time being, no other pRF shapes are possible.'
+							'  1: Fits a 2D Gaussian pRF model to the reverse correlation profile projected into visual space via the template map. For the time being, no other pRF shapes are possible.'
                             ''
-                            'If false, the function uses the convex hull algorithm to estimate the centroid & size (expressed as Sigma, converted from the square root of the area) of the CF profile.'
+                            '  0: Use the convex hull algorithm to estimate the centroid & size (expressed as Sigma, converted from the square root of the area) of the CF profile.'
 							''
+                            ' -1: Use summary statistics of the significant (R > half maximum) of seed coordinates to estimate CF parameters. Specifically, X & Y position are estimated by the median, & Sigma by the Euclidean distance based on the median absolute deviations for X & Y.'
+                            ''
 							'Since SamSrf 8.0, before parameter estimation the reverse correlation profile is clipped to only those vertices above half the peak correlation. This is necessary because otherwise the estimated pRF size tends to be constant across eccentricities. However, this feature is still likely to evolve & we may add an option to specify this in later versions.'
 							''
-							'Defaults to false, meaning that CF parameters are estimated from the reverse correlation profiles via the convex hull algorithm.' };
+							'Defaults to 0, meaning that CF parameters are estimated from the reverse correlation profiles via the convex hull algorithm.' };
            case 'Hooke_Jeeves_Steps'
                HelpText = { '[Optional] Vector of scalars'
 							''

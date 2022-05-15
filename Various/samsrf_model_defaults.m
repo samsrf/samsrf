@@ -201,7 +201,7 @@ switch AnalysisFunc
                 Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
             end
             if ~isfield(Model, 'Fit_pRF')
-                Model.Fit_pRF = false; % Whether fitting a Gaussian model or use convex hull to estimate CF parameters
+                Model.Fit_pRF = 0; % Whether fitting a Gaussian model (1), use convex hull (0), or summary statistics (-1) to estimate CF parameters 
             end
         else 
             % Is forward-model search space defined?

@@ -1,20 +1,25 @@
-function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Area, ConFlds, SeedVx, Temp, FitPrf) 
+function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfparam_loop(Tc, X, Area, SeedVx, Temp, Weights, FitPrf, SaveRmaps) 
 %
-% [fVimg, fXimg, fZimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Area, ConFlds, SeedVx, Temp, FitPrf) 
+% [fVimg, fXimg, fZimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfparam_loop(Tc, X, Area, SeedVx, Temp, Weights, FitPrf, SaveRmaps) 
 %
 % Internal function looping through solving the CF parameter fit for each mask vertex.
 % Separated from main function for clarity & to allow progress bar.
 %
-%   Area:     Srf.Area from data structure 
-%   ConFlds:  Matrix with CF correlation profiles, restricted to mask
-%   SeedVx:   Seed ROI vertex indices
-%   Temp:     Srf.Data from template structure
-%   FitPrf:   Toggles wehther to fit a 2D Gaussian pRF to the CF correlation profile
-%               []:         Doesn't fit a 2D Gaussian pRF
+%   Tc:         Time courses for all mask vertices
+%   X:          Time courses for all seed vertices
+%   Area:       Srf.Area from data structure 
+%   SeedVx:     Seed ROI vertex indices
+%   Temp:       Srf.Data from template structure
+%   Weights:    Matrix of geodesic distance matrices for smoothing ([] means no smoothing)
+%   FitPrf:     Toggles wehther to fit a 2D Gaussian pRF to the CF correlation profile
+%               []:         Use convex hull to estimate parameters (default)
 %               NaN:        Use Nelder-Mead algorithm with default tolerance
 %               [NaN Tol]:  Use Nelder-Mead algorithm with parameter tolerance Tol
 %               Vector:     Use Hooke-Jeeves algorithm with these initial step sizes
-%               Inf:        Use convex hull to estimate parameters 
+%               Inf:        Use simple summary statistics of significant template vertices
+%   SaveRmaps:  Toggles whether Rmaps returns correlation profiles (default = false)    
+%
+% Returns the parameter maps & if desired, the reverse correlation profiles in Rmaps.
 %
 % 07/04/2022 - Fitting pRF now thresholds correlations by half-maximum (DSS)
 % 08/04/2022 - Now uses iterative search to home in on pRF size (DSS)
@@ -23,10 +28,21 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop
 %              Removed non-parallel computing option (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 06/05/2022 - Implemented parameter estimation based on convex hull (DSS)
+% 16/05/2022 - Incorporated reverse correlation step for computational efficiency (DSS)
+%              Now has option of estimating parameters using summary statistics (DSS)
+%              Corrected error in help section (DSS)
 %
 
-% Number of vertices
-nver = size(ConFlds,2);
+if nargin < 7
+    FitPrf = NaN;
+end
+if nargin < 8
+    SaveRmaps = false;
+end
+
+% Dimensions
+nver = size(Tc,2); % Number of mask vertices
+nsvx = size(X,2); % Number of seed vertices
 
 % Output matrices
 fRimg = zeros(1,nver); % R^2 map
@@ -36,8 +52,10 @@ fYimg = zeros(1,nver); % Y map
 fWimg = zeros(1,nver); % Width map
 fSimg = zeros(1,nver); % Sigma map
 fBimg = zeros(2,nver); % Beta estimates 
-if nargin < 5
-    FitPrf = NaN;
+if SaveRmaps
+    Rmaps = NaN(nsvx, nmvx); % Connective field profile for each vertex
+else
+    Rmaps = NaN; % Connective field profiles are not stored
 end
 
 % Parallel processing?
@@ -66,18 +84,29 @@ if ProgReps
     samsrf_progbar(0);
 end
 parfor v = 1:nver
-    % Retrieve r-map
-    R = ConFlds(:,v); % Correlation of time courses with regressors
+    % Calculate correlation profile
+    Y = Tc(:,v);  % Time course of current vertex
+    R = corr(Y,X); % Correlation of time courses with regressors
+    % Smooth profile if needed
+    if ~isempty(Weights) 
+        sR = repmat(R,nsvx,1) .* Weights; % Smoothed profiles for each seed vertex 
+        R = nansum(sR,2) ./ sum(Weights,2); % Smoothed seed ROI    
+    end    
     % Determine parameters
     mR = max(R); % Find peak activation in each map
     mR = mR(1); % Ensure only one value
     fwhm = sqrt(sum(Area(R > mR/2))); % Square root of area above half maximum
     m = find(R==mR,1); % Find peak coordinate
+    % Store correlation profile?
+    if SaveRmaps
+        Rmaps(:,v) = R; % Correlation profile as vector 
+    end        
     % Threshold correlations
     R = R - mR/2; % Threshold correlations by half maximum
     R(R<0) = 0; % Subthreshold pRF coordinates set to zero
     % If good correlation
     if ~isnan(mR) && mR > 0
+        % Parameter estimation
         fVimg(v) = SeedVx(m);  % Peak vertex in seed ROI
         fWimg(v) = fwhm; % Cortical full width half maximum guestimate
         fRimg(v) = mR^2;  % Peak correlation squared            
@@ -99,6 +128,13 @@ parfor v = 1:nver
                 % Failed determining parameters
                 fRimg(v) = 0;
             end
+        elseif isinf(FitPrf)
+            % Summary statistics only
+            txy = Temp(2:3,SeedVx)'; % Template X & Y coordinates
+            txy = unique(txy(R>0,:), 'rows'); % Unique coordinates in CF profile
+            fXimg(v) = nanmedian(txy(:,1)); % Median X-coordinate
+            fYimg(v) = nanmedian(txy(:,2)); % Median Y-coordinate
+            fSimg(v) = sqrt(mad(txy(:,1),1)^2 + mad(txy(:,2),1)^2); % Euclidean of median absolute deviations
         else
             % Explicit model fitting
             fP = [];

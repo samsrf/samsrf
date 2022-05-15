@@ -45,6 +45,11 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 8.3 (16-05-2022)  
+- Streamlined CF reverse correlation to prevent computational overload (DSS)  
+- Added option to use robust summary statistics to estimate CF parameters (DSS)  
+- Fixed inconsequential typos in ModelHelp tool & some help sections (DSS)  
+
 ### Version 8.2 (14-05-2022)  
 - Now includes option to read GIfTI tiles (DSS)  
 - Updated cookbook to reflect this change (DSS)  

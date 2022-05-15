@@ -27,6 +27,8 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 06/05/2022 - Now can estimate CF parameters using convex hull algorithm (DSS)
 %              Fixed inconsequential error with command window reports (DSS)
+% 16/05/2022 - Streamlined correlation & parameter estimation for efficiency (DSS)
+%              Added option to use summary statistics for parameter estimation (DSS)
 %
 
 %% Defaults & constants
@@ -48,7 +50,7 @@ disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
 % Are we also fitting pRF model?
-if Model.Fit_pRF
+if Model.Fit_pRF == 1
     % Which optimisation algorithm is used?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Hooke-Jeeves algorithm
@@ -74,8 +76,15 @@ if Model.Fit_pRF
         end
     end
 else
-    % Convex hull algorithm instead of model fitting
-    disp('Using convex hull algorithm instead of model fitting')    
+    if Model.Fit_pRF == 0
+        % Convex hull algorithm instead of model fitting
+        disp('Using convex hull algorithm instead of model fitting')    
+    elseif Model.Fit_pRF == -1
+        % Summary statistics instead of model fitting
+        disp('Using summary statistics instead of model fitting')    
+    else
+        error('Invalid value chosen for Model.Fit_pRF!');
+    end
 end
 new_line;
 
@@ -127,17 +136,16 @@ end
 
 %% Load seed ROI 
 disp(['Loading seed ROI: ' Model.SeedRoi]);
-svx = samsrf_loadlabel(Model.SeedRoi);
-Srf.SeedVx = svx; % Store for posterity
-X = Tc(:,svx); % Time courses in seed ROI
+Srf.SeedVx = samsrf_loadlabel(Model.SeedRoi); % Store in Srf for posterity
+X = Tc(:, Srf.SeedVx); % Time courses in seed ROI
 
 %% Calculate cortical distances within seed ROI
 if Model.Smoothing > 0 % No point when not smoothing
-    Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, svx); % Cortical distance matrix
-    Ws = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
+    Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, Srf.SeedVx); % Cortical distance matrix
+    Weights = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
     disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' minutes.']);
 else 
-    Ws = [];
+    Weights = [];
 end
 
 %% Load template map
@@ -153,22 +161,15 @@ Srf.Version = samsrf_version;
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = []; % Needed for later
 
-%% Calculate reverse correlation map 
-disp('Calculating CF profiles...');
-Rmaps = samsrf_cfcorrel_loop(Tc(:,mver), X, Ws); % Connective field profile for each vertex
-t2 = toc(t0);
-disp(['Correlation analysis completed in ' num2str(t2/60/60) ' hours.']);
-new_line;
-
 %% Determine CF parameters
 % CF parameters
-if Model.Fit_pRF
+if Model.Fit_pRF > 0
     Srf.Data = zeros(8,size(Srf.Vertices,1)); % Output data when fitting pRFs
 else
     Srf.Data = zeros(6,size(Srf.Vertices,1)); % Output data when not fitting pRFs
 end
-disp('Estimating CF parameters...');
-if Model.Fit_pRF
+disp('Reverse correlation & CF parameter estimation...');
+if Model.Fit_pRF == 1
     disp(' Fitting pRF parameters to template pRF coordinates.');
     % Which fitting algorithm?
     if isfield(Model, 'Hooke_Jeeves_Steps')
@@ -183,18 +184,23 @@ if Model.Fit_pRF
         end
     end    
 else
-    disp(' Using convex hull algorithm to estimate parameters.');
-    AlgorithmParam = [];
+    if Model.Fit_pRF == 0
+        disp(' Using convex hull algorithm to estimate parameters.');
+        AlgorithmParam = [];
+    elseif Model.Fit_pRF == -1
+        disp(' Using summary statistics to estimate parameters.');
+        AlgorithmParam = Inf;
+    end
 end
 % Run estimation loop
-[fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg] = samsrf_cfparam_loop(Srf.Area, Rmaps, svx, Temp.Srf.Data, AlgorithmParam);
-t3 = toc(t0); 
-disp(['Parameter estimates completed in ' num2str(t3/60/60) ' hours.']);
+[fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfparam_loop(Tc(:,mver), X, Srf.Area, Srf.SeedVx, Temp.Srf.Data, Weights, AlgorithmParam, Model.Save_Rmaps);
+t2 = toc(t0); 
+disp(['Parameter estimates completed in ' num2str(t2/60/60) ' hours.']);
 new_line;
 
 % Save as surface structure
 Srf.Functional = 'Connective field';
-if Model.Fit_pRF 
+if Model.Fit_pRF == 1
     % Fitting pRF parameters
     Data = [fRimg; fXimg; fYimg; fSimg; fBimg; fWimg; fVimg];
     Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'; 'Baseline'; 'Fwhm'; 'Vx'};
@@ -215,14 +221,11 @@ end
 % Are we saving correlation profiles?
 if Model.Save_Rmaps
     disp('Saving CF profiles in data file.');
-    Srf.ConFlds = NaN(length(svx), size(Srf.Vertices,1));
+    Srf.ConFlds = NaN(length(Srf.SeedVx), size(Srf.Vertices,1));
     Srf.ConFlds(:,mver) = Rmaps;
 else
     disp('Not saving CF profiles...');
-    if Model.Smoothing > 0
-        warning('Smoothed profiles will be lost!');
-    end
-    Srf.ConFlds = NaN; % Remove Rmaps to save space
+    Srf.ConFlds = Rmaps; % No Rmaps to save space
 end
 
 % Save map files
@@ -232,8 +235,8 @@ save(OutFile, 'Model', 'Srf', '-v7.3');
 disp(['Saved ' OutFile '.mat']); 
 
 % End time
-t4 = toc(t0); 
-EndTime = num2str(t4/60/60);
+t3 = toc(t0); 
+EndTime = num2str(t3/60/60);
 new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
 disp('******************************************************************');
 new_line; new_line;
