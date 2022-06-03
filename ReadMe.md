@@ -45,6 +45,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 8.31 (03-06-2022)  
+- Updated ModelHelp text on negative estimates in Nelder-Mead algorithm (DSS)  
+
 ### Version 8.3 (16-05-2022)  
 - Streamlined CF reverse correlation to prevent computational overload (DSS)  
 - Added option to use robust summary statistics to estimate CF parameters (DSS)  

@@ -15,7 +15,7 @@ Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth); % 
 Model.Name = 'pRF_Gaussian'; % File name to indicate type of pRF model
 Model.Param_Names = {'x0'; 'y0'; 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1]; % Which of these parameters are scaled 
-Model.Only_Positive = [0 0 1]; % Which parameters must be positive?
+Model.Only_Positive = [0 0 1]; % Which parameters must be positive? (refer to ModelHelp for issues with Nelder-Mead algorithm)
 Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than scanner TR if downsampling predictions)
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)

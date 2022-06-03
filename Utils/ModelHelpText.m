@@ -5,9 +5,6 @@ function HelpText = ModelHelpText(AnalysisFunc, ParameterName)
 % Returns the help text for a given analysis function & parameter name.
 % This is called internally by ModelHelp but you can also use it directly.
 %
-% 15/04/2022 - Written (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-%
 
 %% Which analysis function?
 switch AnalysisFunc
@@ -43,7 +40,9 @@ switch AnalysisFunc
 							''
 							'The model fitting function will look at the fitted (optimised) parameters in turn and reject those with absurd estimates. Any parameters that are scaled (see Scaled_Param) will automatically be rejected if the estimate is greater than 3 times the scaling factor. However, some parameters should also only be positive, e.g. the pRF size or tuning width cannot be negative.' 
 							''
-							'Model.Only_Positive is a Boolean vector that toggles whether a parameter must be positive. In the case of the standard 2D Gaussian model, this is only the pRF size (sigma).' };
+							'Model.Only_Positive is a Boolean vector that toggles whether a parameter must be positive. In the case of the standard 2D Gaussian model, this is only the pRF size (sigma).' 
+                            ''
+                            'Note that when using the Nelder-Mead algorithm some zero-symmetric parameters (like sigma which is squared in the Gaussian equation) can be negative but still produce reasonable pRF estimates. When rejecting these vertices you end up with a patchy map so it can be more ideal not to use this flag and instead use |sigma| in post-processing. However, such negative estimates tend to be very small and most people would probably filter them out before further analysis anyway. When using the Hooke-Jeeves algorithm, this constraint is built into the model fitting itself, so negative estimates are impossible. This is why this algorithm will generally produce more complete maps.' };
            case 'Scaling_Factor'
                HelpText = { 'Scalar'
 							''
