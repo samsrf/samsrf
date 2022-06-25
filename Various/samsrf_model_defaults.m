@@ -88,6 +88,9 @@ switch AnalysisFunc
         if ~isfield(Model, 'Downsample_Predictions')
             Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
         end
+        if ~isfield(Model, 'Compressive_Nonlinearity')
+            Model.Compressive_Nonlinearity = false; % Model compressive spatial summation nonlinearity of response?
+        end
         if ~isfield(Model, 'Coarse_Fit_Percentile')
             Model.Coarse_Fit_Percentile = 100; % Which percentile of correlations to include in coarse fit parameter estimates
         end

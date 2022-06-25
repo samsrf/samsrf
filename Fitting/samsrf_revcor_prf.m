@@ -52,6 +52,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 %              Final duration now reported in hours (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 %              Added explanation about discrepancies with SamSrf 7 fits (DSS)
+% 23/06/2022 - Now warns if aperture matrix contains negative values (DSS)
 %
 
 %% Defaults & constants
@@ -105,6 +106,9 @@ end
 disp('Load stimulus apertures...');
 load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
 disp([' Loading '  Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
+if sum(ApFrm(:)<0) > 0
+    disp(' Warning: Apertures contain negative values!');
+end
 new_line; 
 % Regressor file name
 [~,ApsName] = fileparts(Model.Aperture_File);

@@ -17,6 +17,7 @@ function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg)
 %              Removed inconsequential erroneous comment (DSS)
 % 14/04/2022 - Removed non-parallel computing option (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 24/06/2022 - Added option to model compressive nonlinearity (DSS)
 %
 
 % Number of vertices
@@ -72,10 +73,11 @@ parfor v = 1:nver
         % Find best prediction
         if UseHookeJeeves
             % Use Hooke-Jeeves
-            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
+            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), ...
+                        Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
         else
             % Use Nelder-Mead
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions), Pimg(:,v)', OptimOpts);  
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), Pimg(:,v)', OptimOpts);  
         end
         fPimg(:,v) = fP;
         fRimg(1,v) = 1 - fR;

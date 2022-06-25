@@ -152,6 +152,14 @@ switch AnalysisFunc
 							'This defines the microtime resolution of the time course prediction. You can use this for stimulus designs with a faster temporal resolution than the TR. For example, if your TR is 1 second, but your stimulus position updates every 100 ms, this parameter would be 10. The model prediction will then pretend that the TR is 100 ms & only when comparing prediction to actual data the time series is downsampled to 1 s.'
 							''
 							'Defaults to 1.' };
+           case 'Compressive_Nonlinearity'
+               HelpText = { '[Optional] Boolean'
+                            ''
+                            'If true, a compressive spatial summation nonlinearity is modelled in predicting the neural response (see Kay et al. 2013, J Neurophys). This will automatically add one parameter to the pRF model for the compression exponent. It also adds the suffix _Css to the file name to indicate the CSS model was used.'
+                            ''
+                            'Note that this added parameter is -only- estimated in the fine-fit. There is currently no way to incorporate this into the coarse-fit. Also, this only works for pRF shapes without a negative (inhibitory) component! To our knowledge this procedure has only been tested for standard Gaussian pRFs.'
+                            ''
+                            'Defaults to false.' };
            case 'Coarse_Fit_Percentile'
                HelpText = { '[Optional] Scalar' 
 							''

@@ -35,6 +35,7 @@ switch AnalysisFunc
                         'Fine_Fit_Threshold';
                         'Replace_Bad_Fits';
                         'Downsample_Predictions';
+                        'Compressive_Nonlinearity';
                         'Hooke_Jeeves_Steps';
                         'Nelder_Mead_Tolerance'  };
     

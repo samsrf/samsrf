@@ -45,8 +45,11 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 8.31 (03-06-2022)  
+### Version 8.4 (25-06-2022)  
+- Added option to model compressive spatial summation in pRF fine-fit (DSS)  
+- pRF functions now warn if aperture matrix contains negative numbers (DSS)  
 - Updated ModelHelp text on negative estimates in Nelder-Mead algorithm (DSS)  
+- Removed erroneous comments in prf_errfun (DSS)  
 
 ### Version 8.3 (16-05-2022)  
 - Streamlined CF reverse correlation to prevent computational overload (DSS)  

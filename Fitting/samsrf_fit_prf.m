@@ -29,6 +29,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %              Outsourced check for default parameters so no longer needs to check these (DSS)
 % 16/04/2022 - Only-positive check now rejects zeros as it should (DSS) 
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 25/06/2022 - Added option to model compressive spatial summation nonlinearity (DSS)
+%              Now warns if aperture matrix contains negative values (DSS)
 %
 
 %% Defaults & constants
@@ -98,6 +100,9 @@ new_line;
 disp('Load stimulus apertures...');
 load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
 disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
+if sum(ApFrm(:)<0) > 0
+    disp(' Warning: Apertures contain negative values!');
+end
 new_line; 
 
 %% Load images 
@@ -319,6 +324,16 @@ else
     Rimg = Rimg(1,mver);
     Pimg = Pimg(:,mver);
     
+    % Are we modelling compressive nonlinearity?
+    if Model.Compressive_Nonlinearity
+        disp(' Modelling neural response with compressive spatial summation');
+        Model.Param_Names{end+1} = 'Exponent'; % Add name for CSS exponent
+        Model.Scaled_Param(end+1) = 0; % Exponent isn't scaled
+        Model.Only_Positive(end+1) = 1; % Exponent cannot be negative
+        Pimg = [Pimg; ones(1,size(Pimg,2))]; % Add seed parameters for exponent
+        OutFile = [OutFile '_Css']; % Suffix to indicate compressive nonlinearity 
+    end
+    
     % Run fine fit (must be separate function for parallel computing toolbox
     [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Tc, ApFrm, Rimg, Pimg);
     t3 = toc(t0);
@@ -350,7 +365,10 @@ else
         if IsGoodFit 
             % Only keep good parameters
             Rfp = Model.Prf_Function(fPimg(:,v)', size(ApFrm,1)*2); % Generate predicted pRF
-            fX = prf_predict_timecourse(Rfp, ApFrm); % Generate predicted time course
+            fX = prf_predict_timecourse(Rfp, ApFrm); % Generate predicted time course 
+            if Model.Compressive_Nonlinearity
+                fX = fX.^fPimg(end,v); % Compressive spatial summation
+            end
             % Store prediction without HRF convolution
             Srf.X(:,mver(v)) = fX;  % Best fitting prediction
         else
