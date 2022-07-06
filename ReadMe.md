@@ -11,7 +11,7 @@ There are various GUI-based tools available for specific functions:
     3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
 	4. Automatic ROI delineation:               AutoDelineation  
     5. Delineating ROIs:                        DelineationTool  
-    6. Viewing stimulus apertures:              ViewApertures  
+    6. Viewing stimulus aperture movies:        ViewApertures  
 	7. Help on model parameters:                ModelHelp  
 
 ## DIFFERENCES TO EARLIER VERSIONS
@@ -50,6 +50,8 @@ from the Srf structure.
 
 ### Version 9.0 (??-07-2022)  
 - **Complete overhaul of forward-model time course prediction!** (DSS)  
+- Removed time course animation tool as no longer compatible with algorithm (DSS)  
+- ViewApertures tool for now only works for movie apertures (DSS)  
 
 ### Version 8.4 (25-06-2022)  
 - Added option to model compressive spatial summation in pRF fine-fit (DSS)  

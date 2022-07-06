@@ -66,6 +66,9 @@ if ApName ~= 0
     ApName = ApName(1:end-4);
     load([ApPath ApName]);
 end
+if exist('ApXY', 'var')
+    error('This tool is only for viewing movie apertures!');
+end
 
 % Plot first frame
 subplot(handles.axes1);
