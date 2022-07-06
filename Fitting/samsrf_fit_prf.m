@@ -22,6 +22,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % 06/07/2022 - New faster version using vector apertures instead of movies (DSS)
 % 07/07/2022 - Added option for 10 free parameters (excluding CSS exponent) (DSS)
+%              Fixed small bug with multiple maximal correlations in coarse fit (DSS)
 %
 
 %% Defaults & constants
@@ -270,7 +271,7 @@ else
           % Store prediction
           if Model.Coarse_Fit_Percentile == 100
             % Only take maximum
-            Srf.X(:,vx(v)) = X(:,rx);  % Best fitting convolved prediction
+            Srf.X(:,vx(v)) = X(:,rx(1));  % Best fitting convolved prediction
             Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
           else
             % Top percentile of predictions
