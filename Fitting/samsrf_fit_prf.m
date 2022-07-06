@@ -271,7 +271,7 @@ else
           % Store prediction
           if Model.Coarse_Fit_Percentile == 100
             % Only take maximum
-            Srf.X(:,vx(v)) = X(:,rx(1));  % Best fitting convolved prediction
+            Srf.X(:,vx(v)) = X(:,find(rx,1));  % Best fitting convolved prediction
             Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
           else
             % Top percentile of predictions
