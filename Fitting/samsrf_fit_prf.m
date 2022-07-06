@@ -20,17 +20,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %
 % Returns the name of the map file it saved.
 %
-% 12/04/2022 - Changed name of optimisation loop function (DSS)
-%              Added reports for optimisation algorithm & parameters used for it (DSS)
-% 13/04/2022 - Now checks that vectors defining parameters are all same length (DSS)
-% 14/04/2022 - Only reports optimisation parameters if fine-fitting (DSS) 
-%              Added option to calculate coarse fit over top percentile of search predictions (DSS)
-% 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
-%              Outsourced check for default parameters so no longer needs to check these (DSS)
-% 16/04/2022 - Only-positive check now rejects zeros as it should (DSS) 
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 25/06/2022 - Added option to model compressive spatial summation nonlinearity (DSS)
-%              Now warns if aperture matrix contains negative values (DSS)
+% 06/07/2022 - New faster version using vector apertures instead of movies (DSS)
+% 07/07/2022 - Added option for 10 free parameters (excluding CSS exponent) (DSS)
 %
 
 %% Defaults & constants
@@ -99,11 +90,14 @@ new_line;
 %% Load apertures
 disp('Load stimulus apertures...');
 load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
-disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);
+disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,2)) ' volumes']);
 if sum(ApFrm(:)<0) > 0
     disp(' Warning: Apertures contain negative values!');
 end
-new_line; 
+if ~exist('ApXY', 'var') 
+    error('Aperture pixel coordinates undefined!');
+end
+new_line;
 
 %% Load images 
 if ischar(SrfFiles)
@@ -149,7 +143,7 @@ Srf.Version = samsrf_version;
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 % Do aperture & data length match?
-if size(Tc,1)*Model.Downsample_Predictions ~= size(ApFrm,3)
+if size(Tc,1)*Model.Downsample_Predictions ~= size(ApFrm,2)
     error('Mismatch between length of apertures and data!');
 end
 
@@ -176,7 +170,8 @@ new_line;
 if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     if ~exist([pwd filesep SearchspaceFile], 'file') 
         disp('Generating predictions...');
-        [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, Model.Polar_Search_Space);    
+        [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, ApXY, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, ...
+                                                                          Model.Param6, Model.Param7, Model.Param8, Model.Param9, Model.Param10, Model.Polar_Search_Space);    
         save(SearchspaceFile, 'X', 'S', '-v7.3');
         t1 = toc(t0); 
         disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
@@ -185,11 +180,12 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
         load([pwd filesep SearchspaceFile]);
         disp([' Loading ' SearchspaceFile]);
         % Does number of grid points match model?
-        if size(S,2) ~= length(Model.Param1) * length(Model.Param2) * length(Model.Param3) * length(Model.Param4) * length(Model.Param5)
+        if size(S,2) ~= length(Model.Param1) * length(Model.Param2) * length(Model.Param3) * length(Model.Param4) * length(Model.Param5) ...
+                      * length(Model.Param6) * length(Model.Param7) * length(Model.Param8) * length(Model.Param9) * length(Model.Param10)
             error('Mismatch between saved search space and model definition!');
         end
         % Does length of search space match apertures?
-        if size(ApFrm,3) ~= size(X,1)
+        if size(ApFrm,2) ~= size(X,1)
             error('Mismatch between length of saved search space and apertures!');
         end
         % Does length of search parameter & prediction matrix match?
@@ -226,14 +222,8 @@ if ~isempty(Model.Seed_Fine_Fit)
   disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
   SeedMap = load(EnsurePath(Model.Seed_Fine_Fit));
   SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
-  Pimg = SeedMap.Srf.Data(2:length(Model.Scaled_Param)+1,:); % Fitted parameter maps
+  Pimg = SeedMap.Srf.Data(2:length(Model.Param_Names)+1,:); % Fitted parameter maps
   Rimg = SeedMap.Srf.Data(1,:); % R^2 map
-  % Renormalise the data
-  for i = 1:size(Pimg,1)
-      if Model.Scaled_Param(i)
-          Pimg(i,:) = Pimg(i,:) / Model.Scaling_Factor;  % Renormalise this parameter
-      end
-  end  
 else
   % Coarse fitting procedure
   disp('Coarse fitting...');
@@ -284,7 +274,7 @@ else
             Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
           else
             % Top percentile of predictions
-            Rfp = Model.Prf_Function(Pimg(:,vx(v))', size(ApFrm,1)*2); % New pRF profile
+            Rfp = Model.Prf_Function(Pimg(:,vx(v))', ApXY); % New pRF profile replicated by number of volumes
             nX = prf_predict_timecourse(Rfp, ApFrm); % New predicted time courase
             nX = prf_convolve_hrf(nX, Model.Hrf, Model.Downsample_Predictions); % Convolve new time course with HRF
             Rimg(1,vx(v)) = corr(Y(:,v),nX)^2; % New goodness of fit
@@ -335,7 +325,7 @@ else
     end
     
     % Run fine fit (must be separate function for parallel computing toolbox
-    [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Tc, ApFrm, Rimg, Pimg);
+    [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Tc, ApFrm, ApXY, Rimg, Pimg);
     t3 = toc(t0);
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
     new_line;
@@ -352,7 +342,7 @@ else
         IsGoodFit = true;
         for p = 1:size(fPimg,1)
             % If scaled parameter is out of bounds
-            if Model.Scaled_Param(p) && abs(fPimg(p,v)) > 2 
+            if Model.Scaled_Param(p) && abs(fPimg(p,v)) > 2 * Model.Scaling_Factor
                 IsGoodFit = false;
             end
             % If a parameter is negative but shouldn't be
@@ -364,7 +354,7 @@ else
         % Store parameters & predicted time course 
         if IsGoodFit 
             % Only keep good parameters
-            Rfp = Model.Prf_Function(fPimg(:,v)', size(ApFrm,1)*2); % Generate predicted pRF
+            Rfp = Model.Prf_Function(fPimg(:,v)', ApXY); % Generate predicted pRF
             fX = prf_predict_timecourse(Rfp, ApFrm); % Generate predicted time course 
             if Model.Compressive_Nonlinearity
                 fX = fX.^fPimg(end,v); % Compressive spatial summation
@@ -375,7 +365,7 @@ else
             % Replace bad fits with coarse fit?
             if Model.Replace_Bad_Fits
                 % Generate predicted time course
-                Rfp = Model.Prf_Function(Pimg(:,v)', size(ApFrm,1)*2);
+                Rfp = Model.Prf_Function(Pimg(:,v)', ApXY);
                 fX = prf_predict_timecourse(Rfp, ApFrm);
                 % Store prediction without HRF convolution
                 Srf.X(:,mver(v)) = fX;  % Best fitting prediction
@@ -408,13 +398,6 @@ else
 end
 
 disp('Tidying up final results structure...');
-% Rescale the data
-for i = 1:size(fPimg,1)
-    if Model.Scaled_Param(i)
-        fPimg(i,:) = fPimg(i,:) * Model.Scaling_Factor;  % Scale this parameter
-    end
-end
-
 % Prepare surface structure
 Srf.Functional = PrfFcnName; % pRF function name
 Data = [fRimg; fPimg; fBimg];

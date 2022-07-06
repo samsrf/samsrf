@@ -47,7 +47,7 @@ switch AnalysisFunc
         if ~isfield(Model, 'Aperture_File')
             error('Aperture file is undefined!');
         end
-        for p = 1:5
+        for p = 1:10
             if ~isfield(Model, ['Param' num2str(p)])
                 if p <= length(Model.Param_Names)
                     error(['Search space parameter #' num2str(p) ' is undefined!']);

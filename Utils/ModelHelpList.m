@@ -26,6 +26,11 @@ switch AnalysisFunc
 						'Param3';
 						'Param4';
 						'Param5';
+						'Param6';
+						'Param7';
+						'Param8';
+						'Param9';
+						'Param10';
                         'Coarse_Fit_Only';
                         'Smoothed_Coarse_Fit';
                         'Only_Positive_Coarse_Fits';

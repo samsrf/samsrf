@@ -12,10 +12,10 @@ function Rfp = prf_skewgauss_rf(x0, y0, sigma, alpha_x, alpha_y, screen_width)
 %
 %   Alternatively, screen_width can contain a n*2 matrix where each column
 %   contains X and Y coordinates of pRFs. These must be in stimulus space, 
-%   not apertures space! This is used internally for fitting CFs but you 
-%   may find other uses for this feature.
+%   not apertures space! This is used internally for fitting pRFs & CFs 
+%   but you may find other uses for this feature.
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 07/07/2022 - Updated comments to reflect SamSrf 9 changes (DSS)
 %
 
 if nargin < 6

@@ -2,22 +2,22 @@ function Rfp = prf_multivariate_rf(x0, y0, s1, s2, phi, screen_width)
 % Rfp = prf_multivariate_rf(x0, y0, s1, s2, phi, [screen_width])
 %
 % Returns an multivariate oriented Gaussian receptive field profile 
-% with coordinates (x0,y0), standard deviations s1 and s2 for the principal
-% and orthogonal axes and orientation (phi) in degrees, along the unit circle. 
+%   with coordinates (x0,y0), standard deviations s1 and s2 for the principal
+%   and orthogonal axes and orientation (phi) in degrees, along the unit circle. 
 %
-% The optional input screen_width determines the size of the stimulus model
-% screen in pixels. This should be twice the width of the apertures.
+%   The optional input screen_width determines the size of the stimulus model
+%   screen in pixels. This should be twice the width of the apertures.
 %
-% Alternatively, screen_width can contain a n*2 matrix where each column
-% contains X and Y coordinates of pRFs. These must be in stimulus space, 
-% not apertures space! This is used internally for fitting CFs but you 
-% may find other uses for this feature.
+%   Alternatively, screen_width can contain a n*2 matrix where each column
+%   contains X and Y coordinates of pRFs. These must be in stimulus space, 
+%   not apertures space! This is used internally for fitting pRFs & CFs 
+%   but you may find other uses for this feature.
 %
-% Note that if you use this pRF model you should add an unwrapping step to
-% the postprocessing of your model data (see e.g. Oriented_2d_Multivariate_Prf
-% or Circular_Tuning_Curve in SamSrf/Models).
+%   Note that if you use this pRF model you should add an unwrapping step to
+%   the postprocessing of your model data (see e.g. Oriented_2d_Multivariate_Prf
+%   or Circular_Tuning_Curve in SamSrf/Models).
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 07/07/2022 - Updated comments to reflect SamSrf 9 changes (DSS)
 %
 
 if nargin < 6

@@ -1,4 +1,4 @@
-function err = prf_errfun(PrfFcn, ApFrm, Hrf, P, Y, Downsampling, CssNonlin)
+function err = prf_errfun(PrfFcn, ApFrm, ApXY, Hrf, P, Y, Downsampling, CssNonlin)
 %
 % err = prf_errfun(PrfFcn, ApFrm, Hrf, P, Y, Downsamping, CssNonlin)
 %
@@ -8,17 +8,16 @@ function err = prf_errfun(PrfFcn, ApFrm, Hrf, P, Y, Downsampling, CssNonlin)
 % prediction defined by the parameters P and the observed data in Y. 
 %
 %   PrfFcn is a function handle to the pRF model (e.g. prf_gaussian_rf)
-%   ApFrm contains aperture frames 
+%   ApFrm contains aperture vectors
+%   ApXY contains pixel coordinates for apertures
 %   Hrf is the hemodynamic response function
 %   Downsampling is the factor by which the prediction is sampled to match the scanner TR
 %   CssNonlin is a boolean to flag whether to model compressive spatial summation
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 24/06/2022 - Added option to model compressive spatial summary nonlinearity (DSS)
-%              Removed obsolete comment about z-scoring (DSS)
+% 06/07/2022 - Rewritten for vectorised apertures (DSS)
 %
 
-Rfp = PrfFcn(P, size(ApFrm,1)*2); % pRF profile
+Rfp = PrfFcn(P, ApXY); % pRF profile
 Yp = prf_predict_timecourse(Rfp, ApFrm); % Predict time course (percent pRF activation)
 % Model CSS nonlinearity
 if CssNonlin

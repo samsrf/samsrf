@@ -14,11 +14,10 @@ function Rfp = prf_dog_rf(x0, y0, sigma1, sigma2, delta, screen_width)
 %
 %   Alternatively, screen_width can contain a n*2 matrix where each column
 %   contains X and Y coordinates of pRFs. These must be in stimulus space, 
-%   not apertures space! This is used internally for fitting CFs but you 
-%   may find other uses for this feature.
+%   not apertures space! This is used internally for fitting pRFs & CFs 
+%   but you may find other uses for this feature.
 %
-% 11/02/2022 - Now allows pRF coordinates as input for CF fitting (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 07/07/2022 - Updated comments to reflect SamSrf 9 changes (DSS)
 %
 
 if nargin < 6

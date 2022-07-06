@@ -1,11 +1,9 @@
-# SamSrf VIII - Read Me
+# SamSrf IX - Read Me
 
-This major release includes the most recent updates which involved algorithms for 
-fitting population receptive fields or connective fields using reverse correlation 
-combined with posthoc fitting of correlation profiles. Importantly, it also introduces 
-several new fitting algorithms (see Cookbook & ModelHelp for details).  
-By default we however still use the standard Nelder-Mead algorithm. With one exception 
-(see below) you can run the exact same analyses as in SamSrf 7.
+This major release includes the most recent updates which involved an improved 
+(much faster!) algorithm for fitting population receptive fields. This constitutes 
+a fundamental changefrom previous SamSrf versions. The toolbox also includes 
+reverse correlation pRF analysis & connective fields analysis. 
 
 There are various GUI-based tools available for specific functions:  
     1. Projecting data to surface:              SurfaceProjection  
@@ -16,22 +14,27 @@ There are various GUI-based tools available for specific functions:
     6. Viewing stimulus apertures:              ViewApertures  
 	7. Help on model parameters:                ModelHelp  
 
-## DIFFERENCE TO EARLIER VERSIONS
+## DIFFERENCES TO EARLIER VERSIONS
 
-### IMPORTANT: MODEL FITS FROM VERSIONS PRIOR TO 7.0 ARE NOT COMPARABLE!  
-The pRF fitting process has considerable differences to previous versions of SamSrf.  
+### IMPORTANT: FORWARD-MODEL FITS FROM VERSIONS PRIOR TO 9.0 ARE NOT COMPARABLE!  
+The fitting process has considerable differences to previous versions: We changed 
+the way apertures are encoded & how the time course is predicted. While the results
+will typically be close to the old approach, there will be differences. The new algorithm
+is also more flexible. Most importantly, it is considerably faster. Given the advantages,
+we decided not to include the old algorithm in this version. If you need that for some
+reason, you will need to use SamSrf 8.4.
 
 ** pRF model fits to reverse correlation profiles are also not *identical* to SamSrf 7.**  
-(Please see *help samsrf_revcor_prf* for more information about this)  
+(Please see *help samsrf_revcor_prf* for more information about this discrepancy.)  
 
-Even if you used earlier versions for your analysis we recommend you use SamSrf 8  
+Even if you used earlier versions for your analysis we recommend you use SamSrf 9  
 for your analysis *after* the model fitting (e.g. plotting, quantification & statistics). 
 Data files from SamSrf 6 should already be in the same format. You can also convert old 
 data files from older versions (at least 5.0 upwards) using samsrf_convert_old_srf.m   
 
 ------
 
-SamSrf 8 was tested on **Matlab R2020a**. The Nelder-Mead algorithm requires Matlab's 
+SamSrf 9 was tested on **Matlab R2020a**. The Nelder-Mead algorithm requires Matlab's 
 **Optimization Toolbox**. The Hooke-Jeeves algorithm is implemented directly in SamSrf.
 SamSrf strongly relies on parallel computing for a number of time-intensive analyses, 
 so if you have Matlab's **Parallel Computing Toolbox** installed & you have a 
@@ -44,6 +47,9 @@ You can use samsrf_expand_srf and samsrf_compress_srf to load and remove these f
 from the Srf structure.  
 
 ## LATEST UPDATES 
+
+### Version 9.0 (??-07-2022)  
+- **Complete overhaul of forward-model time course prediction!** (DSS)  
 
 ### Version 8.4 (25-06-2022)  
 - Added option to model compressive spatial summation in pRF fine-fit (DSS)  

@@ -32,7 +32,7 @@ switch AnalysisFunc
            case 'Scaled_Param'
                HelpText = { 'Vector of booleans'
 							''
-							'Depending on the receptive field model you use, some or all the parameters need to be scaled to the eccentricity of your mapping stimulus. The apertures are defined such that the centre corresponds to coordinate 0,0 and the outer edges are -1 and +1. Therefore, any parameter that refers to a measure in this space, such as the pRF centre coordinates & pRF size, must be scaled to the actual eccentricity of the stimulus to make sense.'
+							'Depending on the receptive field model you use, some or all the parameters are relative to the eccentricity/bounds of your mapping stimulus (e.g. the pRF centre coordinates & pRF size). Absolute values greater than twice this factor will be rejected after model fitting.'
 							''
 							'Model.Scaled_Param is a Boolean vector and it toggles whether a parameter is scaled or not. For example, in the case of the standard 2D Gaussian model, all three parameters are scaled so it is [1 1 1]. But in the case of some other models, such as the oriented asymmetric 2D pRF, one of the parameters is the orientation of the pRF and this is obviously not scaled. Critically, this vector must be of equal length as Param_Names.' };
            case 'Only_Positive'
@@ -46,9 +46,9 @@ switch AnalysisFunc
            case 'Scaling_Factor'
                HelpText = { 'Scalar'
 							''
-							'Once we know which parameters will be scaled, we also need to define by how much it will be scaled. In 2D retinotopic models, the scaling factor is the maximal eccentricity of the mapping stimulus (usually the radius of the mapped area). In one-dimensional tuning curve models (for example, tonotopy) this would be the half-width of the stimulus space because the middle is defined as 0.'
+							'Once we know which parameters will be scaled, we also need to define by how much it will be scaled. In 2D retinotopic models, the scaling factor is the maximal eccentricity of the mapping stimulus (usually the radius of the mapped area but with asymmetric mapping areas you must pick the maximum). In one-dimensional tuning curve models (for example, tonotopy) this would be the half-width of the stimulus space because the middle is defined as 0. Since SamSrf 9 this is really only used for determining the bounds of plausible pRF estimates abs(2 * Scaling_Factor). You can also incorporate this when defining the searchspace (c.f. example scripts in Models).'
 							''
-							'This is a critical parameter which you must define according to your own needs!' };
+							'This is a critical parameter which you must define according to your own needs because it depends on your experimental parameters!' };
            case 'TR'
                HelpText = { 'Scalar'
 							''
@@ -66,8 +66,10 @@ switch AnalysisFunc
            case 'Aperture_File'
                HelpText = { 'Char'
 							''
-							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' };
-           case {'Param1' 'Param2' 'Param3' 'Param4' 'Param5'}
+							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
+                            ''
+                            'Since SamSrf 9 this file must be a vectorised aperture matrix with pixels (locations) in rows & volumes in columns. It must also contain the ApXY matrix defining the pixel coordinates.' };
+           case {'Param1' 'Param2' 'Param3' 'Param4' 'Param5' 'Param6' 'Param7' 'Param8' 'Param9' 'Param10'}
 			   HelpText = { 'Vector of scalars'
 							''
 							'You can define the parameters of the search space used for the coarse fitting (extensive grid search) stage. For each of the five parameters you define a vector of the points of the search grid for that parameter, so this vector determines both the range and the granularity of the search space.' 
@@ -78,15 +80,25 @@ switch AnalysisFunc
 							'' };
 				switch ParameterName(end)
 					case '1'
-						HelpText{end+1} = 'Param1: x0 in Cartesian 2D pRF, polar angle in polar grid, or peak location in 1D tuning model';
+						HelpText{end+1} = 'Param1: x0 in Cartesian 2D pRF, peak location in 1D tuning model (both in units of stimulus space!), or polar angle in polar grid (in degrees).';
 					case '2'
-						HelpText{end+1} = 'Param2: y0 in Cartesian 2D pRF, eccentricity in polar grid, or sigma in 1D tuning model';
+						HelpText{end+1} = 'Param2: y0 in Cartesian 2D pRF, eccentricity in polar grid, or sigma in 1D tuning model (in units of stimulus space!)';
 					case '3'
-						HelpText{end+1} = 'Param3: sigma in 2D pRF model';
+						HelpText{end+1} = 'Param3: sigma in 2D pRF model (in units of stimulus space!)';
 					case '4'
-						HelpText{end+1} = 'Param4: second sigma in asymmetric or centre-surround pRF';
+						HelpText{end+1} = 'Param4: second sigma in asymmetric or centre-surround pRF (in units of stimulus space!)';
 					case '5'
 						HelpText{end+1} = 'Param5: amplitude ratio (delta) in centre-surround pRF, or angle in oriented pRF, etc.'; 
+					case '6'
+						HelpText{end+1} = 'Param6: not typically defined but would be needed e.g. in Divisive Normalisation model.'; 
+					case '7'
+						HelpText{end+1} = 'Param7: not typically defined but would be needed e.g. in Divisive Normalisation model.'; 
+					case '8'
+						HelpText{end+1} = 'Param8: not typically defined but would be needed e.g. in Divisive Normalisation model.'; 
+					case '9'
+						HelpText{end+1} = 'Param9: not typically defined & sounds pretty insane'; 
+					case '10'
+						HelpText{end+1} = 'Param10: not typically defined & sounds pretty insane.'; 
 				end
 		   case 'Noise_Ceiling_Threshold'
                HelpText = { '[Optional] Scalar' 

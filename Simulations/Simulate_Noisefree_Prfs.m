@@ -24,7 +24,7 @@ Model.Name = ['pRF_Sim_' SimAps '_Mod_' ModAps]; % File name to indicate type of
 Model.Param_Names = {'x0'; 'y0'; 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1]; % Which of these parameters are scaled 
 Model.Only_Positive = [0 0 1]; % Which parameters must be positive?
-Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity) - not changed here
+Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentricity) - not changed here
 Model.TR = 1; % Repetition time (TR) of pulse sequence - standard in our experiments
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = ['aps_' ModAps]; % Box standard sweeping bars design we typically use

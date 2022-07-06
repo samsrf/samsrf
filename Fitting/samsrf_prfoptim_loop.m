@@ -1,6 +1,6 @@
-function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg) 
+function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, ApXY, Rimg, Pimg) 
 %
-% [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg) 
+% [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, ApXY, Rimg, Pimg) 
 %
 % Internal function looping through solving the fine fit for each mask vertex.
 %
@@ -9,15 +9,12 @@ function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, Rimg, Pimg)
 %
 %   Model:  Model structure for the pRF fit
 %   Y:      Matrix with time series for every vertex, restricted to mask
-%   ApFrm:  Matrix with stimulus apertures
+%   ApFrm:  Matrix with vectorised stimulus apertures
+%   ApXY:   Pixel coordinates for vectorised apertures
 %   Rimg:   Coarse fit/seed map R^2 data for thresholding, restricted to mask
 %   Pimg:   Coarse fit/seed map parameters, restricted to mask
 %
-% 12/04/2022 - Added support for Hooke-Jeeves pattern search algorithm (DSS)
-%              Removed inconsequential erroneous comment (DSS)
-% 14/04/2022 - Removed non-parallel computing option (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 24/06/2022 - Added option to model compressive nonlinearity (DSS)
+% 06/07/2022 - Rewritten for vectorised apertures (DSS)
 %
 
 % Number of vertices
@@ -73,11 +70,11 @@ parfor v = 1:nver
         % Find best prediction
         if UseHookeJeeves
             % Use Hooke-Jeeves
-            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), ...
+            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, ApXY, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), ...
                         Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
         else
             % Use Nelder-Mead
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), Pimg(:,v)', OptimOpts);  
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, ApXY, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), Pimg(:,v)', OptimOpts);  
         end
         fPimg(:,v) = fP;
         fRimg(1,v) = 1 - fR;
