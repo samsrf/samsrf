@@ -50,6 +50,7 @@ from the Srf structure.
 
 ### Version 9.0 (??-07-2022)  
 - **Complete overhaul of forward-model time course prediction!** (DSS)  
+- Updated search grid specification in SamSrf/Models accordingly (DSS)  
 - Removed time course animation tool as no longer compatible with algorithm (DSS)  
 - ViewApertures tool for now only works for movie apertures (DSS)  
 

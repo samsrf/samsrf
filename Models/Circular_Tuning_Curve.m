@@ -28,7 +28,7 @@ Model.Aperture_File = 'aps_pTC_cir'; % Aperture file
 % Search grid for coarse fit
 Model.Polar_Search_Space = false; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = -179 : +180; % Mu search grid
-Model.Param2 = 2 .^ (-5.6 : 0.1 : 0); % Sigma search grid
+Model.Param2 = 2 .^ (-5.6 : 0.1 : 0) * Model.Scaling_Factor; % Sigma search grid
         
 %% Go to data 
 HomePath = pwd;

@@ -32,9 +32,9 @@ Model.Aperture_File = 'aps_pRF'; % Aperture file
 % Search grid for coarse fit
 Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar search grid
-Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
-Model.Param3 = 2 .^ (-5:1); % Horizontal sigma search grid
-Model.Param4 = 2 .^ (-5:1); % Vertical sigma search grid
+Model.Param2 = 2 .^ (-5 : 0.2 : 0.6) * Model.Scaling_Factor; % Eccentricity  search grid
+Model.Param3 = 2 .^ (-5:1) * Model.Scaling_Factor; % Horizontal sigma search grid
+Model.Param4 = 2 .^ (-5:1) * Model.Scaling_Factor; % Vertical sigma search grid
 Model.Param5 = 0 : 15 : 345; % Orientation search grid
 
 %% Go to data 

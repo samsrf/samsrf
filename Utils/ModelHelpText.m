@@ -237,7 +237,9 @@ switch AnalysisFunc
            case 'Aperture_File'
                HelpText = { 'Char'
 							''
-							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' };
+							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
+                            ''
+                            'Important: unlike for forward-model pRF analysis, the apertures in reverse-correlation analysis are still using movies, -not- vectorised apertures! While there could be reasons to change this, the reverse correlation analysis is already very fast anyway & so we went with the maxim, "Don''t fix what ain''t broken"...' };
            case 'Prf_Function'
                HelpText = {	'[Optional] Function handle'
 							''

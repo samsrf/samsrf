@@ -24,8 +24,8 @@ Model.Aperture_File = 'aps_pRF'; % Aperture file
 %% Search grid for coarse fit
 Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar search grid
-Model.Param2 = 2 .^ (-5 : 0.2 : 0.6); % Eccentricity  search grid
-Model.Param3 = 2 .^ (-5.6 : 0.2 : 1); % Sigma search grid
+Model.Param2 = 2 .^ (-5 : 0.2 : 0.6) * Model.Scaling_Factor; % Eccentricity  search grid
+Model.Param3 = 2 .^ (-5.6 : 0.2 : 1) * Model.Scaling_Factor; % Sigma search grid
 
 %% Optional fine-fitting parameters
 % Model.Hooke_Jeeves_Steps = [.01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
