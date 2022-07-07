@@ -11,7 +11,7 @@ There are various GUI-based tools available for specific functions:
     3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
 	4. Automatic ROI delineation:               AutoDelineation  
     5. Delineating ROIs:                        DelineationTool  
-    6. Viewing stimulus aperture movies:        ViewApertures  
+    6. Viewing stimulus apertures:              ViewApertures  
 	7. Help on model parameters:                ModelHelp  
 
 ## DIFFERENCES TO EARLIER VERSIONS
@@ -34,12 +34,13 @@ data files from older versions (at least 5.0 upwards) using samsrf_convert_old_s
 
 ------
 
-SamSrf 9 was tested on **Matlab R2020a**. The Nelder-Mead algorithm requires Matlab's 
-**Optimization Toolbox**. The Hooke-Jeeves algorithm is implemented directly in SamSrf.
-SamSrf strongly relies on parallel computing for a number of time-intensive analyses, 
-so if you have Matlab's **Parallel Computing Toolbox** installed & you have a 
-**multi-core computer or cluster** it should run faster. You will need to modify 
-the code yourself to use the toolbox without parallel computing.    
+SamSrf 9 was tested on **Matlab R2020a & R2020b**. The Nelder-Mead algorithm requires 
+Matlab's **Optimization Toolbox**. The Hooke-Jeeves algorithm is implemented directly 
+in SamSrf. SamSrf strongly relies on parallel computing for a number of time-intensive 
+analyses, so if you have Matlab's **Parallel Computing Toolbox** installed & you have a 
+**multi-core computer or cluster** it should run faster. You will need to modify the 
+code yourself to use the toolbox without parallel computing by replacing parfor calls 
+with for calls.    
  
 By default the anatomical meshes for a reconstruction (recon-all) are kept separate from 
 the functional data in the folder ../anatomy/  
@@ -48,11 +49,14 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.0 (??-07-2022)  
+### Version 9.0 (08-07-2022)  
 - **Complete overhaul of forward-model time course prediction!** (DSS)  
 - Updated search grid specification in SamSrf/Models accordingly (DSS)  
 - Removed time course animation tool as no longer compatible with algorithm (DSS)  
-- ViewApertures tool for now only works for movie apertures (DSS)  
+- ViewApertures tool can now support both movie & vectorised apertures (DSS)  
+- Updated Cookbook to reflect the new changes (DSS)  
+
+------
 
 ### Version 8.4 (25-06-2022)  
 - Added option to model compressive spatial summation in pRF fine-fit (DSS)  

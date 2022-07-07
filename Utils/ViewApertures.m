@@ -58,7 +58,7 @@ guidata(hObject, handles);
 % UIWAIT makes ViewApertures wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-global ApFrm
+global ApFrm ApXY
 
 % Load apertures
 [ApName, ApPath] = uigetfile('aps_*.mat', 'Select apertures');
@@ -66,19 +66,27 @@ if ApName ~= 0
     ApName = ApName(1:end-4);
     load([ApPath ApName]);
 end
-if exist('ApXY', 'var')
-    error('This tool is only for viewing movie apertures!');
-end
 
 % Plot first frame
 subplot(handles.axes1);
-[x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
-y = flipud(y);
-curfrm = ApFrm(:,:,1);
-if var(curfrm(:)) == 0
-    imshow(curfrm); 
+if ~isempty(ApXY)
+    % Vectorised apertures
+    disp('Loading vectorised apertures...');
+    polarpatch(ApXY(:,1), ApXY(:,2), ApFrm(:,1));
+    txy = max(ApXY) .* [.65 .85];
 else
-    contourf(x, y, curfrm, 'edgecolor', 'none');
+    % Movie apertures
+    ApXY = []; 
+    disp('Loading movie apertures...');
+    [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
+    y = flipud(y);
+    curfrm = ApFrm(:,:,1);
+    if var(curfrm(:)) == 0
+        imshow(curfrm); 
+    else
+        contourf(x, y, curfrm, 'edgecolor', 'none');
+    end
+    txy = [80 10];
 end
 axis square
 axis off
@@ -89,8 +97,12 @@ else
     colormap gray
     set(gca, 'Clim', [0 1]);
 end
-set(handles.slider1, 'Value', 1/size(ApFrm,3), 'SliderStep', [1/(1+size(ApFrm,3)) 1/(1+size(ApFrm,3))]);
-text(80, 10, '1', 'color', [.5 .5 .5], 'fontsize', 15);
+if ~isempty(ApXY)
+    set(handles.slider1, 'Value', 1/size(ApFrm,2), 'SliderStep', [1/(1+size(ApFrm,2)) 1/(1+size(ApFrm,2))]);
+else
+    set(handles.slider1, 'Value', 1/size(ApFrm,3), 'SliderStep', [1/(1+size(ApFrm,3)) 1/(1+size(ApFrm,3))]);
+end
+text(txy(1), txy(2), '1', 'color', [.5 .5 .5], 'fontsize', 10);
 
 % Close request function
 crfcn = @closereq;
@@ -117,19 +129,31 @@ function slider1_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-global ApFrm
+global ApFrm ApXY
 
 v = get(hObject,'Value');
-f = ceil(v*size(ApFrm,3));
+if ~isempty(ApXY)
+    f = ceil(v*size(ApFrm,2));
+else
+    f = ceil(v*size(ApFrm,3));
+end
 if f == 0 f = 1; end
 subplot(handles.axes1);
-[x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
-y = flipud(y);
-curfrm = ApFrm(:,:,f);
-if var(curfrm(:)) == 0
-    imshow(curfrm); 
+if ~isempty(ApXY)
+    % Vectorised apertures
+    polarpatch(ApXY(:,1), ApXY(:,2), ApFrm(:,f));
+    txy = max(ApXY) .* [.65 .85];
 else
-    contourf(x, y, curfrm, 'edgecolor', 'none');
+    % Movie apertures
+    [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
+    y = flipud(y);
+    curfrm = ApFrm(:,:,f);
+    if var(curfrm(:)) == 0
+        imshow(curfrm); 
+    else
+        contourf(x, y, curfrm, 'edgecolor', 'none');
+    end
+    txy = [80 10];
 end
 axis square
 axis off
@@ -140,7 +164,7 @@ else
     colormap gray
     set(gca, 'Clim', [0 1]);
 end
-text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
+text(txy(1), txy(2), num2str(f), 'color', [.5 .5 .5], 'fontsize', 10);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -163,28 +187,51 @@ function togglebutton1_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of togglebutton1
 
-global ApFrm
+global ApFrm ApXY
 
 try
     while get(hObject, 'Value')
         v = get(handles.slider1,'Value'); % Get slider value
-        f = ceil(v*size(ApFrm,3)); % Convert to frame number
-        f = f + 1; % Advance by one frame
-        if f > size(ApFrm,3)
-            f = 1;
+        if ~isempty(ApXY)
+            % Vectorised apertures
+            f = ceil(v*size(ApFrm,2)); % Convert to frame number
+        else
+            % Movie apertures
+            f = ceil(v*size(ApFrm,3)); % Convert to frame number
         end
-        v = f / size(ApFrm,3); % Convert back to slider value
+        f = f + 1; % Advance by one frame
+        if ~isempty(ApXY)
+            % Vectorised apertures
+            if f > size(ApFrm,2)
+                f = 1;
+            end
+            v = f / size(ApFrm,2); % Convert back to slider value
+        else
+            % Movie apertures 
+            if f > size(ApFrm,3)
+                f = 1;
+            end
+            v = f / size(ApFrm,3); % Convert back to slider value
+        end
         set(handles.slider1, 'Value', v);
 
         % Plot next frame
         subplot(handles.axes1);
-        [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
-        y = flipud(y);
-        curfrm = ApFrm(:,:,f);
-        if var(curfrm(:)) == 0
-            imshow(curfrm); 
+        if ~isempty(ApXY)
+            % Vectorised apertures
+            polarpatch(ApXY(:,1), ApXY(:,2), ApFrm(:,f));
+            txy = max(ApXY) .* [.65 .85];
         else
-            contourf(x, y, curfrm, 'edgecolor', 'none');
+            % Movie apertures
+            [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
+            y = flipud(y);
+            curfrm = ApFrm(:,:,f);
+            if var(curfrm(:)) == 0
+                imshow(curfrm); 
+            else
+                contourf(x, y, curfrm, 'edgecolor', 'none');
+            end
+            txy = [80 10];
         end
         axis square
         axis off
@@ -195,7 +242,7 @@ try
             colormap gray
             set(gca, 'Clim', [0 1]);
         end
-        text(80, 10, num2str(f), 'color', [.5 .5 .5], 'fontsize', 15);
+        text(txy(1), txy(2), num2str(f), 'color', [.5 .5 .5], 'fontsize', 10);
         pause(0.1);
     end
 catch
