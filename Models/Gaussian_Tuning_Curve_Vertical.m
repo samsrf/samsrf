@@ -25,7 +25,8 @@ Model.Aperture_File = 'aps_pTC_ver'; % Aperture file
 % Model.Hooke_Jeeves_Steps = [.01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
 % Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in aperture space)
 
-% Search grid for coarse fit
+%% Search grid for coarse fit
+% Some parameters are multiplied with scaling factor as this must be in stimulus space!
 Model.Polar_Search_Space = false; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = (-1.05 : 0.05 : 1.05) * Model.Scaling_Factor; % Mu search grid
 Model.Param2 = 2 .^ (-5.6 : 0.1 : 1) * Model.Scaling_Factor; % Sigma search grid

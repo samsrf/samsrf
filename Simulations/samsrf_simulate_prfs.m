@@ -1,6 +1,6 @@
-function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, Model)
+function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 %
-% Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, [Model])
+% Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, [Model])
 %
 % Simulates time courses for ground truth pRF parameters based on the 
 %  pRF function PrfFcn and the stimulus apertures defined by ApFrm.
@@ -59,7 +59,7 @@ if isstruct(GtPars)
     % Input is a map file
     Srf = samsrf_expand_srf(GtPars);
     Srf.Ground_Truth = Srf.Data(2:end,:); % Store ground truth 
-    Srf.Data = NaN(size(ApFrm,3) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
+    Srf.Data = NaN(size(ApFrm,2) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
     % Rescale parameters
     if nargin < 4
         error('Model must be defined!');
@@ -76,7 +76,7 @@ else
     Srf.Hemisphere = 'sim'; % Dummy
     Srf.Vertices = NaN(size(GtPars,2),3); % Dummy
     Srf.Ground_Truth = GtPars; % Store ground truth
-    Srf.Data = NaN(size(ApFrm,3) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
+    Srf.Data = NaN(size(ApFrm,2) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
 end
 
 disp('Haemodynamic response function...')
@@ -103,7 +103,7 @@ disp(' Please stand by...');
 Gt = Srf.Ground_Truth; % Ground truth data
 Data = zeros(size(Srf.Data)); % Simulated data
 parfor v = 1:size(Srf.Data,2)
-    Rfp = PrfFcn(Gt(:,v)', size(ApFrm,1)*2); % pRF profile
+    Rfp = PrfFcn(Gt(:,v)', ApXY); % pRF profile
     Y = prf_predict_timecourse(Rfp, ApFrm); % Prediction without z-normalisation!
     Y = prf_convolve_hrf(Y, Model.Hrf, Model.Downsample_Predictions); % Convolve with HRF & downsample if desired
     Data(:,v) = Y; % Store simulation

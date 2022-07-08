@@ -21,7 +21,8 @@ Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than sc
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
 Model.Aperture_File = 'aps_pRF'; % Aperture file
 
-%% Search grid for coarse fit
+%% Search grid for coarse fit 
+% Some parameters are multiplied with scaling factor as this must be in stimulus space!
 Model.Polar_Search_Space = true; % If true, parameter 1 & 2 are polar (in degrees) & eccentricity coordinates
 Model.Param1 = 0 : 10 : 350; % Polar search grid
 Model.Param2 = 2 .^ (-5 : 0.2 : 0.6) * Model.Scaling_Factor; % Eccentricity  search grid
