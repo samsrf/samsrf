@@ -45,8 +45,7 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 % PlotRsq is a boolean that toogles whether dot colours denote R^2 (true) 
 %   or the modelled Betas (false).
 %
-% 02/03/2022 - Fixed colour bar label if plotting R^2 (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 08/07/2022 - Minor bug fixes & adjusted for SamSrf 9(DSS) 
 %
 
 if nargin < 2
@@ -78,6 +77,9 @@ end
 tX = Srf.Ground_Truth(1,:);
 tY = Srf.Ground_Truth(2,:);
 tS = Srf.Ground_Truth(3,:);
+
+% Plot dimensions
+dims = max(max(abs(Srf.Ground_Truth(1:2,:))));
 
 %% Remove bad fits
 g = R2 > Thresholds(2);
@@ -163,7 +165,7 @@ end
 grid on
 cb = colorbar;
 colormap hotcold
-axis([-1.5 1.5 -1.5 1.5]);
+axis([-1.5 1.5 -1.5 1.5]*dims);
 axis square
 set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
 xlabel('Horizontal position');

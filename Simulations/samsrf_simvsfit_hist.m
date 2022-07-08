@@ -32,7 +32,7 @@ function samsrf_simvsfit_hist(Srf, Thresholds, Nreps)
 %   simulation which defaults to 1. This only affects how often the
 %   ground truths are being replotted so it's not very crucial.
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 08/07/2022 - Minor bug fixes & adjusted for SamSrf 9(DSS) 
 %
 
 if nargin < 2
@@ -42,7 +42,7 @@ if length(Thresholds) == 1
     Thresholds = [Thresholds -Inf];
 end
 if nargin < 3
-    Nreps = 100;
+    Nreps = 1;
 end
 
 %% Vectorise data
@@ -58,6 +58,9 @@ tS = Srf.Ground_Truth(3,:);
 nt = size(Srf.Ground_Truth,2) / Nreps;
 tX = Srf.Ground_Truth(1,1:nt);
 tY = Srf.Ground_Truth(2,1:nt);
+
+% Plot dimensions
+dims = max(max(abs(Srf.Ground_Truth(1:2,:))));
 
 %% Remove bad fits
 g = R2 > Thresholds(2) | mS <= 0 | mB <= 0;
@@ -89,8 +92,8 @@ if isempty(mB)
 end
 
 %% Map density 
-w = 4/200; % Window size
-[gx,gy] = meshgrid(-2:w:2, -2:w:2);
+w = (3*dims)/200; % Window size
+[gx,gy] = meshgrid(-1.5*dims:w:1.5*dims, -1.5*dims:w:1.5*dims);
 % Determine density
 D = NaN(201,201);
 for ix = 1:201
@@ -124,7 +127,7 @@ h = fill(sx, sy, [1 1 1]*.9);
 alpha(h, 0.1);
 
 %% Cosmetic changes
-axis([-2 2 -2 2]);
+axis([-1.5 1.5 -1.5 1.5]*dims);
 axis square
 colorbar
 set(gca, 'fontsize', 20);
