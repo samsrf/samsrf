@@ -49,7 +49,7 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.0 (08-07-2022)  
+### Version 9.01 (08-07-2022)  
 - **Complete overhaul of forward-model time course prediction!** (DSS)  
 - Updated search grid specification in SamSrf/Models accordingly (DSS)  
 - Rewrote simulation functions for vectorised apertures (DSS)  
