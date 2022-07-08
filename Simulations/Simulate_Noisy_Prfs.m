@@ -40,7 +40,7 @@ Model.Param2 = 2 .^ (-5 : 0.2 : 0.6) * Model.Scaling_Factor; % Eccentricity  sea
 Model.Param3 = 2 .^ (-5.6 : 0.2 : 1) * Model.Scaling_Factor; % Sigma search grid
 
 %% Simulate pRFs 
-[Theta, Rho, Sigma] = ndgrid(0:15:345, 2.^[-4.5 -3.5:.5:.5], .05*2.^(0:5)); % A simulated visual field with a range of pRF sizes
+[Theta, Rho, Sigma] = ndgrid(0:15:345, 2.^[-4.5 -3.5:.5:.5] * Model.Scaling_Factor, .05*2.^(0:5) * Model.Scaling_Factor); % A simulated visual field with a range of pRF sizes
 [X,Y] = pol2cart(Theta/180*pi, Rho); % Convert polar to Cartesian coordinates
 Ground_Truth = [X(:) Y(:) Sigma(:)]'; % Matrix of ground truth parameters
 load(EnsurePath(['aps_' SimAps])); % Load apertures to simulate responses for
