@@ -1,6 +1,6 @@
-function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile)
+function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile, GlobalCovar)
 %
-% samsrf_glm(SrfCell, X, Xnames, [Roi='', GlmFile='glm'])
+% samsrf_glm(SrfCell, X, Xnames, [Roi='', GlmFile='glm', GlobalCovar=true])
 %
 % Runs a GLM analysis on the surface data files in the cell array SrfCell. 
 % The matrix X contains the design matrix. You may choose to convolve this with 
@@ -19,6 +19,8 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile)
 % each regressor in the design matrix. The final row contains the residuals.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 19/07/2022 - Can now turn off automatic global covariates (DSS)
+%              Added commented out option for parallel processing (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
@@ -31,9 +33,12 @@ disp('Running general linear model analysis...');
 %% Default parameters
 if nargin < 4
     Roi = '';
+end
+if nargin < 5
     GlmFile = 'glm';
-elseif nargin < 5
-    GlmFile = 'glm';
+end
+if nargin < 6
+    GlobalCovar = true;
 end
 
 %% If SrfCell is a string
@@ -51,17 +56,19 @@ for r = 1:nRuns
     Srf = samsrf_expand_srf(Srf);
     Y = [Y; Srf.Data];
     % Add constant term
-    ct = [];
-    for t = 1:nRuns
-        if t == r
-            % Add ones for this run
-            ct = [ct ones(size(Srf.Data,1),1)];
-        else
-            % Add zeros for other runs
-            ct = [ct zeros(size(Srf.Data,1),1)];
+    if GlobalCovar
+        ct = [];
+        for t = 1:nRuns
+            if t == r
+                % Add ones for this run
+                ct = [ct ones(size(Srf.Data,1),1)];
+            else
+                % Add zeros for other runs
+                ct = [ct zeros(size(Srf.Data,1),1)];
+            end
         end
+        Ct = [Ct; ct];
     end
-    Ct = [Ct; ct];
 end
 X = [X Ct];
 
@@ -74,8 +81,10 @@ for i = 1:size(X,2)
     plot(X(:,i)/10 + i, 'linewidth', 2, 'color', cm(i,:));
 end
 % Regressor names
-for r = 1:nRuns
-    Xnames{end+1} = ['Constant #' num2str(r)];
+if GlobalCovar
+    for r = 1:nRuns
+        Xnames{end+1} = ['Constant #' num2str(r)];
+    end
 end
 set(gca, 'ytick', 1:size(X,2), 'yticklabel', Xnames);
 xlabel('Volume (#)');
@@ -98,11 +107,14 @@ end
 disp('Running GLM on vertices...'); 
 disp(' Please stand by...');
 B = NaN(size(X,2)+1, length(mver));
-parfor v = 1:length(mver)
+samsrf_progbar(0); % Progress bar (Comment this for parallel computing!)
+for v = 1:length(mver) % Non-parallel computing (Comment this for parallel)
+% parfor v = 1:length(mver) % Parallel computing (Comment this for non-parallel)
     if ~isnan(sum(Y(:,mver(v))))
         [cb,bint,cr,rint,st] = regress(Y(:,mver(v)),X);
         B(:,v) = [cb; st(4)];  % Betas for current vertex & error variance
     end
+    samsrf_progbar(v/length(mver)); % Progress bar (Comment this for parallel computing!)
 end
 
 %% Save as file

@@ -49,6 +49,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.03 (19-07-2022)  
+- Added option to samsrf_glm to turn off automatic global covariates (DSS)  
+- Turned off parallel computing in samsrf_glm but commented out option remains (DSS)  
+
 ### Version 9.02 (08-07-2022)  
 - **Complete overhaul of forward-model time course prediction!** (DSS)  
 - Updated search grid specification in SamSrf/Models accordingly (DSS)  
