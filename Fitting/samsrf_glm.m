@@ -21,6 +21,7 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile, GlobalCovar)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 19/07/2022 - Can now turn off automatic global covariates (DSS)
 %              Added commented out option for parallel processing (DSS)
+%              Now saves files in v7.3 format (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
@@ -134,7 +135,7 @@ Srf.Y = Y;
 % Compress Srf if necessary
 Srf = samsrf_compress_srf(Srf, mver);
 % Save Srf file
-save([Srf.Hemisphere '_' GlmFile], 'Srf');
+save([Srf.Hemisphere '_' GlmFile], 'Srf', '-v7.3');
 disp(['Saved ' Srf.Hemisphere '_' GlmFile '.mat.']);
 new_line;
 
