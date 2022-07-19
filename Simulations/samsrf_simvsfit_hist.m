@@ -1,6 +1,6 @@
 function samsrf_simvsfit_hist(Srf, Thresholds, Nreps)
 %
-% samsrf_simvsfit_hist(Srf, [Thresholds=[NaN -Inf], Nreps=1])
+% samsrf_simvsfit_hist(Srf, [Thresholds=[NaN -Inf 1], Nreps=1])
 %
 % Plots a comparison of simulated ground truth pRFs & noisy model fits in Srf.
 % It plots position shifts as a 2D density histogram.
@@ -28,18 +28,27 @@ function samsrf_simvsfit_hist(Srf, Thresholds, Nreps)
 % Thresholds(2) defines the R^2 threshold of the model fits to include in 
 %   the comparison. Defaults to -Inf (includes all).
 %
+% Thresholds(3) defines the scaling factor (eccentricity) to use. 
+%   For simulations, you might want to simply use aperture space so the 
+%   maximum eccentricity could be set to 1, which is the default. However,
+%   you can also use other stimulus designs using this parameter.
+%
 % Nreps contains the number of times the ground truth was repeated in the
 %   simulation which defaults to 1. This only affects how often the
 %   ground truths are being replotted so it's not very crucial.
 %
 % 08/07/2022 - Minor bug fixes & adjusted for SamSrf 9(DSS) 
+% 20/07/2022 - Added option to define scaling factor/eccentricity (DSS)
 %
 
 if nargin < 2
-    Thresholds = [NaN -Inf];
+    Thresholds = [NaN -Inf 1];
 end
 if length(Thresholds) == 1
     Thresholds = [Thresholds -Inf];
+end
+if length(Thresholds) == 2
+    Thresholds = [Thresholds -Inf 1];
 end
 if nargin < 3
     Nreps = 1;
@@ -122,7 +131,7 @@ scatter(tX, tY, 50, 'r', 'filled');
 
 %% Plot mask
 set(gca, 'color', [1 1 1]*.7);
-[sx,sy] = pol2cart((0:360)/180*pi, 1);
+[sx,sy] = pol2cart((0:360)/180*pi, Thresholds(3));
 h = fill(sx, sy, [1 1 1]*.9);
 alpha(h, 0.1);
 

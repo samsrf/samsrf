@@ -1,6 +1,6 @@
 function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 %
-% samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf], SearchSpace=[], PlotRsq])
+% samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf 1], SearchSpace=[], PlotRsq])
 %
 % Plots a comparison of simulated ground truth pRFs & model fits in Srf.
 % At present this function only works for standard 2D Gaussian pRFs.
@@ -34,6 +34,11 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 % Thresholds(2) defines the R^2 threshold of the model fits to include in 
 %   the comparison. Defaults to -Inf (includes all).
 %
+% Thresholds(3) defines the scaling factor (eccentricity) to use. 
+%   For simulations, you might want to simply use aperture space so the 
+%   maximum eccentricity could be set to 1, which is the default. However,
+%   you can also use other stimulus designs using this parameter.
+%
 % SearchSpace defines the position parameters of the search grid. 
 %   These are plotted on top of the plot as crosses. This must be a 
 %   k-by-m matrix where k is the number of parameters in the search grid 
@@ -46,13 +51,17 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace, PlotRsq)
 %   or the modelled Betas (false).
 %
 % 08/07/2022 - Minor bug fixes & adjusted for SamSrf 9(DSS) 
+% 20/07/2022 - Added option to define scaling factor/eccentricity (DSS)
 %
 
 if nargin < 2
-    Thresholds = [NaN -Inf];
+    Thresholds = [NaN -Inf 1];
 end
 if length(Thresholds) == 1
     Thresholds = [Thresholds -Inf];
+end
+if length(Thresholds) == 2
+    Thresholds = [Thresholds 1];
 end
 if nargin < 3
     SearchSpace = [];
@@ -140,7 +149,7 @@ end
 figure
 hold on
 set(gca, 'color', [1 1 1]*.7);
-[sx,sy] = pol2cart((0:360)/180*pi, 1);
+[sx,sy] = pol2cart((0:360)/180*pi, Thresholds(3));
 h = fill(sx, sy, [1 1 1]*.9);
 alpha(h, 0.3);
 
