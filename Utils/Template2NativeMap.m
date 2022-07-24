@@ -17,20 +17,16 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % Further, it saves the visual region labels from the average map in a
 % separate folder called ROIs_temp_map.
 %
-% Note: You will need to download the group average map templates from the
-%       SamSrf OSF website or create your own template and this must be on
-%       the Matlab path, using the name lh/rh_pRF_fsaverage. 
-%
 % 14/03/2022 - Now requires the pathname for the template map (DSS)
 %              Warped map data now contains row with template curvatures (DSS)
 %              Ensures now that random files aren't loaded from path (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 25/07/2022 - Fixed incorrect help section (DSS)
 %
 
 % Load native map
 load(EnsurePath(NatSrf));
 NatSrf = samsrf_expand_srf(Srf);
-% Load template (on Matlab path)
+% Load template
 load([TmpFolder filesep NatSrf.Hemisphere '_pRF_fsaverage']);
 TmpSrf = samsrf_expand_srf(Srf);
 TmpSrf.Data = [TmpSrf.Data; TmpSrf.Curvature]; % Add template curvature
