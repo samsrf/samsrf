@@ -59,6 +59,7 @@ from the Srf structure.
 - Increased default granularity in samsrf_cometplot (DSS)  
 - Turned off transparency in samsrf_surf by default (DSS)  
 - Fixed samsrf_surf bug with eccentricity bounds clipping (DSS)  
+- Changed example models for elliptical pRFs (DSS)  
 
 ### Version 9.02 (08-07-2022)  
 - **Complete overhaul of forward-model time course prediction!** (DSS)  

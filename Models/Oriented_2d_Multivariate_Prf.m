@@ -47,17 +47,16 @@ MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 
 %% Post-processing
 load(MapFile); % Load map we just analysed
-% Phi stays between -180 & +180
-Srf.Data(6,:) = mod(Srf.Data(6,:), 360); % Ensure nothing above 360 or below 0
-x = Srf.Data(6,:) > 180; % Index phi > 180 degrees
-Srf.Data(6,x) = Srf.Data(6,x) - 360; % Greater than 180 is now negative
-% Flip phi if sigma1 < sigma2
+Srf.Data(6,:) = mod(Srf.Data(6,:), 180); % Ensure that 0 <= Phi < 180 
+% Ensure orientation coding is consistent
 x = Srf.Data(4,:) < Srf.Data(5,:); % Is sigma1 < sigma2?
-Srf.Data(6,x) = -Srf.Data(6,x); % Flip sign if sigma1 < sigma2
-Srf.Data(6,:) = mod(Srf.Data(6,:), 180); % Now ensure it's within 0-180
+Srf.Data(6,x) = -Srf.Data(6,x); % Invert sign if sigma1 < sigma2 for such vertices
+Srf.Data(4:5,x) = flipud(Srf.Data(4:5,x)); % Swap sigma1 & sigma2 for these vertices
+Srf.Data(6,:) = mod(Srf.Data(6,:), 180); % Now ensure all in 0 to 180 range
+Srf.Data(6,Srf.Data(6,:)>90) = 90 - Srf.Data(6,Srf.Data(6,:)>90); % Finally ensure all in -90 to +90 range
 % Add aspect ratio
 Srf.Values{9} = 'Aspect Ratio'; 
-Srf.Data(9,:) = abs(log(abs(Srf.Data(4,:)) ./ abs(Srf.Data(5,:)))); % Logarithm of Radial/Tangential (can't be negative)
+Srf.Data(9,:) = log2(Srf.Data(4,:) ./ Srf.Data(5,:)); % Logarithm of Radial/Tangential 
 % Save again
 save(MapFile, 'Srf', 'Model', '-v7.3'); 
 
