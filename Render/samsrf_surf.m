@@ -31,7 +31,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %    If R^2 is present, this proportion is relative to the range between Thrsh(1) and 1.
 %    If no R^2 is present, this proportion refers to the range between Thrsh(2) and Thrsh(3).
 %   If Thrsh(6) is negative, the same transparency level is used uniformly for the whole map.
-%   To turn off transparency, set Thrsh(6) to zero.
+%   To turn off transparency, set Thrsh(6) to zero. This is the default.
 %
 % Paths is a cell array that defines the filenames of the paths to be displayed. If this is 
 %   undefined a dialog box opens allowing you to select the file (close it if none needed).
@@ -67,6 +67,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %              Fixed bug when trying to display white-matter surface (DSS)
 % 14/03/2022 - Vertex inspector no longer scales amplitude for reverse correlation profiles (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 29/07/2022 - Turned off transparency by default (DSS)
+%              Fixed bug with eccentricity bound clipping (DSS)
 %
 
 %% Create global variables
@@ -107,7 +109,7 @@ for i = length(Thrsh)+1:5
 end
 % Default transparency
 if length(Thrsh) < 6
-    Thrsh(6) = 0.1;
+    Thrsh(6) = 0;
 end
 % If uniform alpha desired
 if Thrsh(6) < 0
@@ -428,9 +430,8 @@ elseif strcmpi(Type, 'Eccentricity')
     end
     
     % Determine colours
-    Pha = mod(Pha, 360);
-    Pha(Pha==0) = 360;
-    Pha(r|isnan(Pha)) = 360;
+    Pha(Pha==0) = 1;%360;
+    Pha(r|isnan(Pha)) = 1;
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
     if isnan(PathColour) 
         PathColour = [0 0 0];

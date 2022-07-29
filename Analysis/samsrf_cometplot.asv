@@ -20,7 +20,7 @@ function [D, gx, gy] = samsrf_cometplot(SrfDv, ValDv, SrfIv, ValIv, Limits, Roi,
 %
 % Limits:       1x4 vector defining X-minimum, X-maximum, Y-minimum & Y-maximum, respectively.
 %               The optional 5th & 6th components define the granularity of the X & Y dimension.
-%                This defaults to 40 and 30, respectively.
+%                This defaults to 20 and 15, respectively.
 %
 % Cmap:         Optional, defines the colourmap to be used (defaults to 'gray').
 %               If this is preceded by '-', the colour map is inverted.
@@ -31,18 +31,16 @@ function [D, gx, gy] = samsrf_cometplot(SrfDv, ValDv, SrfIv, ValIv, Limits, Roi,
 %
 % 29/04/2021 - Written (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
-% 29/07/2022 - Changed to logarithmic density scale (DSS)
-%              Changed default granularity (DSS)
 %
 
 if length(Limits) < 4
     error('Limits have not been defined!');
 end
 if length(Limits) < 5
-    Limits(5) = 50;
+    Limits(5) = 20;
 end
 if length(Limits) == 5
-    Limits(6) = 30;
+    Limits(6) = 15;
 end
 if nargin < 6
     Roi = '';
