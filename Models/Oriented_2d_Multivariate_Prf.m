@@ -15,7 +15,7 @@ function Oriented_2d_Multivariate_Prf(DataPath, SrfFiles, Roi)
 %
 
 %% Mandatory parameters 
-Model.Prf_Function = @(P,ApWidth) prf_multivariate_rf(P(1), P(2), P(3), P(4), P(5), ApWidth); % Which pRF model function? 
+Model.Prf_Function = @(P,ApWidth) prf_multivariate_rf(P(1), P(2), P(3), P(4), atan2(P(2),P(1))/pi*180 + P(5), ApWidth); % Which pRF model function? 
 Model.Name = 'pRF_Multivariate'; % File name to indicate type of pRF model
 Model.Param_Names = {'x0'; 'y0'; 'Sigma1'; 'Sigma2'; 'Phi'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1 1 0]; % Which of these parameters are scaled 
@@ -36,7 +36,7 @@ Model.Param1 = 0 : 10 : 350; % Polar search grid
 Model.Param2 = 2 .^ (-5 : 0.2 : 0.6) * Model.Scaling_Factor; % Eccentricity  search grid
 Model.Param3 = 2 .^ (-5:1) * Model.Scaling_Factor; % Horizontal sigma search grid
 Model.Param4 = 2 .^ (-5:1) * Model.Scaling_Factor; % Vertical sigma search grid
-Model.Param5 = 0 : 15 : 345; % Orientation search grid
+Model.Param5 = -90 : 15 : 90; % Orientation offset (relative to radial axis) search grid
 
 %% Go to data 
 HomePath = pwd;
@@ -48,15 +48,10 @@ MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 %% Post-processing
 load(MapFile); % Load map we just analysed
 Srf.Data(6,:) = mod(Srf.Data(6,:), 180); % Ensure that 0 <= Phi < 180 
-% Ensure orientation coding is consistent
-x = Srf.Data(4,:) < Srf.Data(5,:); % Is sigma1 < sigma2?
-Srf.Data(6,x) = -Srf.Data(6,x); % Invert sign if sigma1 < sigma2 for such vertices
-Srf.Data(4:5,x) = flipud(Srf.Data(4:5,x)); % Swap sigma1 & sigma2 for these vertices
-Srf.Data(6,:) = mod(Srf.Data(6,:), 180); % Now ensure all in 0 to 180 range
-Srf.Data(6,Srf.Data(6,:)>90) = 90 - Srf.Data(6,Srf.Data(6,:)>90); % Finally ensure all in -90 to +90 range
+Srf.Data(6,Srf.Data(:,6) > 90) = Srf.Data(6,Srf.Data(:,6) > 90) - 180; % Ensure -90 < Phi <= 90
 % Add aspect ratio
-Srf.Values{9} = 'Aspect Ratio'; 
-Srf.Data(9,:) = log2(Srf.Data(4,:) ./ Srf.Data(5,:)); % Logarithm of Radial/Tangential 
+Srf.Values{end+1} = 'Aspect Ratio'; 
+Srf.Data = [Srf.Data; log2(Srf.Data(4,:) ./ Srf.Data(5,:))]; % Logarithm of Radial/Tangential 
 % Save again
 save(MapFile, 'Srf', 'Model', '-v7.3'); 
 

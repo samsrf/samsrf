@@ -47,8 +47,8 @@ MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 %% Post-processing
 load(MapFile); % Load map we just analysed
 % Add aspect ratio
-Srf.Values{8} = 'Aspect Ratio'; 
-Srf.Data(8,:) = log2(Srf.Data(4,:) ./ Srf.Data(5,:)); % Logarithm of Radial/Tangential 
+Srf.Data = [Srf.Data; log2(Srf.Data(4,:) ./ Srf.Data(5,:))]; % Logarithm of Radial/Tangential 
+Srf.Values{end+1} = 'Aspect Ratio'; 
 % Save again
 save(MapFile, 'Srf', 'Model', '-v7.3'); 
 
