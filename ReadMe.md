@@ -49,13 +49,14 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.034 (29-07-2022)  
+### Version 9.035 (04-08-2022)  
 - Added option to samsrf_glm to turn off automatic global covariates (DSS)  
 - Turned off parallel computing in samsrf_glm but commented out option remains (DSS)  
 - Now saves GLM files in v7.3 file format in case they are too large (DSS)  
 - Added option to define scaling factor/eccentricity in samsrf_simvsfit (DSS)  
 - Corrected incorrect help section in template warping functions (DSS)  
 - Changed samsrf_cometplot to use logarithmic density scale (DSS)  
+- But output of samsrf_cometplot is still raw density matrix (DSS)  
 - Increased default granularity in samsrf_cometplot (DSS)  
 - Turned off transparency in samsrf_surf by default (DSS)  
 - Fixed samsrf_surf bug with eccentricity bounds clipping (DSS)  

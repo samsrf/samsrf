@@ -27,12 +27,13 @@ function [D, gx, gy] = samsrf_cometplot(SrfDv, ValDv, SrfIv, ValIv, Limits, Roi,
 %               Can also contain any 1*3 colour value or colour string (e.g. 'r') 
 %                which defines the colour of a contour line plot instead.
 %
-% Returns in D the density matrix & in gx and gy the coordinates for making a contour plot.
+% Returns in D the raw density matrix & in gx and gy the coordinates for making a contour plot.
 %
 % 29/04/2021 - Written (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/07/2022 - Changed to logarithmic density scale (DSS)
 %              Changed default granularity (DSS)
+% 04/08/2022 - Returns raw density matrix even through plot is logarithmic (DSS)
 %
 
 if length(Limits) < 4
@@ -194,3 +195,6 @@ xlabel([ValIv RawLabelIv]);
 Roi(strfind(Roi,'_')) = '-';
 Roi([strfind(Roi,'/'),  strfind(Roi,'\')]) = ' ';
 title(Roi);
+
+%% Return raw density matrix
+D = 10.^-D;
