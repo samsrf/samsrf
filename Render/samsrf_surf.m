@@ -69,6 +69,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/07/2022 - Turned off transparency by default (DSS)
 %              Fixed bug with eccentricity bound clipping (DSS)
+% 10/08/2022 - Now ensures no NaNs in displayed maps to prevent crash (DSS)
 %
 
 %% Create global variables
@@ -331,6 +332,7 @@ end
 if strcmpi(Type, 'Polar') 
     % Polar map
     Pha = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
+    Pha(isnan(Pha)) = 0;
     Data = Pha;
     if Srf.Hemisphere(1) == 'l'
         % Left hemisphere
@@ -364,6 +366,7 @@ if strcmpi(Type, 'Polar')
 elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi') 
     % Phase map
     Pha = Srf.Data(dt,:);
+    Pha(isnan(Pha)) = 0;
     Data = Pha;
     if Srf.Hemisphere(1) == 'r'
         % Right hemisphere
@@ -402,6 +405,7 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
 elseif strcmpi(Type, 'Eccentricity')
     % Eccentricity map
     Rho = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
+    Rho(isnan(Rho)) = 0;
     Data = Rho;
     Rho(r) = 0;
  
@@ -440,6 +444,7 @@ elseif strcmpi(Type, 'Eccentricity')
 elseif strcmpi(Type, 'Mu') 
     % Mu map
     Mu = Srf.Data(dt,:);
+    Mu(isnan(Mu)) = 0;
     Data = Mu;
     Mu(r) = 0;
 
@@ -480,6 +485,7 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
         || strcmpi(Type, 'Centre') || strcmpi(Type, 'Surround') || strcmpi(Type, 'Sigma1') || strcmpi(Type, 'Sigma2') 
     % pRF size map
     Sigma = Srf.Data(dt,:);
+    Sigma(isnan(Sigma)) = 0;
     Data = Sigma;
     Sigma(r) = 0;
 
@@ -534,6 +540,7 @@ else
         X = log(X);
         X(X < 0) = 0;
     end
+    X(isnan(X)) = 0;
     Data = X;
     X(r) = 0;
     
