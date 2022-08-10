@@ -59,6 +59,7 @@ else
             else
                 Y = SrfEcc.Y(:,IdxMat); % Observed time series
             end
+            % Regression on raw stimulus design
             warning off
             IdxMat = [Y ones(size(Y,1),1)] \ X; % Linear regression
             warning on

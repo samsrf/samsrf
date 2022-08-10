@@ -53,6 +53,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 20/04/2022 - SamSrf 8 version (DSS)
 %              Added explanation about discrepancies with SamSrf 7 fits (DSS)
 % 23/06/2022 - Now warns if aperture matrix contains negative values (DSS)
+% 10/08/2022 - Removed initial thresholding of reverse correlation profiles (DSS)
+%              Now supports convex hull algorithm for fast estimation of pRF parameters (DSS)
 %
 
 %% Defaults & constants
@@ -230,12 +232,14 @@ for v = 1:length(mver)
     cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
     warning on
     cM = cM(1,:); % Remove intercept beta
+    % Determine peak
     mM = max(cM); % Find peak activation in each map
     mM = mM(1); % Ensure only one value
     gp = cM > mM/2; % Full area at half maximum
     m = find(cM==mM,1); % Find peak coordinate
-    mR = corr(Y, X(:,m)); % Correlation coefficient at peak
-    if ~isempty(mR) && ~isnan(mR) && mR >= 0.1
+    mR = corr(Y, X(:,m)); % Peak correlation with stimulus design
+    % Create profile & store parameters
+    if ~isempty(mR) && ~isnan(mR) 
         cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
         cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
         cM = cM(:); % Vectorise again
@@ -255,10 +259,8 @@ disp(['pRF profiles completed in ' num2str(t2/60) ' minutes.']);
 new_line;
 
 % Coordinates for contour/surf plots
-Xc = imresize(xc,[Model.Rdim Model.Rdim]); 
-Yc = imresize(yc,[Model.Rdim Model.Rdim]); 
-Srf.X_coords = Xc;
-Srf.Y_coords = Yc;
+Srf.X_coords = imresize(xc,[Model.Rdim Model.Rdim]);
+Srf.Y_coords = imresize(yc,[Model.Rdim Model.Rdim]);
 
 % Save as surface structure
 Srf.Functional = 'Reverse correlation';
@@ -305,6 +307,37 @@ if isfield(Model, 'Prf_Function')
     Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, AlgorithmParam);
     t3 = toc(t0); 
     disp(['pRF parameter fitting completed in ' num2str(t3/60/60) ' hours.']);
+else
+    % Using convex hull algorithm to determine pRF 
+    disp('Using convex hull algorithm to estimate parameters...');
+    % Loop through mask vertices 
+    samsrf_progbar(0);
+    for v = 1:length(mver)
+        % Convex hull estimation
+        vx = mver(v);
+        Rmap = prf_contour(Srf, vx);
+        txy = [xc(:) yc(:)]; % Matrix with pixel coordinates in visual space
+        txy = txy(Rmap(:) > max(Rmap(:))/2,:); % Limit pixel matrix to suprathreshold pixels
+        Dt = delaunayTriangulation(txy); % Delaunay triangulation of CF profile
+        try
+            % Determine pRF parameters
+            [chp, cha] = convexHull(Dt); % Points & area of convex hull
+            warning off
+            ps = polyshape(Dt.Points(chp,:)); % Polygon of convex hull
+            warning on
+            [chx, chy] = ps.centroid; % Centroid of convex hull
+            Srf.Data(2,vx) = chx; % X-coordinate
+            Srf.Data(3,vx) = chy; % Y-coordinate
+            Srf.Data(4,vx) = sqrt(cha) / (2*sqrt(2*log(2))); % Visual FWHM converted to Sigma
+        catch
+            % Failed determining parameters
+            Srf.Data(:,vx) = 0;
+        end        
+        % Progress report
+        samsrf_progbar(v/length(mver));
+    end    
+    t3 = toc(t0); 
+    disp(['pRF parameter estimation completed in ' num2str(t3/60/60) ' hours.']);
 end
 new_line;
 

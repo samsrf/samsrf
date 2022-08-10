@@ -41,9 +41,9 @@ else
             Y = Srf.Y(:,v); % Observed time series
         end
         warning off
-    	Rmap = [Y ones(size(Y,1),1)] \ X; % Linear regression
-    	warning on
-	    Rmap = Rmap(1,:); % Remove intercept beta     	        
+        Rmap = [Y ones(size(Y,1),1)] \ X; % Linear regression
+        warning on
+        Rmap = Rmap(1,:); % Remove intercept beta     	        
     else
         % Reverse correlation profile vector
         Rmap = Srf.Rmaps(:,v);

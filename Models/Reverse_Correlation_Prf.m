@@ -25,7 +25,7 @@ Model.Aperture_File = 'aps_pRF'; % Aperture file
 % Model.Hooke_Jeeves_Steps = [.1 .1 .1]; % Use Hooke-Jeeves algorithm with these initial step sizes (in visual space) 
 % Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in visual space)
 
-%% Parameters when fitting 2D pRF models (comment this section if not desired)
+%% For fitting 2D pRF models: Commment this whole section to use convex hull estimation!
 Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth); % Which pRF model function? 
 Model.Param_Names = {'x0'; 'y0'; 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1]; % Which of these parameters are scaled 

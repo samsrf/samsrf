@@ -23,6 +23,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 06/07/2022 - New faster version using vector apertures instead of movies (DSS)
 % 07/07/2022 - Added option for 10 free parameters (excluding CSS exponent) (DSS)
 %              Fixed small bug with multiple maximal correlations in coarse fit (DSS)
+% 10/08/2022 - Fixed bug with coarse fit when time series is flat (DSS)
 %
 
 %% Defaults & constants
@@ -268,29 +269,32 @@ else
           % Store parameters
           Pimg(:,vx(v)) = mean(S(1:length(Model.Param_Names),rx),2); % Mean parameter across top percentile predictions
 
-          % Store prediction
-          if Model.Coarse_Fit_Percentile == 100
-            % Only take maximum
-            Srf.X(:,vx(v)) = X(:,find(rx,1));  % Best fitting convolved prediction
-            Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
-          else
-            % Top percentile of predictions
-            Rfp = Model.Prf_Function(Pimg(:,vx(v))', ApXY); % New pRF profile replicated by number of volumes
-            nX = prf_predict_timecourse(Rfp, ApFrm); % New predicted time courase
-            nX = prf_convolve_hrf(nX, Model.Hrf, Model.Downsample_Predictions); % Convolve new time course with HRF
-            Rimg(1,vx(v)) = corr(Y(:,v),nX)^2; % New goodness of fit
-            Srf.X(:,vx(v)) = nX;  % Store new prediction with convolution
-          end              
+          % Ensure vector isn't all false
+          if sum(rx) > 0
+              % Store prediction
+              if Model.Coarse_Fit_Percentile == 100
+                % Only take maximum
+                Srf.X(:,vx(v)) = X(:,find(rx,1));  % Best fitting convolved prediction
+                Rimg(1,vx(v)) = mR(v);  % Variance explained at maximum
+              else
+                % Top percentile of predictions
+                Rfp = Model.Prf_Function(Pimg(:,vx(v))', ApXY); % New pRF profile replicated by number of volumes
+                nX = prf_predict_timecourse(Rfp, ApFrm); % New predicted time courase
+                nX = prf_convolve_hrf(nX, Model.Hrf, Model.Downsample_Predictions); % Convolve new time course with HRF
+                Rimg(1,vx(v)) = corr(Y(:,v),nX)^2; % New goodness of fit
+                Srf.X(:,vx(v)) = nX;  % Store new prediction with convolution
+              end              
 
-          % If running coarse fit only determine betas now
-          if Model.Coarse_Fit_Only 
-            % Fit betas for amplitude & intercept
-            warning off % In case of rank deficient GLM
-            B = [ones(length(Y(:,v)),1) Srf.X(:,vx(v))] \ Y(:,v); % GLM fit 
-            warning on
-            Bimg(1,vx(v)) = B(2); % Amplitude
-            Bimg(2,vx(v)) = B(1); % Intercept
-          end            
+              % If running coarse fit only determine betas now
+              if Model.Coarse_Fit_Only 
+                % Fit betas for amplitude & intercept
+                warning off % In case of rank deficient GLM
+                B = [ones(length(Y(:,v)),1) Srf.X(:,vx(v))] \ Y(:,v); % GLM fit 
+                warning on
+                Bimg(1,vx(v)) = B(2); % Amplitude
+                Bimg(2,vx(v)) = B(1); % Intercept
+              end           
+          end
           samsrf_progbar((vs+v-1)/length(mver));
       end
   end

@@ -49,7 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.035 (04-08-2022)  
+### Version 9.04 (10-08-2022)  
+- Reverse correlation pRF analysis can now use convex hull algorithm (DSS)  
+- Fixed bug in samsrf_fit_prf coarse fit when time course is flat (DSS)  
 - Added option to samsrf_glm to turn off automatic global covariates (DSS)  
 - Turned off parallel computing in samsrf_glm but commented out option remains (DSS)  
 - Now saves GLM files in v7.3 file format in case they are too large (DSS)  
