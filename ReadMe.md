@@ -76,43 +76,6 @@ from the Srf structure.
 
 ------
 
-### Version 8.4 (25-06-2022)  
-- Added option to model compressive spatial summation in pRF fine-fit (DSS)  
-- pRF functions now warn if aperture matrix contains negative numbers (DSS)  
-- Updated ModelHelp text on negative estimates in Nelder-Mead algorithm (DSS)  
-- Removed erroneous comments in prf_errfun (DSS)  
-
-### Version 8.3 (16-05-2022)  
-- Streamlined CF reverse correlation to prevent computational overload (DSS)  
-- Added option to use robust summary statistics to estimate CF parameters (DSS)  
-- Fixed inconsequential typos in ModelHelp tool & some help sections (DSS)  
-
-### Version 8.2 (14-05-2022)  
-- Now includes option to read GIfTI tiles (DSS)  
-- Updated cookbook to reflect this change (DSS)  
-
-### Version 8.1 *Beta* (06-05-2022)  
-- CF parameters can now be estimated with convex hull algorithm (DSS)  
-- Convex hull algorithm is now the default for CF reverse correlation (DSS)  
-- Fixed inconsequential error in CF reverse correlation progress reports (DSS)  
-
-### Version 8.0 *Beta* (20-04-2022)  
-**WARNING: Beta version - some issues may remain despite numerous tests!**  
-*Please notify us about any unknown discrepancies with results from SamSrf 7*  
-- Added ModelHelp tool to document the various Model parameters (DSS)  
-- Defaults for optional parameters are now set by a separate function (DSS)  
-- New fast fit option to average top predictions in coarse fit (DSS)  
-- Added Hooke-Jeeves algorithm as alternative for pRF & CF model fitting (DSS)  
-- Now possible to define parameter tolerance for Nelder-Mead algorithm (DSS)  
-- If both Nelder-Mead & Hooke-Jeeves are defined there is now a warning (DSS)  
-- Fitting functions now perform checks on parameter definition vectors (DSS)  
-- Renamed samsrf_cfcorr to samsrf_gsr2 to avoid confusion with CF analysis (DSS)  
-- Updated samsrf_plot to use transparent dots for scatter plots (DSS)  
-- HRF fitting functions now also have option for Hooke-Jeeves algorithm (DSS)  
-- Simplified Model examples by removing GUI functionality & optional parameters (DSS)  
-- Updated the Cookbooks with information about the new major release (DSS)  
-- Abandoned plan for SamOaSrf for Octave compatibility for the future is Python (DSS)  
-
 ## Questions/Comments?
 * Contact Sam Schwarzkopf at: s.schwarzkopf@auckland.ac.nz
 
