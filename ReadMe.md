@@ -49,7 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.04 (10-08-2022)  
+### Version 9.1 (10-08-2022)  
+- Convex hull CF algorithm now uses region growing for central CF estimation (DSS)  
+- Now the inhibitory surround of a convex hull CF is also quantified (DSS)  
 - Reverse correlation pRF analysis can now use convex hull algorithm (DSS)  
 - Fixed bug in samsrf_fit_prf coarse fit when time course is flat (DSS)  
 - Added option to samsrf_glm to turn off automatic global covariates (DSS)  

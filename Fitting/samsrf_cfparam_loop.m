@@ -31,6 +31,9 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfpar
 % 16/05/2022 - Incorporated reverse correlation step for computational efficiency (DSS)
 %              Now has option of estimating parameters using summary statistics (DSS)
 %              Corrected error in help section (DSS)
+% 10/08/2022 - Fixed error with computing summary statistics of CF profile (DSS)
+%              Implemented region growing algorithm for better CF size estimation (DSS)
+%              Added convex hull estimation of inhibitory surround (DSS)
 %
 
 if nargin < 7
@@ -50,7 +53,10 @@ fVimg = zeros(1,nver); % Seed vertex map
 fXimg = zeros(1,nver); % X map
 fYimg = zeros(1,nver); % Y map
 fWimg = zeros(1,nver); % Width map
-fSimg = zeros(1,nver); % Sigma map
+fSimg = zeros(1,nver); % Sigma map for convex hull
+if isempty(FitPrf)
+    fIimg = zeros(1,nver); % Sigma map
+end
 fBimg = zeros(2,nver); % Beta estimates 
 if SaveRmaps
     Rmaps = NaN(nsvx, nmvx); % Connective field profile for each vertex
@@ -101,9 +107,6 @@ parfor v = 1:nver
     if SaveRmaps
         Rmaps(:,v) = R; % Correlation profile as vector 
     end        
-    % Threshold correlations
-    R = R - mR/2; % Threshold correlations by half maximum
-    R(R<0) = 0; % Subthreshold pRF coordinates set to zero
     % If good correlation
     if ~isnan(mR) && mR > 0
         % Parameter estimation
@@ -114,31 +117,51 @@ parfor v = 1:nver
         if isempty(FitPrf)
             % Convex hull estimation
             txy = Temp(2:3,SeedVx)'; % Template X & Y coordinates
-            txy = unique(txy(R>0,:), 'rows'); % Unique coordinates in CF profile
-            Dt = delaunayTriangulation(txy); % Delaunay triangulation of CF profile
-            try
-                % Determine pRF parameters
-                [chp, cha] = convexHull(Dt); % Points & area of convex hull
-                ps = polyshape(Dt.Points(chp,:)); % Polygon of convex hull
-                [chx, chy] = ps.centroid; % Centroid of convex hull
-                fXimg(v) = chx; % X-coordinate
-                fYimg(v) = chy; % Y-coordinate
-                fSimg(v) = sqrt(cha) / (2*sqrt(2*log(2))); % Visual FWHM converted to Sigma
-            catch
-                % Failed determining parameters
-                fRimg(v) = 0;
-            end
+            [txy,u] = unique(txy, 'rows'); % Unique coordinates in seed map 
+            R = R(u); % Remove duplicate correlation coefficients
+            mR = max(R); % New maximum after redundant vertices removed
+
+            % Region growing for positive subfield
+            warning off
+            tri = delaunay(txy); % Delaunay triangles
+            pos = samsrf_clusterroi(find(R==mR,1), R, mR/2, tri); % Points in positive subfield
+            
+            % Quantify positive subfield
+            ps = polyshape(txy(pos,:)); % Points in positive subfield
+            ps = ps.convhull; % Convex hull of positive subfield
+            cha = ps.area; % Area of convex hull
+            [chx, chy] = ps.centroid; % Centroid of convex hull
+            fXimg(v) = chx; % X-coordinate
+            fYimg(v) = chy; % Y-coordinate
+            fSimg(v) = sqrt(cha) / (2*sqrt(2*log(2))); % Positive FWHM converted to Sigma
+            
+            % Quantify negative subfield
+            nR = min(R); % Minimum correlation
+            neg = R < nR/2; % Points in negative subfield
+            ps = polyshape(txy(neg,:)); % Points in negative subfield
+            ps = ps.convhull; % Convex hull of negative subfield
+            cha = ps.area; % Area of negative convex hull
+            fIimg(v) = sqrt(cha) / (2*sqrt(2*log(2))); % Negative FWHM converted to Sigma
+            fBimg(:,v) = [mR; nR];
+            warning on
+            
         elseif isinf(FitPrf)
             % Summary statistics only
             txy = Temp(2:3,SeedVx)'; % Template X & Y coordinates
-            txy = unique(txy(R>0,:), 'rows'); % Unique coordinates in CF profile
+            txy = unique(txy(R > mR/2,:), 'rows'); % Unique coordinates in CF profile
             fXimg(v) = nanmedian(txy(:,1)); % Median X-coordinate
             fYimg(v) = nanmedian(txy(:,2)); % Median Y-coordinate
             fSimg(v) = sqrt(mad(txy(:,1),1)^2 + mad(txy(:,2),1)^2); % Euclidean of median absolute deviations
+            
         else
             % Explicit model fitting
             fP = [];
             fR = [];
+            
+            % Threshold correlations
+            R = R - mR/2; % Threshold correlations by half maximum
+            R(R<0) = 0; % Subthreshold pRF coordinates set to zero
+            
             % Attempt multiple searches for Sigma
             for s = 10.^(-2:2)
                 [cP,cR] = samsrf_fit2dprf(R, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), Temp(2:3,SeedVx)'), [Temp(2:3,SeedVx(m))' s], [1 0 0 0], [], FitPrf); % Fit 2D model to pRF coordinates
@@ -148,6 +171,7 @@ parfor v = 1:nver
             ms = find(fR==nanmax(fR),1); % Search iteration with best correlation
             fP = fP(ms,:); % Best parameters
             fR = fR(ms); % Peak correlation
+            
             % Store fit parameters
             fRimg(v) = fR; % Replace peak correlation with goodness of fit
             fXimg(v) = fP(1); % X-coordinate
@@ -161,6 +185,9 @@ parfor v = 1:nver
         send(Q,v); 
     end
 end
+
+% If convex hull fit combine sigmas
+fSimg = [fSimg; fIimg];
 
     %% Nested progress report function
     function percentanalysed(~)

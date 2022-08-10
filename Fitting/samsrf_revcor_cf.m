@@ -29,6 +29,8 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %              Fixed inconsequential error with command window reports (DSS)
 % 16/05/2022 - Streamlined correlation & parameter estimation for efficiency (DSS)
 %              Added option to use summary statistics for parameter estimation (DSS)
+% 10/08/2022 - Implemented convex hull estimation of inhibitory surround (DSS)
+%              Convex hull now estimates positive central CF using region growing approach (DSS)
 %
 
 %% Defaults & constants
@@ -163,10 +165,14 @@ Srf.Data = []; % Needed for later
 
 %% Determine CF parameters
 % CF parameters
-if Model.Fit_pRF > 0
+if Model.Fit_pRF == 1
     Srf.Data = zeros(8,size(Srf.Vertices,1)); % Output data when fitting pRFs
+elseif Model.Fit_pRF == 0
+    Srf.Data = zeros(9,size(Srf.Vertices,1)); % Output data when using convex hull algorithm 
+elseif Model.Fit_pRF == -1
+    Srf.Data = zeros(6,size(Srf.Vertices,1)); % Output data when calculating summary stats only
 else
-    Srf.Data = zeros(6,size(Srf.Vertices,1)); % Output data when not fitting pRFs
+    error('Invalid Fit_pRF value provided!');
 end
 disp('Reverse correlation & CF parameter estimation...');
 if Model.Fit_pRF == 1
@@ -201,11 +207,15 @@ new_line;
 % Save as surface structure
 Srf.Functional = 'Connective field';
 if Model.Fit_pRF == 1
-    % Fitting pRF parameters
+    % Fitting parameters
     Data = [fRimg; fXimg; fYimg; fSimg; fBimg; fWimg; fVimg];
     Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Beta'; 'Baseline'; 'Fwhm'; 'Vx'};
-else
-    % Not fitting pRF parameters
+elseif Model.Fit_pRF == 0
+    % Convex hull estimation of parameters
+    Data = [fRimg; fXimg; fYimg; fSimg; fBimg; fWimg; fVimg];
+    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Centre'; 'Surround'; 'Beta'; 'Baseline'; 'Fwhm'; 'Vx'};
+elseif Model.Fit_pRF == -1
+    % Using summary stats only
     Data = [fRimg; fXimg; fYimg; fSimg; fWimg; fVimg];
     Srf.Values = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'Fwhm'; 'Vx'};
 end
