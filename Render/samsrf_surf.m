@@ -70,6 +70,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 29/07/2022 - Turned off transparency by default (DSS)
 %              Fixed bug with eccentricity bound clipping (DSS)
 % 10/08/2022 - Now ensures no NaNs in displayed maps to prevent crash (DSS)
+% 12/08/2022 - Vertex inspector can display visual CF profiles now (DSS)
 %
 
 %% Create global variables
@@ -690,6 +691,7 @@ if ~isempty(Srf)
         set(gcf, 'Position', [.6 .1 .3 .3]);
         set(fv, 'name', 'Reverse correlation profile');
         figure(fh);
+        
     elseif isfield(Srf, 'Model')
         % pRF profile based on fit parameters
         if isfield(Srf.Model, 'Prf_Function')
@@ -703,6 +705,7 @@ if ~isempty(Srf)
             set(fv, 'name', 'pRF model fit');
             figure(fh);
         end
+        
     elseif isfield(Srf, 'Y')
         % Predicted & observed time series
         if isfield(Srf, 'Model_')
@@ -711,6 +714,7 @@ if ~isempty(Srf)
             set(fv, 'name', 'Observed vs predicted time series');
             figure(fh);
         end
+        
     elseif ~isfield(Srf, 'Y') && ~isfield(Srf, 'X') && ~isfield(Srf, 'Y_')
         CurrData = Srf.Data(:,v);
         ts = ['Vertex: ', num2str(v)];
@@ -734,6 +738,7 @@ if ~isempty(Srf)
             set(gcf, 'Units', 'normalized');
             set(gcf, 'Position', [.1 .1 .8 .4]);
             set(fv, 'name', 'GLM contrasts');
+            
         else
             % Plotting observed time series
             if isfield(Srf, 'Raw_Data')
@@ -757,10 +762,78 @@ if ~isempty(Srf)
         end
         grid on
         figure(fh);
+        
+    elseif isfield(Srf, 'TempMap')
+        % Connective field visual profile
+        figure(fv); % Change to this figure
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [.5 .3 .3 .3]);
+        hold off
+        pv = []; 
+        % Seed ROI correlations
+        if isnan(Srf.ConFlds_)
+            % Recompute CF correlation profile
+            R = corr(Srf.Y_(:,v), Srf.Y_(:,Srf.SeedVx));
+        else
+            % CF correlation profile saved in file
+            R = Srf.ConFlds_(:,v);
+        end
+        [txy,u] = unique(Srf.TempMap', 'rows'); % Unique coordinates in seed map 
+        R = R(u); % Remove duplicate correlations
+        R(isnan(R)) = 0; % Remove NaNs
+        mR = max(R); % Maximum after redundant vertices removed
+        % Plot correlation profile
+        polarpatch(txy(:,1), txy(:,2), R); % Plot profile
+        hold on
+        scatter(Srf.Data(2,v), Srf.Data(3,v), 'go'); % Plot centroid
+        axis([-1 1 -1 1] * prctile(sqrt(sum(Srf.Data(2:3,:).^2)),99)); % Restrict axes
+        xlabel('Horizontal position (deg)');
+        ylabel('Vertical position (deg)');
+        colorbar
+        colormap berlin
+        caxis([-1 1] * sqrt(Srf.Data(1,v)));
+        cblabel('Correlation');
+        title(['Selected vertex: #' num2str(v)]);
+        % Plot CF outline
+        warning off
+        % Region growing for positive subfield
+        tri = delaunay(txy); % Delaunay triangles
+        pos = samsrf_clusterroi(find(R==mR,1), R, mR/2, tri); % Points in positive subfield
+        % Quantify positive subfield
+        ps = polyshape(txy(pos,:)); % Points in positive subfield
+        ps = ps.convhull; % Convex hull of positive subfield
+        % Plot outline
+        for i = 1:size(ps.Vertices,1)
+            if i == size(ps.Vertices,1)
+                line(ps.Vertices([i 1],1), ps.Vertices([i 1],2), 'color', 'g');
+            else
+                line(ps.Vertices(i:i+1,1), ps.Vertices(i:i+1,2), 'color', 'g');
+            end
+        end
+        % Quantify negative subfield
+        nR = min(R); % Minimum correlation
+        neg = R < nR/2; % Points in negative subfield
+        ps = polyshape(txy(neg,:)); % Points in negative subfield
+        ps = ps.convhull; % Convex hull of negative subfield
+        % Plot outline
+        for i = 1:size(ps.Vertices,1)
+            if i == size(ps.Vertices,1)
+                line(ps.Vertices([i 1],1), ps.Vertices([i 1],2), 'color', 'g', 'linestyle', '--');
+            else
+                line(ps.Vertices(i:i+1,1), ps.Vertices(i:i+1,2), 'color', 'g', 'linestyle', '--');
+            end
+        end    
+        % Back to main figure
+        hold off
+        figure(fh);
+        
     elseif isfield(Srf, 'ConFlds')
         % Connective field profile
         curcam = get(gca, 'view');
         figure(fv);
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [.5 .3 .3 .3]);
+        zoom(gca, 'reset');
         % Curvature
         Curv = Srf.Curvature;
         Curv(isnan(Curv)) = 0;
@@ -802,9 +875,11 @@ if ~isempty(Srf)
         Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
         % Draw surface
         set(gca, 'view', curcam);
-        if isempty(pv)
+        if isempty(pv) || ~isvalid(pv)
             % New plot
+            cla(gca);
             pv = patch('vertices', Vertices, 'faces', Srf.Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none');
+            colorbar off
             zoom(3);
             axis off;
             ax = gca;

@@ -216,6 +216,11 @@ set(handles.popupmenu2, 'String', Values, 'Value', 1);
 PrfInspList = {'Vertex inspector off'};
 if isfield(Srf, 'ConFlds') % Can display connective field profiles
     PrfInspList{2} = 'Connective field profiles';
+    Tmp = load(Srf.Model.Template); % Load template map
+    Tmp = samsrf_expand_srf(Tmp.Srf); % Expand template map
+    Tmp = Tmp.Data(2:3,Srf.SeedVx); % Restrict to template seed ROI 
+    Srf.TempMap = Tmp;
+    PrfInspList{3} = 'Visual CF profiles'; % Can display visual CF profiles
 end
 if isfield(Srf, 'Rmaps') % Can display reverse correlation profiles
     PrfInspList{2} = 'Reverse correlation profiles';
@@ -288,11 +293,25 @@ elseif strcmpi(PrfInsp, 'Reverse correlation profiles')
         Srf.Rmaps = Srf.Rmaps_;
         Srf = rmfield(Srf, 'Rmaps_');
     end
+elseif strcmpi(PrfInsp, 'Visual CF profiles')
+    % Display connective field profile
+    if isfield(Srf, 'TempMap_')
+        Srf.TempMap = Srf.TempMap_;
+        Srf = rmfield(Srf, 'TempMap_');
+    end
+    if isfield(Srf, 'ConFlds')
+        Srf.ConFlds_ = Srf.ConFlds;
+        Srf = rmfield(Srf, 'ConFlds');
+    end
 elseif strcmpi(PrfInsp, 'Connective field profiles')
     % Display connective field profile
     if isfield(Srf, 'ConFlds_')
         Srf.ConFlds = Srf.ConFlds_;
         Srf = rmfield(Srf, 'ConFlds_');
+    end
+    if isfield(Srf, 'TempMap')
+        Srf.TempMap_ = Srf.TempMap;
+        Srf = rmfield(Srf, 'TempMap');
     end
 elseif strcmpi(PrfInsp, 'Observed vs predicted time series')
     % Plot observed vs predicted time series
@@ -323,6 +342,10 @@ else
     if isfield(Srf, 'Rmaps')
         Srf.Rmaps_ = Srf.Rmaps;
         Srf = rmfield(Srf, 'Rmaps');
+    end
+    if isfield(Srf, 'TempMap')
+        Srf.TempMap_ = Srf.TempMap;
+        Srf = rmfield(Srf, 'TempMap');
     end
     if isfield(Srf, 'ConFlds')
         Srf.ConFlds_ = Srf.ConFlds;
@@ -686,6 +709,8 @@ if PrfInsp > 1
         figure(fv);
     catch
         fv = figure;
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [.5 .3 .3 .3]);
     end
 else
     close(fv);

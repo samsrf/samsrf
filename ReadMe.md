@@ -49,6 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.11 (12-08-2022)  
+- Vertex inspector can now display visual CF profiles but this is still buggy (DSS)  
+
 ### Version 9.1 (10-08-2022)  
 - Convex hull CF algorithm now uses region growing for central CF estimation (DSS)  
 - Now the inhibitory surround of a convex hull CF is also quantified (DSS)  
