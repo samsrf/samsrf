@@ -49,7 +49,8 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.11 (12-08-2022)  
+### Version 9.12 (17-08-2022)  
+- Simulation function can now implement compressive summation nonlinearity (DSS)  
 - Vertex inspector can now display visual CF profiles but this is still buggy (DSS)  
 
 ### Version 9.1 (10-08-2022)  

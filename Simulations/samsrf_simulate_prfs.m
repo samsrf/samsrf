@@ -12,8 +12,8 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 %
 % GtPars can be a matrix where each column is a "vertex" and each row 
 %  is a parameter necessary for the pRF function (excluding betas).
-%  In this case, parameters should be defined in aperture space, so that
-%  the left edge of the mapping stimulus is x = -1 and the right at x = 1.
+%  If the model includes the CSS nonlinearity, the final row of GtPars
+%  defines the compressive summation exponent.
 %
 % Alternatively, it can be a Srf structure containing a ground truth map.
 %  In this case you must also define Model so that the function knows your
@@ -39,6 +39,8 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 %
 % 16/04/2022 - Added some more explanation on normalising noisy time series (DSS).
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 17/08/2022 - Can now implement CSS nonlinearity if defined in model (DSS)
+%              Fixed mistake in the help section (DSS)
 %
 
 %% Default parameters 
@@ -48,10 +50,15 @@ if nargin < 4
     Model.TR = 1;
     Model.Hrf = [];
     Model.Downsample_Predictions = 1; 
+    Model.Compressive_Nonlinearity = false;
 end
 % Downsampling timeseries?
 if ~isfield(Model, 'Downsample_Predictions')
     Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
+end
+% Compressive summation nonlinearity?
+if ~isfield(Model, 'Compressive_Nonlinearity')
+    Model.Compressive_Nonlinearity = false; % Default to having no compressive nonlinearity
 end
 
 %% What type of input?
@@ -105,6 +112,9 @@ Data = zeros(size(Srf.Data)); % Simulated data
 parfor v = 1:size(Srf.Data,2)
     Rfp = PrfFcn(Gt(:,v)', ApXY); % pRF profile
     Y = prf_predict_timecourse(Rfp, ApFrm); % Prediction without z-normalisation!
+    if Model.Compressive_Nonlinearity 
+        Y = Y .^ Gt(end,v); % Incorporate CSS nonlinearity
+    end
     Y = prf_convolve_hrf(Y, Model.Hrf, Model.Downsample_Predictions); % Convolve with HRF & downsample if desired
     Data(:,v) = Y; % Store simulation
 end
