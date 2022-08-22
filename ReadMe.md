@@ -49,7 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.12 (17-08-2022)  
+### Version 9.2 (22-08-2022)  
+- DisplayMaps now asks which hemisphere of bilateral Srf to display (DSS)  
+- Added function to select a peak statistic within a ROI (DSS)  
 - Simulation function can now implement compressive summation nonlinearity (DSS)  
 - Vertex inspector can now display visual CF profiles but this is still buggy (DSS)  
 

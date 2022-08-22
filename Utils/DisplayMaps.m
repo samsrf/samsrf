@@ -141,6 +141,18 @@ end
 
 % Expand if necessary
 [Srf,vx] = samsrf_expand_srf(Srf);
+% If bilateral ask about hemisphere
+if isfield(Srf, 'Nvert_Lhem')
+    qh = questdlg('Which hemisphere?', 'Bilateral Srf', 'Left', 'Right', 'Both', 'Both');   
+    if isempty(qh) 
+        qh = 'Both';
+    end 
+    if qh(1) == 'L'
+        Srf.Vertices(Srf.Nvert_Lhem+1:end,:) = NaN; % Remove right hemisphere vertices       
+    elseif qh(1) == 'R'
+        Srf.Vertices(1:Srf.Nvert_Lhem,:) = NaN; % Remove left hemisphere vertices
+    end
+end
 % What ROI to display
 if isnan(RoiName)
     % Use ROI from Srf
