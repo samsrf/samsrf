@@ -49,6 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.21 (25-08-2022)  
+- Added tool to cluster Sereno atlas ROIs into coarse anatomical regions (PWBU & DSS)  
+
 ### Version 9.2 (22-08-2022)  
 - DisplayMaps now asks which hemisphere of bilateral Srf to display (DSS)  
 - Added function to select a peak statistic within a ROI (DSS)  
