@@ -34,6 +34,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfpar
 % 10/08/2022 - Fixed error with computing summary statistics of CF profile (DSS)
 %              Implemented region growing algorithm for better CF size estimation (DSS)
 %              Added convex hull estimation of inhibitory surround (DSS)
+% 07/09/2022 - Fixed bug when saving correlation profiles (DSS)
 %
 
 if nargin < 7
@@ -59,7 +60,7 @@ if isempty(FitPrf)
 end
 fBimg = zeros(2,nver); % Beta estimates 
 if SaveRmaps
-    Rmaps = NaN(nsvx, nmvx); % Connective field profile for each vertex
+    Rmaps = NaN(nsvx, nver); % Connective field profile for each vertex
 else
     Rmaps = NaN; % Connective field profiles are not stored
 end

@@ -49,7 +49,8 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.21 (25-08-2022)  
+### Version 9.211 (07-09-2022)  
+- Fixed bug when saving correlation CF profiles (DSS)  
 - Added tool to cluster Sereno atlas ROIs into coarse anatomical regions (PWBU & DSS)  
 
 ### Version 9.2 (22-08-2022)  
