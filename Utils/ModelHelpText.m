@@ -61,6 +61,8 @@ switch AnalysisFunc
 							'Which hemodynamic response function (HRF) to use. You can typically use the canonical HRF (based on the data in de Haas et al., 2014, Curr Biol), in which case you can leave this empty: [].' 
 							''
 							'If you estimated the HRF (see Cookbook or by refitting), you can provide here the file name of the estimated HRF. Or you can provide the HRF directly as a vector, where each component corresponds to one TR. Obviously, this latter option requires that the TR is the same in your HRF and your pRF data whereas the fit parameters of a HRF are more flexible.'
+                            ''
+                            'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could use samsrf_doublegamma(Model.TR) for SPM''s canonical shape.'
 							''
 							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' };
            case 'Aperture_File'
@@ -232,6 +234,8 @@ switch AnalysisFunc
 							'Which hemodynamic response function (HRF) to use. You can typically use the canonical HRF (based on the data in de Haas et al., 2014, Curr Biol), in which case you can leave this empty: [].' 
 							''
 							'If you estimated the HRF (see Cookbook or by refitting), you can provide here the file name of the estimated HRF. Or you can provide the HRF directly as a vector, where each component corresponds to one TR. Obviously, this latter option requires that the TR is the same in your HRF and your pRF data whereas the fit parameters of a HRF are more flexible.'
+                            ''
+                            'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could use samsrf_doublegamma(Model.TR) for SPM''s canonical shape.'
 							''
 							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' };
            case 'Aperture_File'
