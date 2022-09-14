@@ -49,6 +49,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.221 (15-09-2022)  
+- Can now restrict samsrf_removenoise to ROI to help with limited memory issues (DSS)  
+- Change to noise regression is now incorporated in CF analysis functions (DSS)  
+
 ### Version 9.22 (14-09-2022)  
 - Added function to save out GII files of functional overlays for use outside SamSrf (DSS)  
 - Added tool to cluster Sereno atlas ROIs into coarse anatomical regions (PWBU & DSS)  

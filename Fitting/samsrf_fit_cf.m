@@ -18,6 +18,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 %              Added option to apply global signal correction (DSS)
 % 16/04/2022 - Now saves final map with _Fwd suffix (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
 %
 
 %% Defaults & constants
@@ -59,15 +60,6 @@ for f = 1:length(SrfFiles)
 end
 Srf.Data = Tc; % Store full time course in Srf
 
-%% Correct by global mean signal?
-if Model.Global_Signal_Correction
-    new_line; disp('Applying global signal correction...');
-    Srf.Data = Tc;
-    Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2));
-    Tc = Srf.Data;
-    Srf.Data = [];
-end
-
 %% Load ROI mask
 if isempty(Roi)
     new_line; disp('Using all vertices (''tis gonna take forever!)...');
@@ -78,6 +70,15 @@ else
     disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 new_line; 
+
+%% Correct by global mean signal?
+if Model.Global_Signal_Correction
+    new_line; disp('Applying global signal correction...');
+    Srf.Data = Tc;
+    Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2), mver);
+    Tc = Srf.Data;
+    Srf.Data = [];
+end
 
 %% Limit data due to noise ceiling?
 if isfield(Srf, 'Noise_Ceiling')

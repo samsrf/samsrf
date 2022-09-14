@@ -31,6 +31,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %              Added option to use summary statistics for parameter estimation (DSS)
 % 10/08/2022 - Implemented convex hull estimation of inhibitory surround (DSS)
 %              Convex hull now estimates positive central CF using region growing approach (DSS)
+% 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
 %
 
 %% Defaults & constants
@@ -107,15 +108,6 @@ for f = 1:length(SrfFiles)
     Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
-%% Correct by global mean signal?
-if Model.Global_Signal_Correction
-    new_line; disp('Applying global signal correction...');
-    Srf.Data = Tc;
-    Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2));
-    Tc = Srf.Data;
-    Srf.Data = [];
-end
-
 %% Load ROI mask
 if isempty(Roi)
     new_line; disp('Using all vertices (''tis gonna take forever!)...');
@@ -126,6 +118,15 @@ else
     disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 new_line; 
+
+%% Correct by global mean signal?
+if Model.Global_Signal_Correction
+    new_line; disp('Applying global signal correction...');
+    Srf.Data = Tc;
+    Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2), mver);
+    Tc = Srf.Data;
+    Srf.Data = [];
+end
 
 %% Limit data due to noise ceiling?
 if isfield(Srf, 'Noise_Ceiling')
