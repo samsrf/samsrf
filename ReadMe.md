@@ -49,11 +49,12 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.213 (14-09-2022)  
-- Fixed bug when saving correlation CF profiles (DSS)  
+### Version 9.22 (14-09-2022)  
+- Added function to save out GII files of functional overlays for use outside SamSrf (DSS)  
 - Added tool to cluster Sereno atlas ROIs into coarse anatomical regions (PWBU & DSS)  
 - Added a note about using different canonical HRFs in ModelHelp (DSS)  
 - Fixed bug with loading pial surfaces when your OS cannot read symbolic links (DSS)  
+- Fixed bug when saving correlation CF profiles (DSS)  
 
 ### Version 9.2 (22-08-2022)  
 - DisplayMaps now asks which hemisphere of bilateral Srf to display (DSS)  

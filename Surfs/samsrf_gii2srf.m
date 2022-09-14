@@ -5,6 +5,8 @@ function samsrf_gii2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % Converts a GIfTI surface in GII format to a SamSrf surface file and saves it.
 % You can use this instead of the MGH format when using FreeSurfer to project functional data to the surface and then analysing it in SamSrf.
 %
+% NOTE: This function requires SPM12 for GIfTI functionality.
+%
 %   funimg:     Name of functional GII files (without extension!)
 %                 If this a cell array, files are averaged or concatenated (see avgconsep) 
 %                 In that case you should probably normalise! (see nrmls)
@@ -19,6 +21,7 @@ function samsrf_gii2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
 %
 % 14/05/2022 - Written (DSS)
+% 14/09/2022 - Edited help section to declare SPM12 dependency (DSS)  
 %
 
 %% Default parameters
