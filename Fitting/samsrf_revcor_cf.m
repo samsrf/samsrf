@@ -117,7 +117,6 @@ else
     mver = samsrf_loadlabel(Roi);
     disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
-new_line; 
 
 %% Correct by global mean signal?
 if Model.Global_Signal_Correction
@@ -127,6 +126,7 @@ if Model.Global_Signal_Correction
     Tc = Srf.Data;
     Srf.Data = [];
 end
+new_line; 
 
 %% Limit data due to noise ceiling?
 if isfield(Srf, 'Noise_Ceiling')
