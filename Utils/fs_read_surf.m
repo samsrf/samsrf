@@ -1,8 +1,9 @@
 function [vertices, faces] = fs_read_surf(fname)
 % freesurfer_read_surf - FreeSurfer I/O function to read a surface file
 %  
-%  !!! Modified by D. S. Schwarzkopf (15/09/2012) - removed output messages !!!  
-%  !!! Further modified (14/09/2022) to allow reading lh/rh.pial.T1 files if necessary !!!
+%  !!! 15/09/2012 - Removed output messages (DSS)  
+%  !!! 14/09/2022 - Now reads lh/rh.pial.T1 if no lh.pial exists (DSS)
+%  !!! 16/09/2022 - Also reads lh/rh.pial.T1 files if lh.pial exists but cannot be read (DSS)
 %
 %  [vertices, faces] = freesurfer_read_surf(fname)
 %  
@@ -88,6 +89,18 @@ end
 % tic;
 
 magic = fs_fread3(fid);
+% If loading pial surface & unknown magic number attempt loading .T1 file one last time
+if contains(fname, 'pial') && magic ~= QUAD_FILE_MAGIC_NUMBER && magic ~= TRIANGLE_FILE_MAGIC_NUMBER
+    fname = [fname '.T1'];
+    fid = fopen(fname, 'rb', 'b');
+    if (fid < 0)
+        str = sprintf('could not open surface file %s.', fname);
+        error(str);
+    else
+        disp('Pial data loaded from .T1 file');
+    end
+    magic = fs_fread3(fid);
+end
 
 if (magic == QUAD_FILE_MAGIC_NUMBER),
     Nvertices = fs_fread3(fid);

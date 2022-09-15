@@ -49,9 +49,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.221 (15-09-2022)  
+### Version 9.222 (16-09-2022)  
 - Can now restrict samsrf_removenoise to ROI to help with limited memory issues (DSS)  
 - Change to noise regression is now incorporated in CF analysis functions (DSS)  
+- If symbolic links cannot be read, it now loads pial surfaces from .T1 file (DSS)  
 
 ### Version 9.22 (14-09-2022)  
 - Added function to save out GII files of functional overlays for use outside SamSrf (DSS)  
