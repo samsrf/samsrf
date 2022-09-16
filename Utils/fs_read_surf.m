@@ -4,6 +4,7 @@ function [vertices, faces] = fs_read_surf(fname)
 %  !!! 15/09/2012 - Removed output messages (DSS)  
 %  !!! 14/09/2022 - Now reads lh/rh.pial.T1 if no lh.pial exists (DSS)
 %  !!! 16/09/2022 - Also reads lh/rh.pial.T1 files if lh.pial exists but cannot be read (DSS)
+%  !!! 17/09/2022 - Fixed bug with file handling when symbolic link cannot be read (DSS)
 %
 %  [vertices, faces] = freesurfer_read_surf(fname)
 %  
@@ -91,6 +92,7 @@ end
 magic = fs_fread3(fid);
 % If loading pial surface & unknown magic number attempt loading .T1 file one last time
 if contains(fname, 'pial') && magic ~= QUAD_FILE_MAGIC_NUMBER && magic ~= TRIANGLE_FILE_MAGIC_NUMBER
+    fclose(fid);
     fname = [fname '.T1'];
     fid = fopen(fname, 'rb', 'b');
     if (fid < 0)
