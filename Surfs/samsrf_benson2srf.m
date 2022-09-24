@@ -21,6 +21,7 @@ function samsrf_benson2srf(mghimg, surfdir)
 %
 % 16/02/2022 - Fixed bug when no NII is found for T1 (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 25/09/2022 - Changed structural field to surfir instead of T1 NIfTI (DSS)
 %
 
 %% Determine file parts 
@@ -44,14 +45,7 @@ T = fs_read_curv([surfdir filesep hemis '.thickness']); % Cortical thickness
 N = P - V0; % Cortical vectors for each vertex 
 
 %% Find T1 used for reconstruction
-strimg = dir([surfdir filesep '..' filesep 'mri' filesep '*.nii']);
-if isempty(strimg)
-    strimg = dir([surfdir filesep '..' filesep 'mri' filesep 'orig' filesep '*.nii']);
-end
-if isempty(strimg)
-    error('Couldn''t find any NII file for the T1!');
-end
-strimg = strimg(1).name;
+strimg = surfdir;
 disp(['Saving Benson maps for ' strimg]);
 
 %% Load MGH data

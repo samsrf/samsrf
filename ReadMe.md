@@ -49,11 +49,12 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.224 (17-09-2022)  
+### Version 9.225 (25-09-2022)  
 - Can now restrict samsrf_removenoise to ROI to help with limited memory issues (DSS)  
 - Change to noise regression is now incorporated in CF analysis functions (DSS)  
 - If symbolic links cannot be read, it now loads pial surfaces from .T1 file (DSS)  
 - Fixed bug in ClusterSereno when saving in a different path (DSS)  
+- Benson maps now use surf folder for Srf.Structural/Meshes (DSS)  
 
 ### Version 9.22 (14-09-2022)  
 - Added function to save out GII files of functional overlays for use outside SamSrf (DSS)  
