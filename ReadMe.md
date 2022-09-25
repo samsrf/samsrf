@@ -49,7 +49,8 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.225 (25-09-2022)  
+### Version 9.3 (26-09-2022)  
+- Fixed bug with NaNs returned by smoothing algorithms (DSS)  
 - Can now restrict samsrf_removenoise to ROI to help with limited memory issues (DSS)  
 - Change to noise regression is now incorporated in CF analysis functions (DSS)  
 - If symbolic links cannot be read, it now loads pial surfaces from .T1 file (DSS)  

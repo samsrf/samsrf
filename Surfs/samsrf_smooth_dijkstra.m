@@ -29,6 +29,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 %            https://au.mathworks.com/matlabcentral/fileexchange/20025-dijkstra-s-minimum-cost-path-algorithm
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 26/09/2022 - Fixed bug with NaNs in coordinates (DSS) 
 %
 
 if ~exist('dijkstra.m', 'file')
@@ -162,7 +163,7 @@ if isfield(Srf, 'Sphere')
 
                 % Weight vertices by distance
                 W = exp(-(Dd.^2)/(2*stdev.^2));  
-                SmoothedData(:,vi) = sum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / sum(W);
+                SmoothedData(:,vi) = nansum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / nansum(W);
             end
         end
         % Store smoothed data

@@ -27,6 +27,7 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 % inside Srf.Raw_Data.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 26/09/2022 - Fixed bug with NaNs in coordinates (DSS) 
 %
 
 %% Default parameters
@@ -148,7 +149,7 @@ if isfield(Srf, 'Sphere')
 
                 % Weight vertices by distance
                 W = exp(-(Nd.^2)/(2*stdev.^2))';  
-                SmoothedData(:,vi) = sum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / sum(W);
+                SmoothedData(:,vi) = nansum(repmat(W,size(Data,1),1) .* Data(:,Nv),2) / nansum(W);
             end
         end
         % Store smoothed data
