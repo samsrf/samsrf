@@ -1,6 +1,6 @@
 function PeakVx = samsrf_findpeak(Map, Roi)
 %
-% PeakVx = samsrf_clusterroi(Map, [Roi=''])
+% PeakVx = samsrf_findpeak(Map, [Roi=''])
 %
 % Finds the peak statistic in Map (a row vector for each vertex in a Srf).
 % This can be restricted to a ROI label. Returns the vertex index of the peak.
