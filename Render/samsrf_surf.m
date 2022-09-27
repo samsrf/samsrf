@@ -71,6 +71,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %              Fixed bug with eccentricity bound clipping (DSS)
 % 10/08/2022 - Now ensures no NaNs in displayed maps to prevent crash (DSS)
 % 12/08/2022 - Vertex inspector can display visual CF profiles now (DSS)
+% 27/09/2022 - Plots of CFs in visual space are now zoomed in (DSS)
 %
 
 %% Create global variables
@@ -786,7 +787,7 @@ if ~isempty(Srf)
         polarpatch(txy(:,1), txy(:,2), R); % Plot profile
         hold on
         scatter(Srf.Data(2,v), Srf.Data(3,v), 'go'); % Plot centroid
-        axis([-1 1 -1 1] * prctile(sqrt(sum(Srf.Data(2:3,:).^2)),99)); % Restrict axes
+        axis([-1 1 -1 1] * (sqrt(sum(Srf.Data(2:3,v).^2)) + Srf.Data(4,v))*4); % Restrict axes
         xlabel('Horizontal position (deg)');
         ylabel('Vertical position (deg)');
         colorbar

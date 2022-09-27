@@ -15,6 +15,7 @@ function data = Read_FreeSurfer(fname)
 %              Produces an error if file cannot be loaded now (DSS)
 %              Reports full pathname of loaded file (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 27/09/2022 - Removed loading error as this breaks dependent functions (DSS)
 %
 
 fname = EnsurePath(fname); % Ensure correct path
@@ -27,10 +28,9 @@ try
         c = textscan(fid, repmat('%n',1,5));
     end
     disp(['Loaded ' fname]);
+    fclose(fid);
+    data = cell2mat(c);
 catch
     data = NaN;
-    error(['Error loading ' fname '!']);
 end
-fclose(fid);
-data = cell2mat(c);
 
