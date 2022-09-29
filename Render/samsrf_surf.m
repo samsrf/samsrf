@@ -43,9 +43,10 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % If Srf.Data contains more than one subject in the third dimension then
 %  another dialog box is opened to select the subject you want to display.
 %
-% CamView is a two-element vector defining the camera position. Uses the
-%  default values defined in SamSrf_defaults. If they aren't included there, 
-%  it defaults to pointing to early visual cortex (assuming a FreeSurfer mesh).
+% CamView is a three-element vector. The first two values define the camera position. 
+%  The third value is the zoom factor. If undefined or empty, it uses the default values 
+%  defined in SamSrf_defaults. If they aren't included there, it defaults to pointing to 
+%  early visual cortex (assuming a FreeSurfer mesh).
 %
 % MapType determines which map is being displayed. This can be a...
 %   - String containing the name of the data entry in Srf.Values to display
