@@ -49,6 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.32 (03-10-2022)  
+- Renamed negative amplitude estimate in reverse-correlation CF convex hull method (DSS)  
+
 ### Version 9.31 (27-09-2022)  
 - Fixed bug with NaNs returned by smoothing algorithms (DSS)  
 - Can now restrict samsrf_removenoise to ROI to help with limited memory issues (DSS)  

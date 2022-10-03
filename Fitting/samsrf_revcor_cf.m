@@ -32,6 +32,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 10/08/2022 - Implemented convex hull estimation of inhibitory surround (DSS)
 %              Convex hull now estimates positive central CF using region growing approach (DSS)
 % 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
+% 03/10/2022 - Negative amplitude is now called Suppression instead of Baseline (DSS)
 %
 
 %% Defaults & constants
@@ -214,7 +215,7 @@ if Model.Fit_pRF == 1
 elseif Model.Fit_pRF == 0
     % Convex hull estimation of parameters
     Data = [fRimg; fXimg; fYimg; fSimg; fBimg; fWimg; fVimg];
-    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Centre'; 'Surround'; 'Beta'; 'Baseline'; 'Fwhm'; 'Vx'};
+    Srf.Values = {'R^2'; 'x0'; 'y0'; 'Centre'; 'Surround'; 'Beta'; 'Suppression'; 'Fwhm'; 'Vx'};
 elseif Model.Fit_pRF == -1
     % Using summary stats only
     Data = [fRimg; fXimg; fYimg; fSimg; fWimg; fVimg];
