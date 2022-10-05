@@ -14,6 +14,7 @@ function SurfaceProjection
 % 
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 14/05/2022 - Added option to read GIfTI files (DSS)
+% 05/10/2022 - Now can normalise to percent signal change (DSS)
 %
 
 %% Select paths 
@@ -83,12 +84,18 @@ if strcmpi(ft,'nii')
 end
 
 %% Normalise data?
-nrmls = questdlg('Normalise time series?', '', 'Yes', 'No', 'Yes'); 
+nrmls = questdlg('Normalise time series?', '', 'z-score', '% signal change', 'None', 'z-score'); 
 if isempty(nrmls)
     disp('Surface projection aborted by user.');
     return
 end
-nrmls = strcmpi(nrmls, 'Yes'); 
+if strcmpi(nrmls, 'z-score')
+    nrmls = 1;
+elseif strcmpi(nrmls, '% signal change')
+    nrmls = -1;
+else
+    nrmls = 0;
+end
 
 %% How to handle multiple runs?
 if length(ef) > 1
