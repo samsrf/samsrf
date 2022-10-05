@@ -84,14 +84,14 @@ if strcmpi(ft,'nii')
 end
 
 %% Normalise data?
-nrmls = questdlg('Normalise time series?', '', 'z-score', '% signal change', 'None', 'z-score'); 
+nrmls = questdlg('Time series normalisation?', '', 'Z-Score', 'Detrend only', 'None', 'Z-Score'); 
 if isempty(nrmls)
     disp('Surface projection aborted by user.');
     return
 end
-if strcmpi(nrmls, 'z-score')
+if strcmpi(nrmls, 'Z-Score')
     nrmls = 1;
-elseif strcmpi(nrmls, '% signal change')
+elseif strcmpi(nrmls, 'Detrend only')
     nrmls = -1;
 else
     nrmls = 0;

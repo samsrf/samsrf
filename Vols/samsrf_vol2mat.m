@@ -10,12 +10,12 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %   roi:        Name of binary mask, in NII format (without extension)
 %   nrmls:      If true, it will detrend & normalise the time series in each vertex.
 %                 If positive, it will use z-normalisation.
-%                 If negative, it will calculate percent signal change.
+%                 If negative, it will only detrend but not z-normalise.
 %
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %              Changes error message when NII loading fails (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
-% 05/10/2022 - Can now also calculate percent signal change instead of z-score (DSS)
+% 05/10/2022 - Can now also detrend without z-normalisation (DSS)
 %
 
 %% Default parameters
@@ -117,9 +117,6 @@ if nrmls
             if sign(nrmls) > 0
                 % Z-normalisation
                 Srf.Data(:,:,fi) = zscore(Srf.Data(:,:,fi)); 
-            else
-                % Percent signal change
-                Srf.Data(:,:,fi) = (Srf.Data(:,:,fi)-mean(Srf.Data(:,:,fi))) / mean(Srf.Data(:,:,fi)) * 100; 
             end
         end
     else

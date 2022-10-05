@@ -50,7 +50,7 @@ from the Srf structure.
 ## LATEST UPDATES 
 
 ### Version 9.4 (05-10-2022)  
-- Surface projection functions can now calculate percent signal change instead of z (DSS)  
+- Surface projection functions can now normalise without z-scoring (DSS)  
 - Renamed negative amplitude estimate in reverse-correlation CF convex hull method (DSS)  
 
 

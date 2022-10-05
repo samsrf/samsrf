@@ -22,7 +22,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %               (anything else will retain the individual steps - this is not advised for large data sets!)
 %   nrmls:      If true, it will detrend & normalise the time series in each vertex.
 %                 If positive, it will use z-normalisation.
-%                 If negative, it will calculate percent signal change.
+%                 If negative, it will only detrend but not z-normalise.
 %   avrgd:      If true, runs will be averaged into one SamSrf file (default).
 %               If false, runs will be concatenated into one SamSrf file.
 %   nsceil:     If true, calculates the noise ceiling by splitting data into odd and even runs.
@@ -44,7 +44,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %
 % 13/03/2022 - Ensures now that random files aren't loaded from path (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
-% 05/10/2022 - Can now also calculate percent signal change instead of z-score (DSS)
+% 05/10/2022 - Can now also detrend without z-normalisation (DSS)
 %
 
 %% Default parameters
@@ -233,9 +233,6 @@ if nrmls
                 if sign(nrmls) > 0
                     % Z-normalisation
                     Srf.Data(:,:,fi,cl) = zscore(Srf.Data(:,:,fi,cl)); 
-                else
-                    % Percent signal change
-                    Srf.Data(:,:,fi,cl) = (Srf.Data(:,:,fi,cl)-mean(Srf.Data(:,:,fi,cl))) / mean(Srf.Data(:,:,fi,cl)) * 100; 
                 end
             end
         end
