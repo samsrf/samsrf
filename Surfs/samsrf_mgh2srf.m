@@ -9,7 +9,9 @@ function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %                 If this a cell array, files are averaged or concatenated (see avgconsep) 
 %                 In that case you should probably normalise! (see nrmls)
 %   hemsurf:    Hemisphere of surfaces (& folder if needed)
-%   nrmls:      If true, it will detrend & z-score the time series in each vertex.
+%   nrmls:      If true, it will detrend & normalise the time series in each vertex.
+%                 If positive, it will use z-normalisation.
+%                 If negative, it will calculate percent signal change.
 %   avrgd:      If true, runs will be averaged into one SamSrf file (default).
 %               If false, runs will be concatenated into one SamSrf file.
 %   nsceil:     If true, calculates the noise ceiling by splitting data into odd and even runs.
@@ -19,6 +21,7 @@ function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 05/10/2022 - Can now also calculate percent signal change instead of z-score (DSS)
 %
 
 %% Default parameters
@@ -93,7 +96,13 @@ if nrmls
         % Normalise image for each run
         for fi = 1:length(funimg)
             Srf.Data(:,:,fi) = detrend(Srf.Data(:,:,fi)); % Linear detrending to remove drift
-            Srf.Data(:,:,fi) = zscore(Srf.Data(:,:,fi)); % Normalize time series to z-score
+            if sign(nrmls) > 0
+                % Z-normalisation
+                Srf.Data(:,:,fi) = zscore(Srf.Data(:,:,fi)); 
+            else
+                % Percent signal change
+                Srf.Data(:,:,fi) = (Srf.Data(:,:,fi)-mean(Srf.Data(:,:,fi))) / mean(Srf.Data(:,:,fi)) * 100; 
+            end
         end
     else
         disp('Only one volume so won''t perform normalization!');

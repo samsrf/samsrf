@@ -4,15 +4,18 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
 % The data file is prefixed 'vol_'
 %
-%   funimg:     name of functional NII file (without extension)
+%   funimg:     Name of functional NII file (without extension)
 %                 This can be a cell array if more than one file is to be
 %                 averaged. In that case you should probably normalise!
-%   roi:        name of binary mask, in NII format (without extension)
-%   nrmls:      if true, it will detrend & z-score the time series in each voxel.
+%   roi:        Name of binary mask, in NII format (without extension)
+%   nrmls:      If true, it will detrend & normalise the time series in each vertex.
+%                 If positive, it will use z-normalisation.
+%                 If negative, it will calculate percent signal change.
 %
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %              Changes error message when NII loading fails (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 05/10/2022 - Can now also calculate percent signal change instead of z-score (DSS)
 %
 
 %% Default parameters
@@ -111,7 +114,13 @@ if nrmls
         % Normalise each run
         for fi = 1:length(funimg)            
             Srf.Data(:,:,fi) = detrend(Srf.Data(:,:,fi)); % Linear detrend to remove drift
-            Srf.Data(:,:,fi) = zscore(Srf.Data(:,:,fi)); % Normalise timeseries to z-score
+            if sign(nrmls) > 0
+                % Z-normalisation
+                Srf.Data(:,:,fi) = zscore(Srf.Data(:,:,fi)); 
+            else
+                % Percent signal change
+                Srf.Data(:,:,fi) = (Srf.Data(:,:,fi)-mean(Srf.Data(:,:,fi))) / mean(Srf.Data(:,:,fi)) * 100; 
+            end
         end
     else
         disp('Only one volume so won''t perform normalization!');
