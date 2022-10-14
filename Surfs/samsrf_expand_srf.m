@@ -23,6 +23,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 %
 % 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 15/05/2022 - Now works with volumetric data (DSS)
 %
 
 %% In case no values defined
@@ -33,89 +34,93 @@ if ~isfield(Srf, 'Values')
     end
 end
 
-%% Deal with anatomical meshes
-if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')
-    disp('Loading anatomical meshes...');
-    % Ensure path uses correct file separation
-    if filesep == '/'
-        sl = strfind(Srf.Meshes, '\');
-    elseif filesep == '\'
-        sl = strfind(Srf.Meshes, '/');
-    else
-        error('Unknown path separator in this OS!');
-    end
-    Srf.Meshes(sl) = filesep;
+%% Do nothing if volumetric data! 
+if ~strcmpi(Srf.Hemisphere, 'vol')
     
-    % Load anatomical meshes
-    load(Srf.Meshes);
-    Srf.Structural = Anat.Structural;
-    Srf.Hemisphere = Anat.Hemisphere;
-    Srf.Vertices = Anat.Vertices;
-    Srf.Faces = Anat.Faces;
-    if isfield(Anat, 'Normals')
-        % Don't exist for anonymised Srfs
-        Srf.Normals = Anat.Normals;
-        Srf.Pial = Anat.Pial;
-    end
-    Srf.Inflated = Anat.Inflated;
-    Srf.Sphere = Anat.Sphere;
-    Srf.Curvature = Anat.Curvature;
-    if isfield(Anat, 'Area')
-        % Don't exist for anonymised Srfs
-        Srf.Area = Anat.Area;
-        Srf.Thickness = Anat.Thickness;
-    end
-end
+    %% Deal with anatomical meshes
+    if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')
+        disp('Loading anatomical meshes...');
+        % Ensure path uses correct file separation
+        if filesep == '/'
+            sl = strfind(Srf.Meshes, '\');
+        elseif filesep == '\'
+            sl = strfind(Srf.Meshes, '/');
+        else
+            error('Unknown path separator in this OS!');
+        end
+        Srf.Meshes(sl) = filesep;
 
-%% Deal with region of interest 
-vx = [];% Initialize output in case there is no ROI
-if isfield(Srf, 'Roi')
-    disp('Expanding surface data file...');
-    
-    % ROI vertices
-    vx = Srf.Roi;
-    nv = size(Srf.Vertices,1);
-    
-    % Create temporary data, expand, and store vertices
-    D = Srf.Data;
-    Srf.Data = zeros(size(D,1),nv);
-    Srf.Data(:,vx) = D;
-    if isfield(Srf, 'Y')
-        Y = Srf.Y;
-        Srf.Y = zeros(size(Y,1),nv);
-        Srf.Y(:,vx) = Y;
-    end
-    if isfield(Srf, 'X')
-        X = Srf.X;
-        Srf.X = zeros(size(X,1),nv);
-        Srf.X(:,vx) = X;
-    end
-    if isfield(Srf, 'Raw_Data')
-        Rd = Srf.Raw_Data;
-        Srf.Raw_Data = zeros(size(Rd,1),nv);
-        Srf.Raw_Data(:,vx) = Rd;
-    end
-    if isfield(Srf, 'Rmaps')
-        if ~isnan(Srf.Rmaps)
-        	Rm = Srf.Rmaps;
-        	Srf.Rmaps = zeros(size(Rm,1),nv);
-        	Srf.Rmaps(:,vx) = Rm;
+        % Load anatomical meshes
+        load(Srf.Meshes);
+        Srf.Structural = Anat.Structural;
+        Srf.Hemisphere = Anat.Hemisphere;
+        Srf.Vertices = Anat.Vertices;
+        Srf.Faces = Anat.Faces;
+        if isfield(Anat, 'Normals')
+            % Don't exist for anonymised Srfs
+            Srf.Normals = Anat.Normals;
+            Srf.Pial = Anat.Pial;
+        end
+        Srf.Inflated = Anat.Inflated;
+        Srf.Sphere = Anat.Sphere;
+        Srf.Curvature = Anat.Curvature;
+        if isfield(Anat, 'Area')
+            % Don't exist for anonymised Srfs
+            Srf.Area = Anat.Area;
+            Srf.Thickness = Anat.Thickness;
         end
     end
-    if isfield(Srf, 'ConFlds')
-        if ~isnan(Srf.ConFlds)
-            Cf = Srf.ConFlds;
-            Srf.ConFlds = zeros(size(Cf,1),nv);
-            Srf.ConFlds(:,vx) = Cf;
+
+    %% Deal with region of interest 
+    vx = [];% Initialize output in case there is no ROI
+    if isfield(Srf, 'Roi')
+        disp('Expanding surface data file...');
+
+        % ROI vertices
+        vx = Srf.Roi;
+        nv = size(Srf.Vertices,1);
+
+        % Create temporary data, expand, and store vertices
+        D = Srf.Data;
+        Srf.Data = zeros(size(D,1),nv);
+        Srf.Data(:,vx) = D;
+        if isfield(Srf, 'Y')
+            Y = Srf.Y;
+            Srf.Y = zeros(size(Y,1),nv);
+            Srf.Y(:,vx) = Y;
         end
-    end
-    if isfield(Srf, 'Noise_Ceiling')
-        Nc = Srf.Noise_Ceiling;
-        Srf.Noise_Ceiling = zeros(size(Nc,1),nv);
-        Srf.Noise_Ceiling(:,vx) = Nc;
+        if isfield(Srf, 'X')
+            X = Srf.X;
+            Srf.X = zeros(size(X,1),nv);
+            Srf.X(:,vx) = X;
+        end
+        if isfield(Srf, 'Raw_Data')
+            Rd = Srf.Raw_Data;
+            Srf.Raw_Data = zeros(size(Rd,1),nv);
+            Srf.Raw_Data(:,vx) = Rd;
+        end
+        if isfield(Srf, 'Rmaps')
+            if ~isnan(Srf.Rmaps)
+                Rm = Srf.Rmaps;
+                Srf.Rmaps = zeros(size(Rm,1),nv);
+                Srf.Rmaps(:,vx) = Rm;
+            end
+        end
+        if isfield(Srf, 'ConFlds')
+            if ~isnan(Srf.ConFlds)
+                Cf = Srf.ConFlds;
+                Srf.ConFlds = zeros(size(Cf,1),nv);
+                Srf.ConFlds(:,vx) = Cf;
+            end
+        end
+        if isfield(Srf, 'Noise_Ceiling')
+            Nc = Srf.Noise_Ceiling;
+            Srf.Noise_Ceiling = zeros(size(Nc,1),nv);
+            Srf.Noise_Ceiling(:,vx) = Nc;
+        end
+
+        % Remove ROI field
+        Srf = rmfield(Srf, 'Roi');
     end
     
-    % Remove ROI field
-    Srf = rmfield(Srf, 'Roi');
 end
-

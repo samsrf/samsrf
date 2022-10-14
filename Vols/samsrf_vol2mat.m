@@ -1,5 +1,5 @@
 function Srf = samsrf_vol2mat(funimg, roi, nrmls)
-% Srf = samsrf_vol2mat(funimg, [mask, nrmls=true])
+% Srf = samsrf_vol2mat(funimg, [roi, nrmls=1])
 %
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
 % The data file is prefixed 'vol_'
@@ -16,6 +16,9 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %              Changes error message when NII loading fails (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
+% 15/10/2022 - Fixed issues when using volumetric Srf variables (DSS)
+%              Fixed bug when not using a ROI - but this is not advised (DSS)
+%              NIfTI header now only contains first volume (DSS)
 %
 
 %% Default parameters
@@ -27,7 +30,7 @@ if nargin < 2
     roi = [];
 end
 if nargin < 3
-    nrmls = true;
+    nrmls = 1;
 end
 
 % If input functional is a string, turn into cell array
@@ -42,8 +45,10 @@ for fi = 1:length(funimg)
 end
 
 % Trim ROI file name if necessary
-if strcmpi(roi(end-3:end), '.nii')
-    roi = roi(1:end-4);
+if ~isempty(roi)
+    if strcmpi(roi(end-3:end), '.nii')
+        roi = roi(1:end-4);
+    end
 end
 
 %% Load functional image
@@ -73,7 +78,7 @@ Srf = struct;
 Srf.Version = samsrf_version;
 Srf.Functional = funimg;
 Srf.Hemisphere = 'vol';
-Srf.NiiHeader = fhdr;
+Srf.NiiHeader = fhdr(1);
 Srf.Roi = [];
 
 %% Indexing

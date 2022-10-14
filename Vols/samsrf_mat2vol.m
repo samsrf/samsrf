@@ -10,19 +10,30 @@ function samsrf_mat2vol(SrfName)
 %                 it simply saves each row as _tr#.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 15/05/2022 - Now works with data restricted toi ROI mask (DSS)
 %
 
 % Load fake surface data
 load(EnsurePath(SrfName));
 
 % Header information
-hdr = Srf.NiiHeader;
+hdr = Srf.NiiHeader(1); % Use first volume if there are more in header
 % Volume image to be created
 dim = hdr.dim;
 % Remove header data info
 hdr = rmfield(hdr, 'pinfo');
 
-% Loop thru time points
+% Expand Srf.Data to contain whole image
+if isfield(Srf, 'Roi')
+    RoiData = Srf.Data;
+    Srf.Data = zeros(size(RoiData,1), prod(dim));
+    % Loop thru volumes/time points
+    for v = 1:size(Srf.Data,1)
+        Srf.Data(v, Srf.Roi) = RoiData(v,:);
+    end
+end
+
+% Loop thru volumes/time points
 for v = 1:size(Srf.Data,1)
     % Reshape volume image
     img = reshape(Srf.Data(v,:), dim);
@@ -38,7 +49,7 @@ for v = 1:size(Srf.Data,1)
     if exist('spm', 'file')
         spm_write_vol(hdr, img);
     else
-        error('Sorry but I need SPM to load NII files :(');
+        error('Sorry but I need SPM or nifti-patch to load NII files :(');
     end
 end
 

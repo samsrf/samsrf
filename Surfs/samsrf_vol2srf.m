@@ -45,6 +45,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 13/03/2022 - Ensures now that random files aren't loaded from path (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
+% 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
 %
 
 %% Default parameters
@@ -55,7 +56,7 @@ if nargin < 5
     rule = 'Mean';
 end
 if nargin < 6
-    nrmls = true;
+    nrmls = 1;
 end
 if nargin < 7
     avrgd = true;

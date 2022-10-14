@@ -16,57 +16,63 @@ function Srf = samsrf_compress_srf(Srf,vx)
 % 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
 %              Now supports anonymised Srfs (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 15/05/2022 - Now works with volumetric data (DSS)
 %
 
-%% Remove data outside of region of interest
-if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)
-    disp('Compressing surface data file...');
-    
-    % ROI vertices
-    Srf.Roi = vx;
-    
-    % Remove unwanted vertices
-    Srf.Data = Srf.Data(:,vx);
-    if isfield(Srf, 'Y')
-        Srf.Y = Srf.Y(:,vx);
-    end
-    if isfield(Srf, 'X')
-        Srf.X = Srf.X(:,vx);
-    end
-    if isfield(Srf, 'Raw_Data')
-        Srf.Raw_Data = Srf.Raw_Data(:,vx);
-    end
-    if isfield(Srf, 'Rmaps')
-        if ~isnan(Srf.Rmaps)
-            Srf.Rmaps = Srf.Rmaps(:,vx);
-        end
-    end
-    if isfield(Srf, 'ConFlds')
-        if ~isnan(Srf.ConFlds)
-            Srf.ConFlds = Srf.ConFlds(:,vx);
-        end
-    end
-    if isfield(Srf, 'Noise_Ceiling')
-        Srf.Noise_Ceiling = Srf.Noise_Ceiling(:,vx);
-    end
-end
+%% Do nothing if volumetric data! 
+if ~strcmpi(Srf.Hemisphere, 'vol')
 
-%% If anatomy is saved separately, remove it from Srf
-if isfield(Srf, 'Meshes')
-    disp('Removing anatomical meshes...');
-    Srf = rmfield(Srf, 'Vertices');
-    Srf = rmfield(Srf, 'Faces');
-    if isfield(Srf, 'Normals')
-        % Don't exist for anonymised Srfs
-        Srf = rmfield(Srf, 'Normals');
-        Srf = rmfield(Srf, 'Pial');
+    %% Remove data outside of region of interest
+    if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)
+        disp('Compressing surface data file...');
+
+        % ROI vertices
+        Srf.Roi = vx;
+
+        % Remove unwanted vertices
+        Srf.Data = Srf.Data(:,vx);
+        if isfield(Srf, 'Y')
+            Srf.Y = Srf.Y(:,vx);
+        end
+        if isfield(Srf, 'X')
+            Srf.X = Srf.X(:,vx);
+        end
+        if isfield(Srf, 'Raw_Data')
+            Srf.Raw_Data = Srf.Raw_Data(:,vx);
+        end
+        if isfield(Srf, 'Rmaps')
+            if ~isnan(Srf.Rmaps)
+                Srf.Rmaps = Srf.Rmaps(:,vx);
+            end
+        end
+        if isfield(Srf, 'ConFlds')
+            if ~isnan(Srf.ConFlds)
+                Srf.ConFlds = Srf.ConFlds(:,vx);
+            end
+        end
+        if isfield(Srf, 'Noise_Ceiling')
+            Srf.Noise_Ceiling = Srf.Noise_Ceiling(:,vx);
+        end
     end
-    Srf = rmfield(Srf, 'Inflated');
-    Srf = rmfield(Srf, 'Sphere');
-    Srf = rmfield(Srf, 'Curvature');
-    if isfield(Srf, 'Area')
-        % Don't exist for anonymised Srfs
-        Srf = rmfield(Srf, 'Area');
-        Srf = rmfield(Srf, 'Thickness');
+
+    %% If anatomy is saved separately, remove it from Srf
+    if isfield(Srf, 'Meshes')
+        disp('Removing anatomical meshes...');
+        Srf = rmfield(Srf, 'Vertices');
+        Srf = rmfield(Srf, 'Faces');
+        if isfield(Srf, 'Normals')
+            % Don't exist for anonymised Srfs
+            Srf = rmfield(Srf, 'Normals');
+            Srf = rmfield(Srf, 'Pial');
+        end
+        Srf = rmfield(Srf, 'Inflated');
+        Srf = rmfield(Srf, 'Sphere');
+        Srf = rmfield(Srf, 'Curvature');
+        if isfield(Srf, 'Area')
+            % Don't exist for anonymised Srfs
+            Srf = rmfield(Srf, 'Area');
+            Srf = rmfield(Srf, 'Thickness');
+        end
     end
+
 end

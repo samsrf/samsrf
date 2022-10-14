@@ -49,10 +49,12 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.409 (15-10-2022)  
+- Fixed bugs when using volumetric data files (DSS)  
+
 ### Version 9.4 (05-10-2022)  
 - Surface projection functions can now normalise without z-scoring (DSS)  
 - Renamed negative amplitude estimate in reverse-correlation CF convex hull method (DSS)  
-
 
 ### Version 9.31 (27-09-2022)  
 - Fixed bug with NaNs returned by smoothing algorithms (DSS)  

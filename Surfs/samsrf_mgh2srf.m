@@ -22,11 +22,12 @@ function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
+% 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
 %
 
 %% Default parameters
 if nargin < 3
-    nrmls = true;
+    nrmls = 1;
 end
 if nargin < 4
     avrgd = true;
