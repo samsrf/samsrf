@@ -10,7 +10,8 @@ function samsrf_mat2vol(SrfName)
 %                 it simply saves each row as _tr#.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
-% 15/05/2022 - Now works with data restricted toi ROI mask (DSS)
+% 15/10/2022 - Now works with data restricted toi ROI mask (DSS)
+% 16/10/2022 - Fixed bug when no ROI is used but you probably shouldn't do that! (DSS)
 %
 
 % Load fake surface data
@@ -24,7 +25,7 @@ dim = hdr.dim;
 hdr = rmfield(hdr, 'pinfo');
 
 % Expand Srf.Data to contain whole image
-if isfield(Srf, 'Roi')
+if isfield(Srf, 'Roi') && ~isempty(Srf.Roi)
     RoiData = Srf.Data;
     Srf.Data = zeros(size(RoiData,1), prod(dim));
     % Loop thru volumes/time points

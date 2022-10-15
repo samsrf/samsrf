@@ -4,6 +4,9 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
 % The data file is prefixed 'vol_'
 %
+% NOTE: This is really a hack trying to make volumetric data work with the
+%       standard Srf variable structure. Not all functionality is supported.
+%
 %   funimg:     Name of functional NII file (without extension)
 %                 This can be a cell array if more than one file is to be
 %                 averaged. In that case you should probably normalise!
@@ -85,6 +88,8 @@ if ~isempty(roi)
     
     % Enforce binary mask
     mimg = logical(mimg);
+else
+    warning('No ROI specified! This is probably unwise...');
 end
 
 %% Create SamSrf structure
