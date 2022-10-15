@@ -24,6 +24,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 % 14/03/2022 - pRF reverse correlation profiles are not saved in data file by default (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/05/2022 - Now works with volumetric data (DSS)
+% 16/10/2022 - Fixed possible backwards Matlab compatibility issue (DSS)
 %
 
 %% In case no values defined
@@ -122,5 +123,8 @@ if ~strcmpi(Srf.Hemisphere, 'vol')
         % Remove ROI field
         Srf = rmfield(Srf, 'Roi');
     end
-    
+
+else
+    % For volumetric data return empty vertex field
+    vx = [];
 end

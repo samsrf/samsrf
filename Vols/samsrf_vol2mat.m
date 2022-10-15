@@ -1,5 +1,5 @@
-function Srf = samsrf_vol2mat(funimg, roi, nrmls)
-% Srf = samsrf_vol2mat(funimg, [roi, nrmls=1])
+function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
+% Srf = samsrf_vol2mat(funimg, [roi, nrmls=1, avrgd=true, nsceil=true])
 %
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
 % The data file is prefixed 'vol_'
@@ -11,6 +11,12 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 %   nrmls:      If true, it will detrend & normalise the time series in each vertex.
 %                 If positive, it will use z-normalisation.
 %                 If negative, it will only detrend but not z-normalise.
+%   avrgd:      If true, runs will be averaged into one SamSrf file (default).
+%               If false, runs will be concatenated into one SamSrf file.
+%   nsceil:     If true, calculates the noise ceiling by splitting data into odd and even runs.
+%                 The noise ceiling is stored in the vector Srf.Noise_Ceiling.
+%                 This option only works when averaging runs - otherwise it is ignored 
+%                   (this may change in future versions)
 %
 % 13/03/2022 - Now reports which default parameter file it's loading (DSS)
 %              Changes error message when NII loading fails (DSS)
@@ -19,6 +25,8 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls)
 % 15/10/2022 - Fixed issues when using volumetric Srf variables (DSS)
 %              Fixed bug when not using a ROI - but this is not advised (DSS)
 %              NIfTI header now only contains first volume (DSS)
+% 16/10/2022 - Now can concatenate runs instead of averaging (DSS)
+%              Can now calculate noise ceiling when averaging runs (DSS)
 %
 
 %% Default parameters
@@ -31,6 +39,12 @@ if nargin < 2
 end
 if nargin < 3
     nrmls = 1;
+end
+if nargin < 4
+    avrgd = true;
+end
+if nargin < 5
+    nsceil = true;
 end
 
 % If input functional is a string, turn into cell array
@@ -131,7 +145,38 @@ end
 
 %% Average separate runs 
 if length(funimg) > 1
-    Srf.Data = nanmean(Srf.Data, 3);
+    if avrgd
+        % Average runs 
+        disp('Averaging runs...');
+        % Calculate noise ceiling?
+        if nsceil && size(Srf.Data, 3) > 1
+            disp('Calculating noise ceiling...');
+            OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
+            EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
+            % Loop thru vertices
+            Srf.Noise_Ceiling = NaN(1, size(Srf.Data,2));
+            for v = 1:size(Srf.Data, 2)
+                Rho_xxp = corr(OddRuns(:,v), EvenRuns(:,v)); % Correlation between odd & even runs
+                Srf.Noise_Ceiling(v) = (2*Rho_xxp) / (1+Rho_xxp); % Spearman-Brown prediction formula
+                % For observable correlation we would need to take 
+                % square root so without the square root this is R^2!
+            end
+        end
+        % Calculate mean across runs
+        Srf.Data = nanmean(Srf.Data, 3);
+    else
+        % Concatenate runs
+        disp('Concatenating runs...');
+        if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
+            nSrf = Srf;
+            nSrf.Data = [];
+            for fi = 1:length(funimg)
+                nSrf.Data = [nSrf.Data; Srf.Data(:,:,fi)];
+            end
+            Srf = nSrf;
+            clear nSrf
+        end
+    end
 end
 % Srf.Data: (time, voxel)
 Srf.Data = squeeze(Srf.Data);

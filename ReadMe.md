@@ -49,8 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.409 (15-10-2022)  
+### Version 9.4091 (16-10-2022)  
 - Fixed bugs when using volumetric data files (DSS)  
+- Volumetric data projection now allows concatenation & noise ceiling (DSS)  
 
 ### Version 9.4 (05-10-2022)  
 - Surface projection functions can now normalise without z-scoring (DSS)  
