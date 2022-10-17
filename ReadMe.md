@@ -49,7 +49,7 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.4091 (16-10-2022)  
+### Version 9.41 (18-10-2022)  
 - Fixed bugs when using volumetric data files (DSS)  
 - Volumetric data projection now allows concatenation & noise ceiling (DSS)  
 - Fixed bug when converting volumetric data file without ROI back into NII (DSS)   
