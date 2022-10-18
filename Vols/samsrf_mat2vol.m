@@ -12,6 +12,7 @@ function samsrf_mat2vol(SrfName)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/10/2022 - Now works with data restricted toi ROI mask (DSS)
 % 16/10/2022 - Fixed bug when no ROI is used but you probably shouldn't do that! (DSS)
+% 19/10/2022 - Critical bugfix when saving NII with negative values! (DSS)
 %
 
 % Load fake surface data
@@ -33,6 +34,9 @@ if isfield(Srf, 'Roi') && ~isempty(Srf.Roi)
         Srf.Data(v, Srf.Roi) = RoiData(v,:);
     end
 end
+
+% Enforce float32 data type
+hdr.dt = [16 0]; 
 
 % Loop thru volumes/time points
 for v = 1:size(Srf.Data,1)

@@ -49,8 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.41 (18-10-2022)  
-- Fixed bugs when using volumetric data files (DSS)  
+### Version 9.42 (19-10-2022)  
+- Critical bugfix with data type in samsrf_mat2vol when saving negative values! (DSS)  
+- Fixed various other bugs when using volumetric data files (DSS)  
 - Volumetric data projection now allows concatenation & noise ceiling (DSS)  
 - Fixed bug when converting volumetric data file without ROI back into NII (DSS)   
 
