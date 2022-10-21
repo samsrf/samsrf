@@ -16,8 +16,8 @@ function Connective_Fields(DataPath, SrfFiles, Roi, SeedRoi, TempMap)
 
 %% Mandatory parameters 
 Model.Name = 'CF'; % File name for output map
-Model.SeedRoi = SeedRoi; % Seed ROI for analysis
-Model.Template = TempMap; % Vertex number of seed region origin
+Model.SeedRoi = SeedRoi; % ROI label for seed region
+Model.Template = TempMap; % Atlas retinotopic map of seed region
 
 %% Optional in forward-model CF - You can use only one in this order of priority!
 % Model.Polar = 0:15:315; % Use polar wedges as CFs
