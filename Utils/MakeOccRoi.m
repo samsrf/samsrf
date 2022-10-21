@@ -11,6 +11,7 @@ function MakeOccRoi(MeshFolder, Y)
 %  from the spherical mesh, -not- the white matter mesh as normally.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 22/10/2022 - Fixed recent bug that stopped this from working (DSS)
 %
 
 if nargin < 2
@@ -22,6 +23,7 @@ Hemis = {'lh' 'rh'};
 for h = 1:2
     Vs = fs_read_surf([MeshFolder filesep Hemis{h} '.inflated']);
     Srf = struct;
+    Srf.Hemisphere = Hemis{h};
     Srf.Vertices = Vs;
     Srf.Data = zeros(1,size(Srf.Vertices,1));
     vx = find(Vs(:,2) <= Y);

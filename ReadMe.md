@@ -49,6 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.421 (22-10-2022)  
+- Bugfix for MakeOccRoi which stopped working after recent updates (DSS)  
+
 ### Version 9.42 (19-10-2022)  
 - Critical bugfix with data type in samsrf_mat2vol when saving negative values! (DSS)  
 - Fixed various other bugs when using volumetric data files (DSS)  
