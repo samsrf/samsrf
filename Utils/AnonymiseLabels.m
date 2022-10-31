@@ -9,10 +9,11 @@ function AnonymiseLabels(Sure)
 % WARNING: Overwrites the label file so only do this if you have a copy &
 %          are sure that you want to wipe the anatomical info!
 %
-% The optional input Sure toggles whether it asks if you're sure.
+% If optional input Sure is true it does -not- ask if you're sure!
 %
 % 13/03/2022 - Written (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 31/10/2022 - Clarified help section (DSS)
 %
 
 if nargin == 0
