@@ -6,7 +6,10 @@ function VectoriseApertures(ApsFile, Scaling)
 %               If this is a scalar, it assumes square apertures & so movie provided must be square!
 %               If it is a 1x2 vector, this scales X and Y differently & movie can be rectangular.
 %
+% IMPORTANT: The side lengths of the apertures must be even numbers! 
+%
 % 06/07/2022 - Written (DSS)
+% 15/11/2022 - Now gives error if aperture length is odd-numbered (DSS)
 %
 
 % Load apertures
@@ -18,6 +21,13 @@ end
 % Vectorise apertures
 ApDimX = size(ApFrm,2); % Horizontal size of apertures
 ApDimY = size(ApFrm,1); % Vertical size of apertures
+% Odd-numbered side lengths?
+if mod(ApDimX,2)
+    error('X dimension is odd number!');
+end
+if mod(ApDimY,2)
+    error('Y dimension is odd number!');
+end
 % If non-square apertures
 if ApDimX ~= ApDimY
     if length(Scaling) == 1

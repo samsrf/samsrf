@@ -49,7 +49,8 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.421 (22-10-2022)  
+### Version 9.422 (15-11-2022)  
+- VectoriseApertures now gives error if aperture lengths are odd-numbered (DSS)  
 - Bugfix for MakeOccRoi which stopped working after recent updates (DSS)  
 
 ### Version 9.42 (19-10-2022)  
