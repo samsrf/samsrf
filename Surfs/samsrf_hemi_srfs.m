@@ -15,6 +15,7 @@ function [SrfL, SrfR] = samsrf_hemi_srfs(Srf)
 % Warning: May fail with very large data files due to lack of memory.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 29/11/2022 - Now supports Srfs with missing surface fields (DSS)
 %
 
 % Expand Srf
@@ -42,14 +43,31 @@ for h = 1:2
     Cur.Faces = Srf.Faces(F,:) - Srf.Nvert_Lhem*(h==2); 
 
     Cur.Vertices = Srf.Vertices(V,:);
-    Cur.Normals = Srf.Normals(V,:);
 
+    if isfield(Cur, 'Normals')
+        Cur.Normals = Srf.Normals(V,:);
+    else
+        warning('Normals data not in Srf...');
+    end
+    
     if isfield(Cur, 'Pial')
         Cur.Pial = Srf.Pial(V,:);
-        Cur.Inflated = Srf.Inflated(V,:);
-        Cur.Sphere = Srf.Sphere(V,:);
+    else
+        warning('Pial surfaces not in Srf...');
     end
 
+    if isfield(Cur, 'Inflated')
+        Cur.Inflated = Srf.Inflated(V,:);
+    else
+        warning('Inflated surfaces not in Srf...');
+    end
+    
+    if isfield(Cur, 'Sphere')
+        Cur.Sphere = Srf.Sphere(V,:);
+    else
+        warning('Sphere surfaces not in Srf...');
+    end
+    
     if isfield(Cur, 'Curvature')
         Cur.Curvature = Srf.Curvature(1,V); 
     else
@@ -108,8 +126,10 @@ end
 
 % Shift hemispheres
 if isfield(Cur, 'Sphere')
-    SrfL.Pial(:,1) = SrfL.Pial(:,1)+3;
-    SrfR.Pial(:,1) = SrfR.Pial(:,1)-3;
+    if isfield(Cur, 'Pial')
+        SrfL.Pial(:,1) = SrfL.Pial(:,1)+3;
+        SrfR.Pial(:,1) = SrfR.Pial(:,1)-3;
+    end
     SrfL.Inflated(:,1) = SrfL.Inflated(:,1)+50;
     SrfR.Inflated(:,1) = SrfR.Inflated(:,1)-50;
     SrfL.Sphere(:,1) = SrfL.Sphere(:,1)+105;

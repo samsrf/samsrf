@@ -49,9 +49,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.422 (15-11-2022)  
+### Version 9.423 (29-11-2022)  
 - VectoriseApertures now gives error if aperture lengths are odd-numbered (DSS)  
 - Bugfix for MakeOccRoi which stopped working after recent updates (DSS)  
+- Bilateral surface functions now support Srfs with missing surface fields (DSS)  
 
 ### Version 9.42 (19-10-2022)  
 - Critical bugfix with data type in samsrf_mat2vol when saving negative values! (DSS)  

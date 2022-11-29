@@ -30,6 +30,7 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 % Warning: May fail with very large data files due to lack of memory.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 29/11/2022 - Now supports Srfs with missing surface fields (DSS)
 %
 
 % Expand Srfs
@@ -37,15 +38,25 @@ SrfL = samsrf_expand_srf(SrfL);
 SrfR = samsrf_expand_srf(SrfR);
 
 % Shift hemispheres
-if isfield(SrfL, 'Sphere')
+if isfield(SrfL, 'Pial')
     SrfL.Pial(:,1) = SrfL.Pial(:,1)-3;
     SrfR.Pial(:,1) = SrfR.Pial(:,1)+3;
+else
+    warning('Pial surfaces not in Srf...');
+end
+
+if isfield(SrfL, 'Inflated')
     SrfL.Inflated(:,1) = SrfL.Inflated(:,1)-50;
     SrfR.Inflated(:,1) = SrfR.Inflated(:,1)+50;
+else
+    warning('Inflated surfaces not in Srf...');
+end
+
+if isfield(SrfL, 'Sphere')
     SrfL.Sphere(:,1) = SrfL.Sphere(:,1)-105;
     SrfR.Sphere(:,1) = SrfR.Sphere(:,1)+105;
 else
-    warning('Anatomical surfaces not in Srf...');
+    warning('Sphere surfaces not in Srf...');
 end
 
 % Combine hemispheres
@@ -55,11 +66,22 @@ Srf.Nvert_Lhem = size(SrfL.Vertices,1);
 Srf.Faces = [SrfL.Faces; SrfR.Faces + Srf.Nvert_Lhem];
 
 Srf.Vertices = [SrfL.Vertices; SrfR.Vertices];
-Srf.Normals = [SrfL.Normals; SrfR.Normals];
+
+if isfield(SrfL, 'Normals')
+    Srf.Normals = [SrfL.Normals; SrfR.Normals];
+else
+    warning('Normals data not in Srf...');
+end
 
 if isfield(SrfL, 'Pial')
     Srf.Pial = [SrfL.Pial; SrfR.Pial];
+end
+
+if isfield(SrfL, 'Inflated')
     Srf.Inflated = [SrfL.Inflated; SrfR.Inflated];
+end
+
+if isfield(SrfL, 'Sphere')
     Srf.Sphere = [SrfL.Sphere; SrfR.Sphere];
 end
 
