@@ -96,7 +96,7 @@ elseif strcmpi(vartype, 'Eccen')
     imgB(r<scale) = Cmap(nr(r<scale),3);
 elseif strcmpi(vartype, 'Sigma')
     % Colourmap
-    cstr = ['colormap(' def_cmap_sigma(2:end) '(401));'];
+    cstr = ['colormap(' def_cmap_sigma(2:end) '(400));'];
     Cmap = eval(cstr);        
     if def_cmap_sigma(1) == '-'
         Cmap = flipud(Cmap);
@@ -109,7 +109,7 @@ elseif strcmpi(vartype, 'Sigma')
     end
 elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     % Colourmap
-    cstr = ['colormap(' def_cmap_other(2:end) '(801));'];
+    cstr = ['colormap(' def_cmap_other(2:end) '(800));'];
     Cmap = eval(cstr);        
     Cmap = Cmap(400:end,:);
     if def_cmap_other(1) == '-'
@@ -123,7 +123,7 @@ elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     end
 else
     % Colourmap
-    cstr = ['colormap(' def_cmap_other(2:end) '(401));'];
+    cstr = ['colormap(' def_cmap_other(2:end) '(400));'];
     Cmap = eval(cstr);        
     if def_cmap_other(1) == '-'
         Cmap = flipud(Cmap);
