@@ -7,9 +7,11 @@ function VectoriseApertures(ApsFile, Scaling)
 %               If it is a 1x2 vector, this scales X and Y differently & movie can be rectangular.
 %
 % IMPORTANT: The side lengths of the apertures must be even numbers! 
+%            Scaling should be the same as your scaling factor (e.g. maximum stimulus eccentricity)
 %
 % 06/07/2022 - Written (DSS)
 % 15/11/2022 - Now gives error if aperture length is odd-numbered (DSS)
+% 24/01/2023 - More info about how to use the scaling (DSS)
 %
 
 % Load apertures

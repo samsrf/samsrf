@@ -24,6 +24,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 07/07/2022 - Added option for 10 free parameters (excluding CSS exponent) (DSS)
 %              Fixed small bug with multiple maximal correlations in coarse fit (DSS)
 % 10/08/2022 - Fixed bug with coarse fit when time series is flat (DSS)
+% 24/01/2023 - Added more info to error when apertures aren't vectorised (DSS) 
 %
 
 %% Defaults & constants
@@ -97,7 +98,7 @@ if sum(ApFrm(:)<0) > 0
     disp(' Warning: Apertures contain negative values!');
 end
 if ~exist('ApXY', 'var') 
-    error('Aperture pixel coordinates undefined!');
+    error('Aperture pixel coordinates undefined! Did you use VectoriseApertures?');
 end
 new_line;
 
