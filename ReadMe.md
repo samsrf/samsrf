@@ -49,6 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.5 (17-03-2023) - St Patrick's Day update!  
+- Added option to use conventional approach for predicting neural response (DSS)  
+
 ### Version 9.425 (24-01-2023)  
 - VectoriseApertures now gives error if aperture lengths are odd-numbered (DSS)  
 - Bugfix for MakeOccRoi which stopped working after recent updates (DSS)  

@@ -58,6 +58,9 @@ switch AnalysisFunc
         end
         
         % Defaults for optional parameters
+        if ~isfield(Model, 'Aperture_Mean_Response')
+            Model.Aperture_Mean_Response = false; % If true, uses conventional Dumoulin & Wandell 2008 approach
+        end
         if ~isfield(Model, 'Noise_Ceiling_Threshold')
             Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
         end

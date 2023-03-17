@@ -25,6 +25,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %              Fixed small bug with multiple maximal correlations in coarse fit (DSS)
 % 10/08/2022 - Fixed bug with coarse fit when time series is flat (DSS)
 % 24/01/2023 - Added more info to error when apertures aren't vectorised (DSS) 
+% 17/03/2023 - Added option for conventional Dumoulin & Wandell approach to predict neural response (DSS)
 %
 
 %% Defaults & constants
@@ -99,6 +100,12 @@ if sum(ApFrm(:)<0) > 0
 end
 if ~exist('ApXY', 'var') 
     error('Aperture pixel coordinates undefined! Did you use VectoriseApertures?');
+end
+if Model.Aperture_Mean_Response
+    disp(' Using conventional Dumoulin & Wandell 2008 biophysical model to predict neural responses.');
+    ApXY = [ApXY; NaN NaN]; % Conventional model is marked by NaN in final pixel of pRF profile
+else
+    disp(' Using default biophysical model to predict neural responses from percent pRF overlap.');    
 end
 new_line;
 

@@ -19,6 +19,7 @@ switch AnalysisFunc
                         'TR';
                         'Hrf';
                         'Aperture_File';
+                        'Aperture_Mean_Response';
                         'Noise_Ceiling_Threshold';
                         'Polar_Search_Space';
 						'Param1';

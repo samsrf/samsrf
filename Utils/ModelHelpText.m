@@ -71,6 +71,18 @@ switch AnalysisFunc
 							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
                             ''
                             'Since SamSrf 9 this file must be a vectorised aperture matrix with pixels (locations) in rows & volumes in columns. It must also contain the ApXY matrix defining the pixel coordinates.' };
+           case 'Aperture_Mean_Response'
+               HelpText = { '[Optional] Boolean'
+                            ''
+                            'For the past few main versions of SamSrf, we predicted the neural response of a pRF by normalising the overlap of apertures and pRF profile by the whole pRF profile. This is biologically more plausible than the conventional Dumoulin & Wandell 2008 approach because that models smaller pRFs to respond less than large pRFs. In turn, this will result in artifactual estimates of the response amplitude (Beta).' 
+                            ''
+                            'However, our normalised approach will under some circumstances yield a different sign for pRFs with inhibitory components than the conventional approach. We therefore added back the option to use the conventional approach. Using this is generally fine if the Betas are not of interest.'
+                            ''
+                            'If true, the conventional Dumoulin & Wandell 2008 approach is used. This simply takes the mean across the overlap between aperture and pRF profle. You could consider using this when your pRF model has an inhibitory component.'
+                            ''
+                            'If false, the standard SamSrf approach is used, and the overlap between aperture and pRF profile is normalised by the whole pRF profile.'
+                            ''
+                            'Defaults to false.' };
            case {'Param1' 'Param2' 'Param3' 'Param4' 'Param5' 'Param6' 'Param7' 'Param8' 'Param9' 'Param10'}
 			   HelpText = { 'Vector of scalars'
 							''
