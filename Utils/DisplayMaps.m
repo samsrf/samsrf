@@ -192,6 +192,18 @@ else
     disp(['Only displaying ROI ' Srf.Hemisphere '_' RoiName]);   
 end
 
+% Add transparent border
+if ~isnan(vx)
+    Srf.VxAlpha = zeros(size(Srf.Vertices,1),1);
+    Srf.VxAlpha(vx) = 1;
+    % Loop thru steps
+    for i = 1:19
+        nb = samsrf_borderpath(Srf, vx); % Vertices surrounding the ROI
+        Srf.VxAlpha(nb) = 1 - i/20; % Set alpha for this border
+        vx = [vx; nb]; % Add border to ROI
+    end
+end
+
 % Remove non-ROI vertices if desired
 if ~isnan(vx)
     roivx = true(size(Srf.Vertices,1),1);

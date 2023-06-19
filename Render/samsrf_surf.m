@@ -73,6 +73,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 10/08/2022 - Now ensures no NaNs in displayed maps to prevent crash (DSS)
 % 12/08/2022 - Vertex inspector can display visual CF profiles now (DSS)
 % 27/09/2022 - Plots of CFs in visual space are now zoomed in (DSS)
+% 19/06/2023 - Added option for transparency in surface mesh (DSS)
 %
 
 %% Create global variables
@@ -595,10 +596,19 @@ if ~isnan(Vs_paths) % Only if not a NaN
 end
 
 %% Display the mesh
+if isfield(Srf, 'VxAlpha')
+    % Surface has transparency
+    SurfAlpha = 'interp';
+    VxAlpha = Srf.VxAlpha;
+else
+    % Surface has no transparency
+    SurfAlpha = 1;
+    VxAlpha = ones(size(Vertices,1),1);
+end
 set(fh, 'name', [Type ' (' num2str(Thrsh(2)) ' -> ' num2str(Thrsh(3)) ')'], 'color', 'w');
 if nargin < 7
     % Draw a new patch
-    PatchHandle = patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none');
+    PatchHandle = patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none', 'FaceVertexAlphaData', VxAlpha, 'FaceAlpha', SurfAlpha);
 else
     % Simply replace the colours
     set(PatchHandle, 'FaceVertexCData', Colours); 

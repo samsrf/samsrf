@@ -49,6 +49,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.51 (19-06-2023) - Advanced Age Day update!  
+- Borders of ROI in DisplayMaps are now transparent (DSS)  
+- Added option for transparency in samsrf_surf (DSS)  
+
 ### Version 9.5 (17-03-2023) - St Patrick's Day update!  
 - Added option to use conventional approach for predicting neural response (DSS)  
 
