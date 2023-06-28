@@ -9,6 +9,7 @@ function samsrf_vtk2srf(Vtks)
 % contain either 'lcr' or 'rcr' to identify the hemisphere.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
 %
 
 if ischar(Vtks)
@@ -48,6 +49,9 @@ for i = 2:length(Vtks)
     Srf.Data = [Srf.Data; D'];
     disp(['Read in #' num2str(i-1) ': ' Vtks{i}]);
 end
+
+% Convert to 32 bit?
+Srf = samsrf_32bit_srf(Srf);
 
 % Save Srf
 save([Srf.Hemisphere '_' Vtks{1}(1:end-4)], 'Srf');

@@ -17,6 +17,7 @@ function Srf = samsrf_compress_srf(Srf,vx)
 %              Now supports anonymised Srfs (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/05/2022 - Now works with volumetric data (DSS)
+% 29/06/2023 - Defaults to saving 32 bit data unless fixed in SamSrf_defaults (DSS)  
 %
 
 %% Do nothing if volumetric data! 
@@ -74,5 +75,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol')
             Srf = rmfield(Srf, 'Thickness');
         end
     end
-
 end
+
+%% Convert to 32 bit?
+Srf = samsrf_32bit_srf(Srf);

@@ -13,6 +13,7 @@ function samsrf_convert_old_srf(srfname, surfdir)
 %
 % 13/03/2022 - Now ensures file isn't just loaded from path (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
 %
 
 %% Load old file
@@ -69,6 +70,9 @@ end
 if isfield(Mat.Srf, 'Voxels')
     Mat.Srf = rmfield(Mat.Srf, 'Voxels');
 end
+
+%% Convert to 32 bit?
+Srf = samsrf_32bit_srf(Srf);
 
 %% Save file again
 save(srfname, '-struct', 'Mat', '-v7.3');

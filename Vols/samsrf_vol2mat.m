@@ -30,6 +30,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 %              NIfTI header now only contains first volume (DSS)
 % 16/10/2022 - Now can concatenate runs instead of averaging (DSS)
 %              Can now calculate noise ceiling when averaging runs (DSS)
+% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
 %
 
 %% Default parameters
@@ -191,6 +192,9 @@ Srf.Values = {};
 for r = 1:size(Srf.Data,1)
     Srf.Values{r,1} = ['Volume #' num2str(r)];
 end
+
+%% Convert to 32 bit?
+Srf = samsrf_32bit_srf(Srf);
 
 %% Save data
 [~, f, ~] = fileparts(funimg{1});

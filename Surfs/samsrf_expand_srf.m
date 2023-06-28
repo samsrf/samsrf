@@ -1,6 +1,6 @@
-function [Srf, vx] = samsrf_expand_srf(Srf)
+function [Srf, vx] = samsrf_expand_srf(Srf, Use64bit)
 %
-% [Srf, vx] = samsrf_expand_srf(Srf)
+% [Srf, vx] = samsrf_expand_srf(Srf, Use64bit)
 %
 % If the surface data Srf has not been compressed this function does nothing. 
 % However, if only the data from a particular region of interest have been 
@@ -12,6 +12,12 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 %  this function will automatically load them in. Such Srf structures are
 %  identified by containing the field Srf.Meshes. This only works with Srfs
 %  created in SamSrf 6 and higher.
+%
+% The optional second input toggles whether to force the function to use 
+%  64 bit (double) data types, even if the default setting is to use 32 bit.
+%  You can use this if you want to read in old data saved in 64 bit, but the
+%  data will be numerically identcal. However, the data type could have some
+%  downstream consequences on any analyses you are using.
 %
 % Due to various changes in previous SamSrf versions, this function is not
 %  meant to be used for files created in versions prior to SamSrf 5. 
@@ -25,6 +31,8 @@ function [Srf, vx] = samsrf_expand_srf(Srf)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/05/2022 - Now works with volumetric data (DSS)
 % 16/10/2022 - Fixed possible backwards Matlab compatibility issue (DSS)
+% 29/06/2023 - Data now converted into 32 bit unless fixed in SamSrf_defaults (DSS)
+%              Also addded option to force using 64 bit data though (DSS)
 %
 
 %% In case no values defined
@@ -127,4 +135,11 @@ if ~strcmpi(Srf.Hemisphere, 'vol')
 else
     % For volumetric data return empty vertex field
     vx = [];
+end
+
+% Convert to 32 bit?
+if nargin < 2 || ~Use64bit
+    Srf = samsrf_32bit_srf(Srf);
+else
+    disp('Forcing any 64 bit data to remain!');
 end

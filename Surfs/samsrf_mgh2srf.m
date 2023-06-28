@@ -23,6 +23,7 @@ function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
 % 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
+% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
 %
 
 %% Default parameters
@@ -149,6 +150,9 @@ Srf.Values = {};
 for r = 1:size(Srf.Data,1)
     Srf.Values{r,1} = ['Volume #' num2str(r)];
 end
+
+%% Convert to 32 bit?
+Srf = samsrf_32bit_srf(Srf);
 
 %% Save surface data
 [p f e] = fileparts(funimg{1});

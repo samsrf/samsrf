@@ -49,6 +49,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.6 (29-06-2023) - Face-palm update!!!  
+- **Data is now 32 bit by default to improve speed of model fits & reduce disc space!** (DSS)  
+- You can switch this off & keep using 64 bit by setting *def_64bit = true* in *SamSrf_defaults.mat*  
+
 ### Version 9.51 (19-06-2023) - Advanced Age Day update!  
 - Borders of ROI in DisplayMaps are now transparent (DSS)  
 - Added option for transparency in samsrf_surf (DSS)  

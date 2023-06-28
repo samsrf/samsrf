@@ -22,6 +22,7 @@ function samsrf_benson2srf(mghimg, surfdir)
 % 16/02/2022 - Fixed bug when no NII is found for T1 (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 25/09/2022 - Changed structural field to surfir instead of T1 NIfTI (DSS)
+% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
 %
 
 %% Determine file parts 
@@ -86,6 +87,9 @@ Srf.Data(3,:) = y0';
 Srf.Data(5,:) = rois';
 Srf.Rule = 'X';
 Srf.Values = valstrs;
+
+%% Convert to 32 bit?
+Srf = samsrf_32bit_srf(Srf);
 
 %% Save surface data
 save([hemis '_' mghimg '.mat'], 'Srf', '-v7.3');
