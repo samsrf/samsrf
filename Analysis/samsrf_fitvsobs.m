@@ -8,6 +8,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 %
 % 12/02/2022 - Now allows plotting convolved predictions stored in coarse-fit data files (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 12/07/2023 - Fixed bug with downsampling predictions (DSS)
 %
 
 % Expand Srf if necessary
@@ -33,7 +34,7 @@ elseif isfield(Srf, 'X')
     end
     % Convolve prediction with HRF?
     if isfield(Model, 'Hrf') && ~Model.Coarse_Fit_Only % Only needed for fine-fits
-        X = prf_convolve_hrf(X, Model.Hrf, Model.Downsample_Predictions);
+        X = prf_convolve_hrf(X, Model.Hrf, 1); % No downsampling to retain temporal resolution of prediction!
     end
 
     % If raw data exists use that
@@ -65,7 +66,7 @@ end
 hold off
 plot((1:length(Y))*TR*Model.Downsample_Predictions, Y, 'color', [.5 .5 1], 'linewidth', 2);
 hold on
-plot((1:Model.Downsample_Predictions:length(X))*TR, X, 'r', 'linewidth', 2);
+plot((1:length(X))*TR, X, 'r', 'linewidth', 2);
 xlim([1 length(Y)]*TR);
 grid on
 line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);

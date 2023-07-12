@@ -49,6 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.61 (12-07-2023)
+- Fixed bug in samsrf_fitvsobs when downsampling predictions (DSS)    
+
 ### Version 9.6 (29-06-2023) - Face-palm update!!!  
 - **Data is now 32 bit by default to improve speed of model fits & reduce disc space!** (DSS)  
 - You can switch this off & keep using 64 bit by setting *def_64bit = true* in *SamSrf_defaults.mat*  
