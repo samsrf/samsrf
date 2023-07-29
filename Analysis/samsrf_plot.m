@@ -85,6 +85,8 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 % 09/04/2022 - Changed scatter plot to use transparent dots instead of crosses (DSS)
 %              Removed Octave compatibility because never gonna happen (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 15/07/2023 - Fixed bug with handle for polar plots (DSS)
+%              Polar plots are now enforce square scaled (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -342,10 +344,15 @@ else
     if strcmpi(ValIv,'Polar') || strcmpi(ValIv,'Phi') || strcmpi(ValIv,'Theta') || strcmpi(ValIv,'Phase')
         % Bin polar plot
         x = [1:size(Res,1) 1];
-        polar(Res(x,1)/180*pi, Res(x,2), ['-o' Colour]); % Summary curve);
+        FigHdl = polar(Res(x,1)/180*pi, Res(x,2), ['-o' Colour]); % Summary curve);
         hold on
         polar(Res(x,1)/180*pi, Res(x,2)+Res(x,3), [':' Colour]); % CI lower limit
         polar(Res(x,1)/180*pi, Res(x,2)+Res(x,4), [':' Colour]); % CI upper limit
+        axis square
+        s = nanmax(Res(x,2)+Res(x,3)*3);
+        if ~isnan(s)
+            axis([-s s -s s]);
+        end
     else
         % Bin plot
         FigHdl = plot(Res(:,1), Res(:,2), 'linewidth', 2, 'color', Colour, 'Marker', 'o'); % Summary curve

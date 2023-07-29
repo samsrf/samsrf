@@ -49,8 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.61 (12-07-2023)
-- Fixed bug in samsrf_fitvsobs when downsampling predictions (DSS)    
+### Version 9.611 (29-07-2023)
+- Fixed bug in samsrf_fitvsobs when downsampling predictions (DSS)  
+- Fixed bug with polar plots in samsrf_plot (DSS)  
 
 ### Version 9.6 (29-06-2023) - Face-palm update!!!  
 - **Data is now 32 bit by default to improve speed of model fits & reduce disc space!** (DSS)  
