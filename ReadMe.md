@@ -49,7 +49,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.611 (29-07-2023)
+### Version 9.612 (08-08-2023) 
+- Added function to generating reverse correlation pRF profiles (DSS)  
+- Updated ModelHelp text on reverse correlation pRF analysis accordingly (DSS)  
 - Fixed bug in samsrf_fitvsobs when downsampling predictions (DSS)  
 - Fixed bug with polar plots in samsrf_plot (DSS)  
 

@@ -318,9 +318,9 @@ switch AnalysisFunc
            case 'Save_Rmaps'
                HelpText = { '[Optional] Boolean'
 							''
-							'If true, the reverse correlation profiles are saved in the data file. This is currently necessary for using the backprojection function for reconstructing visual field coverage (samsrf_backproj_revcor). However, this means the map file will take up a lot more disc space.'
+							'If true, the reverse correlation profiles are saved in the data file. However, this means the map file will take up a lot more disc space. Only do this if you need lots of these profiles at the same time.'
 							''
-							'Most other analyses are possible without saving these profiles because they can be easily calculated again.'
+							'You can easily get away without saving these profiles because they can be easily calculated again with samsrf_revcor_rmap.'
 							''
 							'Defaults to true.' };
            case 'Hooke_Jeeves_Steps'
