@@ -34,7 +34,9 @@ for v = 1:length(Roi)
     % Create profile & store parameters
     if ~isempty(mR) && ~isnan(mR) 
         cM = reshape(cM,dim,dim); % Reshape into a map
-        cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
+        if dim ~= Model.Rdim
+            cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
+        end
         cM = cM(:); % Vectorise again
         % Store pRF profile
         Rmap(:,v) = cM; % Activation map as vector 

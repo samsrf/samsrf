@@ -22,11 +22,13 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % back-projection of the pRF density (all pRFs summed with equal weights). 
 %
 % Returns an intensity movie of the time series plotted back into visual space 
-% as a matrix of 50 x 50 x NumberOfVolumes. You can use samsrf_showprf to
-% display the outputs.
+% as a matrix of same 2D dimensions as Rmaps with NumberOfVolumes layers. 
+% You can use samsrf_showprf to display the outputs.
 %
 % 14/03/2022 - Ensures an error if Rmaps is NaN, that is, from stripped Srf (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 09/08/2023 - Fixed bug with profiles not being 50x50 pixels (DSS)
+%              Updated error message when Rmaps is NaN (DSS)
 %
 
 if nargin < 4
@@ -41,8 +43,11 @@ end
 
 % Have pRF profiles been saved?
 if isnan(Rmaps)
-    error('pRF reverse correlation profiles were not saved in Srf!');
+    error('Requires pRF reverse correlation profiles in Rmaps!');
 end
+
+% Dimensions of correlation profiles
+dim = sqrt(size(Rmaps,1));
 
 % Threshold based on R^2
 gof = GoF(1,:) > Threshold(1);
@@ -66,7 +71,7 @@ if NormaliseByDensity
 end
 
 % Mean reverse correlation maps
-Bp = NaN(50,50,size(Response,1));
+Bp = NaN(dim,dim,size(Response,1));
 % Loop thru response rows
 for r = 1:size(Response,1)
     % Multiply profiles by responses
@@ -78,5 +83,5 @@ for r = 1:size(Response,1)
         CurRmap = CurRmap ./ Dens;
     end
     % Reshape to square image
-    Bp(:,:,r) = reshape(CurRmap, 50, 50);
+    Bp(:,:,r) = reshape(CurRmap, dim, dim);
 end

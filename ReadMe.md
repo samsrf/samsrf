@@ -5,7 +5,7 @@ This major release includes the most recent updates which involved an improved
 a fundamental changefrom previous SamSrf versions. The toolbox also includes 
 reverse correlation pRF analysis & connective fields analysis. 
 
-There are various GUI-based tools available for specific functions:  
+There are various GUIs & other tools available for specific purposes:  
     1. Projecting data to surface:              SurfaceProjection  
     2. Making map figures:                      DisplayMaps  
     3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
@@ -13,6 +13,7 @@ There are various GUI-based tools available for specific functions:
     5. Delineating ROIs:                        DelineationTool  
     6. Viewing stimulus apertures:              ViewApertures  
 	7. Help on model parameters:                ModelHelp  
+    8. Help on all SamSrf functions:            FuncHelp  
 
 ## DIFFERENCES TO EARLIER VERSIONS
 
@@ -49,11 +50,15 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.612 (08-08-2023) 
+### Version 9.62 (09-08-2023) 
 - Added function to generating reverse correlation pRF profiles (DSS)  
+- Default for reverse correlation pRF is now to not save profiles! (DSS)  
+- Also the default dimension of reverse correlation profiles is now 100 (DSS)  
+- Updates & bugfix in samsrf_backproj_revcor for this purpose (DSS)  
 - Updated ModelHelp text on reverse correlation pRF analysis accordingly (DSS)  
 - Fixed bug in samsrf_fitvsobs when downsampling predictions (DSS)  
 - Fixed bug with polar plots in samsrf_plot (DSS)  
+- Added FuncHelp tool to display help sections on all functions (DSS)  
 
 ### Version 9.6 (29-06-2023) - Face-palm update!!!  
 - **Data is now 32 bit by default to improve speed of model fits & reduce disc space!** (DSS)  

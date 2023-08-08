@@ -13,6 +13,7 @@ function Model = samsrf_model_defaults(AnalysisFunc, Model)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 06/05/2022 - Changed CF model fitting default (DSS)
+% 09/08/2023 - Default in reverse correlation pRF is now not to save profiles (DSS)
 %
 
 %% Which analysis function?
@@ -168,13 +169,13 @@ switch AnalysisFunc
 
         % Defaults for optional parameters
         if ~isfield(Model, 'Rdim')
-            Model.Rdim = 50; % Side length of correlation matrix if saved
+            Model.Rdim = 100; % Side length of correlation profile = resolution of backprojection
         end
         if ~isfield(Model, 'Noise_Ceiling_Threshold')
             Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
         end
         if ~isfield(Model, 'Save_Rmaps')
-            Model.Save_Rmaps = true; % Whether or not to save correlation profiles in data file
+            Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
         end
         
     %% Connective field analysis

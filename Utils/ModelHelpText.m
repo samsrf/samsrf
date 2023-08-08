@@ -306,7 +306,9 @@ switch AnalysisFunc
 							''
 							'If you decide to save them in the map file (see Model.Save_Rmaps) this defines the side length of reverse correlation profiles. It is probably unnecessary to save those in the resolution of apertures. A smaller number means you use less disc space.'
 							''
-							'Defaults to 50.' };
+                            'This parameter also determines the resolution of any backprojectons you generate with samsrf_revcor_rmap. So by making this number smaller than the aperture size the backprojections will appear smoother.'
+                            ''
+							'Defaults to 100.' };
            case 'Noise_Ceiling_Threshold'
                HelpText = { '[Optional] Scalar' 
 							''
@@ -322,7 +324,7 @@ switch AnalysisFunc
 							''
 							'You can easily get away without saving these profiles because they can be easily calculated again with samsrf_revcor_rmap.'
 							''
-							'Defaults to true.' };
+							'Defaults to false.' };
            case 'Hooke_Jeeves_Steps'
                HelpText = { '[Optional] Vector of scalars'
 							''
