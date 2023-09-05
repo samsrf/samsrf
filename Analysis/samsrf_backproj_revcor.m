@@ -29,6 +29,7 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 09/08/2023 - Fixed bug with profiles not being 50x50 pixels (DSS)
 %              Updated error message when Rmaps is NaN (DSS)
+% 03/09/2023 - NaNs are now set to zero (DSS)
 %
 
 if nargin < 4
@@ -85,3 +86,6 @@ for r = 1:size(Response,1)
     % Reshape to square image
     Bp(:,:,r) = reshape(CurRmap, dim, dim);
 end
+
+% Set NaNs to zero
+Bp(isnan(Bp)) = 0;

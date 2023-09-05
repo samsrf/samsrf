@@ -14,6 +14,7 @@ function Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, FitParam)
 % Returns the surface data structure with the parameter fits.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 01/09/2023 - Added option for negative peaks (DSS)
 %
 
 % Parallel processing?
@@ -44,7 +45,19 @@ if ProgReps
 end
 parfor v = 1:length(GoF)
     vx = GoF(v); % Current vertex
-    [fP,fR] = samsrf_fit2dprf(prf_contour(Srf,vx), Model.Prf_Function, Model.SeedPar_Function(Srf.Raw_Data(:,vx)), [Model.Scaling_Factor Model.Scaled_Param], ApFrm, FitParam); % Fit 2D model
+    Rmap = prf_contour(Srf,vx); % Correlation profiles
+    % If peak can be negative
+    PeakSign = 1;
+    if Model.Allow_Negative_Peaks
+        % Invert sign if peak is negative
+        if abs(max(Rmap(:))) < abs(min(Rmap(:)))
+            Rmap = -Rmap;
+            PeakSign = -1;
+        end
+    end
+    [fP,fR] = samsrf_fit2dprf(Rmap, Model.Prf_Function, Model.SeedPar_Function(Srf.Raw_Data(:,vx)), [Model.Scaling_Factor Model.Scaled_Param], ApFrm, FitParam); % Fit 2D model
+    fP(end-1:end) = fP(end-1:end) * PeakSign; % Invert amplitude if necessary
+   
     % Is good fit?
     KeepFit = true;  
     for p = 1:length(Model.Param_Names)

@@ -14,6 +14,7 @@ function Model = samsrf_model_defaults(AnalysisFunc, Model)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 06/05/2022 - Changed CF model fitting default (DSS)
 % 09/08/2023 - Default in reverse correlation pRF is now not to save profiles (DSS)
+% 31/08/2023 - Added option for negative peaks in reverse correlation pRF (DSS)
 %
 
 %% Which analysis function?
@@ -176,6 +177,9 @@ switch AnalysisFunc
         end
         if ~isfield(Model, 'Save_Rmaps')
             Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
+        end
+        if ~isfield(Model, 'Allow_Negative_Peaks')
+            Model.Allow_Negative_Peaks = false; % Whether peaks can be negative
         end
         
     %% Connective field analysis

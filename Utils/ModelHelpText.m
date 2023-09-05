@@ -325,6 +325,12 @@ switch AnalysisFunc
 							'You can easily get away without saving these profiles because they can be easily calculated again with samsrf_revcor_rmap.'
 							''
 							'Defaults to false.' };
+           case 'Allow_Negative_Peaks'    
+               HelpText = { '[Optional] Boolean'
+                            ''
+                            'If true, the peak correlation can be negative. In this case, the sign of all correlations is inverted. This option makes sense whenever anti-correlations might be meaningful like in VEP data for different visual field positions.'
+                            ''
+							'Defaults to false.' };
            case 'Hooke_Jeeves_Steps'
                HelpText = { '[Optional] Vector of scalars'
 							''

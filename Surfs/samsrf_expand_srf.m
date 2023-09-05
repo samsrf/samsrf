@@ -33,6 +33,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf, Use64bit)
 % 16/10/2022 - Fixed possible backwards Matlab compatibility issue (DSS)
 % 29/06/2023 - Data now converted into 32 bit unless fixed in SamSrf_defaults (DSS)
 %              Also addded option to force using 64 bit data though (DSS)
+% 22/08/2023 - Now supports EEG/MEG data files (DSS)
 %
 
 %% In case no values defined
@@ -44,7 +45,7 @@ if ~isfield(Srf, 'Values')
 end
 
 %% Do nothing if volumetric data! 
-if ~strcmpi(Srf.Hemisphere, 'vol')
+if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
     
     %% Deal with anatomical meshes
     if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')

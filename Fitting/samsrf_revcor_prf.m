@@ -55,6 +55,9 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 23/06/2022 - Now warns if aperture matrix contains negative values (DSS)
 % 10/08/2022 - Removed initial thresholding of reverse correlation profiles (DSS)
 %              Now supports convex hull algorithm for fast estimation of pRF parameters (DSS)
+% 31/08/2023 - Added option for negative peaks (DSS)
+%              Removed unnecessary line (DSS)
+% 01/09/2023 - Beta now reflects negative peaks (DSS)
 %
 
 %% Defaults & constants
@@ -232,9 +235,17 @@ for v = 1:length(mver)
     cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
     warning on
     cM = cM(1,:); % Remove intercept beta
+    % If peak can be negative
+    PeakSign = 1;
+    if Model.Allow_Negative_Peaks
+        % Invert sign if peak is negative
+        if abs(max(cM)) < abs(min(cM))
+            cM = -cM;
+            PeakSign = -1;
+        end
+    end
     % Determine peak
-    mM = max(cM); % Find peak activation in each map
-    mM = mM(1); % Ensure only one value
+    mM = max(cM); % Find positive peak in each map
     gp = cM > mM/2; % Full area at half maximum
     m = find(cM==mM,1); % Find peak coordinate
     mR = corr(Y, X(:,m)); % Peak correlation with stimulus design
@@ -248,7 +259,7 @@ for v = 1:length(mver)
         fXimg(v) = xc(m);  % X-coordinate
         fYimg(v) = yc(m);  % Y-coordinate
         fSimg(v) = sqrt(mean(gp) * (Model.Scaling_Factor*2)^2); % Full width at half maximum
-        fBimg(v) = mM;  % Activation peak
+        fBimg(v) = mM * PeakSign;  % Activation peak & inverted sign if necessary
         fRimg(v) = mR^2;  % Variance explained
     end
     % Progress report

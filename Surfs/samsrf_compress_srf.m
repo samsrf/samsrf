@@ -18,10 +18,11 @@ function Srf = samsrf_compress_srf(Srf,vx)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/05/2022 - Now works with volumetric data (DSS)
 % 29/06/2023 - Defaults to saving 32 bit data unless fixed in SamSrf_defaults (DSS)  
+% 22/08/2023 - Now supports EEG/MEG data files (DSS)
 %
 
 %% Do nothing if volumetric data! 
-if ~strcmpi(Srf.Hemisphere, 'vol')
+if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
 
     %% Remove data outside of region of interest
     if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)

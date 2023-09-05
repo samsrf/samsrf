@@ -59,6 +59,7 @@ switch AnalysisFunc
                         'SeedPar_Function';
                         'R2_Threshold';
                         'Save_Rmaps';
+                        'Allow_Negative_Peaks';
                         'Rdim';
                         'Hooke_Jeeves_Steps';
                         'Nelder_Mead_Tolerance'  };

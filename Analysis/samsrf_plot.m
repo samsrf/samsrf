@@ -34,9 +34,12 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 %
 %               Prefixing ValDv/ValIv by ':' uses unsmoothed data (if possible).
 %
-%               Finally, this can also refer to anatomical statistics such as
+%               It can also refer to anatomical statistics such as
 %                'Area', 'Thickness', or 'Curvature'. (These will always be
 %                anatomical so don't have any Srf.Values of the same names!)
+%
+%               Finally, if using M/EEG data you can also use 
+%                'Sensor' or 'Time', equivalent to Srf.SensorNums or Srf.TimePts. 
 %
 % Bins:         Vector with the boundaries of the bins to be analysed.
 %                0:8 would return bins centred on 0.5:7.5, respectively.
@@ -55,6 +58,7 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 %
 % Roi:          ROI label (without the file extension).
 %                Defaults to '' and data isn't restricted to any ROI.
+%               You can also define a vector of ROI vertex indeces directly.              
 %
 % Threshold:    The R^2 threshold for the IV to be included (defaults to 0.01).
 %                When plotting normalised R^2 this threshold is first applied 
@@ -87,6 +91,8 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/07/2023 - Fixed bug with handle for polar plots (DSS)
 %              Polar plots are now enforce square scaled (DSS)
+% 31/08/2023 - Added option to provide ROI vertex indeces instead of char (DSS)
+% 03/09/2023 - Now allows plotting time courses of EEG data (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -96,6 +102,16 @@ SrfIv = samsrf_expand_srf(SrfIv);
 %% Check compatibility
 if size(SrfDv.Data,2) ~= size(SrfIv.Data,2)
     error('SrfDv & SrfIv are not the same mesh!');
+end
+
+%% Is this M/EEG data?
+if strcmpi(SrfDv.Hemisphere, 'eeg')
+    SrfDv.Data(end+1:end+2,:) = [SrfDv.SensorNums; SrfDv.TimePts];
+    SrfIv.Data(end+1:end+2,:) = [SrfIv.SensorNums; SrfIv.TimePts];
+    SrfDv.Values{end+1} = 'Sensor';
+    SrfIv.Values{end+1} = 'Sensor';
+    SrfDv.Values{end+1} = 'Time';
+    SrfIv.Values{end+1} = 'Time';
 end
 
 %% Plotting bin summary stat?
@@ -177,7 +193,7 @@ for i_var = 1:2
         % Curvature
         Data = Srf.Curvature;
     else
-        %% Anything else
+        % Anything else
         loc = strcmpi(Srf.Values, Val);
         if sum(loc) > 1
             error([ValLab ' ' Val ' is ambiguous!']);
@@ -214,7 +230,12 @@ GoF(DataDv <= Threshold(2) | DataDv >= Threshold(3) ...
 % Load ROI label
 if ~isempty(Roi)
     % ROI vertex indeces
-    RoiVx = samsrf_loadlabel(Roi);
+    if ischar(Roi)
+        RoiVx = samsrf_loadlabel(Roi); % Load from file
+    else
+        RoiVx = Roi; % Define indeces directly
+        Roi = 'List of data points';
+    end
     % Label ROI vertices
     RoiLab = false(1,size(SrfIv.Data,2));
     RoiLab(RoiVx) = true;
