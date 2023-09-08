@@ -254,7 +254,7 @@ for v = 1:length(mver)
         cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
         cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
         cM = cM(:); % Vectorise again
-        % Store pRF profile
+        % Store pRF parameters
         Rmaps(:,v) = cM; % Activation map as vector 
         fXimg(v) = xc(m);  % X-coordinate
         fYimg(v) = yc(m);  % Y-coordinate

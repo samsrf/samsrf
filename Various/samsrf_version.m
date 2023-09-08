@@ -12,5 +12,5 @@ function [v,d] = samsrf_version
 % be used now. Fingers crossed that MapSrf will instead become a reality...
 %
 
-v = 9.624; % SamSrf version number (3rd digit is minor change)
-d = '03-09-2023'; % Release date 
+v = 9.626; % SamSrf version number (3rd digit is minor change)
+d = '08-09-2023'; % Release date 

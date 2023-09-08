@@ -15,12 +15,15 @@ function samsrf_showprf(SrfEcc, IdxMat, Model, PlotType)
 %
 %   Model:     Model structure containing the pRF function etc if that's what your plotting.
 %               If empty this isn't used.
+%              Alternatively, this can be a boolean (logical). 
+%               If true, this incorporates the sign of the pRF (only works if a Srf is provided).
 %
 %   PlotType:  Whether to plot a contour plot ('C'), a surface plot ('S'), or a 3D scatter plot ('D')
 %
 %
 % 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 08/09/2023 - Now possible to invert sign if needed (DSS)
 %
 
 if nargin < 3
@@ -46,7 +49,8 @@ if ~isstruct(SrfEcc)
 else
     % Expand Srf if necessary
     SrfEcc = samsrf_expand_srf(SrfEcc);
-    if isempty(Model)
+    % Use Model structur?
+    if isempty(Model) || islogical(Model)
         % Reverse correlation plots
         Xc = SrfEcc.X_coords;
         Yc = SrfEcc.Y_coords;
@@ -59,11 +63,16 @@ else
             else
                 Y = SrfEcc.Y(:,IdxMat); % Observed time series
             end
+            % Sign of pRF amplitude?
+            sAmp = sign(SrfEcc.Data(5,IdxMat));
             % Regression on raw stimulus design
             warning off
             IdxMat = [Y ones(size(Y,1),1)] \ X; % Linear regression
             warning on
-            IdxMat = IdxMat(1,:); % Remove intercept beta     	
+            IdxMat = IdxMat(1,:); % Remove intercept beta     
+            if islogical(Model) && Model 
+                IdxMat = IdxMat * sAmp;
+            end
             IdxMat = reshape(IdxMat, [1 1] * sqrt(length(IdxMat))); % Reshape vector into matrix
             IdxMat = imresize(IdxMat, [size(Yc,1) size(Xc,2)]); % Down-sample r-map
         else

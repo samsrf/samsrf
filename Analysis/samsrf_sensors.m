@@ -12,6 +12,7 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, IsFlat)
 % IsFlat toggles whether to plot a 3D (default) or 2D arrangement.
 %
 % 30/08/2023 - Written (DSS)
+% 07/09/2023 - Axis now square in flat mode (DSS)
 %
 
 if nargin < 3
@@ -99,6 +100,7 @@ Data = Data(Srf.Data(1,:) > R2Thr);
 if IsFlat
     scatter(Srf.Vertices(:,1), Srf.Vertices(:,2), 120, Data, 'filled', 'markeredgecolor', 'k');
     axis([-1.2 1.2 -1.2 1.2]);
+    axis square
 else
     scatter3(Srf.Vertices(:,1), Srf.Vertices(:,2), Srf.Vertices(:,3), 120, Data, 'filled', 'markeredgecolor', 'k');
 end
