@@ -13,6 +13,7 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, IsFlat)
 %
 % 30/08/2023 - Written (DSS)
 % 07/09/2023 - Axis now square in flat mode (DSS)
+% 08/09/2023 - Corrected colour scheme for pRF sizes (DSS)
 %
 
 if nargin < 3
@@ -71,7 +72,7 @@ elseif strcmpi(Map, 'Polar')
     end
 else
     % Is pRF size?
-    if strcmpi(Map, 'Sigma')
+    if strcmpi(Map, 'Sigma') || strcmpi(Map, 'Fwhm') || strcmpi(Map, 'Centre') || strcmpi(Map, 'Surround') 
         Cmap = colormap(def_cmap_sigma(2:end));
         if def_cmap_sigma(1) == '-'
             Cmap = flipud(Cmap);
