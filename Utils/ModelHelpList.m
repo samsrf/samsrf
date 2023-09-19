@@ -54,6 +54,7 @@ switch AnalysisFunc
                         'Aperture_File';
                         'Noise_Ceiling_Threshold';
                         'Prf_Function';
+                        'Convex_Hull_Threshold';
                         'Param_Names';
                         'Scaled_Param';
                         'SeedPar_Function';

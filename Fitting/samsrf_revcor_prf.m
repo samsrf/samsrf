@@ -58,6 +58,9 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 31/08/2023 - Added option for negative peaks (DSS)
 %              Removed unnecessary line (DSS)
 % 01/09/2023 - Beta now reflects negative peaks (DSS)
+% 19/09/2023 - Added option to use summary statistics as parameter estimates (DSS)
+%              Convex hull algorithm can now also account for negative peaks (DSS)
+%              Threshold for convex hull algorithm can now be adjusted (DSS)
 %
 
 %% Defaults & constants
@@ -78,8 +81,8 @@ new_line;
 disp('Current working directory:');
 disp([' ' pwd]);
 new_line;
-% Are we also fitting pRF model?
-if isfield(Model, 'Prf_Function')
+% Are we also fitting explicit pRF model?
+if strcmpi(class(Model.Prf_Function), 'function_handle')
     % Which optimisation algorithm is used?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Hooke-Jeeves algorithm
@@ -281,7 +284,7 @@ Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
 Srf.Rmaps = NaN; % If fitting pRF models, need to calculate profiles anew
 
 %% Fit 2D pRF models?
-if isfield(Model, 'Prf_Function')
+if strcmpi(class(Model.Prf_Function), 'function_handle')
     disp('Fitting pRF models to reverse correlation profiles...');
     Srf.Raw_Data = Srf.Data; % Store reverse correlations in raw data
     Srf.Raw_Values = Srf.Values; % Also store value names cause they'll change
@@ -318,7 +321,7 @@ if isfield(Model, 'Prf_Function')
     Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, AlgorithmParam);
     t3 = toc(t0); 
     disp(['pRF parameter fitting completed in ' num2str(t3/60/60) ' hours.']);
-else
+elseif Model.Prf_Function == 0
     % Using convex hull algorithm to determine pRF 
     disp('Using convex hull algorithm to estimate parameters...');
     % Loop through mask vertices 
@@ -327,8 +330,15 @@ else
         % Convex hull estimation
         vx = mver(v);
         Rmap = prf_contour(Srf, vx);
+        % If peak can be negative
+        if Model.Allow_Negative_Peaks
+            % Invert sign if peak is negative
+            if abs(max(Rmap(:))) < abs(min(Rmap(:)))
+                Rmap = -Rmap;
+            end
+        end
         txy = [xc(:) yc(:)]; % Matrix with pixel coordinates in visual space
-        txy = txy(Rmap(:) > max(Rmap(:))/2,:); % Limit pixel matrix to suprathreshold pixels
+        txy = txy(Rmap(:) > max(Rmap(:)) * Model.Convex_Hull_Threshold, :); % Limit pixel matrix to suprathreshold pixels
         Dt = delaunayTriangulation(txy); % Delaunay triangulation of CF profile
         try
             % Determine pRF parameters
@@ -349,6 +359,11 @@ else
     end    
     t3 = toc(t0); 
     disp(['pRF parameter estimation completed in ' num2str(t3/60/60) ' hours.']);
+elseif Model.Prf_Function == -1
+    % Summary statistics instead of model fitting
+    disp('Using summary statistics instead of model fitting')    
+else
+    error('Invalid value chosen for Model.Prf_Function!');
 end
 new_line;
 

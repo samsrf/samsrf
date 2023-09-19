@@ -15,6 +15,7 @@ function Model = samsrf_model_defaults(AnalysisFunc, Model)
 % 06/05/2022 - Changed CF model fitting default (DSS)
 % 09/08/2023 - Default in reverse correlation pRF is now not to save profiles (DSS)
 % 31/08/2023 - Added option for negative peaks in reverse correlation pRF (DSS)
+% 19/09/2023 - Reverse correlation pRF now defaults to convex hull algorithm (DSS)
 %
 
 %% Which analysis function?
@@ -145,8 +146,13 @@ switch AnalysisFunc
             error('Aperture file is undefined!');
         end
         
+        % Default for parameter estimation
+        if ~isfield(Model, 'Prf_Function')
+            Model.Prf_Function = 0;
+        end
+        
         % If fitting 2D pRF model
-        if isfield(Model, 'Prf_Function')
+        if strcmpi(class(Model.Prf_Function), 'function_handle')
             if ~isfield(Model, 'Param_Names')
                 error('Parameter names are undefined!');
             end
@@ -165,7 +171,12 @@ switch AnalysisFunc
             % Optional parameter for fitting
             if ~isfield(Model, 'R2_Threshold')
                 Model.R2_Threshold = 0;
-            end            
+            end
+        elseif Model.Prf_Function == 0
+            % Using convex hull algorithm
+            if ~isfield(Model, 'Convex_Hull_Threshold')
+                Model.Convex_Hull_Threshold = 0.5; % What proportion of maximum to surround with convex hull 
+            end
         end        
 
         % Defaults for optional parameters

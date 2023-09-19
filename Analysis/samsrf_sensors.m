@@ -14,6 +14,7 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, IsFlat)
 % 30/08/2023 - Written (DSS)
 % 07/09/2023 - Axis now square in flat mode (DSS)
 % 08/09/2023 - Corrected colour scheme for pRF sizes (DSS)
+% 19/09/2023 - pRF size measures now zero-bound (DSS)
 %
 
 if nargin < 3
@@ -107,7 +108,8 @@ else
 end
 % Colour scheme
 colormap(Cmap);
-if strcmpi(Map, 'R^2') || strcmpi(Map, 'Eccentricity') || strcmpi(Map, 'Sigma')
+if strcmpi(Map, 'R^2') || strcmpi(Map, 'Eccentricity') || strcmpi(Map, 'Sigma') ...
+                       || strcmpi(Map, 'Fwhm') || strcmpi(Map, 'Centre') || strcmpi(Map, 'Surround') 
     caxis([0 1]*max(Data)); % Scale colour scheme
 else
     caxis([-1 1]*max(abs(Data))); % Scale colour scheme

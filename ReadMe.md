@@ -50,9 +50,11 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.626 (08-09-2023) 
-- Added support for EEG/MEG data files - SANDBOX VERSION! (DSS)  
+### Version 9.63 (20-09-2023) 
+- Added support for EEG/MEG data files (DSS)  
+- It is now possible to adjust threshold for reverse correlation pRFs convex hull (DSS)  
 - Reverse correlation pRF now has option to allow negative peaks (DSS)  
+- Reverse correlation pRF can now also simply use summary statistics to estimate parameters (DSS)  
 - Negative peaks now also possible in samsrf_showprf (DSS)  
 - Some other adaptations to reverse correlation backprojections (DSS)  
 

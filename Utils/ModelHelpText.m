@@ -257,9 +257,9 @@ switch AnalysisFunc
                             ''
                             'Important: unlike for forward-model pRF analysis, the apertures in reverse-correlation analysis are still using movies, -not- vectorised apertures! While there could be reasons to change this, the reverse correlation analysis is already very fast anyway & so we went with the maxim, "Don''t fix what ain''t broken"...' };
            case 'Prf_Function'
-               HelpText = {	'[Optional] Function handle'
+               HelpText = {	'Function handle / Scalar'
 							''
-							'This defines the pRF model to fit to the reverse correlation profiles. The most common model is a 2D Gaussian. Other models with more complicated shapes, such as antagonistic centre-surround structure, elongated, or asymmetric profiiles, are also possible (but so far we have not tested them). You can find the model functions in the SamSrf/pRF subfolder & you can also make your own models. Defining the pRF function requires the following syntax, which will look quite complex at first glance. For example here is the 2D Gaussian model:'							
+							'If this is a function handle, this defines the pRF model to fit to the reverse correlation profiles. The most common model is a 2D Gaussian. Other models with more complicated shapes, such as antagonistic centre-surround structure, elongated, or asymmetric profiiles, are also possible (but so far we have not tested them). You can find the model functions in the SamSrf/pRF subfolder & you can also make your own models. Defining the pRF function requires the following syntax, which will look quite complex at first glance. For example here is the 2D Gaussian model:'							
 							''
 							'   @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth)'
 							''
@@ -267,7 +267,17 @@ switch AnalysisFunc
 							''
 							'As with forward-modelling, the standard 2D Gaussian model also allows a lot of flexibility for defining 1D tuning functions. You can simply set the x0 or y0 parameter to zero and that way the model only has two free parameters while the other dimension is fixed; e.g. see the tuning curve examples in SamSrf/Models.'
 							''
-							'By default, this is not defined & no 2D model is fit to the reverse correlation profiles.' };
+                            'If this is a scalar it can be either 0 or -1:'
+                            '   0: Uses convex hull algorithm to determine the centroid & extent of the reverse correlation profile.'
+                            '  -1: Determines parameters of reverse correlation profile from summary statistics, that is, the peak & area.' 
+                            ''
+							'Defaults to 0, meaning that the convex hull algorithm is used to estimated parameters.' };
+           case 'Convex_Hull_Threshold'
+               HelpText = { '[Optional] Scalar'
+                            ''
+                            'Defines the proportion of the maximal correlation that falls within the pRF. This is only used by the convex hull algorithm, that is, when Prf_Function is set to 0.'
+                            ''
+                            'Defaults to 0.5.' };
            case 'Param_Names'
                HelpText = { 'Cell array of chars'
 							''

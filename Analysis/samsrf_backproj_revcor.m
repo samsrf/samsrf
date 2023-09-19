@@ -5,10 +5,15 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % Projects the activity values in Response back into visual space using the
 % reverse correlation pRF profiles in Rmaps and using the R^2 values in GoF
 % for filtering. Effectively, this is a mean of all pRF profiles weighted by 
-% their response. Rmaps and GoF are taken from Srf.Data(1,:) and Srf.Rmaps fields 
-% with the vertices you want, as produced by samsrf_revcor_prf. Response is
-% a matrix where each row is a corresponding vertex in Rmaps and GoF and
-% each row is a response map (e.g. a volume from a time course).
+% their response. 
+
+% Rmaps and GoF are taken from Srf.Data(1,:) and Srf.Rmaps fields with the 
+% vertices you want, as produced by samsrf_revcor_prf. You can also regenerate 
+% the Rmaps using samsrf_revcor_rmap. Since Rmaps are no longer saved by default 
+% this is probably what most people will do.
+%
+% Response is a matrix where each row is a corresponding vertex in Rmaps &
+% GoF & each row is a response map (e.g. a volume from a time course).
 %
 % WARNING: This function assumes Rmaps have been saved in the Srf. If they 
 %          have been stripped it would take way to long to recompute them!
@@ -30,6 +35,7 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 % 09/08/2023 - Fixed bug with profiles not being 50x50 pixels (DSS)
 %              Updated error message when Rmaps is NaN (DSS)
 % 03/09/2023 - NaNs are now set to zero (DSS)
+% 16/09/2023 - Clarified that Rmaps can also be regenerated (DSS)
 %
 
 if nargin < 4
