@@ -1,12 +1,13 @@
-function samsrf_vepgfp(Srf)
+function Gfp = samsrf_vepgfp(Srf)
 %
-% samsrf_vepgfp(Srf)
+% Gfp = samsrf_vepgfp(Srf)
 %
 % Plots the global field power across time averaged for all sensors.
 % Each curve depicts the power for one stimulus condition.
 % This requires a Srf file with EEG/MEG data. 
 %
 % 08/09/2023 - Written (DSS)
+% 19/09/2023 - Now returns the global field power curve for each row (DSS)
 %
 
 %% Check if M/EEG data
