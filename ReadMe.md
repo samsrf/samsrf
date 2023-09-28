@@ -50,6 +50,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.64 (28-09-2023) 
+- Updated M/EEG functions for scalp distribution plots (DSS)  
+- Srf structure for M/EEG data was reorganised (DSS)  
+
 ### Version 9.631 (20-09-2023) 
 - Added support for EEG/MEG data files (DSS)  
 - It is now possible to adjust threshold for reverse correlation pRFs convex hull (DSS)  
