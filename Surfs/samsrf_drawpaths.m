@@ -13,10 +13,10 @@ function samsrf_drawpaths(PatchHdl, Paths, Colour, Srf)
 %   Srf:        Srf with surface data - only required if loading .label files
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 03/10/2023 - Removed overly verbose defaults message (DSS)
 %
 
 %% Load default parameters?
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 
 %% Ensure cell array

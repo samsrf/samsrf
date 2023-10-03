@@ -23,6 +23,9 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, PlotType)
 %              Adapted colour schemes (DSS)
 % 28/09/2023 - Changed Srf structure for scalp distribution plots (DSS)
 %              Sub-threshold sensors are now plotted but set to 0 (DSS)
+% 03/10/2023 - Removed overly verbose defaults message (DSS)
+%              Added hold off to prevent overloading plots (DSS)
+%              R^2 maps now use eccentricity colour scheme (DSS)
 %
 
 if nargin < 3
@@ -48,7 +51,6 @@ if ~strcmpi(Srf.Hemisphere, 'eeg')
 end
 
 %% Default colour schemes
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 % Ensure colour maps have sign
 if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
@@ -94,6 +96,11 @@ else
     if strcmpi(Map, 'Sigma') || strcmpi(Map, 'Fwhm') || strcmpi(Map, 'Centre') || strcmpi(Map, 'Surround') 
         Cmap = colormap(def_cmap_sigma(2:end));
         if def_cmap_sigma(1) == '-'
+            Cmap = flipud(Cmap);
+        end
+    elseif strcmpi(Map, 'R^2') || strcmpi(Map, 'nR^2') 
+        Cmap = colormap(def_cmap_eccen(2:end));
+        if def_cmap_eccen(1) == '-'
             Cmap = flipud(Cmap);
         end
     else
@@ -190,7 +197,7 @@ scatter(sX, sY, 60, Data, 'filled', 'markeredgecolor', 'w');
 scatter(sX, sY, 30, Data, 'k', 'linewidth', 2);
 axis off
 set(gcf, 'color', 'w');
-
+hold off
 
 
 

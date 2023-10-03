@@ -12,8 +12,10 @@ There are various GUIs & other tools available for specific purposes:
 	4. Automatic ROI delineation:               AutoDelineation  
     5. Delineating ROIs:                        DelineationTool  
     6. Viewing stimulus apertures:              ViewApertures  
-	7. Help on model parameters:                ModelHelp  
-    8. Help on all SamSrf functions:            FuncHelp  
+    7. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
+	8. Help on model parameters:                ModelHelp  
+    9. Help on all SamSrf functions:            FuncHelp  
+
 
 ## DIFFERENCES TO EARLIER VERSIONS
 
@@ -49,6 +51,11 @@ You can use samsrf_expand_srf and samsrf_compress_srf to load and remove these f
 from the Srf structure.  
 
 ## LATEST UPDATES 
+
+### Version 9.649 (03-10-2023) 
+- Created DisplayScalpMaps tool (DSS)  
+- Adjusted verbosity of command line reports to reduce annoyance (DSS)  
+- R^2 maps now use eccentricity colour scheme (DSS)  
 
 ### Version 9.64 (28-09-2023) 
 - Updated M/EEG functions for scalp distribution plots (DSS)  

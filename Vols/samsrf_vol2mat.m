@@ -31,11 +31,11 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 % 16/10/2022 - Now can concatenate runs instead of averaging (DSS)
 %              Can now calculate noise ceiling when averaging runs (DSS)
 % 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
+% 03/10/2023 - Removed overly verbose defaults message (DSS)
 %
 
 %% Default parameters
 if exist('SamSrf_defaults.mat', 'file')
-    disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
     load('SamSrf_defaults.mat');
 end
 if nargin < 2

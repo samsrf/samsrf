@@ -74,13 +74,14 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 12/08/2022 - Vertex inspector can display visual CF profiles now (DSS)
 % 27/09/2022 - Plots of CFs in visual space are now zoomed in (DSS)
 % 19/06/2023 - Added option for transparency in surface mesh (DSS)
+% 03/10/2023 - Removed overly verbose defaults message (DSS)
+%              R^2 maps now use eccentricity colour scheme (DSS)
 %
 
 %% Create global variables
 global Vertices Type Data CurvGrey fh fv pv
 
 %% Load default parameters?
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 % Ensure colour maps have sign
 if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
@@ -571,7 +572,11 @@ else
     Pha = round(X / AdjThr * 100) + 100;
     
     % Colormap
-    cstr = ['colormap(' def_cmap_other(2:end) '(200));'];
+    if strcmpi(Type, 'R^2') || strcmpi(Type, 'nR^2') 
+        cstr = ['colormap(' def_cmap_eccen(2:end) '(200));'];
+    else
+        cstr = ['colormap(' def_cmap_other(2:end) '(200));'];
+    end
     Cmap = eval(cstr);
     if def_cmap_other(1) == '-'
         Cmap = flipud(Cmap);
