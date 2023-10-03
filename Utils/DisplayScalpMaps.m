@@ -311,6 +311,9 @@ if ~isempty(v)
     if isfield(Srf, 'X_coords')
         % Plot pRF profile
         samsrf_showprf(Srf, x);
+        hold on
+        scatter(Srf.Data(2,x), Srf.Data(3,x), '*g');
+        hold off
         caxis([-1 1]*nanmean(abs(Srf.Data(b, Srf.TimePts == t))));
     else
         % Plot response values
