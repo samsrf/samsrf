@@ -52,10 +52,13 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.649 (03-10-2023) 
-- Created DisplayScalpMaps tool (DSS)  
+### Version 9.6492 (05-10-2023) 
+- Created DisplayScalpMaps tool with pRF profile inspector (DSS)  
 - Adjusted verbosity of command line reports to reduce annoyance (DSS)  
 - R^2 maps now use eccentricity colour scheme (DSS)  
+- Small bugfix in samsrf_fitvsobs when downsampling predictions (DSS)  
+- In a potential misnomer, samsrf_r2hist can now plot any row in Srf.Data (DSS)  
+- Minor fix of figure legend in samsrf_r2hist (DSS)  
 
 ### Version 9.64 (28-09-2023) 
 - Updated M/EEG functions for scalp distribution plots (DSS)  

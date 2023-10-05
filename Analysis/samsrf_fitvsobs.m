@@ -9,6 +9,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % 12/02/2022 - Now allows plotting convolved predictions stored in coarse-fit data files (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 12/07/2023 - Fixed bug with downsampling predictions (DSS)
+% 04/10/2023 - Another bug fix with downsampling predictions (DSS)
 %
 
 % Expand Srf if necessary
@@ -67,7 +68,7 @@ hold off
 plot((1:length(Y))*TR*Model.Downsample_Predictions, Y, 'color', [.5 .5 1], 'linewidth', 2);
 hold on
 plot((1:length(X))*TR, X, 'r', 'linewidth', 2);
-xlim([1 length(Y)]*TR);
+xlim([1 length(X)]*TR);
 grid on
 line(xlim, [0 0], 'color', [1 1 1]/2, 'linewidth', 2);
 legend({'Observed' 'Predicted'});

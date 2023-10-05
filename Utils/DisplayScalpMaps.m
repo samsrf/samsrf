@@ -61,7 +61,7 @@ guidata(hObject, handles);
 % UIWAIT makes DisplayScalpMaps wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-global Srf dcm_obj ph handles
+global Srf Model dcm_obj ph handles
 
 clc
 disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
@@ -292,7 +292,7 @@ end
 %% Vertex selection function
 function txt = gvf(empt, event_obj)
 
-global Srf dcm_obj handles ph
+global Srf Model dcm_obj handles ph
 
 % Selected position in mesh space coordinates
 pos = get(event_obj, 'Position'); 
@@ -309,12 +309,15 @@ if ~isempty(v)
     % Plot figure
     figure(ph);
     if isfield(Srf, 'X_coords')
-        % Plot pRF profile
+        % Plot reverse correlation pRF profile
         samsrf_showprf(Srf, x);
         hold on
         scatter(Srf.Data(2,x), Srf.Data(3,x), '*g');
         hold off
         caxis([-1 1]*nanmean(abs(Srf.Data(b, Srf.TimePts == t))));
+    elseif isfield(Model, 'Param1')
+        % Plot forward model pRF profile
+        samsrf_showprf(Srf, x, Model);
     else
         % Plot response values
         plot(Srf.Data(:,x), 'ko-', 'MarkerFaceColor', 'w');
@@ -341,5 +344,5 @@ dcm_obj.removeAllDataCursors();
 function closereq(src, evnt)
 % Clear global variables when figure is closed
 
-clear global Srf dcm_obj handles ph 
+clear global Srf Model dcm_obj handles ph 
 delete(src);
