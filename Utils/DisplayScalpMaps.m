@@ -312,7 +312,8 @@ if ~isempty(v)
         % Plot reverse correlation pRF profile
         samsrf_showprf(Srf, x);
         hold on
-        scatter(Srf.Data(2,x), Srf.Data(3,x), '*g');
+        scatter(Srf.Data(2,x), Srf.Data(3,x), 120, 'k', 'filled', 'markeredgecolor', 'w');
+        scatter(Srf.Data(2,x), Srf.Data(3,x), 60, '*w');
         hold off
         caxis([-1 1]*nanmean(abs(Srf.Data(b, Srf.TimePts == t))));
     elseif isfield(Model, 'Param1')

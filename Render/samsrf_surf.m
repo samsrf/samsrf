@@ -613,7 +613,7 @@ end
 set(fh, 'name', [Type ' (' num2str(Thrsh(2)) ' -> ' num2str(Thrsh(3)) ')'], 'color', 'w');
 if nargin < 7
     % Draw a new patch
-    PatchHandle = patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none', 'FaceVertexAlphaData', VxAlpha, 'FaceAlpha', SurfAlpha);
+    PatchHandle = patch('Vertices', Vertices, 'Faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none', 'FaceVertexAlphaData', VxAlpha, 'FaceAlpha', SurfAlpha);
 else
     % Simply replace the colours
     set(PatchHandle, 'FaceVertexCData', Colours); 

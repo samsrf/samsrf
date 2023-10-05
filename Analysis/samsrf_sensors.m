@@ -11,8 +11,9 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, PlotType)
 %
 % PlotType defines the arrangement of the plot:
 %       'Scalp': Two-dimensional scalp distribution plot 
-%                (This is default but requires coordinates in Srf.Vertices) 
-%       '2D':    Flat plot of 3D coordinates without depth dimension
+%       '2D':    Two-dimensional plot of sensors only
+%       'Ball':  Three-dimensional distribution plot on a sphere 
+%       'Head':  Three-dimensional scalp distribution plot on head model
 %       '3D':    Three-dimensional plot of sensors/electrodes 
 %
 % 30/08/2023 - Written (DSS)
@@ -26,6 +27,8 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, PlotType)
 % 03/10/2023 - Removed overly verbose defaults message (DSS)
 %              Added hold off to prevent overloading plots (DSS)
 %              R^2 maps now use eccentricity colour scheme (DSS)
+% 05/10/2023 - Scalp distribution function now takes flexible input (DSS)
+%              Can now also plot sphere & head maps (DSS)
 %
 
 if nargin < 3
@@ -40,7 +43,7 @@ end
 
 %% Determine plot type
 PlotType = upper(PlotType(1));
-if PlotType == '3' && ~isfield(Srf, 'Sphere')
+if (PlotType == '3' ||  PlotType == 'B' || PlotType == 'H') && ~isfield(Srf, 'Sphere')
     warning('No sphere coordinates included - using 2D plot instead...');
     PlotType = '2';
 end
@@ -123,21 +126,30 @@ end
 Data(Srf.Data(1,:) <= R2Thr) = NaN;
 
 %% Plot values
-if PlotType == '3'
-    % 3D scatter plot
-    scatter3(Srf.Sphere(:,1), Srf.Sphere(:,2), Srf.Sphere(:,3), 80, Data, 'filled', 'markeredgecolor', 'k');
+if PlotType == 'H' || PlotType == 'B' || PlotType == '3'
+    if PlotType == '3'
+        % 3D scatter plot
+        scatter3(Srf.Sphere(:,1), Srf.Sphere(:,2), Srf.Sphere(:,3), 80, Data, 'filled', 'markeredgecolor', 'k');
+    elseif PlotType == 'B'
+        % Sphere distribution plot
+        PlotScalpDist(Srf.Sphere, Data);
+    else
+        % Head distribution plot
+        Head = load('ScalpHeadModel');
+        PlotScalpDist(Srf.Sphere, Data, Head);
+    end
 elseif PlotType == 'S' || PlotType == '2' 
     if PlotType == '2'
         % 2D scatter plot
         scatter(Srf.Vertices(:,1), Srf.Vertices(:,2), 60, Data, 'filled', 'markeredgecolor', 'k');
     else
         % Scalp distribution plot
-        PlotScalpDist(Srf.Vertices(:,1), Srf.Vertices(:,2), Data);
+        PlotScalpDist(Srf.Vertices, Data);
     end
     axis square
     axis([-.8 .8 -.8 .8]);
 else
-    error('Invalide plot type specified!');
+    error('Invalid plot type specified!');
 end
 % Colour scheme
 colormap(Cmap);
@@ -152,51 +164,120 @@ set(get(cb,'label'), 'string', Map); % Colour bar label
 title([Map ': t = ' num2str(TimePt)]);
 
 %% Plot scalp distribution
-function PlotScalpDist(sX, sY, Data)
+function PlotScalpDist(XYZ, Data, Head)
 
-k = 8; % Number of neighbours to average
+% Number of neighbours to average
+k = 8; 
 
-% Grid for interpolation
-xl = max(abs(sX)) * 1.1; % X limit 
-yl = max(abs(sY)) * 1.1; % Y limit
-rl = max(sqrt(sX.^2 + sY.^2)); % Rho limit
-[X,Y] = meshgrid(-xl:.01:xl, fliplr(-xl:.01:xl)); % Position grid 
-Rho = sqrt(X.^2 + Y.^2); % Distance from centre
-Mu = NaN(size(X)); % Output matrix
-
-% Loop thru X coordinates
-for c = 1:size(X,2)
-    % Loop thru Y coordinates
-    for r = 1:size(Y,1)
-        if Rho(r,c) < rl
-            Euc = sqrt((X(r,c)-sX).^2 + (Y(r,c)-sY).^2); % Euclidean distance of sampling point from each sensor
-            Wts = 0.3 - Euc; % Turn into weights
-            Wts(Wts < 0) = 0; % No negative weights
-            Wts(isnan(Data)) = NaN; % Set bad sensors to NaN
-            [~,sx] = sort(Wts, 'descend'); % Determine ascending order
-            Mu(r,c) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
-        end
-    end
+% Sensor coordinates
+sX = XYZ(:,1);
+sY = XYZ(:,2);
+if size(XYZ,2) > 2
+    sZ = XYZ(:,3);
+else
+    sZ = [];
 end
 
-% Plot head 
-hold on
-[hx,hy] = pol2cart((0:360)/180*pi, rl);
-plot(hx, hy, 'k-', 'linewidth', 2);
-% Plot nose
-[nx,ny] = pol2cart([100 90 80]/180*pi, [1 1.25 1]*rl);
-plot(nx, ny, 'k-', 'linewidth', 2);
-% Plot ears
-[ex,ey] = pol2cart((0:360)/180*pi, .1 + (.1*sind(0:360)));
-plot(ex+rl, ey-.1, 'k-', 'linewidth', 2); % Left ear
-plot(ex-rl, ey-.1, 'k-', 'linewidth', 2); % Right ear
+if isempty(sZ)
+    %% 2D scalp plot 
 
-% Plot scalp map
-contourf(X, Y, Mu, 100, 'EdgeColor', 'none');
-scatter(sX, sY, 60, Data, 'filled', 'markeredgecolor', 'w');
-scatter(sX, sY, 30, Data, 'k', 'linewidth', 2);
-axis off
-set(gcf, 'color', 'w');
+    % Grid for interpolation
+    xl = max(abs(sX)) * 1.1; % X limit 
+    yl = max(abs(sY)) * 1.1; % Y limit
+    rl = max(sqrt(sX.^2 + sY.^2)); % Rho limit
+    [X,Y] = meshgrid(-xl:.01:xl, fliplr(-xl:.01:xl)); % Position grid 
+    Rho = sqrt(X.^2 + Y.^2); % Distance from centre
+    Mu = NaN(size(X)); % Output matrix
+
+    % Loop thru X coordinates
+    for c = 1:size(X,2)
+        % Loop thru Y coordinates
+        for r = 1:size(Y,1)
+            if Rho(r,c) < rl
+                Euc = sqrt((X(r,c)-sX).^2 + (Y(r,c)-sY).^2); % Euclidean distance of sampling point from each sensor
+                Wts = 0.3 - Euc; % Turn into weights
+                Wts(Wts < 0) = 0; % No negative weights
+                Wts(isnan(Data)) = NaN; % Set bad sensors to NaN
+                [~,sx] = sort(Wts, 'descend'); % Determine ascending order
+                Mu(r,c) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
+            end
+        end
+    end
+
+    % Plot head 
+    hold on
+    [hx,hy] = pol2cart((0:360)/180*pi, rl);
+    plot(hx, hy, 'k-', 'linewidth', 2);
+    % Plot nose
+    [nx,ny] = pol2cart([100 90 80]/180*pi, [1 1.25 1]*rl);
+    plot(nx, ny, 'k-', 'linewidth', 2);
+    % Plot ears
+    [ex,ey] = pol2cart((0:360)/180*pi, .1 + (.1*sind(0:360)));
+    plot(ex+rl, ey-.1, 'k-', 'linewidth', 2); % Left ear
+    plot(ex-rl, ey-.1, 'k-', 'linewidth', 2); % Right ear
+
+    % Plot scalp map
+    contourf(X, Y, Mu, 100, 'EdgeColor', 'none');
+    
+    % Plot sensors
+    scatter(sX, sY, 60, Data, 'filled', 'markeredgecolor', 'w');
+    scatter(sX, sY, 30, 'k', 'linewidth', 2);
+    axis off
+    set(gcf, 'color', 'w');
+else
+    %% 3D scalp plot
+    
+    if nargin > 2
+        % Use head model
+        X = Head.Vertices(:,1);
+        Y = Head.Vertices(:,2);
+        Z = Head.Vertices(:,3);
+        Tri = Head.Faces;
+        Scale = 1.07;
+    else
+        % Create sphere
+        [X,Y,Z] = sphere(100); % Vertices of sphere
+        X = X(:);
+        Y = Y(:);
+        Z = Z(:);
+        warning off
+        Tri = delaunay(X, Y, Z);
+        warning on
+        Scale = 0.95;
+    end
+    
+    % Transparency 
+    Alpha = Z*4 + 2; 
+    Alpha(Alpha < 0) = 0;
+    Alpha(Alpha > 1) = 1;
+    
+    % Grid for interpolation
+    Mu = NaN(size(X)); % Output matrix
+
+    % Loop thru vertices
+    for i = 1:size(X,1)
+        Euc = sqrt((X(i)-sX).^2 + (Y(i)-sY).^2 + (Z(i)-sZ).^2); % Euclidean distance of sampling point from each sensor
+        Wts = 0.5 - Euc; % Turn into weights
+        Wts(Wts < 0) = 0; % No negative weights
+        Wts(isnan(Data)) = NaN; % Set bad sensors to NaN
+        [~,sx] = sort(Wts, 'descend'); % Determine ascending order
+        Mu(i) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
+    end
+
+    % Plot scalp map
+    patch('Vertices', [X Y Z]*Scale, 'Faces', Tri, 'FaceVertexCData', Mu, 'FaceColor', 'interp', 'EdgeColor', 'none', 'FaceVertexAlphaData', Alpha, 'FaceAlpha', 'interp');         
+    daspect([1 1 1]); % Correct aspect ratio
+    rotate3d
+    
+    % Plot sensors
+    hold on
+    scatter3(sX, sY, sZ, 80, Data, 'filled', 'markeredgecolor', 'w');
+    scatter3(sX, sY, sZ, 50, 'k', 'linewidth', 2);
+    scatter3(0, 1.3, 0, 90, 'k^', 'markerfacecolor', [.5 .5 .5], 'linewidth', 2);
+    axis off
+    set(gcf, 'color', 'w');
+end 
+    
 hold off
 
 

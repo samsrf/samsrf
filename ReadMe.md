@@ -52,8 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.6492 (05-10-2023) 
+### Version 9.7 (05-10-2023) 
 - Created DisplayScalpMaps tool with pRF profile inspector (DSS)  
+- Added options to plot head & sphere scalp distribution maps (DSS)  
 - Adjusted verbosity of command line reports to reduce annoyance (DSS)  
 - R^2 maps now use eccentricity colour scheme (DSS)  
 - Small bugfix in samsrf_fitvsobs when downsampling predictions (DSS)  
