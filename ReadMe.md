@@ -52,6 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.701 (23-10-2023) 
+- Removed zero line in samsrf_fitvsobs as makes no sense when mean is non-zero (DSS)  
+
 ### Version 9.7 (05-10-2023) 
 - Created DisplayScalpMaps tool with pRF profile inspector (DSS)  
 - Added options to plot head & sphere scalp distribution maps (DSS)  
