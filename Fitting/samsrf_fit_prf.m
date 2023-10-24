@@ -27,6 +27,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 24/01/2023 - Added more info to error when apertures aren't vectorised (DSS) 
 % 17/03/2023 - Added option for conventional Dumoulin & Wandell approach to predict neural response (DSS)
 % 24/10/2023 - Bugfix when using 32bit data for seeding fine-fit (DSS)
+%              Bugfix for fitting betas when fits are bad (DSS)
 %
 
 %% Defaults & constants
@@ -355,16 +356,24 @@ else
     % Process & fit betas for mask vertices
     samsrf_progbar(0);
     for v = 1:length(mver)
-        % Loop thru fitted parameters
-        IsGoodFit = true;
-        for p = 1:size(fPimg,1)
-            % If scaled parameter is out of bounds
-            if Model.Scaled_Param(p) && abs(fPimg(p,v)) > 2 * Model.Scaling_Factor
-                IsGoodFit = false;
-            end
-            % If a parameter is negative but shouldn't be
-            if Model.Only_Positive(p) && fPimg(p,v) <= 0
-                IsGoodFit = false;
+        % Only accept non-zero fits
+        if fRimg(v) > 0
+            IsGoodFit = true;
+        else
+            IsGoodFit = false;
+        end
+        
+        if IsGoodFit
+            % Loop thru fitted parameters
+            for p = 1:size(fPimg,1)
+                % If scaled parameter is out of bounds
+                if Model.Scaled_Param(p) && abs(fPimg(p,v)) > 2 * Model.Scaling_Factor
+                    IsGoodFit = false;
+                end
+                % If a parameter is negative but shouldn't be
+                if Model.Only_Positive(p) && fPimg(p,v) <= 0
+                    IsGoodFit = false;
+                end
             end
         end
 
