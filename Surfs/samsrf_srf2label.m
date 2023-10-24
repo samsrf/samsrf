@@ -9,6 +9,7 @@ function samsrf_srf2label(srfdata, labelname, valnum, Vx)
 % to constrain its size (default is all vertices).
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 24/10/2023 - Added support for M/EEG and volumetric data files (DSS)
 %
 
 if ischar(srfdata)
@@ -35,6 +36,15 @@ end
 
 % Change NaNs to 0
 Srf.Data(isnan(Srf.Data)) = 0;
+
+% If volumetric data
+if size(Srf.Vertices,2) == 1
+    Srf.Vertices = repmat(Srf.Vertices,[1 3]);
+end
+% If M/EEG data
+if size(Srf.Vertices,2) == 1
+    Srf.Vertices = [Srf.Vertices zeros(size(Srf.Vertices,1),1)];
+end
 
 fid = fopen([labelname '.label'], 'w');
 fprintf(fid, '#! Converted from SamSurfer.\n');

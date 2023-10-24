@@ -26,6 +26,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 10/08/2022 - Fixed bug with coarse fit when time series is flat (DSS)
 % 24/01/2023 - Added more info to error when apertures aren't vectorised (DSS) 
 % 17/03/2023 - Added option for conventional Dumoulin & Wandell approach to predict neural response (DSS)
+% 24/10/2023 - Bugfix when using 32bit data for seeding fine-fit (DSS)
 %
 
 %% Defaults & constants
@@ -234,6 +235,9 @@ if ~isempty(Model.Seed_Fine_Fit)
   SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
   Pimg = SeedMap.Srf.Data(2:length(Model.Param_Names)+1,:); % Fitted parameter maps
   Rimg = SeedMap.Srf.Data(1,:); % R^2 map
+  % In case saved as singles
+  Pimg = double(Pimg);
+  Rimg = double(Rimg);
 else
   % Coarse fitting procedure
   disp('Coarse fitting...');
