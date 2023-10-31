@@ -5,13 +5,14 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 % Displays the pseudo-colour codes for samsrf_surf. 
 % Note: this will reflect if you redefined the colour maps in SamSrf_defaults.mat. 
 %   
-%   vartype :     'Polar_Lh', 'Polar_Rh', 'Eccen', 'Sigma', or 'R^2'
+%   vartype :     'Polar_Lh', 'Polar_Rh', 'Eccen', 'Sigma', 'R^2', or 'Polar_Eeg'
 %   scale :       Optional, determines the size of the image (defaults = 100%)
 %   colmap :      Optional, instead of SamSrf_defaults uses this colour map.
 %
 % The output of this function is a bitmap which can be displayed or saved.
 % 
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 31/10/2023 - Added option for M/EEG colour wheel (DSS)
 %
 
 if nargin < 2
@@ -55,7 +56,21 @@ imgR = zeros(2*scale+1, 2*scale+1);
 imgG = zeros(2*scale+1, 2*scale+1);
 imgB = zeros(2*scale+1, 2*scale+1);
 
-if strcmpi(vartype, 'Polar_Lh')
+if strcmpi(vartype, 'Polar_Eeg')
+    t = t + 180;
+    t = mod(ceil(t),360) + 1;   % ensure between 1-360
+
+    % Colourmap
+    cstr = ['colormap(' def_cmap_angle(2:end) '(360));'];
+    Cmap = eval(cstr);        
+    if def_cmap_angle(1) == '-'
+        Cmap = flipud(Cmap);
+    end
+    
+    imgR(r<scale) = Cmap(t(r<scale),1);
+    imgG(r<scale) = Cmap(t(r<scale),2);
+    imgB(r<scale) = Cmap(t(r<scale),3);
+elseif strcmpi(vartype, 'Polar_Lh')
     t = t + 270;  % calibrate angles for 0 degrees to be at 3 o'clock
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
@@ -140,7 +155,7 @@ img(:,:,1) = flipud(imgR);
 img(:,:,2) = flipud(imgG);
 img(:,:,3) = flipud(imgB);
 
-if ~strcmpi(vartype, 'Polar_Lh') && ~strcmpi(vartype, 'Polar_Rh') && ~strcmpi(vartype, 'Eccen')
+if ~strcmpi(vartype, 'Polar_Lh') && ~strcmpi(vartype, 'Polar_Rh') && ~strcmpi(vartype, 'Eccen') && ~strcmpi(vartype, 'Polar_Eeg')
     img = img(:,abs(x(1,:))<scale/4,:);
 end
 imshow(img);

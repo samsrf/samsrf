@@ -52,11 +52,12 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.71 (24-10-2023) 
+### Version 9.711 (31-10-2023) Spooky version!
 - Fixed major bug with fitting forward-model betas when pRF model fit is poor (DSS)  
 - Bugfix when seeding fine-fit with a coarse-fit saved in 32 bit (DSS)  
 - Removed zero line in samsrf_fitvsobs as makes no sense when mean is non-zero (DSS)  
 - Fixed issue when saving labels from M/EEG or volume data files (DSS)  
+- Added polar colour wheel for M/EEG scalp distribution plots (DSS)  
 
 ### Version 9.7 (05-10-2023) 
 - Created DisplayScalpMaps tool with pRF profile inspector (DSS)  
