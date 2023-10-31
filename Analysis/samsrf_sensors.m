@@ -29,6 +29,7 @@ function samsrf_sensors(Srf, Map, R2Thr, TimePt, PlotType)
 %              R^2 maps now use eccentricity colour scheme (DSS)
 % 05/10/2023 - Scalp distribution function now takes flexible input (DSS)
 %              Can now also plot sphere & head maps (DSS)
+% 31/10/2023 - Polar angle now calculates circular mean as it should (DSS)
 %
 
 if nargin < 3
@@ -89,7 +90,8 @@ if strcmpi(Map, 'Eccentricity')
     end
 elseif strcmpi(Map, 'Polar') || strcmpi(Map, 'Phase') || strcmpi(Map, 'Phi')
     % Polar angle
-    Data = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
+    Data = Srf.Data(2:3,:);
+%     Data = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
     Cmap = colormap(def_cmap_angle(2:end));
     if def_cmap_angle(1) == '-'
         Cmap = flipud(Cmap);
@@ -129,6 +131,10 @@ Data(Srf.Data(1,:) <= R2Thr) = NaN;
 if PlotType == 'H' || PlotType == 'B' || PlotType == '3'
     if PlotType == '3'
         % 3D scatter plot
+        if size(Data,1) > 1
+            % Circular data
+            Data = atan2(Data(2,:), Data(1,:)) / pi*180;
+        end
         scatter3(Srf.Sphere(:,1), Srf.Sphere(:,2), Srf.Sphere(:,3), 80, Data, 'filled', 'markeredgecolor', 'k');
     elseif PlotType == 'B'
         % Sphere distribution plot
@@ -141,6 +147,10 @@ if PlotType == 'H' || PlotType == 'B' || PlotType == '3'
 elseif PlotType == 'S' || PlotType == '2' 
     if PlotType == '2'
         % 2D scatter plot
+        if size(Data,1) > 1
+            % Circular data
+            Data = atan2(Data(2,:), Data(1,:)) / pi*180;
+        end
         scatter(Srf.Vertices(:,1), Srf.Vertices(:,2), 60, Data, 'filled', 'markeredgecolor', 'k');
     else
         % Scalp distribution plot
@@ -156,6 +166,8 @@ colormap(Cmap);
 if strcmpi(Map, 'R^2') || strcmpi(Map, 'Eccentricity') || strcmpi(Map, 'Sigma') ...
                        || strcmpi(Map, 'Fwhm') || strcmpi(Map, 'Centre') || strcmpi(Map, 'Surround') 
     caxis([0 1]*max(Data)); % Scale colour scheme
+elseif strcmpi(Map, 'Polar') 
+    caxis([-180 180]); % Scale colour scheme
 else
     caxis([-1 1]*max(abs(Data))); % Scale colour scheme
 end
@@ -197,9 +209,16 @@ if isempty(sZ)
                 Euc = sqrt((X(r,c)-sX).^2 + (Y(r,c)-sY).^2); % Euclidean distance of sampling point from each sensor
                 Wts = 0.3 - Euc; % Turn into weights
                 Wts(Wts < 0) = 0; % No negative weights
-                Wts(isnan(Data)) = NaN; % Set bad sensors to NaN
+                Wts(isnan(Data(1,:))) = NaN; % Set bad sensors to NaN
                 [~,sx] = sort(Wts, 'descend'); % Determine ascending order
-                Mu(r,c) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
+                if size(Data,1) == 1
+                    % Linear data
+                    Mu(r,c) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
+                else
+                    % Circular data
+                    Mu(r,c) = atan2(nansum(Data(2,sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))), nansum(Data(1,sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k)))) / pi*180; % Weighted circular average of k nearest neighbours            
+                    Data = atan2(Data(2,:), Data(1,:)) / pi*180; 
+                end
             end
         end
     end
@@ -259,9 +278,16 @@ else
         Euc = sqrt((X(i)-sX).^2 + (Y(i)-sY).^2 + (Z(i)-sZ).^2); % Euclidean distance of sampling point from each sensor
         Wts = 0.5 - Euc; % Turn into weights
         Wts(Wts < 0) = 0; % No negative weights
-        Wts(isnan(Data)) = NaN; % Set bad sensors to NaN
+        Wts(isnan(Data(1,:))) = NaN; % Set bad sensors to NaN
         [~,sx] = sort(Wts, 'descend'); % Determine ascending order
-        Mu(i) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
+        if size(Data,1) == 1
+            % Linear data
+            Mu(i) = nansum(Data(sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))); % Weighted average of k nearest neighbours            
+        else
+            % Circular data
+            Mu(i) = atan2(nansum(Data(2,sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k))), nansum(Data(1,sx(1:k)).*Wts(sx(1:k))') / nansum(Wts(sx(1:k)))) / pi*180; % Weighted circular average of k nearest neighbours            
+            Data = atan2(Data(2,:), Data(1,:)) / pi*180; 
+        end
     end
 
     % Plot scalp map
