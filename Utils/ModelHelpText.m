@@ -64,6 +64,8 @@ switch AnalysisFunc
                             ''
                             'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could use samsrf_doublegamma(Model.TR) for SPM''s canonical shape.'
 							''
+                            'It is also possible to fit the HRF parameters as part of the pRF modelling. To do so, set this parameter to Inf. It will then use SPM''s canonical shape for the coarse-fit, and fit five constrained HRF parameters during the fine-fit. However, this is computionally expensive & will probably take a long time.'
+                            ''
 							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' };
            case 'Aperture_File'
                HelpText = { 'Char'

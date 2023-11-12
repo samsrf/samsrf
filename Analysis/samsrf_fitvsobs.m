@@ -11,6 +11,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % 12/07/2023 - Fixed bug with downsampling predictions (DSS)
 % 04/10/2023 - Another bug fix with downsampling predictions (DSS)
 % 23/10/2023 - Removed zero line as makes no sense when mean is non-zero (DSS)
+% 12/11/2023 - Can incorporate parameters from concurrent HRF fitting (DSS)
 %
 
 % Expand Srf if necessary
@@ -36,7 +37,18 @@ elseif isfield(Srf, 'X')
     end
     % Convolve prediction with HRF?
     if isfield(Model, 'Hrf') && ~Model.Coarse_Fit_Only % Only needed for fine-fits
-        X = prf_convolve_hrf(X, Model.Hrf, 1); % No downsampling to retain temporal resolution of prediction!
+        if isinf(Model.Hrf)
+            % Using estimated HRF parameters
+            HrfParams = [find(strcmpi(Srf.Values, 'RLat')) ...
+                         find(strcmpi(Srf.Values, 'ULat')) ...
+                         find(strcmpi(Srf.Values, 'RDisp')) ...
+                         find(strcmpi(Srf.Values, 'UDisp')) ... 
+                         find(strcmpi(Srf.Values, 'R/U'))];
+            X = prf_convolve_hrf(X, samsrf_doublegamma(Model.TR, Srf.Data(HrfParams,v)), 1); % No downsampling to retain temporal resolution of prediction!
+        else
+            % Predefined HRF
+            X = prf_convolve_hrf(X, Model.Hrf, 1); % No downsampling to retain temporal resolution of prediction!
+        end
     end
 
     % If raw data exists use that

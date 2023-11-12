@@ -52,6 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.8 (13-11-2023)  
+- Forward-modelling pRF can now automatically estimate HRF parameters (DSS)  
+
 ### Version 9.712 (31-10-2023) Spooky version!
 - Fixed major bug with fitting forward-model betas when pRF model fit is poor (DSS)  
 - Bugfix when seeding fine-fit with a coarse-fit saved in 32 bit (DSS)  

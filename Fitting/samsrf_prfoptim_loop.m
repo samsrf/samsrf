@@ -65,7 +65,8 @@ vc = 1;
 if ProgReps
     samsrf_progbar(0);
 end
-parfor v = 1:nver
+% parfor v = 1:nver
+for v = 1:nver
     if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
         % Find best prediction
         if UseHookeJeeves

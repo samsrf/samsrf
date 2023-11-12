@@ -28,6 +28,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 17/03/2023 - Added option for conventional Dumoulin & Wandell approach to predict neural response (DSS)
 % 24/10/2023 - Bugfix when using 32bit data for seeding fine-fit (DSS)
 %              Bugfix for fitting betas when fits are bad (DSS)
+% 13/11/2023 - Added option to estimate HRF parameters during fine-fitting (DSS)
 %
 
 %% Defaults & constants
@@ -45,6 +46,15 @@ PrfFcnName = PrfFcnName(bc(1)+1:bo(2)-1); % Remove rubbish
 
 %% Default model parameters
 Model = samsrf_model_defaults('samsrf_fit_prf', Model);
+% Estimating HRF in fine-fit?
+if isinf(Model.Hrf)
+    % Flexible HRF fitting
+    FittingHrf = true;
+    Model.Hrf = samsrf_doublegamma(Model.TR); % Use SPM's canonical for coarse-fit 
+else
+    % Predefined HRF
+    FittingHrf = false;
+end
 
 %% MatLab R2012a or higher can do fast coarse-fit
 if verLessThan('matlab','7.13')
@@ -164,6 +174,8 @@ disp('Haemodynamic response function...')
 if isempty(Model.Hrf)
     disp(' Using canonical HRF');
     Model.Hrf = samsrf_hrf(Model.TR);
+elseif FittingHrf
+    disp(' Estimating HRF during fine-fit');
 elseif isscalar(Model.Hrf) && Model.Hrf == 1
     disp(' No HRF used!');
 else
@@ -212,7 +224,7 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     %% Convolution with HRF
     disp('Convolving predictions with HRF...');
     cX = NaN(size(Tc,1),size(X,2)); % Convolved X (has lower number of volumes than X, if downsampling) 
-    for p = 1:size(X,2)
+    for p = 1:size(X,2)        
         cX(:,p) = prf_convolve_hrf(X(:,p), Model.Hrf, Model.Downsample_Predictions); % Convolve each prediction & downsample if desired
     end
     X = cX; % Replace X with convolution
@@ -324,6 +336,10 @@ if Model.Coarse_Fit_Only
     fRimg = Rimg(1,mver); % R^2 map
     fBimg = Bimg(:,mver); % Beta map
     OutFile = [OutFile '_CrsFit']; % Suffix to indicate coarse fit only 
+    % If fitting HRF restore flag in Model
+    if FittingHrf
+        Model.Hrf = Inf;
+    end
 else
     %% Run fine fit for each vertex
     disp('Fine fitting...');
@@ -342,8 +358,23 @@ else
         OutFile = [OutFile '_Css']; % Suffix to indicate compressive nonlinearity 
     end
     
+    % Are we estimating HRF parameters?
+    if FittingHrf
+        HrfParams = {'RLat' 'ULat' 'RDisp' 'UDisp' 'R/U'};
+        for p = 1:5
+            Model.Param_Names{end+1} = HrfParams{p}; % Add name for CSS exponent
+            Model.Scaled_Param(end+1) = 0; % HRF parameters aren't scaled
+            Model.Only_Positive(end+1) = 1; % HRF parameters cannot be negative
+        end
+        Pimg = [Pimg; repmat([6 16 1 1 6]', 1, size(Pimg,2))]; % Seed parameters for HRF fit
+        Model.Hrf = -Model.TR; % Negative TR indicates HRF fit
+    end
+    
     % Run fine fit (must be separate function for parallel computing toolbox
     [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Tc, ApFrm, ApXY, Rimg, Pimg);
+    if FittingHrf
+        Model.Hrf = Inf;
+    end
     t3 = toc(t0);
     disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
     new_line;
@@ -410,7 +441,11 @@ else
             % Time course of current vertex
             Y = Tc(:,v);  
             % Convolve predicted time course with HRF & downsample if desired
-            fX = prf_convolve_hrf(fX, Model.Hrf, Model.Downsample_Predictions);
+            if FittingHrf
+                fX = prf_convolve_hrf(fX, samsrf_doublegamma(Model.TR, fPimg(end-4:end,v)), Model.Downsample_Predictions);
+            else
+                fX = prf_convolve_hrf(fX, Model.Hrf, Model.Downsample_Predictions);
+            end
             % Fit betas for amplitude & intercept
             warning off % In case of rank deficient GLM
             fB = [ones(length(Y),1) fX] \ Y; % GLM fit
