@@ -93,6 +93,7 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 %              Polar plots are now enforce square scaled (DSS)
 % 31/08/2023 - Added option to provide ROI vertex indeces instead of char (DSS)
 % 03/09/2023 - Now allows plotting time courses of EEG data (DSS)
+% 17/11/2023 - Binning now includes minimum boundary (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -281,8 +282,8 @@ else % Binning analysis
                 CurIv = DataIv(RelAng <= CurRng); % Current IV data
             else
                 % Linear measures
-                CurDv = DataDv(DataIv > Bins(b) & DataIv < Bins(b+1)); % Current DV data
-                CurIv = DataIv(DataIv > Bins(b) & DataIv < Bins(b+1)); % Current IV data
+                CurDv = DataDv(DataIv >= Bins(b) & DataIv < Bins(b+1)); % Current DV data
+                CurIv = DataIv(DataIv >= Bins(b) & DataIv < Bins(b+1)); % Current IV data
             end
             if IvSumStats
                 CurBin = nanmean(CurIv); % Mean 
@@ -304,8 +305,8 @@ else % Binning analysis
                 CurUv = DataIv(RelAng <= CurRng); % Current IV data
             else
                 % Linear measures
-                CurDv = DataDv(DataIv > Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current DV data
-                CurIv = DataIv(DataIv > Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current IV data
+                CurDv = DataDv(DataIv >= Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current DV data
+                CurIv = DataIv(DataIv >= Bins(b)-SliWin/2 & DataIv < Bins(b)+SliWin/2); % Current IV data
             end
             if IvSumStats
                 CurBin = nanmean(CurIv); % Mean 

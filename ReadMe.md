@@ -52,6 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.803 (18-11-2023)  
+- Updated simulation analysis functions (DSS)  
+
 ### Version 9.801 (13-11-2023)  
 - Forward-modelling pRF can now automatically estimate HRF parameters (DSS)  
 - Minor fix in official release version as parallel processing had been turned off (DSS)  
