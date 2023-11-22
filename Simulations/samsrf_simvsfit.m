@@ -1,11 +1,12 @@
-function samsrf_simvsfit(Srf, Thresholds, SearchSpace, Value)
+function h = samsrf_simvsfit(Srf, Thresholds, SearchSpace, Value)
 %
-% samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf 1], SearchSpace=[], Value='R^2'])
+% h = samsrf_simvsfit(Srf, [Thresholds=[NaN -Inf 1], SearchSpace=[], Value='R^2'])
 %
 % Plots a comparison of simulated ground truth pRFs & model fits in Srf.
 % At present this function assumes that Srf.Data(2:3,:) contain X0 & Y0.
 % When you have noisy simulations, the function samsrf_simvsfithist may
-% produce more useful results, but your mileage may vary.
+% produce more useful results, but your mileage may vary. The output h is
+% the handle for the scatter plot.
 %
 % Srf contains the model fit of a simulated pRF data set, so this must 
 %   contain a Srf.Ground_Truth field with true parameters.  
@@ -58,6 +59,7 @@ function samsrf_simvsfit(Srf, Thresholds, SearchSpace, Value)
 %              Reduced the axis limits of the plot (DSS)
 %              Colour schemes for zero-bounded values now start at 0 (DSS)
 % 18/11/2023 - Dot colour can now also plot differences & percentages (DSS)
+% 20/11/2023 - Now returns handle to the scatter dots (DSS)
 %
 
 if nargin < 2
@@ -164,7 +166,7 @@ for v = 1:length(tX)
 end
 
 %% Plot modelled positions 
-scatter(mX, mY, 60, mV, 'filled', 'markeredgecolor', 'k');
+h = scatter(mX, mY, 60, mV, 'filled', 'markeredgecolor', 'k');
 
 %% Plot search space
 if ~isempty(SearchSpace)
