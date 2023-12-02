@@ -35,6 +35,7 @@ function [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfpar
 %              Implemented region growing algorithm for better CF size estimation (DSS)
 %              Added convex hull estimation of inhibitory surround (DSS)
 % 07/09/2022 - Fixed bug when saving correlation profiles (DSS)
+% 02/12/2023 - Bugfix when using single (32bit) data (DSS)
 %
 
 if nargin < 7
@@ -117,7 +118,7 @@ parfor v = 1:nver
         % Fitting pRF parameters?
         if isempty(FitPrf)
             % Convex hull estimation
-            txy = Temp(2:3,SeedVx)'; % Template X & Y coordinates
+            txy = double(Temp(2:3,SeedVx))'; % Template X & Y coordinates
             [txy,u] = unique(txy, 'rows'); % Unique coordinates in seed map 
             R = R(u); % Remove duplicate correlation coefficients
             mR = max(R); % New maximum after redundant vertices removed

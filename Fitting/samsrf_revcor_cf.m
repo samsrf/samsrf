@@ -33,6 +33,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 %              Convex hull now estimates positive central CF using region growing approach (DSS)
 % 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
 % 03/10/2022 - Negative amplitude is now called Suppression instead of Baseline (DSS)
+% 02/12/2023 - Bugfix in parameter fitting loop when using single (32bit) data (DSS)
 %
 
 %% Defaults & constants

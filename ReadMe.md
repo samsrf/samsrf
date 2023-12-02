@@ -52,10 +52,11 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.805 (02-12-2023)  
+### Version 9.82 (02-12-2023)  
 - Updated simulation analysis functions (DSS)  
 - Vectorised apertures are now automatically scaled to scaling factor/eccentricity (DSS)  
 - Therefore, VectoriseApertures function no longer requires scaling input (DSS)  
+- Fixed bug when using single (32bit) data with reverse correlation CF analysis (DSS)  
 
 ### Version 9.801 (13-11-2023)  
 - Forward-modelling pRF can now automatically estimate HRF parameters (DSS)  
