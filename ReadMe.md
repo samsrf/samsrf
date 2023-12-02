@@ -52,6 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.821 (03-12-2023)  
+- Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
+
 ### Version 9.82 (02-12-2023)  
 - Updated simulation analysis functions (DSS)  
 - Vectorised apertures are now automatically scaled to scaling factor/eccentricity (DSS)  

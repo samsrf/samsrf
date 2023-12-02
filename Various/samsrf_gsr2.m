@@ -38,6 +38,7 @@ function R = samsrf_gsr2(Y, X, S, Model)
 % 02/03/2022 - Added support for polar search grids & 1D models (DSS) 
 % 14/04/2022 - Renamed function to avoid confusion with CF analysis (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 03/12/2023 - Bugfix when using concurrent HRF fitting (DSS)
 %
 
 if ~isfield(Model, 'Downsampling')
@@ -58,8 +59,8 @@ else
     Is1D = false; % This is a 2D model
 end
 
-% Canonical HRF?
-if isempty(Hrf)
+% Canonical HRF or concurrent fitting?
+if isempty(Hrf) || isinf(Hrf)
     Hrf = samsrf_hrf(TR);
 end
 
