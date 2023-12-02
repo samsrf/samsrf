@@ -46,7 +46,9 @@ switch AnalysisFunc
            case 'Scaling_Factor'
                HelpText = { 'Scalar'
 							''
-							'Once we know which parameters will be scaled, we also need to define by how much it will be scaled. In 2D retinotopic models, the scaling factor is the maximal eccentricity of the mapping stimulus (usually the radius of the mapped area but with asymmetric mapping areas you must pick the maximum). In one-dimensional tuning curve models (for example, tonotopy) this would be the half-width of the stimulus space because the middle is defined as 0. Since SamSrf 9 this is really only used for determining the bounds of plausible pRF estimates abs(2 * Scaling_Factor). You can also incorporate this when defining the searchspace (c.f. example scripts in Models).'
+							'Once we know which parameters will be scaled, we also need to define by how much it will be scaled. In 2D retinotopic models, the scaling factor is the maximal eccentricity of the mapping stimulus (usually the radius of the mapped area but with asymmetric mapping areas you must pick the maximum). In one-dimensional tuning curve models (for example, tonotopy) this would be the half-width of the stimulus space because the middle is defined as 0. This is also used for determining the bounds of plausible pRF estimates abs(2 * Scaling_Factor). You can also incorporate this when defining the searchspace (c.f. example scripts in Models).'
+							''
+							'IMPORTANT: Since SamSrf 9.81, this parameter rescales the apertures provided using max(abs(ApXY(:))). In earlier versions, this often caused errors & confusion because people scaled the apertures incorrectly. This is no longer necessary & that input argument in VectoriseApertures has been removed!'
 							''
 							'This is a critical parameter which you must define according to your own needs because it depends on your experimental parameters!' };
            case 'TR'

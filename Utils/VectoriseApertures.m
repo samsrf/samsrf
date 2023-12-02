@@ -1,18 +1,21 @@
-function VectoriseApertures(ApsFile, Scaling)
+function VectoriseApertures(ApsFile, Dummy)
 %
 % Convers a 2D movie aperture into a vectorised aperture. 
 %   ApsFile:    File name of movie apertures
-%   Scaling:    Defines the scaling factor(s) for the apertures.
-%               If this is a scalar, it assumes square apertures & so movie provided must be square!
-%               If it is a 1x2 vector, this scales X and Y differently & movie can be rectangular.
 %
 % IMPORTANT: The side lengths of the apertures must be even numbers! 
-%            Scaling should be the same as your scaling factor (e.g. maximum stimulus eccentricity)
+%            Unlike in versions prior to 9.81, the scale is done automatically by samsrf_fit_prf.
+%			 In the ApXY variable in the aperture file, maximum side length is defined as -1/+1.
 %
 % 06/07/2022 - Written (DSS)
 % 15/11/2022 - Now gives error if aperture length is odd-numbered (DSS)
 % 24/01/2023 - More info about how to use the scaling (DSS)
+% 02/12/2023 - Removed scaling input as apertures are now scaled automatically (DSS)  
 %
+
+if nargin > 1
+    error('Since version 9.81, this function no longer has scaling input!');
+end
 
 % Load apertures
 load(ApsFile);
@@ -31,11 +34,18 @@ if mod(ApDimY,2)
     error('Y dimension is odd number!');
 end
 % If non-square apertures
-if ApDimX ~= ApDimY
-    if length(Scaling) == 1
-        error('Non-square apertures but only one scaling factor defined!');
+if ApDimX ~= ApDimY	
+    if ApDimX > ApDimY
+		Scaling = [1 ApDimY/ApDimX];
+    else
+		Scaling = [ApDimX/ApDimY 1];
     end
+	disp(['Rectangular apertures: ' num2str(Scaling(1)) ' x ' num2str(Scaling(2))]);
+else
+	disp('Square apertures');
+	Scaling = [1 1]; % Square aperture
 end
+
 % If only one scaling factor defined
 if length(Scaling) == 1
     Scaling = [1 1] * Scaling; % Define scaling factor for both X and Y

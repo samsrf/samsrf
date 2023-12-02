@@ -29,6 +29,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 24/10/2023 - Bugfix when using 32bit data for seeding fine-fit (DSS)
 %              Bugfix for fitting betas when fits are bad (DSS)
 % 13/11/2023 - Added option to estimate HRF parameters during fine-fitting (DSS)
+% 02/12/2023 - Apertures now automatically rescaled to scaling factor/eccentricity (DSS)  
 %
 
 %% Defaults & constants
@@ -113,6 +114,12 @@ end
 if ~exist('ApXY', 'var') 
     error('Aperture pixel coordinates undefined! Did you use VectoriseApertures?');
 end
+
+% Rescale apertures
+ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
+ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
+
+% Which biophysical model to use
 if Model.Aperture_Mean_Response
     disp(' Using conventional Dumoulin & Wandell 2008 biophysical model to predict neural responses.');
     ApXY = [ApXY; NaN NaN]; % Conventional model is marked by NaN in final pixel of pRF profile
