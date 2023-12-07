@@ -52,8 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.821 (03-12-2023)  
+### Version 9.822 (03-12-2023)  
 - Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
+- Added cblabel function to Utils to fix minor compatibility bug (DSS)  
 
 ### Version 9.82 (02-12-2023)  
 - Updated simulation analysis functions (DSS)  
