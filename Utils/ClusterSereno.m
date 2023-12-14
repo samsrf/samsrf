@@ -10,6 +10,7 @@ function ClusterSereno(Hemis, RoiPath)
 %
 % 25/08/2022 - Written (PWBU & DSS)
 % 17/09/2022 - Fixed bug when directing to different path (DSS)
+% 14/12/2023 - Bugfix when providing a path (DSS)
 %
 
 if nargin == 0
@@ -86,7 +87,7 @@ cluster_struct.(complexes{16}) = {'LIP0', 'LIP1' 'V7' 'cIPS' 'PEc' };
 %% Add hemisphere prefix if needed
 for i = 1:length(complexes)
     for j = 1:length(cluster_struct.(complexes{i}))
-        cluster_struct.(complexes{i}){j} = [homecd filesep Hemis cluster_struct.(complexes{i}){j}];
+        cluster_struct.(complexes{i}){j} = [Hemis cluster_struct.(complexes{i}){j}];
     end
 end
 

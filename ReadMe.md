@@ -52,9 +52,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.822 (03-12-2023)  
+### Version 9.823 (14-12-2023)  
 - Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
 - Added cblabel function to Utils to fix minor compatibility bug (DSS)  
+- Fixed bug with ClusterSereno when you provide a pathname (DSS)  
 
 ### Version 9.82 (02-12-2023)  
 - Updated simulation analysis functions (DSS)  
