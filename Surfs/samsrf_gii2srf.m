@@ -21,12 +21,14 @@ function samsrf_gii2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %                 This option only works when averaging runs - otherwise it is ignored 
 %                   (this may change in future versions)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
+%                 If this is empty, the anatomy is not split off!
 %
 % 14/05/2022 - Written (DSS)
 % 14/09/2022 - Edited help section to declare SPM12 dependency (DSS)  
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
 % 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
 % 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
+% 19/12/2023 - Now has option not to split off anatomy (DSS)  
 %
 
 %% Default parameters

@@ -30,6 +30,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 %                 This option only works when averaging runs - otherwise it is ignored 
 %                   (this may change in future versions)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
+%                 If this is empty, the anatomy is not split off!
 %
 % If multiple ctxsteps are requested and no collapsing rule is specified, 
 % final output will consists of timepoints x vertices x ctxsteps.
@@ -47,6 +48,7 @@ function samsrf_vol2srf(funimg, strimg, hemsurf, ctxsteps, rule, nrmls, avrgd, n
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
 % 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
 % 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
+% 19/12/2023 - Now has option not to split off anatomy (DSS)  
 %
 
 %% Default parameters
