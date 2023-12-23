@@ -52,7 +52,8 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.824 (19-12-2023)  
+### Version 9.825 (23-12-2023)  
+- Fixed significant bug with aperture scaling when simulating pRF data (DSS)  
 - Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
 - Added cblabel function to Utils to fix minor compatibility bug (DSS)  
 - Fixed bug with ClusterSereno when you provide a pathname (DSS)  

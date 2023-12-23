@@ -41,6 +41,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 17/08/2022 - Can now implement CSS nonlinearity if defined in model (DSS)
 %              Fixed mistake in the help section (DSS)
+% 23/12/2023 - Apertures now automatically rescaled to scaling factor/eccentricity (DSS)  
 %
 
 %% Default parameters 
@@ -103,6 +104,10 @@ else
     end
 end
 new_line; 
+
+%% Rescale apertures
+ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
+ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
 
 %% Simulate pRF timecourses
 disp('Simulating data...');
