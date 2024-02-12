@@ -52,12 +52,13 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.825 (23-12-2023)  
+### Version 9.826 (12-02-2024)  
 - Fixed significant bug with aperture scaling when simulating pRF data (DSS)  
 - Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
 - Added cblabel function to Utils to fix minor compatibility bug (DSS)  
 - Fixed bug with ClusterSereno when you provide a pathname (DSS)  
 - Surface projection functions now have option not to split off anatomy (DSS)  
+- Fixed bug with visualising CF maps when using single (32bit) data format (DSS)  
 
 ### Version 9.82 (02-12-2023)  
 - Updated simulation analysis functions (DSS)  

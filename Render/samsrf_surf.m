@@ -76,6 +76,7 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 19/06/2023 - Added option for transparency in surface mesh (DSS)
 % 03/10/2023 - Removed overly verbose defaults message (DSS)
 %              R^2 maps now use eccentricity colour scheme (DSS)
+% 12/02/2024 - Fixed bug when using 32bit data with CF maps (DSS)  
 %
 
 %% Create global variables
@@ -796,6 +797,7 @@ if ~isempty(Srf)
             R = Srf.ConFlds_(:,v);
         end
         [txy,u] = unique(Srf.TempMap', 'rows'); % Unique coordinates in seed map 
+        txy = double(txy); % Ensure double format
         R = R(u); % Remove duplicate correlations
         R(isnan(R)) = 0; % Remove NaNs
         mR = max(R); % Maximum after redundant vertices removed
