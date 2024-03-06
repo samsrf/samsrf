@@ -2,7 +2,8 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %
 % samsrf_heatmap_del(Tri, X, Y, Data, [Clipping=[0 Inf 0], Cmap='berlin'])
 %
-% Plots a heat-color map of Data using the Delaunay tesselation Tri, X and Y (from samsrf_backproj_del).  
+% Plots a heat-color map of Data using the Delaunay tesselation Tri, X and Y (from samsrf_backproj_del). 
+% Data must be a single frame of the backprojected data.
 %
 % Clipping is a vector defining above and below which value data are clipped.
 %  The 3rd value toggles whether clipping should take sign into account.
@@ -14,6 +15,7 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %  the colour map. You can also provide a 256x3 RGB colour map matrix yourself.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 05/03/2024 - No longer allows supplying more than one data frame (DSS)
 %
 
 %% Default inputs
@@ -28,6 +30,10 @@ if length(Clipping) == 1
     Clipping = [Clipping Inf 0];
 elseif length(Clipping) == 2
     Clipping = [Clipping 0];
+end
+
+if size(Data,2) > 1
+    error('Data must only be one frame!');
 end
 
 %% Clipping data
@@ -92,10 +98,7 @@ else
 end
 
 % Create color channels
-Colours = NaN(size(Data,1), 3, size(Data,2));
-for c = 1:size(Data,2)
-    Colours(:,:,c) = Rgb(Idx(:,c),:);
-end
+Colours = Rgb(Idx,:);
 
 %% Plot data 
 trisurf(Tri, X, Y, zeros(size(X)), 'FaceVertexCData', Colours, 'EdgeColor', 'none', 'FaceColor', 'interp');

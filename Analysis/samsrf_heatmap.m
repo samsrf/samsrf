@@ -29,6 +29,7 @@ function Img = samsrf_heatmap(X, Y, Data, Wts, Clipping, WtSatur, Cmap, Interpol
 % Optionally returns the image matrix Img, in which case plotting is turned off.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 05/03/2024 - No longer allows supplying more than one data frame (DSS)
 %
 
 %% Default inputs
@@ -57,6 +58,10 @@ if length(Clipping) == 1
     Clipping = [Clipping Inf 0];
 elseif length(Clipping) == 2
     Clipping = [Clipping 0];
+end
+
+if size(Data,3) > 1
+    error('Data must only be one frame!');
 end
 
 %% Was greyscale image supplied?

@@ -52,13 +52,14 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.827 (01-03-2024)  
+### Version 9.828 (05-03-2024)  
 - Fixed significant bug with aperture scaling when simulating pRF data (DSS)  
 - Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
 - Added cblabel function to Utils to fix minor compatibility bug (DSS)  
 - Fixed bug with ClusterSereno when you provide a pathname (DSS)  
 - Surface projection functions now have option not to split off anatomy (DSS)  
-- Fixed bug with visualising CF maps when using single (32bit) data format (DSS)  
+- Fixed bug with various functions when using single (32bit) data format (DSS)  
+- Backprojection heatmap functions now enforce only a single data frame (DSS)  
 - Fixed showstopping bug when converting old Srf files (DSS)  
 
 ### Version 9.82 (02-12-2023)  

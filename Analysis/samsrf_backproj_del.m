@@ -16,6 +16,7 @@ function Mesh = samsrf_backproj_del(Response, pRF_Data, Threshold)
 % You can use samsrf_heatmap_del for plotting.
 %           
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 05/03/2024 - Fixed bug when using 32-bit (single) data 
 %
 
 if nargin < 3
@@ -28,6 +29,9 @@ elseif length(Threshold) == 1
 elseif length(Threshold) == 2
     Threshold = [Threshold Inf];
 end
+
+% Convert into doubles
+pRF_Data = double(pRF_Data);
 
 % pRF map data
 gof = pRF_Data(1,:); % Goodness of fit
