@@ -1,10 +1,10 @@
 function Standard_2d_Gaussian_Prf(DataPath, SrfFiles, Roi)
 %
 % Fits a standard 2D Gaussian pRF model
+%
 %	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
 %   Roi:        ROI label to restrict analysis 
-% Both inputs are optional. If undefined, a dialog is opened for user selection.
 %
 % This is an example model. Copy this file to your parent data folder and
 % adapt the model parameters to suit your personal needs and desires.

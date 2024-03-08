@@ -1,10 +1,10 @@
 function Circular_Tuning_Curve(DataPath, SrfFiles, Roi)
 %
 % Fits a 1D circular Gaussian tuning curve model with polar wedge apertures
+%
 %	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
 %   Roi:        ROI label to restrict analysis 
-% Both inputs are optional. If undefined, a dialog is opened for user selection.
 %
 % This is an example model. Copy this file to your parent data folder and
 % adapt the model parameters to suit your personal needs and desires.

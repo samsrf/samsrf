@@ -1,12 +1,12 @@
 function Connective_Fields(DataPath, SrfFiles, Roi, SeedRoi, TempMap)
 %
 % Runs a connective field reverse correlation analysis
+%
 %	DataPath:	Path where the mapping data are
 %   SrfFiles:   Cell array with SamSrf data files (without extension)
 %   Roi:        ROI label to restrict analysis 
 %   SeedRoi:    Seed ROI label 
 %   TempMap:    Template map file
-% Both inputs are optional. If undefined, a dialog is opened for user selection.
 %
 % Includes code examples for using either forward-model fast fit or reverse correlation analysis.
 %

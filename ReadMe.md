@@ -52,7 +52,8 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.828 (05-03-2024)  
+### Version 9.83 (07-03-2024)  
+- Added functions for running CF analysis using pRF forward modelling (DSS)  
 - Fixed significant bug with aperture scaling when simulating pRF data (DSS)  
 - Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
 - Added cblabel function to Utils to fix minor compatibility bug (DSS)  
