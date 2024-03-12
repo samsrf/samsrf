@@ -52,6 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.831 (13-03-2024)  
+- Cluster ROI selection now has a filling criterion for more flexibility (DSS)  
+
 ### Version 9.83 (07-03-2024)  
 - Added functions for running CF analysis using pRF forward modelling (DSS)  
 - Fixed significant bug with aperture scaling when simulating pRF data (DSS)  
