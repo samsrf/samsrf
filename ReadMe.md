@@ -52,8 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.831 (13-03-2024)  
+### Version 9.832 (14-03-2024)   
 - Cluster ROI selection now has a filling criterion for more flexibility (DSS)  
+- Field sign function now takes vertex list as ROI input (DSS)  
 
 ### Version 9.83 (07-03-2024)  
 - Added functions for running CF analysis using pRF forward modelling (DSS)  

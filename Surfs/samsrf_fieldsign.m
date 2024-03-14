@@ -12,6 +12,7 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 % Adds the field sign map to Srf.Data as the bottom row. 
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 14/03/2024 - Can now use vector of vertices as ROI (DSS)
 %
 
 %% Default parameters
@@ -40,7 +41,13 @@ P = atan2(D(3,:), D(2,:));
 
 % Load region of interest
 if ~isempty(roi)
-    Vs = samsrf_loadlabel(roi);
+    if ischar(roi)
+        % Load ROI label
+        Vs = samsrf_loadlabel(roi);
+    else
+        % Use list of vertices
+        Vs = roi;
+    end
     si = 1;
 else
     si = ceil(nver/50000);  % Smoothing iterations so we don't run out of memory
