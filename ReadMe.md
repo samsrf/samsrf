@@ -52,7 +52,9 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.833 (16-03-2024)   
+### Version 9.834 (30-07-2024)   
+- Added function for exporting GIfTI files of data fields (DSS)  
+- Updated label exporting function for modern age (DSS)  
 - Cluster ROI selection now has options for more flexibility (DSS)  
 - Field sign function now takes vertex list as ROI input (DSS)  
 

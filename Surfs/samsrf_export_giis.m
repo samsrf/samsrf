@@ -1,21 +1,23 @@
-function samsrf_export_labels(Srf, OutFile, Raw)
+function samsrf_export_giis(Srf, OutFile, Raw)
 %
-% samsrf_export_labels(Srf, OutFile, [Raw=false])
+% samsrf_export_giis(Srf, OutFile, [Raw=false])
 %
-% Saves labels for all the value fields in Srf (it doesn't do anything if
-% there is no Srf.Values field). If Srf contains x0 and y0 values it also
+% Saves GIfTI files for all the value fields in Srf (it doesn't do anything 
+% if there is no Srf.Values field). If Srf contains x0 and y0 values it also
 % saves labels containing polar angle and eccentricity maps. You also have 
 % to define a file name to prefix to each label.
 %
 % The optional input Raw is a boolean that toggles whether to save the
 % raw Srf.Raw_Data fields or the standard Srf.Data fields (default).
 %
-% You can use this function to load maps in tksurfer.
+% You can use this function to load maps in Freeview, tksurfer, or other tools.
 %
-% This is a legacy function which we left in for backwards compatibility.
+% NOTE: This function requires SPM12 for GIfTI functionality.
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 30/07/2024 - Updated for the modern age (DSS)
+% This is a modern equivalent of samsrf_export_labels which we kept in the
+% toolbox for backwards compatibility.
+%
+% 30/07/2024 - Created (DSS)
 %
 
 % Default
@@ -34,14 +36,12 @@ if Raw
 end
 
 if isfield(Srf, 'Values')
-    % Saving structure
-    Sav = Srf;
+    %% Initialise GIfTI
+    Sav = gifti;
     
-    % Vertex indices
-    mver = 1:size(Srf.Vertices,1);
-
     %% If this is a pRF retinotopic map
     if cell2mat(strfind(Srf.Values,'x0'))
+        
         % Extract coordinates
         X = Srf.Data(2,:);  % Horizontal coordinate
         Y = Srf.Data(3,:);  % Vertical coordinate
@@ -67,20 +67,22 @@ if isfield(Srf, 'Values')
         E = E - 0.5; 
         E(Srf.Data(1,:) == 0) = 0;
         
-        %% Save labels
+        %% Save surfaces       
         % Polar angle
-        Fname = [OutFile '_pol'];
-        Sav.Data = P;
-        samsrf_srf2label(Sav, Fname, 1, mver);
+        Fname = [OutFile '_pol.gii'];
+        Sav.cdata = P';
+        SaveGiiFile(Sav, Fname)
+        disp(['Saved ' Fname]);
         
         % Eccentricity
-        Fname = [OutFile '_ecc'];
-        Sav.Data = E;
-        samsrf_srf2label(Sav, Fname, 1, mver);        
+        Fname = [OutFile '_ecc.gii'];
+        Sav.cdata = E';
+        SaveGiiFile(Sav, Fname)
+        disp(['Saved ' Fname]);        
     end
     
     %% If this is a tuning curve map
-     if cell2mat(strfind(Srf.Values, 'Mu'))
+    if cell2mat(strfind(Srf.Values, 'Mu'))
         
         % Extract values
         R2 = Srf.Data(find(strcmpi(Srf.Values, 'nR^2')), :);
@@ -99,22 +101,39 @@ if isfield(Srf, 'Values')
         Pr(R2 == 0) = 0;
         Pi(R2 == 0) = 0;
         P = P ./ Pi * 180;
-                
-        %% Save label       
+                        
+        %% Save surface       
         % Mu
-        Fname = [OutFile '_mu'];
-        Sav.Data = P;
-        samsrf_srf2label(Sav, Fname, 1, mver);
+        Fname = [OutFile '_mu.gii'];
+        Sav.cdata = P';
+        SaveGiiFile(Sav, Fname)
+        disp(['Saved ' Fname]);        
     end
 
-    %% Save labels for each field
+    %% Save surfaces for each field
     for i = 1:length(Srf.Values)
-        Fname = [OutFile '_' lower(Srf.Values{i})];
+        Fname = [OutFile '_' lower(Srf.Values{i}) '.gii'];
         sp = strfind(Fname, ' ');
         Fname(sp) = '_';
-        samsrf_srf2label(Srf, Fname, i, mver);
+        Sav.cdata = Srf.Data(i,:)';
+        SaveGiiFile(Sav, Fname)
+        disp(['Saved ' Fname]);
     end
 end
     
 new_line;
+
+%% Save GII file
+function SaveGiiFile(Sav, Fname)
+% Saves GII & then changes data dimensions so can be loaded by Freeview
+
+save(Sav, Fname, 'GZipBase64Binary'); % Save GII
+f = fopen(Fname); % Open GII
+S = char(fread(f)'); % Read GII
+S = strrep(S, "ColumnMajorOrder", "RowMajorOrder"); % Fix dimensions
+fclose(f); % Close file
+
+f = fopen(Fname, 'w'); % Now open for writing
+fwrite(f, S); % Write data
+fclose(f); % Close file
 
