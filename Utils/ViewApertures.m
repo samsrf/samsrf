@@ -19,6 +19,7 @@ function varargout = ViewApertures(varargin)
 %      instance to run (singleton)".
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 03/08/2024 - Added support for multi-condition apertures (DSS)
 %
 
 % Last Modified by GUIDE v2.5 23-May-2018 15:22:39
@@ -58,9 +59,10 @@ guidata(hObject, handles);
 % UIWAIT makes ViewApertures wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-global ApFrm ApXY
+global ApFrm ApXY ApCond
 
 % Load apertures
+ApCond = [];
 [ApName, ApPath] = uigetfile('aps_*.mat', 'Select apertures');
 if ApName ~= 0
     ApName = ApName(1:end-4);
@@ -72,8 +74,17 @@ subplot(handles.axes1);
 if ~isempty(ApXY)
     % Vectorised apertures
     disp('Loading vectorised apertures...');
+    if size(ApFrm,1) == size(ApXY,1)+1
+        disp(' Multi-condition apertures!');
+        ApCond = ApFrm(1,:);
+        ApFrm = ApFrm(2:end,:);
+    end
     polarpatch(ApXY(:,1), ApXY(:,2), ApFrm(:,1));
-    txy = max(ApXY) .* [.65 .85];
+    if isempty(ApCond)
+        txy = max(ApXY) .* [.65 .85];
+    else
+        txy = max(ApXY) .* [.45 .85];
+    end
 else
     % Movie apertures
     ApXY = []; 
@@ -86,7 +97,11 @@ else
     else
         contourf(x, y, curfrm, 'edgecolor', 'none');
     end
-    txy = [80 10];
+    if isempty(ApCond)
+        txy = [80 10];
+    else
+        txy = [60 10];
+    end
 end
 axis square
 axis off
@@ -102,7 +117,11 @@ if ~isempty(ApXY)
 else
     set(handles.slider1, 'Value', 1/size(ApFrm,3), 'SliderStep', [1/(1+size(ApFrm,3)) 1/(1+size(ApFrm,3))]);
 end
-text(txy(1), txy(2), '1', 'color', [.5 .5 .5], 'fontsize', 10);
+vc = '1';
+if ~isempty(ApCond)
+    vc = [vc ' (' num2str(ApCond(1)) ')'];
+end
+text(txy(1), txy(2), vc, 'color', [.5 .5 .5], 'fontsize', 10);
 
 % Close request function
 crfcn = @closereq;
@@ -129,7 +148,7 @@ function slider1_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-global ApFrm ApXY
+global ApFrm ApXY ApCond
 
 v = get(hObject,'Value');
 if ~isempty(ApXY)
@@ -142,7 +161,11 @@ subplot(handles.axes1);
 if ~isempty(ApXY)
     % Vectorised apertures
     polarpatch(ApXY(:,1), ApXY(:,2), ApFrm(:,f));
-    txy = max(ApXY) .* [.65 .85];
+    if isempty(ApCond)
+        txy = max(ApXY) .* [.65 .85];
+    else
+        txy = max(ApXY) .* [.45 .85];
+    end
 else
     % Movie apertures
     [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
@@ -153,7 +176,11 @@ else
     else
         contourf(x, y, curfrm, 'edgecolor', 'none');
     end
-    txy = [80 10];
+    if isempty(ApCond)
+        txy = [80 10];
+    else
+        txy = [60 10];
+    end
 end
 axis square
 axis off
@@ -164,7 +191,11 @@ else
     colormap gray
     set(gca, 'Clim', [0 1]);
 end
-text(txy(1), txy(2), num2str(f), 'color', [.5 .5 .5], 'fontsize', 10);
+vc = num2str(f);
+if ~isempty(ApCond)
+    vc = [vc ' (' num2str(ApCond(f)) ')'];
+end
+text(txy(1), txy(2), vc, 'color', [.5 .5 .5], 'fontsize', 10);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -187,7 +218,7 @@ function togglebutton1_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of togglebutton1
 
-global ApFrm ApXY
+global ApFrm ApXY ApCond
 
 try
     while get(hObject, 'Value')
@@ -220,7 +251,11 @@ try
         if ~isempty(ApXY)
             % Vectorised apertures
             polarpatch(ApXY(:,1), ApXY(:,2), ApFrm(:,f));
-            txy = max(ApXY) .* [.65 .85];
+            if isempty(ApCond)
+                txy = max(ApXY) .* [.65 .85];
+            else
+                txy = max(ApXY) .* [.45 .85];
+            end
         else
             % Movie apertures
             [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
@@ -231,7 +266,11 @@ try
             else
                 contourf(x, y, curfrm, 'edgecolor', 'none');
             end
-            txy = [80 10];
+            if isempty(ApCond)
+                txy = [80 10];
+            else
+                txy = [60 10];
+            end
         end
         axis square
         axis off
@@ -242,7 +281,11 @@ try
             colormap gray
             set(gca, 'Clim', [0 1]);
         end
-        text(txy(1), txy(2), num2str(f), 'color', [.5 .5 .5], 'fontsize', 10);
+        vc = num2str(f);
+        if ~isempty(ApCond)
+            vc = [vc ' (' num2str(ApCond(f)) ')'];
+        end
+        text(txy(1), txy(2), vc, 'color', [.5 .5 .5], 'fontsize', 10);
         pause(0.1);
     end
 catch

@@ -74,7 +74,9 @@ switch AnalysisFunc
 							''
 							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
                             ''
-                            'Since SamSrf 9 this file must be a vectorised aperture matrix with pixels (locations) in rows & volumes in columns. It must also contain the ApXY matrix defining the pixel coordinates.' };
+                            'Since SamSrf 9 this file must be a vectorised aperture matrix ApFrm with pixels (locations) in rows & volumes in columns. It must also contain the ApXY matrix defining the pixel coordinates.' 
+                            ''
+                            'If there are multiple conditions within the same time series, the condition indeces must be stored in the 1st row of the ApFrm matrix. In that case, you must use the prf_predict_timecourse_multicond function (see help for this function)!' };
            case 'Aperture_Mean_Response'
                HelpText = { '[Optional] Boolean'
                             ''
@@ -259,7 +261,9 @@ switch AnalysisFunc
 							''
 							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
                             ''
-                            'Important: unlike for forward-model pRF analysis, the apertures in reverse-correlation analysis are still using movies, -not- vectorised apertures! While there could be reasons to change this, the reverse correlation analysis is already very fast anyway & so we went with the maxim, "Don''t fix what ain''t broken"...' };
+                            'Important: unlike for forward-model pRF analysis, the apertures in reverse-correlation analysis are still using movies, -not- vectorised apertures! While there could be reasons to change this, the reverse correlation analysis is already very fast anyway & so we went with the maxim, "Don''t fix what ain''t broken"...' 
+                            ''
+                            'Also this currently does not support multiple conditions within the same time series. This may change in the future but currently there are no plans to implement this.' };
            case 'Prf_Function'
                HelpText = {	'Function handle / Scalar'
 							''

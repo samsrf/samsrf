@@ -52,7 +52,10 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.834 (30-07-2024)   
+### Version 9.9 (08-08-2024)  
+- Added alternative functionality for multi-condition designs in pRF models (DSS)   
+- VectoriseApertures & ViewApertures now support multi-condition designs (DSS)  
+- Updated ModelHelp with info about multi-condition designs (DSS)  
 - Added function for exporting GIfTI files of data fields (DSS)  
 - Updated label exporting function for modern age (DSS)  
 - Cluster ROI selection now has options for more flexibility (DSS)  

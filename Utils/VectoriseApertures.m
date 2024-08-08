@@ -11,6 +11,7 @@ function VectoriseApertures(ApsFile, Dummy)
 % 15/11/2022 - Now gives error if aperture length is odd-numbered (DSS)
 % 24/01/2023 - More info about how to use the scaling (DSS)
 % 02/12/2023 - Removed scaling input as apertures are now scaled automatically (DSS)  
+% 03/08/2024 - Added support for multi-condition apertures (DSS)
 %
 
 if nargin > 1
@@ -56,6 +57,12 @@ ApFrm = reshape(shiftdim(ApFrm, 2), size(ApFrm,3), ApDimX * ApDimY)'; % Pixels i
 ApX = ApX(:) / (ApDimX/2) * Scaling(1); % X-coordinates in stimulus space
 ApY = ApY(:) / (ApDimY/2) * Scaling(2); % Y-coordinates in stimulus space
 ApXY = [ApX ApY];
+
+% Is this a multi-condition design?
+if exist('ApCond', 'var')
+    disp(' Multi-condition design: condition labels are saved in 1st row of ApFrm.');
+    ApFrm = [ApCond; ApFrm]; % Condition labels are in first row of apertures!
+end
 
 % Save vectorised apertures
 save([ApsFile '_vec'], 'ApFrm', 'ApXY');
