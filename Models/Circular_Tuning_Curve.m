@@ -11,19 +11,19 @@ function Circular_Tuning_Curve(DataPath, SrfFiles, Roi)
 %
 
 %% Mandatory parameters 
-Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(cosd(P(1))/2, sind(P(1))/2, P(2), ApWidth); % Which pRF model function? 
 Model.Name = 'pTC_cir'; % File name to indicate type of pRF model
-Model.Param_Names = {'Phi'; 'Sigma'}; % Names of parameters to be fitted
+Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(cosd(P(1))/2, sind(P(1))/2, P(2), ApWidth); % Which pRF model function? 
+Model.Param_Names = {'Mu' 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [0 0]; % Which of these parameters are scaled 
 Model.Only_Positive = [0 1]; % Which parameters must be positive? (refer to ModelHelp for issues with Nelder-Mead algorithm)
 Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (stays fixed for this model!)
 Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than scanner TR if downsampling predictions)
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
-Model.Aperture_File = 'aps_pTC_cir'; % Aperture file
+Model.Aperture_File = ''; % Aperture file must be defined!
 
 %% Optional fine-fitting parameters
-% Model.Hooke_Jeeves_Steps = [5 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
-% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in aperture space)
+% Model.Hooke_Jeeves_Steps = [5 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space!)
+% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in visual space!)
 
 %% Search grid for coarse fit
 % Some parameters are multiplied with scaling factor as this must be in stimulus space!
@@ -40,9 +40,9 @@ MapFile = samsrf_fit_prf(Model, SrfFiles, Roi);
 
 %% Post-processing
 load(MapFile); % Load map we just analysed
-% Phi stays between -180 & +180
+% Mu stays between -180 & +180
 Srf.Data(2,:) = mod(Srf.Data(2,:), 360); % Ensure nothing above 360 or below 0
-x = Srf.Data(2,:) > 180; % Index phi > 180 degrees
+x = Srf.Data(2,:) > 180; % Index mu > 180 degrees
 Srf.Data(2,x) = Srf.Data(2,x) - 360; % Greater than 180 is now negative
 save(MapFile, 'Srf', 'Model', '-v7.3'); % Save again
 

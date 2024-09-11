@@ -2,7 +2,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 % Srf = samsrf_vol2mat(funimg, [roi, nrmls=1, avrgd=true, nsceil=true])
 %
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
-% The data file is prefixed 'vol_'
+% If no output argument is provided, the Srf is saved as a file prefixed 'vol_'
 %
 % NOTE: This is really a hack trying to make volumetric data work with the
 %       standard Srf variable structure. Not all functionality is supported.
@@ -14,8 +14,8 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 %   nrmls:      If true, it will detrend & normalise the time series in each vertex.
 %                 If positive, it will use z-normalisation.
 %                 If negative, it will only detrend but not z-normalise.
-%   avrgd:      If true, runs will be averaged into one SamSrf file (default).
-%               If false, runs will be concatenated into one SamSrf file.
+%   avrgd:      If true, runs will be averaged into one SamSrf structure (default).
+%               If false, runs will be concatenated into one SamSrf structure.
 %   nsceil:     If true, calculates the noise ceiling by splitting data into odd and even runs.
 %                 The noise ceiling is stored in the vector Srf.Noise_Ceiling.
 %                 This option only works when averaging runs - otherwise it is ignored 
@@ -32,6 +32,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 %              Can now calculate noise ceiling when averaging runs (DSS)
 % 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
 % 03/10/2023 - Removed overly verbose defaults message (DSS)
+% 04/09/2024 - Saving the file is now optional (DSS)  
 %
 
 %% Default parameters

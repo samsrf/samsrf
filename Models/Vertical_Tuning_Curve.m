@@ -11,19 +11,19 @@ function Gaussian_Tuning_Curve_Vertical(DataPath, SrfFiles, Roi)
 %
 
 %% Mandatory parameters 
-Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(0, P(1), P(2), ApWidth); % Which pRF model function? 
 Model.Name = 'pTC_ver'; % File name to indicate type of pRF model
-Model.Param_Names = {'Mu'; 'Sigma'}; % Names of parameters to be fitted
+Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(0, P(1), P(2), ApWidth); % Which pRF model function? 
+Model.Param_Names = {'Mu' 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1]; % Which of these parameters are scaled 
 Model.Only_Positive = [0 1]; % Which parameters must be positive? (refer to ModelHelp for issues with Nelder-Mead algorithm)
 Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than scanner TR if downsampling predictions)
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
-Model.Aperture_File = 'aps_pTC_ver'; % Aperture file
+Model.Aperture_File = ''; % Aperture file must be defined!
 
 %% Optional fine-fitting parameters
-% Model.Hooke_Jeeves_Steps = [.01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
-% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in aperture space)
+% Model.Hooke_Jeeves_Steps = [.01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space!)
+% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in visual space!)
 
 %% Search grid for coarse fit
 % Some parameters are multiplied with scaling factor as this must be in stimulus space!

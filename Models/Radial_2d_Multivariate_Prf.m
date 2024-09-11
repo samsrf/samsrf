@@ -15,19 +15,19 @@ function Radial_2d_Multivariate_Prf(DataPath, SrfFiles, Roi)
 %
 
 %% Mandatory parameters 
-Model.Prf_Function = @(P,ApWidth) prf_multivariate_rf(P(1), P(2), P(3), P(4), atan2(P(2),P(1))/pi*180, ApWidth); % Which pRF model function? 
 Model.Name = 'pRF_Radial'; % File name to indicate type of pRF model
-Model.Param_Names = {'x0'; 'y0'; 'Sigma1'; 'Sigma2'}; % Names of parameters to be fitted
+Model.Prf_Function = @(P,ApWidth) prf_multivariate_rf(P(1), P(2), P(3), P(4), atan2(P(2),P(1))/pi*180, ApWidth); % Which pRF model function? 
+Model.Param_Names = {'x0' 'y0' 'Sigma1' 'Sigma2'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1 1]; % Which of these parameters are scaled 
 Model.Only_Positive = [0 0 1 1]; % Which parameters must be positive? (refer to ModelHelp for issues with Nelder-Mead algorithm)
-Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentricity)
+Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than scanner TR if downsampling predictions)
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
-Model.Aperture_File = 'aps_pRF'; % Aperture file
+Model.Aperture_File = ''; % Aperture file must be defined!
 
 %% Optional fine-fitting parameters
-% Model.Hooke_Jeeves_Steps = [.01 .01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space)
-% Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in aperture space)
+% Model.Hooke_Jeeves_Steps = [.01 .01 .01 .01]; % Use Hooke-Jeeves algorithm with these initial step sizes (in aperture space!)
+% Model.Nelder_Mead_Tolerance = 0.01; % When using Nelder-Mead algorithm, use this parameter tolerance (in visual space!)
 
 %% Search grid for coarse fit
 % Some parameters are multiplied with scaling factor as this must be in stimulus space!

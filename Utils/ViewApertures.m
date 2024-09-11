@@ -20,6 +20,7 @@ function varargout = ViewApertures(varargin)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 03/08/2024 - Added support for multi-condition apertures (DSS)
+% 05/09/2024 - Now allows direct input of filename (DSS)
 %
 
 % Last Modified by GUIDE v2.5 23-May-2018 15:22:39
@@ -63,7 +64,12 @@ global ApFrm ApXY ApCond
 
 % Load apertures
 ApCond = [];
-[ApName, ApPath] = uigetfile('aps_*.mat', 'Select apertures');
+if isempty(varargin) 
+    [ApName, ApPath] = uigetfile('aps_*.mat', 'Select apertures');
+else
+    ApName = [varargin{1} '.mat'];
+    ApPath = '';
+end
 if ApName ~= 0
     ApName = ApName(1:end-4);
     load([ApPath ApName]);

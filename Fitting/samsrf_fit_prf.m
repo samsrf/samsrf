@@ -13,23 +13,19 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %                 but note that both of these can result in imprecise parameter esstimates.
 %
 %   Model:        Contains the parameters defining the eccentricity/scaling factor of the space.
-%   SrfFiles:     Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
-%                     Files will be concatenated in this order.
+%
+%   SrfFiles:     Data to be analysed. You can provide a Srf structure directly or define a cell array
+%                 of Srf data filenames without .mat extension (e.g. {'lh_Bars1' 'lh_Bars2'})
+%                     In that case, files will be concatenated in the order given.
+%                   
 %   Roi:          ROI label to restrict the analysis (default = '') 
-%                     Optional, but without this the analysis can take forever.
+%                     Optional, but without this the analysis can take forever depending on how much data there is.
 %
 % Returns the name of the map file it saved.
 %
-% 06/07/2022 - New faster version using vector apertures instead of movies (DSS)
-% 07/07/2022 - Added option for 10 free parameters (excluding CSS exponent) (DSS)
-%              Fixed small bug with multiple maximal correlations in coarse fit (DSS)
-% 10/08/2022 - Fixed bug with coarse fit when time series is flat (DSS)
-% 24/01/2023 - Added more info to error when apertures aren't vectorised (DSS) 
-% 17/03/2023 - Added option for conventional Dumoulin & Wandell approach to predict neural response (DSS)
-% 24/10/2023 - Bugfix when using 32bit data for seeding fine-fit (DSS)
-%              Bugfix for fitting betas when fits are bad (DSS)
-% 13/11/2023 - Added option to estimate HRF parameters during fine-fitting (DSS)
-% 02/12/2023 - Apertures now automatically rescaled to scaling factor/eccentricity (DSS)  
+% 04/09/2024 - Now automatically vectorises apertures if necessary (DSS)  
+%              Instead of a list of files, you can now specify a Srf as input (DSS)
+% 11/09/2024 - Fixed bug with Hooke-Jeeves algorithm step sizes not being scaled (DSS)
 %
 
 %% Defaults & constants
@@ -83,6 +79,11 @@ if ~Model.Coarse_Fit_Only
         disp('Using Hooke-Jeeves pattern search algorithm')
         hjs = [' with step sizes: '];
         for p = 1:length(Model.Hooke_Jeeves_Steps)
+            % Scale step size if necessary
+            if Model.Scaled_Param(p)
+                Model.Hooke_Jeeves_Steps(p) = Model.Hooke_Jeeves_Steps(p) * Model.Scaling_Factor;
+            end
+            % Output step sizes
             hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
             if p < length(Model.Hooke_Jeeves_Steps)
                 hjs = [hjs ', '];
@@ -106,13 +107,18 @@ new_line;
 
 %% Load apertures
 disp('Load stimulus apertures...');
-load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
+load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
 disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,2)) ' volumes']);
 if sum(ApFrm(:)<0) > 0
     disp(' Warning: Apertures contain negative values!');
 end
+
+% Apertures vectorised already?
 if ~exist('ApXY', 'var') 
-    error('Aperture pixel coordinates undefined! Did you use VectoriseApertures?');
+    disp('Aperture pixel coordinates undefined. Vectorising apertures...');
+    VectoriseApertures(EnsurePath(Model.Aperture_File));
+    Model.Aperture_File = [Model.Aperture_File '_vec']; % Use vectorised apertures instead
+    load(EnsurePath(Model.Aperture_File));  % Loads variables called ApFrm & ApXY
 end
 
 % Rescale apertures
@@ -129,20 +135,29 @@ end
 new_line;
 
 %% Load images 
+% If only only file name as char
 if ischar(SrfFiles)
     SrfFiles = {SrfFiles};
 end
-disp('Reading surface images...')
-Tc = [];
-for f = 1:length(SrfFiles)
-    % Load surface image from each run
-    load([pwd filesep SrfFiles{f}]);
-    Srf = samsrf_expand_srf(Srf);
-    if f == 1
-        OutFile = [Srf.Hemisphere '_' Model.Name];
+
+% Were data provided directly?
+if isstruct(SrfFiles)
+    Srf = SrfFiles; % Srf data provided directly
+    Tc = Srf.Data; % Time course matrix 
+    clear SrfFiles % To avoid duplicating massive variable
+else
+    disp('Reading surface images...')
+    Tc = [];
+    for f = 1:length(SrfFiles)
+        % Load surface image from each run
+        load([pwd filesep SrfFiles{f}]);
+        Srf = samsrf_expand_srf(Srf);
+        if f == 1
+            OutFile = [Srf.Hemisphere '_' Model.Name];
+        end
+        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
+        Tc = [Tc; Srf.Data]; % Add run to time course
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-    Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
 %% Load ROI mask

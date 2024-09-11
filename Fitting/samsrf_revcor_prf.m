@@ -61,6 +61,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFiles, Roi)
 % 19/09/2023 - Added option to use summary statistics as parameter estimates (DSS)
 %              Convex hull algorithm can now also account for negative peaks (DSS)
 %              Threshold for convex hull algorithm can now be adjusted (DSS)
+% 04/09/2024 - Instead of a list of files, you can now specify a Srf as input (DSS)
 %
 
 %% Defaults & constants
@@ -123,20 +124,29 @@ new_line;
 RegressorFile = ['reg_' ApsName '.mat'];  
 
 %% Load images 
+% If only only file name as char
 if ischar(SrfFiles)
     SrfFiles = {SrfFiles};
 end
-disp('Reading surface images...')
-Tc = [];
-for f = 1:length(SrfFiles)
-    % Load surface image from each run
-    load([pwd filesep SrfFiles{f}]);
-    Srf = samsrf_expand_srf(Srf);
-    if f == 1
-        OutFile = [Srf.Hemisphere '_' Model.Name];
+
+% Were data provided directly?
+if isstruct(SrfFiles)
+    Srf = SrfFiles; % Srf data provided directly
+    Tc = Srf.Data; % Time course matrix 
+    clear SrfFiles % To avoid duplicating massive variable
+else
+    disp('Reading surface images...')
+    Tc = [];
+    for f = 1:length(SrfFiles)
+        % Load surface image from each run
+        load([pwd filesep SrfFiles{f}]);
+        Srf = samsrf_expand_srf(Srf);
+        if f == 1
+            OutFile = [Srf.Hemisphere '_' Model.Name];
+        end
+        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
+        Tc = [Tc; Srf.Data]; % Add run to time course
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-    Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
 %% Load ROI mask

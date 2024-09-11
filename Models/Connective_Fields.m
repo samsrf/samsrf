@@ -15,7 +15,7 @@ function Connective_Fields(DataPath, SrfFiles, Roi, SeedRoi, TempMap)
 %
 
 %% Mandatory parameters 
-Model.Name = 'CF'; % File name for output map
+Model.Name = 'CF_Rcp'; % File name for output map
 Model.SeedRoi = SeedRoi; % ROI label for seed region
 Model.Template = TempMap; % Atlas retinotopic map of seed region
 

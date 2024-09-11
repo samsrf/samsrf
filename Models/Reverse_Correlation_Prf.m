@@ -16,18 +16,18 @@ function Reverse_Correlation_Prf(DataPath, SrfFiles, Roi)
 
 %% Mandatory parameters 
 Model.Name = 'pRF'; % File name to indicate type of pRF model
-Model.Scaling_Factor = 10; % Scaling factor of the stimulus space (e.g. eccentricity)
+Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Repetition time (TR) of pulse sequence
 Model.Hrf = []; % HRF file or vector to use (empty = canonical)
-Model.Aperture_File = 'aps_pRF'; % Aperture file
+Model.Aperture_File = ''; % Aperture file must be defined!
 
 %% Optional fine-fitting parameters
-% Model.Hooke_Jeeves_Steps = [.1 .1 .1]; % Use Hooke-Jeeves algorithm with these initial step sizes (in visual space) 
-% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in visual space)
+% Model.Hooke_Jeeves_Steps = [.1 .1 .1]; % Use Hooke-Jeeves algorithm with these initial step sizes (in visual space!) 
+% Model.Nelder_Mead_Tolerance = 0.01; % Define parameter tolerance for Nelder-Mead algorithm (in visual space!)
 
 %% For fitting 2D pRF models: Commment this whole section to use convex hull estimation!
 Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth); % Which pRF model function? 
-Model.Param_Names = {'x0'; 'y0'; 'Sigma'}; % Names of parameters to be fitted
+Model.Param_Names = {'x0' 'y0' 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1]; % Which of these parameters are scaled 
 Model.SeedPar_Function = @(V) [V(2:3); V(4)/(2*sqrt(2*log(2)))]; % Seed parameter function
 Model.R2_Threshold = 0.1; % Reverse correlation threshold

@@ -19,6 +19,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
 % 16/04/2022 - Now saves final map with _Fwd suffix (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
+% 04/09/2024 - Instead of a list of files, you can now specify a Srf as input (DSS)
 %
 
 %% Defaults & constants
@@ -43,22 +44,31 @@ disp([' ' pwd]);
 new_line;
 
 %% Load images 
+% If only only file name as char
 if ischar(SrfFiles)
     SrfFiles = {SrfFiles};
 end
-disp('Reading surface images...')
-Tc = [];
-for f = 1:length(SrfFiles)
-    % Load surface image from each run
-    load([pwd filesep SrfFiles{f}]);
-    Srf = samsrf_expand_srf(Srf);
-    if f == 1
-        OutFile = [Srf.Hemisphere '_' Model.Name];
+
+% Were data provided directly?
+if isstruct(SrfFiles)
+    Srf = SrfFiles; % Srf data provided directly
+    Tc = Srf.Data; % Time course matrix 
+    clear SrfFiles % To avoid duplicating massive variable
+else
+    disp('Reading surface images...')
+    Tc = [];
+    for f = 1:length(SrfFiles)
+        % Load surface image from each run
+        load([pwd filesep SrfFiles{f}]);
+        Srf = samsrf_expand_srf(Srf);
+        if f == 1
+            OutFile = [Srf.Hemisphere '_' Model.Name];
+        end
+        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
+        Tc = [Tc; Srf.Data]; % Add run to time course
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-    Tc = [Tc; Srf.Data]; % Add run to time course
+    Srf.Data = Tc; % Store full time course in Srf 
 end
-Srf.Data = Tc; % Store full time course in Srf
 
 %% Load ROI mask
 if isempty(Roi)

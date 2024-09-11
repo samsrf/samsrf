@@ -1,11 +1,21 @@
-# SamSrf IX - Read Me
+# SamSrf X - Read Me
 
-This major release includes the most recent updates which involved an improved 
-(much faster!) algorithm for fitting population receptive fields. This constitutes 
-a fundamental changefrom previous SamSrf versions. The toolbox also includes 
-reverse correlation pRF analysis & connective fields analysis. 
+This major release includes a standalone application for integrating into 
+NeuroDesk & eventually browser-based analysis platforms. It includes the 
+most recent updates which involved a better & faster algorithm for fitting 
+population receptive fields, support for microtime resolution (i.e. smoothly 
+moving stimuli), fitting the HRF as part of a pRF model & modelling 
+event-related modulations of pRF parameters.  
 
-There are various GUIs & other tools available for specific purposes:  
+All these are fundamental changes from previous SamSrf versions & some 
+functions may therefore not be compatible with much earlier versions. 
+The toolbox also includes reverse correlation pRF & CF analysis. 
+
+The main standalone GUI is simply called SamSrfAnalysis. It allows you to 
+select between different algorithms, and between Models for various common uses.  
+
+Within the Matlab environment, there are various tools available for specific purposes:  
+ 
     1. Projecting data to surface:              SurfaceProjection  
     2. Making map figures:                      DisplayMaps  
     3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
@@ -37,8 +47,8 @@ data files from older versions (at least 5.0 upwards) using samsrf_convert_old_s
 
 ------
 
-SamSrf 9 was tested on **Matlab R2020a & R2020b**. The Nelder-Mead algorithm requires 
-Matlab's **Optimization Toolbox**. The Hooke-Jeeves algorithm is implemented directly 
+SamSrf X was tested on **Matlab R2023b**. The Nelder-Mead algorithm requires Matlab's 
+**Optimization Toolbox**. The Hooke-Jeeves algorithm is implemented directly 
 in SamSrf. SamSrf strongly relies on parallel computing for a number of time-intensive 
 analyses, so if you have Matlab's **Parallel Computing Toolbox** installed & you have a 
 **multi-core computer or cluster** it should run faster. You will need to modify the 
@@ -52,6 +62,13 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
+### Version 9.913 (11-09-2024) - Alpha Version!!!  
+- Added functions for saving & loading Model specifications as JSON files (DSS)  
+- Modifications for creating standalone GUI app & integration into NeuroDesk (DSS)  
+- Updated examples in SamSrf/Models to align with saved versions for standalone app (DSS)  
+- Model fitting functions now allow direct input of Srf instead of filenames (DSS)   
+- ViewApertures now also allow direct input argument (DSS)  
+
 ### Version 9.9 (08-08-2024)  
 - Added alternative functionality for multi-condition designs in pRF models (DSS)   
 - VectoriseApertures & ViewApertures now support multi-condition designs (DSS)  
@@ -60,143 +77,6 @@ from the Srf structure.
 - Updated label exporting function for modern age (DSS)  
 - Cluster ROI selection now has options for more flexibility (DSS)  
 - Field sign function now takes vertex list as ROI input (DSS)  
-
-### Version 9.83 (07-03-2024)  
-- Added functions for running CF analysis using pRF forward modelling (DSS)  
-- Fixed significant bug with aperture scaling when simulating pRF data (DSS)  
-- Bugfix for visualising grid search results when using concurrent HRF fitting (DSS)  
-- Added cblabel function to Utils to fix minor compatibility bug (DSS)  
-- Fixed bug with ClusterSereno when you provide a pathname (DSS)  
-- Surface projection functions now have option not to split off anatomy (DSS)  
-- Fixed bug with various functions when using single (32bit) data format (DSS)  
-- Backprojection heatmap functions now enforce only a single data frame (DSS)  
-- Fixed showstopping bug when converting old Srf files (DSS)  
-
-### Version 9.82 (02-12-2023)  
-- Updated simulation analysis functions (DSS)  
-- Vectorised apertures are now automatically scaled to scaling factor/eccentricity (DSS)  
-- Therefore, VectoriseApertures function no longer requires scaling input (DSS)  
-- Fixed bug when using single (32bit) data with reverse correlation CF analysis (DSS)  
-
-### Version 9.801 (13-11-2023)  
-- Forward-modelling pRF can now automatically estimate HRF parameters (DSS)  
-- Minor fix in official release version as parallel processing had been turned off (DSS)  
-
-### Version 9.712 (31-10-2023) Spooky version!
-- Fixed major bug with fitting forward-model betas when pRF model fit is poor (DSS)  
-- Bugfix when seeding fine-fit with a coarse-fit saved in 32 bit (DSS)  
-- Removed zero line in samsrf_fitvsobs as makes no sense when mean is non-zero (DSS)  
-- Fixed issue when saving labels from M/EEG or volume data files (DSS)  
-- Added polar colour wheel for M/EEG scalp distribution plots (DSS)  
-- Polar scalp distribution plots now use circular mean as they should (DSS)  
-
-### Version 9.7 (05-10-2023) 
-- Created DisplayScalpMaps tool with pRF profile inspector (DSS)  
-- Added options to plot head & sphere scalp distribution maps (DSS)  
-- Adjusted verbosity of command line reports to reduce annoyance (DSS)  
-- R^2 maps now use eccentricity colour scheme (DSS)  
-- Small bugfix in samsrf_fitvsobs when downsampling predictions (DSS)  
-- In a potential misnomer, samsrf_r2hist can now plot any row in Srf.Data (DSS)  
-- Minor fix of figure legend in samsrf_r2hist (DSS)  
-
-### Version 9.64 (28-09-2023) 
-- Updated M/EEG functions for scalp distribution plots (DSS)  
-- Srf structure for M/EEG data was reorganised (DSS)  
-
-### Version 9.631 (20-09-2023) 
-- Added support for EEG/MEG data files (DSS)  
-- It is now possible to adjust threshold for reverse correlation pRFs convex hull (DSS)  
-- Reverse correlation pRF now has option to allow negative peaks (DSS)  
-- Reverse correlation pRF can now also simply use summary statistics to estimate parameters (DSS)  
-- Negative peaks now also possible in samsrf_showprf (DSS)  
-- Some other adaptations to reverse correlation backprojections (DSS)  
-
-### Version 9.62 (09-08-2023) 
-- Added function to generating reverse correlation pRF profiles (DSS)  
-- Default for reverse correlation pRF is now to not save profiles! (DSS)  
-- Also the default dimension of reverse correlation profiles is now 100 (DSS)  
-- Updates & bugfix in samsrf_backproj_revcor for this purpose (DSS)  
-- Updated ModelHelp text on reverse correlation pRF analysis accordingly (DSS)  
-- Fixed bug in samsrf_fitvsobs when downsampling predictions (DSS)  
-- Fixed bug with polar plots in samsrf_plot (DSS)  
-- Added FuncHelp tool to display help sections on all functions (DSS)  
-
-### Version 9.6 (29-06-2023) - Face-palm update!!!  
-- **Data is now 32 bit by default to improve speed of model fits & reduce disc space!** (DSS)  
-- You can switch this off & keep using 64 bit by setting *def_64bit = true* in *SamSrf_defaults.mat*  
-
-### Version 9.51 (19-06-2023) - Advanced Age Day update!  
-- Borders of ROI in DisplayMaps are now transparent (DSS)  
-- Added option for transparency in samsrf_surf (DSS)  
-
-### Version 9.5 (17-03-2023) - St Patrick's Day update!  
-- Added option to use conventional approach for predicting neural response (DSS)  
-
-### Version 9.425 (24-01-2023)  
-- VectoriseApertures now gives error if aperture lengths are odd-numbered (DSS)  
-- Bugfix for MakeOccRoi which stopped working after recent updates (DSS)  
-- Bilateral surface functions now support Srfs with missing surface fields (DSS)  
-- Fixed minor bug with samsrf_colourcode for custom colour schemes (DSS)  
-- Added some more info about vectorising apertures in help sections (DSS)  
-
-### Version 9.42 (19-10-2022)  
-- Critical bugfix with data type in samsrf_mat2vol when saving negative values! (DSS)  
-- Fixed various other bugs when using volumetric data files (DSS)  
-- Volumetric data projection now allows concatenation & noise ceiling (DSS)  
-- Fixed bug when converting volumetric data file without ROI back into NII (DSS)   
-
-### Version 9.4 (05-10-2022)  
-- Surface projection functions can now normalise without z-scoring (DSS)  
-- Renamed negative amplitude estimate in reverse-correlation CF convex hull method (DSS)  
-
-### Version 9.31 (27-09-2022)  
-- Fixed bug with NaNs returned by smoothing algorithms (DSS)  
-- Can now restrict samsrf_removenoise to ROI to help with limited memory issues (DSS)  
-- Change to noise regression is now incorporated in CF analysis functions (DSS)  
-- If symbolic links cannot be read, it now loads pial surfaces from .T1 file (DSS)  
-- Fixed bug in ClusterSereno when saving in a different path (DSS)  
-- Benson maps now use surf folder for Srf.Structural/Meshes (DSS)  
-- Fixed a bug with DelineationTool not being able to save labels (DSS)  
-- Visualisation of CFs in visual space are now zoomed in (DSS)  
-
-### Version 9.22 (14-09-2022)  
-- Added function to save out GII files of functional overlays for use outside SamSrf (DSS)  
-- Added tool to cluster Sereno atlas ROIs into coarse anatomical regions (PWBU & DSS)  
-- Added a note about using different canonical HRFs in ModelHelp (DSS)  
-- Fixed bug with loading pial surfaces when your OS cannot read symbolic links (DSS)  
-- Fixed bug when saving correlation CF profiles (DSS)  
-
-### Version 9.2 (22-08-2022)  
-- DisplayMaps now asks which hemisphere of bilateral Srf to display (DSS)  
-- Added function to select a peak statistic within a ROI (DSS)  
-- Simulation function can now implement compressive summation nonlinearity (DSS)  
-- Vertex inspector can now display visual CF profiles but this is still buggy (DSS)  
-
-### Version 9.1 (10-08-2022)  
-- Convex hull CF algorithm now uses region growing for central CF estimation (DSS)  
-- Now the inhibitory surround of a convex hull CF is also quantified (DSS)  
-- Reverse correlation pRF analysis can now use convex hull algorithm (DSS)  
-- Fixed bug in samsrf_fit_prf coarse fit when time course is flat (DSS)  
-- Added option to samsrf_glm to turn off automatic global covariates (DSS)  
-- Turned off parallel computing in samsrf_glm but commented out option remains (DSS)  
-- Now saves GLM files in v7.3 file format in case they are too large (DSS)  
-- Added option to define scaling factor/eccentricity in samsrf_simvsfit (DSS)  
-- Corrected incorrect help section in template warping functions (DSS)  
-- Changed samsrf_cometplot to use logarithmic density scale (DSS)  
-- But output of samsrf_cometplot is still raw density matrix (DSS)  
-- Increased default granularity in samsrf_cometplot (DSS)  
-- Turned off transparency in samsrf_surf by default (DSS)  
-- Fixed samsrf_surf bug with eccentricity bounds clipping (DSS)  
-- Fixed bug in samsrf_surf when NaNs are present in map (DSS)  
-- Changed example models for elliptical pRFs (DSS)  
-
-### Version 9.02 (08-07-2022)  
-- **Complete overhaul of forward-model time course prediction!** (DSS)  
-- Updated search grid specification in SamSrf/Models accordingly (DSS)  
-- Rewrote simulation functions for vectorised apertures (DSS)  
-- Removed time course animation tool as no longer compatible with algorithm (DSS)  
-- ViewApertures tool can now support both movie & vectorised apertures (DSS)  
-- Updated Cookbook to reflect the new changes (DSS)  
 
 ------
 

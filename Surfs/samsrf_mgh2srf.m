@@ -1,19 +1,19 @@
-function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
+function Srf = samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % 
-% samsrf_mgh2srf(funimg, hemsurf, [nrmls=true, avrgd=true, nsceil=true, anatpath='../anatomy/'])
+% Srf = samsrf_mgh2srf(funimg, hemsurf, [nrmls=true, avrgd=true, nsceil=true, anatpath='../anatomy/'])
 %
-% Converts a FreeSurfer surface in MGH format to a SamSrf surface file and saves it.
+% Converts a FreeSurfer surface in MGH format to a SamSrf surface structure. If no output argument is provided, it saves the Srf as a file.
 % Use this when using FreeSurfer to project functional data to the surface and then analysing it in SamSrf.
 %
 %   funimg:     Name of functional MGH files (without extension!)
-%                 If this a cell array, files are averaged or concatenated (see avgconsep) 
+%                 If this a cell array, files are averaged or concatenated (see avrgd) 
 %                 In that case you should probably normalise! (see nrmls)
 %   hemsurf:    Hemisphere of surfaces (& folder if needed)
 %   nrmls:      If true, it will detrend & normalise the time series in each vertex.
 %                 If positive, it will use z-normalisation.
 %                 If negative, it will only detrend but not z-normalise.
-%   avrgd:      If true, runs will be averaged into one SamSrf file (default).
-%               If false, runs will be concatenated into one SamSrf file.
+%   avrgd:      If true, runs will be averaged into one SamSrf structure (default).
+%               If false, runs will be concatenated into one SamSrf structure.
 %   nsceil:     If true, calculates the noise ceiling by splitting data into odd and even runs.
 %                 The noise ceiling is stored in the vector Srf.Noise_Ceiling.
 %                 This option only works when averaging runs - otherwise it is ignored 
@@ -25,7 +25,8 @@ function samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % 05/10/2022 - Can now also detrend without z-normalisation (DSS)
 % 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
 % 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
-% 19/12/2023 - Now has option not to split off anatomy (DSS)  
+% 19/12/2023 - Clarifications in help section (DSS)  
+%              Now has option not to split off anatomy (DSS)  
 %
 
 %% Default parameters
@@ -156,9 +157,11 @@ end
 %% Convert to 32 bit?
 Srf = samsrf_32bit_srf(Srf);
 
-%% Save surface data
-[p f e] = fileparts(funimg{1});
-save(f, 'Srf', '-v7.3');
-disp(['Saved ' f '.mat']);
-samsrf_anatomy_srf(f, anatpath);
-new_line;
+%% Save surface data?
+if nargout == 0
+    [p f e] = fileparts(funimg{1});
+    save(f, 'Srf', '-v7.3');
+    disp(['Saved ' f '.mat']);
+    samsrf_anatomy_srf(f, anatpath);
+    new_line;
+end

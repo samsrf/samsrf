@@ -13,17 +13,17 @@ function Prf_Of_CF_Data(DataPath, SrfFiles, Roi)
 %
 
 %% Standard 2D Gaussian pRF
-Model.Name = 'pRF_Gaussian'; % File name to indicate type of pRF model
+Model.Name = 'pRF-CF'; % File name to indicate type of pRF model
 Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth); % Which pRF model function? 
-Model.Param_Names = {'x0'; 'y0'; 'Sigma'}; % Names of parameters to be fitted
+Model.Param_Names = {'x0' 'y0' 'Sigma'}; % Names of parameters to be fitted
 Model.Scaled_Param = [1 1 1]; % Which of these parameters are scaled 
 Model.Only_Positive = [0 0 0]; % Which parameters must be positive?
 Model.TR = 1; % Repetition time (TR) of pulse sequence
 Model.Hrf = 1; % No HRF!
-Model.Aperture_File = 'aps_bi_laserkiwi'; % Aperture file
+Model.Aperture_File = ''; % Aperture file must be defined!
 % Load apertures to determine eccentricity!
 load(Model.Aperture_File);
-Model.Scaling_Factor = max(abs(ApXY(:))); % Scaling factor of the stimulus space (e.g. eccentricity)
+Model.Scaling_Factor = 1; % max(abs(ApXY(:))); % Scaling factor of the stimulus space (e.g. eccentricity)
 
 %% Search grid for coarse fit 
 % Some parameters are multiplied with scaling factor as this must be in stimulus space!

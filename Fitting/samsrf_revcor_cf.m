@@ -34,6 +34,7 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
 % 03/10/2022 - Negative amplitude is now called Suppression instead of Baseline (DSS)
 % 02/12/2023 - Bugfix in parameter fitting loop when using single (32bit) data (DSS)
+% 04/09/2024 - Instead of a list of files, you can now specify a Srf as input (DSS)
 %
 
 %% Defaults & constants
@@ -94,20 +95,29 @@ end
 new_line;
 
 %% Load images 
+% If only only file name as char
 if ischar(SrfFiles)
     SrfFiles = {SrfFiles};
 end
-disp('Reading surface images...')
-Tc = [];
-for f = 1:length(SrfFiles)
-    % Load surface image from each run
-    load([pwd filesep SrfFiles{f}]);
-    Srf = samsrf_expand_srf(Srf);
-    if f == 1
-        OutFile = [Srf.Hemisphere '_' Model.Name];
+
+% Were data provided directly?
+if isstruct(SrfFiles)
+    Srf = SrfFiles; % Srf data provided directly
+    Tc = Srf.Data; % Time course matrix 
+    clear SrfFiles % To avoid duplicating massive variable
+else
+    disp('Reading surface images...')
+    Tc = [];
+    for f = 1:length(SrfFiles)
+        % Load surface image from each run
+        load([pwd filesep SrfFiles{f}]);
+        Srf = samsrf_expand_srf(Srf);
+        if f == 1
+            OutFile = [Srf.Hemisphere '_' Model.Name];
+        end
+        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
+        Tc = [Tc; Srf.Data]; % Add run to time course
     end
-    disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-    Tc = [Tc; Srf.Data]; % Add run to time course
 end
 
 %% Load ROI mask
