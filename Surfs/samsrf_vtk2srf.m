@@ -20,7 +20,7 @@ end
 [V, F, D] = Read_vtk(Vtks{1});
 V(:,1) = -V(:,1);
 V(:,3) = -V(:,3);
-disp(['Surface & curvature from: ' Vtks{1}]);
+samsrf_disp(['Surface & curvature from: ' Vtks{1}]);
 
 % Create Srf
 Srf = struct;
@@ -47,7 +47,7 @@ end
 for i = 2:length(Vtks)
     [~,~,D] = Read_vtk(Vtks{i});
     Srf.Data = [Srf.Data; D'];
-    disp(['Read in #' num2str(i-1) ': ' Vtks{i}]);
+    samsrf_disp(['Read in #' num2str(i-1) ': ' Vtks{i}]);
 end
 
 % Convert to 32 bit?

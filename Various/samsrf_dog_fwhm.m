@@ -12,7 +12,7 @@ function Srf = samsrf_dog_fwhm(Srf)
 Srf = samsrf_expand_srf(Srf);
 
 % Calculate FWHM from DoG parameters
-disp('Calculating FWHM from DoG parameters...');
+samsrf_disp('Calculating FWHM from DoG parameters...');
 Fwhm = []; 
 for v = 1:size(Srf.Data,2)
    Fwhm = [Fwhm dog_fwhm(Srf.Data(4,v), Srf.Data(5,v), Srf.Data(6,v))];

@@ -87,31 +87,31 @@ else
     Srf.Data = NaN(size(ApFrm,2) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
 end
 
-disp('Haemodynamic response function...')
+samsrf_disp('Haemodynamic response function...')
 if isempty(Model.Hrf)
-    disp(' Using canonical HRF');
+    samsrf_disp(' Using canonical HRF');
     Model.Hrf = samsrf_hrf(Model.TR);
 elseif isscalar(Model.Hrf) && Model.Hrf == 1
-    disp(' No HRF used!');
+    samsrf_disp(' No HRF used!');
 else
     if ischar(Model.Hrf)
-        disp([' Subject-specific HRF: ' Model.Hrf]);
+        samsrf_disp([' Subject-specific HRF: ' Model.Hrf]);
         load([pwd filesep Model.Hrf]);
          % HRF based on loaded parameters but TR defined here
         Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
     else
-        disp(' Using Subject-specific HRF provided');
+        samsrf_disp(' Using Subject-specific HRF provided');
     end
 end
-new_line; 
+samsrf_newline; 
 
 %% Rescale apertures
 ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
 ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
 
 %% Simulate pRF timecourses
-disp('Simulating data...');
-disp(' Please stand by...');
+samsrf_disp('Simulating data...');
+samsrf_disp(' Please stand by...');
 Gt = Srf.Ground_Truth; % Ground truth data
 Data = zeros(size(Srf.Data)); % Simulated data
 parfor v = 1:size(Srf.Data,2)

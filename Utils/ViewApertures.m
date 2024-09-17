@@ -79,9 +79,9 @@ end
 subplot(handles.axes1);
 if ~isempty(ApXY)
     % Vectorised apertures
-    disp('Loading vectorised apertures...');
+    samsrf_disp('Loading vectorised apertures...');
     if size(ApFrm,1) == size(ApXY,1)+1
-        disp(' Multi-condition apertures!');
+        samsrf_disp(' Multi-condition apertures!');
         ApCond = ApFrm(1,:);
         ApFrm = ApFrm(2:end,:);
     end
@@ -94,7 +94,7 @@ if ~isempty(ApXY)
 else
     % Movie apertures
     ApXY = []; 
-    disp('Loading movie apertures...');
+    samsrf_disp('Loading movie apertures...');
     [x,y] = meshgrid(1:size(ApFrm,2), 1:size(ApFrm,1));
     y = flipud(y);
     curfrm = ApFrm(:,:,1);

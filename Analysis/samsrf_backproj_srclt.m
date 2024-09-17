@@ -203,7 +203,7 @@ if sum(IdxGeomean) > 0 && sum(sum(Cleaned_Response(IdxGeomean,:) <= 0)) > 0
 end
 
 %% Backprojection with searchlight
-disp('Backprojecting data into visual space...');
+samsrf_disp('Backprojecting data into visual space...');
 % Id counter
 c_id = 1;
 

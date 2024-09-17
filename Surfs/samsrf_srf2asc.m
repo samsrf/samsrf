@@ -42,4 +42,4 @@ for v = 1:nver
     fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', v-1, Srf.Vertices(v,1), Srf.Vertices(v,2), Srf.Vertices(v,3), Srf.Data(valnum,v));
 end
 fclose(fid);
-disp(['Saved ' srfdir filesep Srf.Hemisphere '.' ascname '.asc.']);
+samsrf_disp(['Saved ' srfdir filesep Srf.Hemisphere '.' ascname '.asc.']);

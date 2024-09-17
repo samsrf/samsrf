@@ -107,5 +107,5 @@ end
 fhdr.fname = [labelfile '.nii'];
 spm_write_vol(fhdr, fimg);  
 % Message
-disp(['Saved ' labelfile '.nii.']);
+samsrf_disp(['Saved ' labelfile '.nii.']);
 

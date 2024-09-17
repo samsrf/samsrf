@@ -1,25 +1,29 @@
-function OutFile = samsrf_fit_cf(Model, SrfFiles, Roi)
+function OutFile = samsrf_fit_cf(Model, SrfFile, Roi)
 %
-% OutFile = samsrf_fit_cf(Model, SrfFiles, [Roi = ''])
+% OutFile = samsrf_fit_cf(Model, SrfFile, [Roi = ''])
 %
 % Fits a CF model using a fast grid search fitting procedure.
 % For each vertex in the region of interest Roi, determines the best CF parameters
 % for which the time series in the seed region Model.SeedRoi can predict its response.
 %
-%   Model:          Contains the parameters defining the connective field model.
-%   SrfFiles:       Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
-%                       Files will be concatenated in this order.
-%   Roi:            ROI label to restrict the analysis (default = '') 
-%                       Optional, but without this the analysis can take forever.
+%   Model:        Contains the parameters defining the analysis.
+%
+%   SrfFile:      Data to be analysed. You can provide a Srf structure directly or define the 
+%                 Srf data filename is a char array without .mat extension (e.g. 'lh_Bars1').
+%
+%                 NOTE: Unlike in previous SamSrf versions, you cannot provide a file list 
+%                       for concatenation! If you want concatenated runs, do this using the 
+%                       surface projection tools available and provide the input as Srf struct.                     
+%
+%   Roi:          ROI label to restrict the analysis (default = '') 
+%                     Optional, but without this the analysis can take forever.
 %
 % Returns the name of the map file it saved.
 %
-% 15/04/2022 - Outsourced check for default parameters so no longer needs to check these (DSS)
-%              Added option to apply global signal correction (DSS)
-% 16/04/2022 - Now saves final map with _Fwd suffix (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
 % 04/09/2024 - Instead of a list of files, you can now specify a Srf as input (DSS)
+% 13/09/2024 - Removed option to provife data file list for concatenation (DSS)
+%              Fixed help descriptions (DSS)
+% 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
 %
 
 %% Defaults & constants
@@ -34,81 +38,69 @@ SearchspaceFile = ['src_' Model.Name '.mat'];
 Model = samsrf_model_defaults('samsrf_fit_cf', Model);
 
 %% Start time of analysis
-t0 = tic; new_line;  
-disp('*** SamSrf CF model fitting ***');
+t0 = tic; samsrf_newline;  
+samsrf_disp('*** SamSrf CF model fitting ***');
 [vn, vd] = samsrf_version;
-disp([' Version ' num2str(vn) ' - ' vd]);
-new_line;
-disp('Current working directory:');
-disp([' ' pwd]);
-new_line;
+samsrf_disp([' Version ' num2str(vn) ' - ' vd]);
+samsrf_newline;
+samsrf_disp('Current working directory:');
+samsrf_disp([' ' pwd]);
+samsrf_newline;
 
 %% Load images 
-% If only only file name as char
-if ischar(SrfFiles)
-    SrfFiles = {SrfFiles};
-end
-
 % Were data provided directly?
-if isstruct(SrfFiles)
-    Srf = SrfFiles; % Srf data provided directly
-    Tc = Srf.Data; % Time course matrix 
-    clear SrfFiles % To avoid duplicating massive variable
+if isstruct(SrfFile)
+    samsrf_disp('Surface data input...');
+    Srf = SrfFile; % Srf data provided directly
+    clear SrfFile % To avoid duplicating massive variable
 else
-    disp('Reading surface images...')
-    Tc = [];
-    for f = 1:length(SrfFiles)
-        % Load surface image from each run
-        load([pwd filesep SrfFiles{f}]);
-        Srf = samsrf_expand_srf(Srf);
-        if f == 1
-            OutFile = [Srf.Hemisphere '_' Model.Name];
-        end
-        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-        Tc = [Tc; Srf.Data]; % Add run to time course
-    end
-    Srf.Data = Tc; % Store full time course in Srf 
+    samsrf_disp('Reading data file...')
+    load([pwd filesep SrfFile]);
+    Srf = samsrf_expand_srf(Srf);
+    samsrf_disp([' Loading ' SrfFile ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
 end
+Tc = Srf.Data; % Time course matrix 
+OutFile = [Srf.Hemisphere '_' Model.Name];
 
 %% Load ROI mask
 if isempty(Roi)
-    new_line; disp('Using all vertices (''tis gonna take forever!)...');
+    samsrf_newline; samsrf_disp('Using all vertices (''tis gonna take forever!)...');
     mver = 1:size(Srf.Vertices,1);
 else
-    new_line; disp('Reading ROI mask...')
+    samsrf_newline; samsrf_disp('Reading ROI mask...')
     mver = samsrf_loadlabel(Roi);
-    disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
+    samsrf_disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 
 %% Correct by global mean signal?
 if Model.Global_Signal_Correction
-    new_line; disp('Applying global signal correction...');
+    samsrf_newline; samsrf_disp('Applying global signal correction...');
     Srf.Data = Tc;
     Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2), mver);
     Tc = Srf.Data;
     Srf.Data = [];
 end
-new_line; 
+samsrf_newline; 
 
 %% Limit data due to noise ceiling?
 if isfield(Srf, 'Noise_Ceiling')
     if Model.Noise_Ceiling_Threshold > 0
         mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
-        disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
-        new_line;
+        samsrf_disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        samsrf_newline;
     end
 end
 
 %% Load seed ROI 
-disp(['Loading seed ROI: ' Model.SeedRoi]);
+samsrf_disp(['Loading seed ROI: ' Model.SeedRoi]);
 svx = samsrf_loadlabel(Model.SeedRoi);
 Srf.SeedVx = svx; % Store for posterity
 
 %% Load template map
-disp(['Loading template map: ' Model.Template]);
+samsrf_disp(['Loading template map: ' Model.Template]);
 Temp = load(EnsurePath(Model.Template));
 Temp.Srf = samsrf_expand_srf(Temp.Srf);
-new_line;
+samsrf_newline;
 
 %% Add version number
 Srf.Version = samsrf_version;
@@ -122,9 +114,9 @@ end
 
 %% Generate prediction matrix
 if ~exist([pwd filesep SearchspaceFile], 'file') 
-    disp('Generating predictions...');
+    samsrf_disp('Generating predictions...');
     if isfield(Model, 'Polar')
-        disp(' Using polar angle patches as CFs');
+        samsrf_disp(' Using polar angle patches as CFs');
         Polar = atan2(Temp.Srf.Data(3,svx), Temp.Srf.Data(2,svx)) / pi * 180;
         X = NaN(size(Tc,1), length(Model.Polar)-1); % Time courses
         S = NaN(1,length(Model.Polar)-1); % Patch polar angle
@@ -135,7 +127,7 @@ if ~exist([pwd filesep SearchspaceFile], 'file')
             X(:,p) = pX; % Store extracted time course
         end
     elseif isfield(Model, 'Eccentricity')
-        disp(' Using eccentricity patches as CFs');
+        samsrf_disp(' Using eccentricity patches as CFs');
         Eccentricity = sqrt(Temp.Srf.Data(2,svx).^2 + Temp.Srf.Data(3,svx).^2);
         X = NaN(size(Tc,1), length(Model.Eccentricity)-1); % Time courses
         S = NaN(1,length(Model.Eccentricity)-1); % Patch eccentricity
@@ -146,16 +138,16 @@ if ~exist([pwd filesep SearchspaceFile], 'file')
             X(:,p) = pX; % Store extracted time course
         end
     elseif isfield(Model, 'Sizes')
-        disp(' Using vertex-wise search space with circular CFs');
+        samsrf_disp(' Using vertex-wise search space with circular CFs');
         [X,S] = cf_generate_searchspace(Srf, svx, Model.Sizes); % Store time courses for each seed vertex
     end
     save(SearchspaceFile, 'X', 'S', '-v7.3');
     t1 = toc(t0); 
-    disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
+    samsrf_disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
 else
-    disp('Loading pre-defined predictions...');
+    samsrf_disp('Loading pre-defined predictions...');
     load([pwd filesep SearchspaceFile]);
-    disp([' Loading ' SearchspaceFile]);
+    samsrf_disp([' Loading ' SearchspaceFile]);
     % Does number of grid points match model?
     if isfield(Model, 'Sizes')
         if size(S,2) ~= length(svx) * length(Model.Sizes)
@@ -168,15 +160,15 @@ else
         error('Search space is corrupt! Mismatch between number of parameters & predictions!');
     end
 end
-disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);
-new_line; 
+samsrf_disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);
+samsrf_newline; 
 
 %% Preprocess data
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 
 %% Coarse fit 
-disp('Coarse fitting...');
+samsrf_disp('Coarse fitting...');
 Xfits = zeros(size(Tc,1), length(mver));  % Matrix with predictions
 Rimg = zeros(1, length(mver)); % R^2 map
 Vimg = zeros(1, length(mver)); % Fitted vertex number/patch parameter map
@@ -186,7 +178,7 @@ if isfield(Model, 'Sizes')
 end
 
 % Loop through mask vertices 
-disp(' Please stand by...');
+samsrf_disp(' Please stand by...');
 parfor v = 1:length(mver)
     % Current vertex index
     vx = mver(v);
@@ -214,8 +206,8 @@ parfor v = 1:length(mver)
     end
 end
 t2 = toc(t0); 
-disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
-new_line;
+samsrf_disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
+samsrf_newline;
 
 %% Store coarse fit parameters
 Srf.X = zeros(size(Tc)); % Matrix with best-fitting predictions
@@ -239,20 +231,20 @@ if isfield(Srf, 'Noise_Ceiling')
     Srf = rmfield(Srf, 'Noise_Ceiling'); % Remove separate field
     Srf = samsrf_normr2(Srf); % Calculate normalised R^2
 end
-new_line;
+samsrf_newline;
 
 % Compress to save space
 Srf = samsrf_compress_srf(Srf, mver);
 % Save map files
 OutFile = [OutFile '_Fwd'];
-disp('Saving CF fitting results...');
+samsrf_disp('Saving CF fitting results...');
 save(OutFile, 'Model', 'Srf', '-v7.3');
-disp(['Saved ' OutFile '.mat']); 
+samsrf_disp(['Saved ' OutFile '.mat']); 
 
 % End time
 t4 = toc(t0); 
 EndTime = num2str(t4/60/60);
-new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
-disp('******************************************************************');
-new_line; new_line;
+samsrf_newline; samsrf_disp(['Whole analysis completed in ' EndTime ' hours.']);
+samsrf_disp('******************************************************************');
+samsrf_newline; samsrf_newline;
 

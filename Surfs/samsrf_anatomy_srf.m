@@ -96,7 +96,7 @@ if ~isempty(AnatPath)
             warning('Anatomical mesh file already exists so won''t save another one...');
         else
             save([AnatPath Anat.Hemisphere '_' AnatName], 'Anat', '-v7.3'); % Save anatomy
-            disp(['Saved anatomical meshes in ' AnatPath Anat.Hemisphere '_' AnatName]);
+            samsrf_disp(['Saved anatomical meshes in ' AnatPath Anat.Hemisphere '_' AnatName]);
         end
     end
 end

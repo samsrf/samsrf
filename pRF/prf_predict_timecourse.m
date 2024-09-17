@@ -5,8 +5,7 @@ function Y = prf_predict_timecourse(Rfp, ApFrm)
 %
 % Predicts the time course resulting from receptive field profile Rfp and stimulus mask movie ApFrm. 
 %
-% 06/07/2022 - Rewritten for vectorised apertures (DSS)
-% 17/03/2023 - Added option for conventional Dumoulin & Wandell 2008 biophysical model (DSS)
+% 16/09/2024 - Now uses absolute values to calculate pRF overlap to correct for issues with negative components (DSS)
 %
 
 % Which biophysical model?
@@ -27,5 +26,5 @@ end
 
 % Use overlap model?
 if PrfOvr
-    Y = Y / mean(Rfp) * 100; % Transform into percent pRF overlap 
+    Y = Y / mean(abs(Rfp)) * 100; % Transform into percent pRF overlap 
 end

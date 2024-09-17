@@ -79,7 +79,7 @@ if (fid < 0)
             str = sprintf('could not open surface file %s.', fname);
             error(str);
         else
-            disp('Pial data loaded from .T1 file');
+            samsrf_disp('Pial data loaded from .T1 file');
         end
     else
         str = sprintf('could not open surface file %s.', fname);
@@ -99,7 +99,7 @@ if contains(fname, 'pial') && magic ~= QUAD_FILE_MAGIC_NUMBER && magic ~= TRIANG
         str = sprintf('could not open surface file %s.', fname);
         error(str);
     else
-        disp('Pial data loaded from .T1 file');
+        samsrf_disp('Pial data loaded from .T1 file');
     end
     magic = fs_fread3(fid);
 end

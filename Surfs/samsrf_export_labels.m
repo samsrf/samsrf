@@ -86,9 +86,9 @@ if isfield(Srf, 'Values')
         R2 = Srf.Data(find(strcmpi(Srf.Values, 'nR^2')), :);
         if isempty(R2)
             R2 = Srf.Data(find(strcmpi(Srf.Values, 'R^2')), :);
-            disp('Using raw R^2 values as magnitude.');
+            samsrf_disp('Using raw R^2 values as magnitude.');
         else
-            disp('Using normalised R^2 values as magnitude.');
+            samsrf_disp('Using normalised R^2 values as magnitude.');
         end
         Mu = Srf.Data(find(strcmpi(Srf.Values, 'Mu')), :);
         
@@ -115,6 +115,5 @@ if isfield(Srf, 'Values')
         samsrf_srf2label(Srf, Fname, i, mver);
     end
 end
-    
-new_line;
+samsrf_newline;
 

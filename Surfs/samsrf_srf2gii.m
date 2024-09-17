@@ -54,4 +54,4 @@ end
 G = gifti;
 G.cdata = Srf.Data(valrow,:)';
 save(G, giiname);
-disp(['Saved ' giiname '.']);
+samsrf_disp(['Saved ' giiname '.']);

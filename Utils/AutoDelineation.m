@@ -109,22 +109,22 @@ end
 if nargin < 10
     InitRad = AtlasData.InitRad; % Initial search radius
 end
-new_line;
+samsrf_newline;
 
 %% Welcome message
 [vn,vd] = samsrf_version;
-clc; 
-disp('****************************************************************************');
-disp('   Welcome to the Seriously Annoying MatLab Surfer Auto-Delineation Tool!');
-disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
-new_line;
-disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-disp('****************************************************************************');
-new_line;
+samsrf_clrscr; 
+samsrf_disp('****************************************************************************');
+samsrf_disp('   Welcome to the Seriously Annoying MatLab Surfer Auto-Delineation Tool!');
+samsrf_disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_newline;
+samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
+samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
+samsrf_disp('****************************************************************************');
+samsrf_newline;
 
 %% Load map
-disp('Loading map...');
+samsrf_disp('Loading map...');
 load(SrfName, 'Srf'); % Load Srf
 SrfName = SrfName(4:end); % Remove prefix
 Srf = samsrf_expand_srf(Srf); % Expand Srf
@@ -144,9 +144,9 @@ else
 end
 % If bilateral Srf
 if length(Hemis) > 1
-    disp(' Splitting bilateral Srf into hemispheres...');
+    samsrf_disp(' Splitting bilateral Srf into hemispheres...');
     [lh_Srf, rh_Srf] = samsrf_hemi_srfs(Srf); % Split into hemispheres
-    new_line;
+    samsrf_newline;
 end
 
 %% Report parameters
@@ -154,23 +154,23 @@ Rois = '';
 for i = 1:length(AtlasData.Rois)
     Rois = [Rois ' ' AtlasData.Rois{i}];
 end
-disp(['Atlas:                   ' Atlas ':' Rois]);
-new_line;
-disp('Parameters:')
-disp([' R^2 threshold:          ' num2str(R2Thresh)]);
-disp([' Minimum eccentricity:   ' num2str(MinEcc)]);
-disp([' Maximum eccentricity:   ' num2str(MaxEcc)]);
-disp([' Eccentricity bandwidth: ' num2str(EccBw)]);
-disp([' Number of iterations:   ' num2str(Niter)]);
-disp([' Initial search radius:  ' num2str(InitRad)]);
-new_line;
+samsrf_disp(['Atlas:                   ' Atlas ':' Rois]);
+samsrf_newline;
+samsrf_disp('Parameters:')
+samsrf_disp([' R^2 threshold:          ' num2str(R2Thresh)]);
+samsrf_disp([' Minimum eccentricity:   ' num2str(MinEcc)]);
+samsrf_disp([' Maximum eccentricity:   ' num2str(MaxEcc)]);
+samsrf_disp([' Eccentricity bandwidth: ' num2str(EccBw)]);
+samsrf_disp([' Number of iterations:   ' num2str(Niter)]);
+samsrf_disp([' Initial search radius:  ' num2str(InitRad)]);
+samsrf_newline;
 
 %% Loop thru all hemispheres to analyse
 for h = 1:length(Hemis)
     figure;
 
     %% Which hemisphere & map?
-    disp(['Delineating map: ' Hemis{h} 'h_' SrfName]);
+    samsrf_disp(['Delineating map: ' Hemis{h} 'h_' SrfName]);
     % If bilateral Srf
     if length(Hemis) > 1
         if h == 1
@@ -209,22 +209,22 @@ for h = 1:length(Hemis)
         elseif def_disproi(1) == '>'
             ViewRoi = find(wv > wc);
         end
-        disp(['Only displaying inflated mesh vertices with ' def_disproi]);
+        samsrf_disp(['Only displaying inflated mesh vertices with ' def_disproi]);
     elseif isnan(def_disproi)
         % Use ROI from Srf
-        disp('Using ROI from Srf if it exists');
+        samsrf_disp('Using ROI from Srf if it exists');
     else
         % Load region of interest
         Roi = [Hemis{h} 'h_' def_disproi];
         ViewRoi = samsrf_loadlabel(Roi);
-        disp(['Only displaying ROI ' Roi]);
+        samsrf_disp(['Only displaying ROI ' Roi]);
     end
     if ~isnan(ViewRoi)
         AllVx = true(size(Srf.Vertices,1),1);
         AllVx(ViewRoi) = false;
         Srf.Vertices(AllVx,:) = NaN;
     end
-    new_line;
+    samsrf_newline;
 
     %% Sphere vertices in native & template 
     NatVx = Srf.Sphere; % Target vertices
@@ -255,10 +255,10 @@ for h = 1:length(Hemis)
     PathTypes = fieldnames(Wpts);
 
     %% Warp waypoints into native space
-    disp('Warping template waypoints into native space...');
+    samsrf_disp('Warping template waypoints into native space...');
     % Loop thru path types
     for t = 1:length(PathTypes)
-        disp([' ' PathTypes{t}]);
+        samsrf_disp([' ' PathTypes{t}]);
         % Loop thru paths of this type
         for m = 1:length(Wpts.(PathTypes{t}))
             % Loop thru waypoints in each path
@@ -274,7 +274,7 @@ for h = 1:length(Hemis)
                 % Store warped vertex
                 NatWpts.(PathTypes{t}){m}(w) = mv;
             end
-            disp(['  ' num2str(m) '/' num2str(length(Wpts.(PathTypes{t}))) ': ' num2str(length(Wpts.(PathTypes{t}){m})) ' waypoints']);
+            samsrf_disp(['  ' num2str(m) '/' num2str(length(Wpts.(PathTypes{t}))) ': ' num2str(length(Wpts.(PathTypes{t}){m})) ' waypoints']);
         end
     end
 
@@ -322,10 +322,10 @@ for h = 1:length(Hemis)
     ph = samsrf_surf(Srf, 'Sphere', [R2Thresh 0 0 MinEcc MaxEcc -.1], {Dots; [NaN 1 1 1]}, '', 'Polar');
     set(gcf, 'name', 'Initial waypoints');
     pause(.5);
-    new_line; 
+    samsrf_newline; 
 
     %% Adjust peripheral border
-    disp('Adjusting peripheral border...');
+    samsrf_disp('Adjusting peripheral border...');
     sp = samsrf_borderpath(Srf, find(~Mask)); % Path surrounding masked region
     t = find(strcmpi(PathTypes, 'PeripheralBorder')); % Select peripheral borders
     % Loop thru peripheral border paths 
@@ -343,7 +343,7 @@ for h = 1:length(Hemis)
     end
 
     %% Fit each waypoint to map
-    disp('Fitting waypoints to empirical map...');
+    samsrf_disp('Fitting waypoints to empirical map...');
     % Loop thru iterations
     FitWpts = NatWpts; % Fitted waypoints
     for i = 1:Niter    
@@ -425,14 +425,14 @@ for h = 1:length(Hemis)
         set(gcf, 'name', ['Iteration #' num2str(i)]);
         pause(.5);
     end
-    new_line;
+    samsrf_newline;
 
     %% Create paths
     Paths = {}; % List of sub-paths (for delineation file)
     EccBorder = []; % Contiguous eccentricity border paths
 
     % Connecting waypoints
-    disp('Creating paths from waypoints...');
+    samsrf_disp('Creating paths from waypoints...');
     % Loop thru path types
     cw = 1; % Count sub-paths
     for t = 1:length(PathTypes)
@@ -456,7 +456,7 @@ for h = 1:length(Hemis)
     end
 
     % Close foveal borders
-    disp('Closing foveal borders...');
+    samsrf_disp('Closing foveal borders...');
     t = find(strcmpi(PathTypes, 'FovealBorder')); % Select foveal borders
     % Loop thru peripheral border paths 
     for m = 1:length(NatWpts.(PathTypes{t})) 
@@ -471,7 +471,7 @@ for h = 1:length(Hemis)
     end
 
     % Connect end points to eccentricity borders
-    disp('Connecting end points with eccentricity borders...');
+    samsrf_disp('Connecting end points with eccentricity borders...');
     % Loop thru path types
     for t = 1:length(PathTypes)
         % Loop thru paths of this type
@@ -528,16 +528,16 @@ for h = 1:length(Hemis)
         Vs = [Vs; Paths{i}];
     end
     % Saves everything to disc
-    new_line;
+    samsrf_newline;
     save(['autodel_' Hemis{h} 'h_' SrfName], 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds', 'AutoDelin');
-    disp(['Saved auto-delineation autodel_' Hemis{h} 'h_' SrfName '.mat']);
+    samsrf_disp(['Saved auto-delineation autodel_' Hemis{h} 'h_' SrfName '.mat']);
 
     %% Display final delineation
     samsrf_surf(Srf, 'Sphere', [R2Thresh 0 0 MinEcc MaxEcc -.1], DrawPaths, '', 'Polar', ph);
     set(gcf, 'name', 'Inspect auto delineation');
     rotate3d;
-    disp('Don''t forget to inspect & correct in DelineationTool before labelling the ROIs!');
-    new_line;
+    samsrf_disp('Don''t forget to inspect & correct in DelineationTool before labelling the ROIs!');
+    samsrf_newline;
 end
 
 %% Draw connecting path

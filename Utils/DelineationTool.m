@@ -51,7 +51,7 @@ guidata(hObject, handles);
 %% Global variables
 global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
 
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
+samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 if ~exist('def_disproi')
     def_disproi = NaN; 
@@ -130,19 +130,19 @@ if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
     elseif RoiName(1) == '>'
         vx = find(wv > wc);
     end
-    disp(['Only displaying inflated mesh vertices with ' RoiName]);
+    samsrf_disp(['Only displaying inflated mesh vertices with ' RoiName]);
 elseif isnan(RoiName)
     % Use ROI from Srf
-    disp('Using ROI from Srf if it exists');
+    samsrf_disp('Using ROI from Srf if it exists');
 elseif isempty(RoiName)
     % Show whole brain 
-    disp('Showing whole surface');
+    samsrf_disp('Showing whole surface');
     vx = NaN;
 else
     % Load region of interest
     Roi = [SrfName(1:2) '_' RoiName];
     vx = samsrf_loadlabel(Roi);
-    disp(['Only displaying ROI ' Roi]);
+    samsrf_disp(['Only displaying ROI ' Roi]);
 end
 if ~isnan(vx)
     roivx = true(size(Srf.Vertices,1),1);
@@ -150,7 +150,7 @@ if ~isnan(vx)
     Srf.Vertices(roivx,:) = NaN;
 end
 if ~isfield(Srf, 'Values')
-    disp('This file does not contain a pRF map!');
+    samsrf_disp('This file does not contain a pRF map!');
     return
 end
 Srf.Values{end+1} = 'Custom';
@@ -182,7 +182,7 @@ R2Thrsh = str2double(get(handles.edit1, 'String')); % R^2 threshold
 if isfield(Srf, 'Curvature') 
     Curv = Srf.Curvature;
 else
-    disp('No curvature data!');
+    samsrf_disp('No curvature data!');
     Curv = 1;
 end
 % Greyscale for curvature
@@ -200,7 +200,7 @@ Mesh(1) = upper(Mesh(1));
 if isfield(Srf, Mesh)
     Vertices = getfield(Srf, Mesh);
 else
-    disp(['Mesh ' Mesh ' not found!']);
+    samsrf_disp(['Mesh ' Mesh ' not found!']);
     Vertices = Srf.Vertices;
 end
 Vertices(isnan(Srf.Vertices(:,1)),:) = NaN; 
@@ -232,17 +232,17 @@ set(hp, 'Units', 'normalized', 'Position', [fpos(3)*1.75 fpos(2:4)]);
 
 %% Welcome message
 [vn vd] = samsrf_version;
-clc; 
-disp('****************************************************************************');
-disp('   Welcome to the Seriously Annoying MatLab Surfer Map Delineation Tool!');
-disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
-new_line;
-disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-disp('****************************************************************************');
-new_line;
-disp(['Displaying map: ' SrfName]);
-new_line;
+samsrf_clrscr; 
+samsrf_disp('****************************************************************************');
+samsrf_disp('   Welcome to the Seriously Annoying MatLab Surfer Map Delineation Tool!');
+samsrf_disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_newline;
+samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
+samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
+samsrf_disp('****************************************************************************');
+samsrf_newline;
+samsrf_disp(['Displaying map: ' SrfName]);
+samsrf_newline;
 
 %% Close request function
 crfcn = @closereq;
@@ -352,12 +352,12 @@ if LoadSavedDelins
     % Load any previously saved paths
     if exist(['del_' SrfName '.mat'], 'file')
         [Vs, Paths] = samsrf_loadpaths(['del_' SrfName '.mat']);
-        disp('Loaded saved delineation for this map.');
+        samsrf_disp('Loaded saved delineation for this map.');
     elseif exist(['autodel_' SrfName '.mat'], 'file')
         [Vs, Paths] = samsrf_loadpaths(['autodel_' SrfName '.mat']);
-        disp('Loaded auto-delineation for this map.');
+        samsrf_disp('Loaded auto-delineation for this map.');
     else
-        disp('No delineations exist yet for this map.');
+        samsrf_disp('No delineations exist yet for this map.');
     end
 else
     % Retrieve path vertices
@@ -550,7 +550,7 @@ while ~isempty(Bvx)
     % Count filling steps
     fc = fc + 1;
     if fc == 100
-        disp('Warning: Flood filling is taking unusually long...');
+        samsrf_disp('Warning: Flood filling is taking unusually long...');
     end    
     if fc > 200
         OutRoi = -1;
@@ -605,7 +605,7 @@ if isempty(Points)
     Points = v;
     CfRgb(v,:) = [1 0 0];
     set(pc, 'FaceVertexCData', CfRgb); 
-    disp(['Selected new vertex #' num2str(v)]);
+    samsrf_disp(['Selected new vertex #' num2str(v)]);
 else
     % Check that new point is not too far away
     d = sqrt((Vertices(v,1)-Vertices(Points(end),1)).^2 + (Vertices(v,2)-Vertices(Points(end),2)).^2 + (Vertices(v,3)-Vertices(Points(end),3)).^2);
@@ -614,7 +614,7 @@ else
         CfRgb(v,:) = [1 0 0];
         set(pc, 'FaceVertexCData', CfRgb); 
     else
-        disp(['Too far from previous vertex! ' num2str(d) ' mm']);
+        samsrf_disp(['Too far from previous vertex! ' num2str(d) ' mm']);
     end
 end
 
@@ -739,7 +739,7 @@ if ~isempty(RoiNum)
         % Update message
         if Roi == -1
             set(handles.text2, 'String', 'Something''s amiss!');
-            disp('Something is amiss: Flood filling took too way long!');
+            samsrf_disp('Something is amiss: Flood filling took too way long!');
             RoiSeeds(RoiNum) = NaN;
         else
             set(handles.text2, 'String', ['Labelled ' RoiList{RoiNum}]);
@@ -773,7 +773,7 @@ for a = 2:3
         % Update message
         set(handles.text2, 'String', 'Combined Quadrants');
     else
-        disp(['Couldn''t combine V' num2str(a) ' quadrants!']);
+        samsrf_disp(['Couldn''t combine V' num2str(a) ' quadrants!']);
     end
 end
 

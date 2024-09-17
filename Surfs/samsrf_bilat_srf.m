@@ -42,21 +42,21 @@ if isfield(SrfL, 'Pial')
     SrfL.Pial(:,1) = SrfL.Pial(:,1)-3;
     SrfR.Pial(:,1) = SrfR.Pial(:,1)+3;
 else
-    warning('Pial surfaces not in Srf...');
+    samsrf_disp('Warning: Pial surfaces not in Srf...');
 end
 
 if isfield(SrfL, 'Inflated')
     SrfL.Inflated(:,1) = SrfL.Inflated(:,1)-50;
     SrfR.Inflated(:,1) = SrfR.Inflated(:,1)+50;
 else
-    warning('Inflated surfaces not in Srf...');
+    samsrf_disp('Warning: Inflated surfaces not in Srf...');
 end
 
 if isfield(SrfL, 'Sphere')
     SrfL.Sphere(:,1) = SrfL.Sphere(:,1)-105;
     SrfR.Sphere(:,1) = SrfR.Sphere(:,1)+105;
 else
-    warning('Sphere surfaces not in Srf...');
+    samsrf_disp('Warning: Sphere surfaces not in Srf...');
 end
 
 % Combine hemispheres
@@ -70,7 +70,7 @@ Srf.Vertices = [SrfL.Vertices; SrfR.Vertices];
 if isfield(SrfL, 'Normals')
     Srf.Normals = [SrfL.Normals; SrfR.Normals];
 else
-    warning('Normals data not in Srf...');
+    samsrf_disp('Warning: Normals data not in Srf...');
 end
 
 if isfield(SrfL, 'Pial')
@@ -88,13 +88,13 @@ end
 if isfield(SrfL, 'Curvature')
     Srf.Curvature = [SrfL.Curvature SrfR.Curvature];
 else
-    warning('Curvature data not in Srf...');
+    samsrf_disp('Warning: Curvature data not in Srf...');
 end
 if isfield(SrfL, 'Area')
     Srf.Area = [SrfL.Area SrfR.Area];
     Srf.Thickness = [SrfL.Thickness SrfR.Thickness];
 else
-    warning('Cortical dimensions not in Srf...');
+    samsrf_disp('Warning: Cortical dimensions not in Srf...');
 end
 Srf.Data = [SrfL.Data SrfR.Data];
 

@@ -35,7 +35,7 @@ Nc = Srf.Data(strcmpi(Srf.Values, 'Noise Ceiling'),:); % Noise ceiling
 
 if isempty(Nc)
     % No noise ceiling available
-    disp('No noise ceiling has been computed');
+    samsrf_disp('No noise ceiling has been computed');
 else
     % Threshold by noise ceiling
     R2(Nc <= NcThr) = 0;
@@ -48,5 +48,5 @@ else
     Srf.Data = [Srf.Data; R2];
     Srf.Data(1,:) = nR2;
     
-    disp('Computed normalised R^2');
+    samsrf_disp('Computed normalised R^2');
 end

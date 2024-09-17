@@ -18,7 +18,7 @@ if nargin < 3
 end
 
 A = 0; 
-disp('  Calculating area...'); 
+samsrf_disp('  Calculating area...'); 
 for i = 1:length(Vs)
     A = A + samsrf_vertexarea(Vs(i),V,F); 
 end

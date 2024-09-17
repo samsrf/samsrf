@@ -1,6 +1,6 @@
-function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
+function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 %
-% OutFile = samsrf_fit_prf(Model, SrfFiles, [Roi = ''])
+% OutFile = samsrf_fit_prf(Model, SrfFile, [Roi = ''])
 %
 % Fits a pRF model using the slow fine-fitting procedure (fminsearch in Optimization toolbox).
 %
@@ -12,11 +12,14 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 %                 Moreover, you can now define parameter tolerance for Nelder-Mead algorithm,
 %                 but note that both of these can result in imprecise parameter esstimates.
 %
-%   Model:        Contains the parameters defining the eccentricity/scaling factor of the space.
+%   Model:        Contains the parameters defining the analysis.
 %
-%   SrfFiles:     Data to be analysed. You can provide a Srf structure directly or define a cell array
-%                 of Srf data filenames without .mat extension (e.g. {'lh_Bars1' 'lh_Bars2'})
-%                     In that case, files will be concatenated in the order given.
+%   SrfFile:      Data to be analysed. You can provide a Srf structure directly or define the 
+%                 Srf data filename is a char array without .mat extension (e.g. 'lh_Bars1').
+%
+%                 NOTE: Unlike in previous SamSrf versions, you cannot provide a file list 
+%                       for concatenation! If you want concatenated runs, do this using the 
+%                       surface projection tools available and provide the input as Srf struct.                     
 %                   
 %   Roi:          ROI label to restrict the analysis (default = '') 
 %                     Optional, but without this the analysis can take forever depending on how much data there is.
@@ -26,6 +29,11 @@ function OutFile = samsrf_fit_prf(Model, SrfFiles, Roi)
 % 04/09/2024 - Now automatically vectorises apertures if necessary (DSS)  
 %              Instead of a list of files, you can now specify a Srf as input (DSS)
 % 11/09/2024 - Fixed bug with Hooke-Jeeves algorithm step sizes not being scaled (DSS)
+%              Changed selection of separate HRF file (DSS)
+% 12/09/2024 - Added Hrf=0 option for using SPM canonical HRF (DSS)
+% 13/09/2024 - Removed option to provife data file list for concatenation (DSS)
+%              Fixed help descriptions (DSS)
+% 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
 %
 
 %% Defaults & constants
@@ -62,21 +70,21 @@ else
 end
 
 %% Start time of analysis
-t0 = tic; new_line;  
-disp('*** SamSrf pRF model fitting ***');
+t0 = tic; samsrf_newline;  
+samsrf_disp('*** SamSrf pRF model fitting ***');
 [vn, vd] = samsrf_version;
-disp([' Version ' num2str(vn) ' - ' vd]);
-disp([' pRF model: ' PrfFcnName]);
-new_line;
-disp('Current working directory:');
-disp([' ' pwd]);
-new_line;
+samsrf_disp([' Version ' num2str(vn) ' - ' vd]);
+samsrf_disp([' pRF model: ' PrfFcnName]);
+samsrf_newline;
+samsrf_disp('Current working directory:');
+samsrf_disp([' ' pwd]);
+samsrf_newline;
 % Are we fine-fitting?
 if ~Model.Coarse_Fit_Only
     % Which optimisation algorithm is used?
     if isfield(Model, 'Hooke_Jeeves_Steps') 
         % Hooke-Jeeves algorithm
-        disp('Using Hooke-Jeeves pattern search algorithm')
+        samsrf_disp('Using Hooke-Jeeves pattern search algorithm')
         hjs = [' with step sizes: '];
         for p = 1:length(Model.Hooke_Jeeves_Steps)
             % Scale step size if necessary
@@ -89,94 +97,100 @@ if ~Model.Coarse_Fit_Only
                 hjs = [hjs ', '];
             end
         end
-        disp(hjs);
+        samsrf_disp(hjs);
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
+            warning('(Nelder-Mead parameter tolerance was also defined but not used...)');
         end
     else
         % Nelder-Mead algorithm
-        disp('Using Nelder-Mead (fminsearch) algorithm');
+        samsrf_disp('Using Nelder-Mead (fminsearch) algorithm');
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+            samsrf_disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
         else
-            disp(' with default parameter tolerance');
+            samsrf_disp(' with default parameter tolerance');
         end
     end
 end
-new_line;
+samsrf_newline;
 
-%% Load apertures
-disp('Load stimulus apertures...');
-load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
-disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,2)) ' volumes']);
-if sum(ApFrm(:)<0) > 0
-    disp(' Warning: Apertures contain negative values!');
+%% Prepare apertures
+if ~isfield(Model, 'SeedRoi')
+    % If loading apertures for conventional pRF analysis
+    samsrf_disp('Load stimulus apertures...');
+    load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
+    samsrf_disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,2)) ' volumes']);
+    if sum(ApFrm(:)<0) > 0
+        samsrf_disp(' Warning: Apertures contain negative values!');
+    end
+
+    % Apertures vectorised already?
+    if ~exist('ApXY', 'var') 
+        samsrf_disp('Aperture pixel coordinates undefined. Vectorising apertures...');
+        VectoriseApertures(EnsurePath(Model.Aperture_File));
+        Model.Aperture_File = [Model.Aperture_File '_vec']; % Use vectorised apertures instead
+        load(EnsurePath(Model.Aperture_File));  % Loads variables called ApFrm & ApXY
+    end
+
+    % Rescale apertures
+    ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
+    ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
+else
+    % If backprojecting seed activity for pRF-from-CF analysis
+    samsrf_disp('Backprojecting CF apertures...');
+    if isfield(Model, 'Template') && ~isempty(Model.Template)
+        [ApName, ApMax] = BackprojAps(Model.Template, Model.SeedRoi, SrfFile);
+    else
+        error('No template map defined for pRF-from-CF analysis!');
+    end
+    % Set defaults for pRF-from-CF analysis
+    Model.Aperture_File = ApName;
+    Model.Scaling_Factor = ApMax;
+    clear ApName ApMax
+    % Load backprojected apertures
+    load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
 end
-
-% Apertures vectorised already?
-if ~exist('ApXY', 'var') 
-    disp('Aperture pixel coordinates undefined. Vectorising apertures...');
-    VectoriseApertures(EnsurePath(Model.Aperture_File));
-    Model.Aperture_File = [Model.Aperture_File '_vec']; % Use vectorised apertures instead
-    load(EnsurePath(Model.Aperture_File));  % Loads variables called ApFrm & ApXY
-end
-
-% Rescale apertures
-ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
-ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
 
 % Which biophysical model to use
 if Model.Aperture_Mean_Response
-    disp(' Using conventional Dumoulin & Wandell 2008 biophysical model to predict neural responses.');
+    samsrf_disp(' Using Dumoulin & Wandell 2008 biophysical model (% aperture response)');
     ApXY = [ApXY; NaN NaN]; % Conventional model is marked by NaN in final pixel of pRF profile
 else
-    disp(' Using default biophysical model to predict neural responses from percent pRF overlap.');    
+    samsrf_disp(' Using SamSrf biophysical model (% pRF overlap)');    
 end
-new_line;
+samsrf_newline;
 
 %% Load images 
-% If only only file name as char
-if ischar(SrfFiles)
-    SrfFiles = {SrfFiles};
-end
-
 % Were data provided directly?
-if isstruct(SrfFiles)
-    Srf = SrfFiles; % Srf data provided directly
-    Tc = Srf.Data; % Time course matrix 
-    clear SrfFiles % To avoid duplicating massive variable
+if isstruct(SrfFile)
+    samsrf_disp('Surface data input...');
+    Srf = SrfFile; % Srf data provided directly
+    clear SrfFile % To avoid duplicating massive variable
 else
-    disp('Reading surface images...')
-    Tc = [];
-    for f = 1:length(SrfFiles)
-        % Load surface image from each run
-        load([pwd filesep SrfFiles{f}]);
-        Srf = samsrf_expand_srf(Srf);
-        if f == 1
-            OutFile = [Srf.Hemisphere '_' Model.Name];
-        end
-        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-        Tc = [Tc; Srf.Data]; % Add run to time course
-    end
+    samsrf_disp('Reading data file...')
+    load([pwd filesep SrfFile]);
+    Srf = samsrf_expand_srf(Srf);
+    samsrf_disp([' Loading ' SrfFile ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
 end
+Tc = Srf.Data; % Time course matrix 
+OutFile = [Srf.Hemisphere '_' Model.Name];
 
 %% Load ROI mask
 if isempty(Roi)
-    new_line; disp('Using all vertices (''tis gonna take forever!)...');
+    samsrf_newline; samsrf_disp('Using all vertices (''tis gonna take forever!)...');
     mver = 1:size(Srf.Vertices,1);
 else
-    new_line; disp('Reading ROI mask...')
+    samsrf_newline; samsrf_disp('Reading ROI mask...')
     mver = samsrf_loadlabel(Roi);
-    disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
+    samsrf_disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
-new_line; 
+samsrf_newline; 
 
 %% Limit data due to noise ceiling?
 if isfield(Srf, 'Noise_Ceiling')
     if Model.Noise_Ceiling_Threshold > 0
         mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
-        disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
-        new_line;
+        samsrf_disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        samsrf_newline;
     end
 end
 
@@ -192,39 +206,42 @@ if size(Tc,1)*Model.Downsample_Predictions ~= size(ApFrm,2)
 end
 
 %% Load or generate HRF
-disp('Haemodynamic response function...')
-if isempty(Model.Hrf)
-    disp(' Using canonical HRF');
+samsrf_disp('Haemodynamic response function...')
+if isempty(Model.Hrf) 
+    samsrf_disp(' Using de Haas canonical HRF');
     Model.Hrf = samsrf_hrf(Model.TR);
+elseif isscalar(Model.Hrf) && Model.Hrf == 0
+    samsrf_disp(' Using SPM canonical HRF');
+    Model.Hrf = samsrf_doublegamma(TR, [6 16 1 1 6 0 32]);
 elseif FittingHrf
-    disp(' Estimating HRF during fine-fit');
+    samsrf_disp(' Estimating HRF during fine-fit');
 elseif isscalar(Model.Hrf) && Model.Hrf == 1
-    disp(' No HRF used!');
+    samsrf_disp(' No HRF used!');
 else
     if ischar(Model.Hrf)
-        disp([' Subject-specific HRF: ' Model.Hrf]);
-        load([pwd filesep Model.Hrf]);
+        samsrf_disp([' Subject-specific HRF: ' Model.Hrf]);
+        load(Model.Hrf);
          % HRF based on loaded parameters but TR defined here
         Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
     else
-        disp(' Using Subject-specific HRF provided');
+        samsrf_disp(' Using Subject-specific HRF provided');
     end
 end
-new_line; 
+samsrf_newline; 
 
 %% Generate prediction matrix
 if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
     if ~exist([pwd filesep SearchspaceFile], 'file') 
-        disp('Generating predictions...');
+        samsrf_disp('Generating predictions...');
         [X,S] = prf_generate_searchspace(Model.Prf_Function, ApFrm, ApXY, Model.Param1, Model.Param2, Model.Param3, Model.Param4, Model.Param5, ...
                                                                           Model.Param6, Model.Param7, Model.Param8, Model.Param9, Model.Param10, Model.Polar_Search_Space);    
         save(SearchspaceFile, 'X', 'S', '-v7.3');
         t1 = toc(t0); 
-        disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
+        samsrf_disp([' Search space generated in ' num2str(t1/60) ' minutes.']);
     else
-        disp('Loading pre-defined predictions...');
+        samsrf_disp('Loading pre-defined predictions...');
         load([pwd filesep SearchspaceFile]);
-        disp([' Loading ' SearchspaceFile]);
+        samsrf_disp([' Loading ' SearchspaceFile]);
         % Does number of grid points match model?
         if size(S,2) ~= length(Model.Param1) * length(Model.Param2) * length(Model.Param3) * length(Model.Param4) * length(Model.Param5) ...
                       * length(Model.Param6) * length(Model.Param7) * length(Model.Param8) * length(Model.Param9) * length(Model.Param10)
@@ -240,17 +257,17 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
             error('Search space is corrupt! Mismatch between number of parameters & predictions!');
         end
     end
-    disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);
-    new_line; 
+    samsrf_disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);
+    samsrf_newline; 
 
     %% Convolution with HRF
-    disp('Convolving predictions with HRF...');
+    samsrf_disp('Convolving predictions with HRF...');
     cX = NaN(size(Tc,1),size(X,2)); % Convolved X (has lower number of volumes than X, if downsampling) 
     for p = 1:size(X,2)        
         cX(:,p) = prf_convolve_hrf(X(:,p), Model.Hrf, Model.Downsample_Predictions); % Convolve each prediction & downsample if desired
     end
     X = cX; % Replace X with convolution
-    new_line; 
+    samsrf_newline; 
 end
 
 %% Smooth for coarse fit?
@@ -265,7 +282,7 @@ end
 %% Coarse fit / Load seed map
 if ~isempty(Model.Seed_Fine_Fit)
   % Load a previous map as seeds for fine fit
-  disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
+  samsrf_disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
   SeedMap = load(EnsurePath(Model.Seed_Fine_Fit));
   SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
   Pimg = SeedMap.Srf.Data(2:length(Model.Param_Names)+1,:); % Fitted parameter maps
@@ -275,7 +292,7 @@ if ~isempty(Model.Seed_Fine_Fit)
   Rimg = double(Rimg);
 else
   % Coarse fitting procedure
-  disp('Coarse fitting...');
+  samsrf_disp('Coarse fitting...');
   Srf.X = zeros(size(Tc,1), size(Tc,2));  % Matrix with predictions
   Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
   Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
@@ -286,13 +303,13 @@ else
   
   % Which percentile of correlations to include in parameter estimate
   if Model.Coarse_Fit_Percentile == 100
-    disp(' Using only the maximal coarse fit R^2 as parameter estimate');
+    samsrf_disp(' Using only the maximal coarse fit R^2 as parameter estimate');
   else
-    disp([' Including top ' num2str(100-Model.Coarse_Fit_Percentile) '% of coarse fit R^2s in parameter estimates']);
+    samsrf_disp([' Including top ' num2str(100-Model.Coarse_Fit_Percentile) '% of coarse fit R^2s in parameter estimates']);
   end
   
   % Loop through mask vertices (in blocks if Matlab R2012a or higher)
-  disp([' Block size: ' num2str(cfvb) ' vertices']);
+  samsrf_disp([' Block size: ' num2str(cfvb) ' vertices']);
   samsrf_progbar(0);
   for vs = 1:cfvb:length(mver)
       % Starting index of current vertex block
@@ -346,14 +363,14 @@ else
       end
   end
   t2 = toc(t0); 
-  disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
+  samsrf_disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
 end
-new_line;
+samsrf_newline;
 
 %% Run fine-fit or break now?
 if Model.Coarse_Fit_Only 
     %% Store coarse fit parameters
-    disp('Only running coarse fit!');
+    samsrf_disp('Only running coarse fit!');
     fPimg = Pimg(:,mver); % Coarse fitted parameter maps
     fRimg = Rimg(1,mver); % R^2 map
     fBimg = Bimg(:,mver); % Beta map
@@ -364,7 +381,7 @@ if Model.Coarse_Fit_Only
     end
 else
     %% Run fine fit for each vertex
-    disp('Fine fitting...');
+    samsrf_disp('Fine fitting...');
     % Restrict matrices to mask
     Tc = Srf.Y(:,mver); % Always use unsmoothed data for fine fit
     Rimg = Rimg(1,mver);
@@ -372,7 +389,7 @@ else
     
     % Are we modelling compressive nonlinearity?
     if Model.Compressive_Nonlinearity
-        disp(' Modelling neural response with compressive spatial summation');
+        samsrf_disp(' Modelling neural response with compressive spatial summation');
         Model.Param_Names{end+1} = 'Exponent'; % Add name for CSS exponent
         Model.Scaled_Param(end+1) = 0; % Exponent isn't scaled
         Model.Only_Positive(end+1) = 1; % Exponent cannot be negative
@@ -398,10 +415,10 @@ else
         Model.Hrf = Inf;
     end
     t3 = toc(t0);
-    disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
-    new_line;
+    samsrf_disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
+    samsrf_newline;
     
-    disp('Fitting betas & storing parameter estimates...');   
+    samsrf_disp('Fitting betas & storing parameter estimates...');   
     % Additional data fields
     fBimg = zeros(2,length(mver)); % Beta maps
     Srf.X = zeros(size(Tc,1)*Model.Downsample_Predictions, size(Srf.Vertices,1)); % Matrix with unconvolved predictions
@@ -480,7 +497,7 @@ else
     end
 end
 
-disp('Tidying up final results structure...');
+samsrf_disp('Tidying up final results structure...');
 % Prepare surface structure
 Srf.Functional = PrfFcnName; % pRF function name
 Data = [fRimg; fPimg; fBimg];
@@ -501,18 +518,19 @@ if isfield(Srf, 'Noise_Ceiling')
     Srf = samsrf_normr2(Srf); % Calculate normalised R^2
 end
 Srf.Values = Srf.Values'; % So it is the same as Srf.Data
-new_line;
+samsrf_newline;
 
 % Compress to save space
 Srf = samsrf_compress_srf(Srf, mver);
 % Save fine fit map files
-disp('Saving pRF fitting results...');
+samsrf_disp('Saving pRF fitting results...');
 save(OutFile, 'Model', 'Srf', '-v7.3');
-disp(['Saved ' OutFile '.mat']); 
+samsrf_disp(['Saved ' OutFile '.mat']); 
 
 % End time
 t4 = toc(t0); 
 EndTime = num2str(t4/60/60);
-new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
-disp('******************************************************************');
-new_line; new_line;
+samsrf_newline; samsrf_disp(['Whole analysis completed in ' EndTime ' hours.']);
+samsrf_disp('******************************************************************');
+samsrf_newline; samsrf_newline;
+

@@ -72,7 +72,7 @@ end
 Srf = samsrf_compress_srf(Srf, RoiVx);
 
 % Save new file
-disp(['Anonymised surface data file ' SrfFile curvstr]);
+samsrf_disp(['Anonymised surface data file ' SrfFile curvstr]);
 clear RoiVx Curv curvstr
 save([SrfFile '_anon'], '-v7.3');
 % Separate anatomy

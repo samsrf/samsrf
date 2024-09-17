@@ -34,17 +34,17 @@ Ptc = NaN(size(ApFrm,2), length(Param1)*length(Param2)*length(Param3)*length(Par
 
 % Polar search space?
 if IsCircSpace 
-    disp(' Search space in polar coordinates.');
+    samsrf_disp(' Search space in polar coordinates.');
     [S1, S2] = pol2cart(S1/180*pi, S2);
 else
-    disp(' Search space in Cartesian coordinates.');
+    samsrf_disp(' Search space in Cartesian coordinates.');
 end
 
 % Parameter matrix
 S = [S1(:) S2(:) S3(:) S4(:) S5(:) S6(:) S7(:) S8(:) S9(:) S10(:)]'; 
 
 % Generating predictions
-disp(' Please stand by...');
+samsrf_disp(' Please stand by...');
 parfor n = 1:numel(S1)
     Rfp = PrfFcn([S1(n) S2(n) S3(n) S4(n) S5(n) S6(n) S7(n) S8(n) S9(n) S10(n)], ApXY); % pRF profile 
     cptc = prf_predict_timecourse(Rfp, ApFrm); % Prediction is in percent of pRF activated

@@ -47,7 +47,7 @@ N = P - V0; % Cortical vectors for each vertex
 
 %% Find T1 used for reconstruction
 strimg = surfdir;
-disp(['Saving Benson maps for ' strimg]);
+samsrf_disp(['Saving Benson maps for ' strimg]);
 
 %% Load MGH data
 D = fs_load_mgh([pn filesep hemis '.' mghimg '.mgh']);
@@ -93,9 +93,9 @@ Srf = samsrf_32bit_srf(Srf);
 
 %% Save surface data
 save([hemis '_' mghimg '.mat'], 'Srf', '-v7.3');
-disp(['Saved ' hemis '_' mghimg '.mat']);
+samsrf_disp(['Saved ' hemis '_' mghimg '.mat']);
 samsrf_anatomy_srf([hemis '_' mghimg]);
-new_line;
+samsrf_newline;
 % Save ROI labels
 mkdir('ROIs_Benson');
 samsrf_srf2label(Srf, ['ROIs_Benson' filesep hemis '_V1'], 4, find(abs(rois) == 1));

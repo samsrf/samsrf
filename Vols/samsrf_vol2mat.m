@@ -1,4 +1,5 @@
 function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
+%
 % Srf = samsrf_vol2mat(funimg, [roi, nrmls=1, avrgd=true, nsceil=true])
 %
 % Converts a NII functional volume to a SamSrf-compatible Matlab structure.
@@ -21,18 +22,7 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 %                 This option only works when averaging runs - otherwise it is ignored 
 %                   (this may change in future versions)
 %
-% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
-%              Changes error message when NII loading fails (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 05/10/2022 - Can now also detrend without z-normalisation (DSS)
-% 15/10/2022 - Fixed issues when using volumetric Srf variables (DSS)
-%              Fixed bug when not using a ROI - but this is not advised (DSS)
-%              NIfTI header now only contains first volume (DSS)
-% 16/10/2022 - Now can concatenate runs instead of averaging (DSS)
-%              Can now calculate noise ceiling when averaging runs (DSS)
-% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
-% 03/10/2023 - Removed overly verbose defaults message (DSS)
-% 04/09/2024 - Saving the file is now optional (DSS)  
+% 14/09/2024 - Saving the file is now optional (DSS)  
 %
 
 %% Default parameters
@@ -79,7 +69,7 @@ if exist('spm', 'file') % Use SPM
         fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
     end
 else 
-    error('Sorry but I need SPM or nifti-patch to load NII files :(');
+    error('Sorry but I need SPM or NIfTI-patch to load NII files :(');
 end
 
 %% Load Roi
@@ -146,7 +136,7 @@ if nrmls
             end
         end
     else
-        disp('Only one volume so won''t perform normalization!');
+        samsrf_disp('Only one volume so won''t perform normalization!');
     end
 end
 
@@ -154,10 +144,10 @@ end
 if length(funimg) > 1
     if avrgd
         % Average runs 
-        disp('Averaging runs...');
+        samsrf_disp('Averaging runs...');
         % Calculate noise ceiling?
         if nsceil && size(Srf.Data, 3) > 1
-            disp('Calculating noise ceiling...');
+            samsrf_disp('Calculating noise ceiling...');
             OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
             EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
             % Loop thru vertices
@@ -173,7 +163,7 @@ if length(funimg) > 1
         Srf.Data = nanmean(Srf.Data, 3);
     else
         % Concatenate runs
-        disp('Concatenating runs...');
+        samsrf_disp('Concatenating runs...');
         if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
             nSrf = Srf;
             nSrf.Data = [];
@@ -197,8 +187,10 @@ end
 %% Convert to 32 bit?
 Srf = samsrf_32bit_srf(Srf);
 
-%% Save data
-[~, f, ~] = fileparts(funimg{1});
-save(['vol_' f], 'Srf', '-v7.3');
-disp(['Saved vol_' f '.mat']);
-new_line;
+%% Save data?
+if nargout == 0
+    [~, f, ~] = fileparts(funimg{1});
+    save(['vol_' f], 'Srf', '-v7.3');
+    samsrf_disp(['Saved vol_' f '.mat']);
+    samsrf_newline;
+end

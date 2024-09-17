@@ -105,7 +105,7 @@ else
     roistr = ')';
 end
 
-disp('Smoothing vertices...');
+samsrf_disp('Smoothing vertices...');
 for j = 1:si
     if isempty(roi)
         if j == si
@@ -113,9 +113,9 @@ for j = 1:si
         else
             Vs = ((j-1)*50000+1:j*50000)';
         end
-        disp([' Smoothing vertices... (Block #' num2str(j) ')']); 
+        samsrf_disp([' Smoothing vertices... (Block #' num2str(j) ')']); 
     end
-    disp(' Please stand by...');
+    samsrf_disp(' Please stand by...');
     % Smooth data for each mask vertex
     SmoothedData = zeros(size(Data,1), length(Vs));
     parfor vi = 1:length(Vs)
@@ -149,5 +149,5 @@ if iscellstr(Srf.Functional)
 else
     Srf.Functional = [Srf.Functional ' (Smoothed with geodesic FWHM=' num2str(fwhm) roistr];
 end
-disp(['Smoothing finished after ' num2str(toc(t0)/60) ' minutes.']);
-new_line;
+samsrf_disp(['Smoothing finished after ' num2str(toc(t0)/60) ' minutes.']);
+samsrf_newline;

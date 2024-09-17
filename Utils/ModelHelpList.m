@@ -43,7 +43,9 @@ switch AnalysisFunc
                         'Downsample_Predictions';
                         'Compressive_Nonlinearity';
                         'Hooke_Jeeves_Steps';
-                        'Nelder_Mead_Tolerance'  };
+                        'Nelder_Mead_Tolerance'  
+                        'SeedRoi';
+                        'Template'  };
     
     % Reverse correlation pRF                
     case 'samsrf_revcor_prf'

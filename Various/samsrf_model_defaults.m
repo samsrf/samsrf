@@ -44,12 +44,21 @@ switch AnalysisFunc
         if ~isfield(Model, 'TR')
             error('TR is undefined!');
         end
+        if ~isfield(Model, 'Downsample_Predictions')
+            Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
+        end
         if ~isfield(Model, 'Hrf')
             error('HRF is undefined!');
         end
         if ~isfield(Model, 'Aperture_File')
             error('Aperture file is undefined!');
         end
+        if ~isfield(Model, 'Noise_Ceiling_Threshold')
+            Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
+        end
+        if ~isfield(Model, 'Seed_Fine_Fit')
+            Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
+        end 
         % Search space definition
         if ~isfield(Model, 'Polar_Search_Space')
             Model.Polar_Search_Space = false; % Search space is Cartesian (not actually mandatory)
@@ -68,24 +77,6 @@ switch AnalysisFunc
         if ~isfield(Model, 'Coarse_Fit_Only')
             Model.Coarse_Fit_Only = false; % Only run coarse fit & then save
         end
-        if ~isfield(Model, 'Aperture_Mean_Response')
-            Model.Aperture_Mean_Response = false; % If true, uses conventional Dumoulin & Wandell 2008 approach
-        end
-        if ~isfield(Model, 'Compressive_Nonlinearity')
-            Model.Compressive_Nonlinearity = false; % Model compressive spatial summation nonlinearity of response?
-        end
-        if ~isfield(Model, 'Only_Positive_Coarse_Fits')
-            Model.Only_Positive_Coarse_Fits = false; % Coarse fit can either be negative or positive correlation to pass 
-        end
-        if ~isfield(Model, 'Replace_Bad_Fits')
-            Model.Replace_Bad_Fits = false; % Don't replace bad fine fits with coarse fit
-        end
-        if ~isfield(Model, 'Noise_Ceiling_Threshold')
-            Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-        end
-        if ~isfield(Model, 'Seed_Fine_Fit')
-            Model.Seed_Fine_Fit = ''; % Use no seed map, so run coarse fit instead
-        end 
         if ~isfield(Model, 'Smoothed_Coarse_Fit')
             Model.Smoothed_Coarse_Fit = 0; % No smoothing on coarse fit
         end
@@ -95,11 +86,21 @@ switch AnalysisFunc
         if ~isfield(Model, 'Coarse_Fit_Block_Size')
             Model.Coarse_Fit_Block_Size = 10000; % Number of simultaneous data columns in coarse fit
         end
-        if ~isfield(Model, 'Downsample_Predictions')
-            Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
+        if ~isfield(Model, 'Only_Positive_Coarse_Fits')
+            Model.Only_Positive_Coarse_Fits = false; % Coarse fit can either be negative or positive correlation to pass 
+        end
+        if ~isfield(Model, 'Replace_Bad_Fits')
+            Model.Replace_Bad_Fits = false; % Don't replace bad fine fits with coarse fit
         end
         if ~isfield(Model, 'Coarse_Fit_Percentile')
             Model.Coarse_Fit_Percentile = 100; % Which percentile of correlations to include in coarse fit parameter estimates
+        end
+
+        if ~isfield(Model, 'Aperture_Mean_Response')
+            Model.Aperture_Mean_Response = false; % If true, uses conventional Dumoulin & Wandell 2008 approach
+        end
+        if ~isfield(Model, 'Compressive_Nonlinearity')
+            Model.Compressive_Nonlinearity = false; % Model compressive spatial summation nonlinearity of response?
         end
         
         % If coarse fit percentile invalid
@@ -149,6 +150,12 @@ switch AnalysisFunc
         end
         
         % Default for parameter estimation
+        if ~isfield(Model, 'Noise_Ceiling_Threshold')
+            Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
+        end
+        if ~isfield(Model, 'Allow_Negative_Peaks')
+            Model.Allow_Negative_Peaks = false; % Whether peaks can be negative
+        end
         if ~isfield(Model, 'Prf_Function')
             Model.Prf_Function = 0;
         end
@@ -185,14 +192,8 @@ switch AnalysisFunc
         if ~isfield(Model, 'Rdim')
             Model.Rdim = 100; % Side length of correlation profile = resolution of backprojection
         end
-        if ~isfield(Model, 'Noise_Ceiling_Threshold')
-            Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
-        end
         if ~isfield(Model, 'Save_Rmaps')
             Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
-        end
-        if ~isfield(Model, 'Allow_Negative_Peaks')
-            Model.Allow_Negative_Peaks = false; % Whether peaks can be negative
         end
         
     %% Connective field analysis

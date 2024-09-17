@@ -65,8 +65,8 @@ Srf.Values = TmpSrf.Values;
 
 %% Vertex assignments
 t0 = tic;
-disp('Warping template into native surface...');
-disp(' Please stand by...');
+samsrf_disp('Warping template into native surface...');
+samsrf_disp(' Please stand by...');
 Sva = NaN(1,NtgtVx); % Source vertex assignment
 parfor v = 1:NtgtVx
     % Vector from current target vertex to all source vertices
@@ -98,5 +98,5 @@ for r = 1:length(Rois)
         samsrf_srf2label(Srf, ['ROIs_temp_map' filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
     end
 end
-disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
-new_line;
+samsrf_disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
+samsrf_newline;

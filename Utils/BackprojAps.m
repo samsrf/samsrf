@@ -1,32 +1,50 @@
-function BackprojAps(SeedMap, SeedRoi, Data)
+function [ApName, ApMax] = BackprojAps(SeedMap, SeedRoi, Data)
 %
-% BackprojAps
+% [ApName, ApMax] = BackprojAps(SeedMap, SeedRoi, Data)
 %
-% Uses the seed region & map to project brain activity into visual space &
-% then saves this as an aperture file. You can then use this as input to
-% pRF analysis to estimate the CFs from that seed region. Importantly, you
-% must use the maximum eccentricity in the seed ROI as Model.Scaling_Factor!
+% This is an internal function used for pRF from CF analysis. 
+% You should not usually have to worry about using this directly.
 % An example Model function is included in SamSrf.
 %
-% IMPORTANT: It probably goes without saying that the meshes for the seed map 
-%            & the brain activity surface must be identical!
+% Uses the seed region & map to project brain activity into visual space &
+% then saves this as an aperture file named in the same folder as Data. 
+% That file is called: aps_[Data]_[SeedROi].mat
+%
+% These apertures are then used in pRF analysis to estimate the CFs from 
+% that seed region. Importantly, this uses the maximum eccentricity for 
+% pixels, so Model.Scaling_Factor is also automatically set to this value.
+%
+% The function returns the name of the apertures in ApName & 
+% the maximum of ApXY in ApMax.
 %
 % 07/03/2024 - Written (DSS)
+% 13/09/2024 - Fixed help section & updated for SamSrf X usage (DSS)
+% 17/09/2024 - Now ensures correct path for seed ROI label (DSS)
 %
 
 % Load seed map
-load(SeedMap);
+load(EnsurePath(SeedMap));
 Srf = samsrf_expand_srf(Srf);
 % Load seed region
-roi = samsrf_loadlabel(SeedRoi);
+roi = samsrf_loadlabel(EnsurePath(SeedRoi));
 % pRF coordinates in seed region
 ApXY = double(Srf.Data(2:3,roi)');
+% Maximum value needed for scaling
+ApMax = max(abs(ApXY(:))); 
 
-% Load brain activity
-load(Data);
+% Data provided or load file?
+if isstruct(Data)
+    Srf = Data;
+    Data = Srf.Functional{1}; % Update name to first 
+else
+    load(EnsurePath(Data));
+end
 Srf = samsrf_expand_srf(Srf);
 % Brain activity per pRF per volume
 ApFrm = double(Srf.Data(:,roi)');
 
 % Save apertures
-save(['aps_' Data], 'ApXY', 'ApFrm');
+[DataPath,Data] = fileparts(Data);
+[~,SeedRoi] = fileparts(SeedRoi);
+ApName = [DataPath filesep 'aps_' Data '_' SeedRoi];
+save(ApName, 'ApXY', 'ApFrm');

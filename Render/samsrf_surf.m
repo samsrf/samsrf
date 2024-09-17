@@ -144,7 +144,7 @@ if size(Srf.Data,3) > 1
     end
     SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
     if isempty(SubjNum)
-        disp('You must pick a subject! Selecting #1...');
+        samsrf_disp('You must pick a subject! Selecting #1...');
         SubjNum = 1;
     end
     Srf.Data = Srf.Data(:,:,SubjNum);

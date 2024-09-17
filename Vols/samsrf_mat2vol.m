@@ -1,22 +1,35 @@
-function samsrf_mat2vol(SrfName)
+function samsrf_mat2vol(SrfName, OutFile)
 % 
-% samsrf_mat2vol(SrfName)
+% samsrf_mat2vol(SrfName, [OutFile])
 %
 % Converts a volumetric SamSrf file back into a NII functional volume.
 %
-%   SrfName:    Name of SamSrf file (without extension).
-%                 Saves each row in Srf.Data as SrfName_Value.nii after
-%                 removing the vol_ prefix. If Srf.Values doesn't exist
-%                 it simply saves each row as _tr#.
+%   SrfName:    Either the name of a SamSrf file (without extension) 
+%               or a Srf structure. If the latter, you must define OutFile.
+%   OutFile:    Name of the files to be saved. If undefined, uses SrfName,
+%               unless a Srf was provided as input, then this is mandatory.
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 15/10/2022 - Now works with data restricted toi ROI mask (DSS)
-% 16/10/2022 - Fixed bug when no ROI is used but you probably shouldn't do that! (DSS)
-% 19/10/2022 - Critical bugfix when saving NII with negative values! (DSS)
+% Saves each row in Srf.Data as [FileName]_Value.nii after removing the vol_ prefix. 
+% [Filename] is either SrfName or OutFile.
+%
+% If Srf.Values doesn't exist it simply saves each row as _tr#.
+%
+% 15/09/2024 - Modified to better align with samsrf_export_giis (DSS)
 %
 
 % Load fake surface data
-load(EnsurePath(SrfName));
+if ischar(SrfName)
+    load(EnsurePath(SrfName));
+    if nargin > 1 
+        SrfName = OutFile;
+    else
+        SrfName = SrfName(5:end);
+    end
+else
+    Srf = SrfName;
+    SrfName = OutFile;
+end
+Srf = samsrf_expand_srf(Srf);
 
 % Header information
 hdr = Srf.NiiHeader(1); % Use first volume if there are more in header
@@ -49,14 +62,14 @@ for v = 1:size(Srf.Data,1)
         VolStr = ['tr' num2str(v)];
     end
     % Save volume file
-    hdr.fname = [SrfName(5:end) '_' VolStr '.nii'];
+    hdr.fname = [SrfName '_' VolStr '.nii'];
     
     if exist('spm', 'file')
         spm_write_vol(hdr, img);
+        samsrf_disp(['Saved ' hdr.fname ' as volumetric data.']);
     else
-        error('Sorry but I need SPM or nifti-patch to load NII files :(');
+        error('Sorry but I need SPM or NIfTI-patch to load NII files :(');
     end
 end
 
-% Finished!
-disp(['Saved ' SrfName ' as volumetric files.']);
+

@@ -49,7 +49,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
     
     %% Deal with anatomical meshes
     if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')
-        disp('Loading anatomical meshes...');
+        samsrf_disp('Loading anatomical meshes...');
         % Ensure path uses correct file separation
         if filesep == '/'
             sl = strfind(Srf.Meshes, '\');
@@ -84,7 +84,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
     %% Deal with region of interest 
     vx = [];% Initialize output in case there is no ROI
     if isfield(Srf, 'Roi')
-        disp('Expanding surface data file...');
+        samsrf_disp('Expanding surface data file...');
 
         % ROI vertices
         vx = Srf.Roi;
@@ -142,5 +142,5 @@ end
 if nargin < 2 || ~Use64bit
     Srf = samsrf_32bit_srf(Srf);
 else
-    disp('Forcing any 64 bit data to remain!');
+    samsrf_disp('Forcing any 64 bit data to remain!');
 end

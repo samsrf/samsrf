@@ -25,8 +25,8 @@ N = length(Vs);
 Ds = NaN(N,N);
 
 %% Loop thru vertices
-disp('Calculating distance matrix...');
-disp(' Please stand by...');
+samsrf_disp('Calculating distance matrix...');
+samsrf_disp(' Please stand by...');
 parfor v = 1:N
     [Nv,Nd] = samsrf_georoi(Vs(v), MaxDist, V, F); % Neighbourhood vertices & distances
     X = Inf(1,size(V,1)); % Dummy vector of vertices

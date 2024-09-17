@@ -1,4 +1,4 @@
-function Gaussian_Tuning_Curve_Vertical(DataPath, SrfFiles, Roi)
+function Vertical_Tuning_Curve(DataPath, SrfFiles, Roi)
 %
 % Fits a 1D Gaussian tuning curve model with (horizontal) bars moving vertically
 %

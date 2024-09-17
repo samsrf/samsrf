@@ -27,7 +27,7 @@ try
     else
         c = textscan(fid, repmat('%n',1,5));
     end
-    disp(['Loaded ' fname]);
+    samsrf_disp(['Loaded ' fname]);
     fclose(fid);
     data = cell2mat(c);
 catch

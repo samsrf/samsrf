@@ -26,7 +26,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
 
     %% Remove data outside of region of interest
     if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)
-        disp('Compressing surface data file...');
+        samsrf_disp('Compressing surface data file...');
 
         % ROI vertices
         Srf.Roi = vx;
@@ -59,7 +59,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
 
     %% If anatomy is saved separately, remove it from Srf
     if isfield(Srf, 'Meshes')
-        disp('Removing anatomical meshes...');
+        samsrf_disp('Removing anatomical meshes...');
         Srf = rmfield(Srf, 'Vertices');
         Srf = rmfield(Srf, 'Faces');
         if isfield(Srf, 'Normals')

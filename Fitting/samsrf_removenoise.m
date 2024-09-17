@@ -26,7 +26,7 @@ if nargin < 4
 end
 
 %% Regression analysis
-disp('Regressing out noise...'); 
+samsrf_disp('Regressing out noise...'); 
 cSrf = Srf; % Cleaned Srf
 Y = Srf.Data(:,mver); % Time courses
 Nv = length(mver); % Number of vertices
@@ -39,7 +39,7 @@ mY = X * B; % Modelled time series
 R = Y - mY; % Residuals
 
 % Loop thru vertices
-disp(' Removing covariates...');
+samsrf_disp(' Removing covariates...');
 Data = zeros(size(cSrf.Data,1), Nv);
 clear Srf
 parfor v = 1:Nv

@@ -72,13 +72,13 @@ if isfield(Srf, 'Values')
         Fname = [OutFile '_pol.gii'];
         Sav.cdata = P';
         SaveGiiFile(Sav, Fname)
-        disp(['Saved ' Fname]);
+        samsrf_disp(['Saved ' Fname]);
         
         % Eccentricity
         Fname = [OutFile '_ecc.gii'];
         Sav.cdata = E';
         SaveGiiFile(Sav, Fname)
-        disp(['Saved ' Fname]);        
+        samsrf_disp(['Saved ' Fname]);        
     end
     
     %% If this is a tuning curve map
@@ -88,9 +88,9 @@ if isfield(Srf, 'Values')
         R2 = Srf.Data(find(strcmpi(Srf.Values, 'nR^2')), :);
         if isempty(R2)
             R2 = Srf.Data(find(strcmpi(Srf.Values, 'R^2')), :);
-            disp('Using raw R^2 values as magnitude.');
+            samsrf_disp('Using raw R^2 values as magnitude.');
         else
-            disp('Using normalised R^2 values as magnitude.');
+            samsrf_disp('Using normalised R^2 values as magnitude.');
         end
         Mu = Srf.Data(find(strcmpi(Srf.Values, 'Mu')), :);
         
@@ -107,7 +107,7 @@ if isfield(Srf, 'Values')
         Fname = [OutFile '_mu.gii'];
         Sav.cdata = P';
         SaveGiiFile(Sav, Fname)
-        disp(['Saved ' Fname]);        
+        samsrf_disp(['Saved ' Fname]);        
     end
 
     %% Save surfaces for each field
@@ -117,11 +117,10 @@ if isfield(Srf, 'Values')
         Fname(sp) = '_';
         Sav.cdata = Srf.Data(i,:)';
         SaveGiiFile(Sav, Fname)
-        disp(['Saved ' Fname]);
+        samsrf_disp(['Saved ' Fname]);
     end
 end
-    
-new_line;
+samsrf_newline;
 
 %% Save GII file
 function SaveGiiFile(Sav, Fname)

@@ -57,5 +57,5 @@ if ~isempty(mSrfFile)
     Srf = mSrf;
     clear mSrf;
     save(mSrfFile, 'Srf');
-    disp(['Saved average Srf ' mSrfFile]);
+    samsrf_disp(['Saved average Srf ' mSrfFile]);
 end

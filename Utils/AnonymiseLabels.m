@@ -23,11 +23,11 @@ end
 % List label files
 Labels = dir('*.label');
 Labels = {Labels.name}';
-disp(Labels);
+samsrf_disp(Labels);
 
 % Are we sure?
 if ~Sure
-    disp('This will wipe anatomical data from all these labels.');
+    samsrf_disp('This will wipe anatomical data from all these labels.');
     q = input('Are you sure you want to continue? (Y/N) ', 's');
     if upper(q) == 'Y'
         Sure = true;
@@ -55,6 +55,6 @@ if Sure
             end
         end
         fclose(fid);
-        disp(['Saved ' Labels{i}]);
+        samsrf_disp(['Saved ' Labels{i}]);
     end
 end

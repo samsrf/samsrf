@@ -3,6 +3,21 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile, GlobalCovar)
 % samsrf_glm(SrfCell, X, Xnames, [Roi='', GlmFile='glm', GlobalCovar=true])
 %
 % Runs a GLM analysis on the surface data files in the cell array SrfCell. 
+%
+% IMPORTANT: This function only has basic GLM functionality, so you are probably 
+% better off using SPM/FSL/AFNI or whatever other analysis package that has been 
+% designed for such analyses. We only leave this in for quick & lazyanalyses 
+% & to ensure backwards compatibility. 
+%
+% It should go without saying that all Srf's in SrfCell should contain
+% equal numbers of vertices. 
+%
+% Unlike the pRF/CF fitting functions, this function allows concatenating 
+% multiple runs as this will then add a different constant term to the design 
+% matrix for each run. If this is what you want to do, you first need to convert
+% your individual runs into SamSrf surface data files. Another reason to do your
+% GLM in a different analysis package...
+%
 % The matrix X contains the design matrix. You may choose to convolve this with 
 % a HRF (canonical or subject-specific). You may also add in covariates of 
 % no interest. The function will add the constant term in the right hand 
@@ -10,26 +25,19 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile, GlobalCovar)
 % string defining the names of the regressors. Roi is the filename of a ROI
 % label if you want to restrict to analysis to only that ROI.
 %
-% It should go without saying that all Srf's in SrfCell should contain
-% equal numbers of vertices and they should have been expanded if
-% necessary.
-%
 % The function saves a new surface data file called lh/rh_glm (or any name
 % you define in GlmFile). This contains in each row the beta estimates of
 % each regressor in the design matrix. The final row contains the residuals.
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 19/07/2022 - Can now turn off automatic global covariates (DSS)
-%              Added commented out option for parallel processing (DSS)
-%              Now saves files in v7.3 format (DSS)
+% 13/09/2024 - Fixed help description & added advice about other GLMs (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
     error('Number of names must match number of regressors in X!');
 end
 
-new_line; 
-disp('Running general linear model analysis...');
+samsrf_newline; 
+samsrf_samsrf_disp('Running general linear model analysis...');
 
 %% Default parameters
 if nargin < 4
@@ -96,17 +104,17 @@ Srf.Version = samsrf_version;
 
 %% Load ROI mask
 if isempty(Roi)
-    new_line; disp('Using all vertices...');
+    samsrf_newline; samsrf_disp('Using all vertices...');
     mver = 1:size(Srf.Vertices,1);
 else
-    new_line; disp('Reading ROI mask...')
+    samsrf_newline; samsrf_disp('Reading ROI mask...')
     mver = samsrf_loadlabel(Roi);
-    disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
+    samsrf_disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 
 %% Run linear regression 
-disp('Running GLM on vertices...'); 
-disp(' Please stand by...');
+samsrf_disp('Running GLM on vertices...'); 
+samsrf_disp(' Please stand by...');
 B = NaN(size(X,2)+1, length(mver));
 samsrf_progbar(0); % Progress bar (Comment this for parallel computing!)
 for v = 1:length(mver) % Non-parallel computing (Comment this for parallel)
@@ -136,7 +144,7 @@ Srf.Y = Y;
 Srf = samsrf_compress_srf(Srf, mver);
 % Save Srf file
 save([Srf.Hemisphere '_' GlmFile], 'Srf', '-v7.3');
-disp(['Saved ' Srf.Hemisphere '_' GlmFile '.mat.']);
-new_line;
+samsrf_disp(['Saved ' Srf.Hemisphere '_' GlmFile '.mat.']);
+samsrf_newline;
 
 

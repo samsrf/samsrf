@@ -253,7 +253,7 @@ Theta = mod(DataIv, 360); % Angles between 0-360 for circular plots
 Res = [];
 if strcmpi(Mode, 'Scatter')
     if ~isempty(Bins)
-        disp('Scatter plot: lowest & highest bin are used as bounds');
+        samsrf_disp('Scatter plot: lowest & highest bin are used as bounds');
     end
     % Scatter plot
     Res = [DataIv' DataDv'];

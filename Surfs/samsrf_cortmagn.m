@@ -41,8 +41,8 @@ end
 Ctx = Ctx(mver); % Limit to ROI
 Vis = zeros(1,length(mver));
 Cmf = zeros(1,length(mver));
-disp('Calculating cortical magnification factors...');
-disp(' Please stand by...');
+samsrf_disp('Calculating cortical magnification factors...');
+samsrf_disp(' Please stand by...');
 t0 = tic;
 parfor v = 1:length(mver)
     if Srf.Data(1,mver(v)) >= 0.01  % No point doing this for crappy vertices
@@ -57,7 +57,7 @@ parfor v = 1:length(mver)
         Cmf(v) = sqrt(Ctx(v)) / sqrt(Vis(v));
     end
 end
-disp([' CMF computation completed in ' num2str(toc(t0)/60) ' minutes.']);
+samsrf_disp([' CMF computation completed in ' num2str(toc(t0)/60) ' minutes.']);
 
 % Store in structure
 Srf.Data = [Srf.Data; zeros(2,size(Srf.Data,2))];

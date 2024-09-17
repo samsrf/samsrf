@@ -91,21 +91,21 @@ end
 switch Type
     case 0
         % One-sample t-test
-        disp('One-sample t-test');
+        samsrf_disp('One-sample t-test');
         [~,~,~,S] = ttest(A,B); % Run t-test
         t = S.tstat; % t-statistic
         df = nA-1; % Degrees of freedom
         
     case 1
         % Paired t-test
-        disp('Paired t-test');
+        samsrf_disp('Paired t-test');
         [~,~,~,S] = ttest(A,B); % Run t-test
         t = S.tstat; % t-statistic
         df = nA-1; % Degrees of freedom
         
     case 2
         % Two-sample t-test
-        disp('Two-sample t-test');
+        samsrf_disp('Two-sample t-test');
         [~,~,~,S] = ttest2(A,B); % Run t-test
         t = S.tstat; % t-statistic
         df = nA+nB-2; % Degrees of freedom

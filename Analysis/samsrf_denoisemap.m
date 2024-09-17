@@ -44,16 +44,16 @@ x0 = Srf.Data(strcmpi(Srf.Values, 'x0'),:);
 y0 = Srf.Data(strcmpi(Srf.Values, 'y0'),:);
 Betas = Srf.Data(strcmpi(Srf.Values, 'Beta'),:);
 Sigma = Srf.Data(strcmpi(Srf.Values, 'Sigma'),:);
-disp(['Removing Betas <= ' num2str(BetaThr(1)) ' or > ' num2str(BetaThr(2))]);
-disp(['Removing Sigmas <= ' num2str(SigmaThr(1))]);
+samsrf_disp(['Removing Betas <= ' num2str(BetaThr(1)) ' or > ' num2str(BetaThr(2))]);
+samsrf_disp(['Removing Sigmas <= ' num2str(SigmaThr(1))]);
 
 % If any data don't exist
 if isempty(x0)
-    disp('No x0 data in this map');
+    samsrf_disp('No x0 data in this map');
     RemoveOrigins = false;
 end
 if isempty(y0)
-    disp('No y0 data in this map');
+    samsrf_disp('No y0 data in this map');
     RemoveOrigins = false;
 end
 if isempty(Betas)
@@ -63,7 +63,7 @@ end
 % Fine bad vertices
 if RemoveOrigins
     % Remove pRFs perfectly at origin
-    disp('Removing pRFs located perfectly at origin');
+    samsrf_disp('Removing pRFs located perfectly at origin');
     ovx = (x0 == 0 & y0 == 0);
 else
     ovx = false(1,size(Srf.Data,2));

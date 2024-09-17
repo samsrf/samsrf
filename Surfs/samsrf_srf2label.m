@@ -53,4 +53,4 @@ for v = Vx
     fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', v-1, Srf.Vertices(v,1), Srf.Vertices(v,2), Srf.Vertices(v,3), Srf.Data(valnum,v));
 end
 fclose(fid);
-disp(['Saved ' labelname '.label']);
+samsrf_disp(['Saved ' labelname '.label']);

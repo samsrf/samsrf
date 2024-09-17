@@ -92,8 +92,8 @@ pRF_Data(4,:) = pRF_Data(4,:) / Eccentricity;
 Response = Response / max(abs(Response(:)));
 
 % Loop through volumes
-new_line;
-disp('Backprojecting data into visual space...');
+samsrf_newline;
+samsrf_disp('Backprojecting data into visual space...');
 samsrf_progbar(0);
 for t = 1:size(Response,1)
 % parfor t = 1:size(Response,1)

@@ -52,13 +52,13 @@ end
 if length(fs) > 1
     error('NII file in mri folder is ambiguous!');
 end
-new_line;
-disp(['Using ' fs(1).name ' as template.'])
-new_line;
+samsrf_newline;
+samsrf_disp(['Using ' fs(1).name ' as template.'])
+samsrf_newline;
 
 % Call check registration with the structural
 if ~exist('spm', 'file')
-    disp('Sorry but I need SPM to show you these brains :(');
+    samsrf_disp('Sorry but I need SPM to show you these brains :(');
     return
 end
 spm_check_registration(strf);

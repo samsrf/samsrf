@@ -20,7 +20,7 @@ function Srf = samsrf_revcorprf_loop(Srf, GoF, Model, ApFrm, FitParam)
 % Parallel processing?
 try 
   gcp;
-  disp(' Parallel computing!');
+  samsrf_disp(' Parallel computing!');
 catch
   error(' No parallel computing!');  
 end
@@ -33,7 +33,7 @@ try
 catch
     Q = NaN; % No queue variable exists
     ProgReps = false; % No progress can be reported when using parallel computing
-    disp(' No progress reports possible :(');
+    samsrf_disp(' No progress reports possible :(');
 end
 
 %% Loop thru good vertices

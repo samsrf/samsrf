@@ -17,7 +17,7 @@ Nt = size(Y,1); % Number of time points
 Cps = round(Hz .* (Nt/Tr)) + 1; % Cycles per time series for each cutoff
 Cps(Cps > Nt) = Nt; % Ensure it stays within bounds
 
-disp('Band-pass filtering time series...'); 
+samsrf_disp('Band-pass filtering time series...'); 
 cF = fft(Y); % Fast fourier transform 
 cF([1:Cps(1) Cps(2):end],:) = 0; % Remove out-of-range cycles
 tY = real(ifft(cF)); % Transform back

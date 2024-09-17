@@ -63,8 +63,8 @@ guidata(hObject, handles);
 
 global Srf Model dcm_obj ph handles
 
-clc
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
+samsrf_clrscr;
+samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 
 % Load map
 [f,p] = uigetfile('eeg_*.mat');

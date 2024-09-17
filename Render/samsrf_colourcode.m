@@ -21,7 +21,7 @@ end
 
 % load defaults
 if nargin < 3
-    disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
+    samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
     load('SamSrf_defaults.mat');
 else
     def_cmap_angle = colmap;

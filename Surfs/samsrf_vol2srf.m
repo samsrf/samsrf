@@ -153,11 +153,11 @@ Srf.Data = NaN(length(ctxsteps), fhdr(1).dim(4), size(V0,1), length(funimg));
 Srf.Rule = rule;
 
 %% Transform the vertices 
-disp('Running surface projection...');
-new_line;
+samsrf_disp('Running surface projection...');
+samsrf_newline;
 cs = 0;
 for cl = ctxsteps
-    disp(['Cortical sampling step: ' num2str(cl)]);
+    samsrf_disp(['Cortical sampling step: ' num2str(cl)]);
     cs = cs + 1;
     % Step through cortex layers
     V = V0 + N*cl;
@@ -185,31 +185,31 @@ for cl = ctxsteps
         % Progress report
         samsrf_progbar(i/size(tV,1));            
     end
-    new_line;
+    samsrf_newline;
 end
 
 %% Calculate one value per vertex
 if strcmpi(rule, 'Mean')
-    disp('Using mean of steps through cortex');
+    samsrf_disp('Using mean of steps through cortex');
     Srf.Data = squeeze(nanmean(Srf.Data,1));
 elseif strcmpi(rule, 'Maximum')
-    disp('Using maximum of steps through cortex');
+    samsrf_disp('Using maximum of steps through cortex');
     Srf.Data = squeeze(nanmax(Srf.Data,[],1));
 elseif strcmpi(rule, 'Minimum')
-    disp('Using minimum of steps through cortex');
+    samsrf_disp('Using minimum of steps through cortex');
     Srf.Data = squeeze(nanmin(Srf.Data,[],1));
 elseif strcmpi(rule, 'Median')
-    disp('Using median of steps through cortex');
+    samsrf_disp('Using median of steps through cortex');
     Srf.Data = squeeze(nanmedian(Srf.Data,1));
 elseif strcmpi(rule, 'Sum')
-    disp('Using sum of steps through cortex');
+    samsrf_disp('Using sum of steps through cortex');
     Srf.Data = squeeze(nansum(Srf.Data,1));
 elseif strcmpi(rule, 'Geomean')
-    disp('Using geometric mean of steps through cortex');
+    samsrf_disp('Using geometric mean of steps through cortex');
     Srf.Data = squeeze(exp(nanmean(log(Srf.Data,1))));
 else
     % Unless this happens
-    disp('Retaining individual steps through cortex');
+    samsrf_disp('Retaining individual steps through cortex');
     Srf.Data = permute(Srf.Data, [2 3 4 1]);
 end
 
@@ -241,7 +241,7 @@ if nrmls
             end
         end
     else
-        disp('Only one volume so won''t perform normalization!');
+        samsrf_disp('Only one volume so won''t perform normalization!');
     end
 end
 
@@ -249,10 +249,10 @@ end
 if length(funimg) > 1
     if avrgd
         % Average runs 
-        disp('Averaging runs...');
+        samsrf_disp('Averaging runs...');
         % Calculate noise ceiling?
         if nsceil && size(Srf.Data, 3) > 1
-            disp('Calculating noise ceiling...');
+            samsrf_disp('Calculating noise ceiling...');
             OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
             EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
             % Loop thru vertices
@@ -268,7 +268,7 @@ if length(funimg) > 1
         Srf.Data = nanmean(Srf.Data, 3);
     else
         % Concatenate runs
-        disp('Concatenating runs...');
+        samsrf_disp('Concatenating runs...');
         if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
             nSrf = Srf;
             nSrf.Data = [];
@@ -295,7 +295,7 @@ Srf = samsrf_32bit_srf(Srf);
 %% Save surface data
 [p f e] = fileparts(funimg{1});
 save([hemsurf '_' f], 'Srf', '-v7.3');
-disp(['Saved ' hemsurf '_' f '.mat']);
+samsrf_disp(['Saved ' hemsurf '_' f '.mat']);
 samsrf_anatomy_srf([hemsurf '_' f], anatpath);
-new_line;
+samsrf_newline;
 

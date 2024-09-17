@@ -36,7 +36,7 @@ if nargin < 7
 end
 
 %% Load default parameters?
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
+samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 
 %% Create figure handle
@@ -241,9 +241,9 @@ end
 % Ask to continue
 Ok = input('Make movie with this viewpoint? (y/n): ', 's');
 if strcmpi(Ok, 'y')
-    disp('Capturing...')
+    samsrf_disp('Capturing...')
 else
-    disp('Stopping now')
+    samsrf_disp('Stopping now')
     return;
 end
 

@@ -60,7 +60,7 @@ ApXY = [ApX ApY];
 
 % Is this a multi-condition design?
 if exist('ApCond', 'var')
-    disp(' Multi-condition design: condition labels are saved in 1st row of ApFrm.');
+    samsrf_disp(' Multi-condition design: condition labels are saved in 1st row of ApFrm.');
     ApFrm = [ApCond; ApFrm]; % Condition labels are in first row of apertures!
 end
 

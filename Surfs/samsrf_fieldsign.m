@@ -62,7 +62,7 @@ if isfield(Srf, 'Sphere')
     sphV = Srf.Sphere;
     
     % Calculate field sign
-    disp('  Calculating field signs...');
+    samsrf_disp('  Calculating field signs...');
     for j = 1:si
         if isempty(roi)
             if j == si
@@ -70,10 +70,10 @@ if isfield(Srf, 'Sphere')
             else
                 Vs = ((j-1)*50000+1:j*50000)';
             end
-            disp(['   Calculating field signs... (Block #' num2str(j) ')']); 
+            samsrf_disp(['   Calculating field signs... (Block #' num2str(j) ')']); 
         end
         fsD = zeros(1,length(Vs));
-        disp('    Please stand by...');
+        samsrf_disp('    Please stand by...');
         parfor vi = 1:length(Vs)
             v = Vs(vi);
             % Vertices in geodesic ROI within radius 

@@ -1,6 +1,6 @@
-function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
+function OutFile = samsrf_revcor_cf(Model, SrfFile, Roi)
 %
-% OutFile = samsrf_revcor_cf(Model, SrfFiles, [Roi])
+% OutFile = samsrf_revcor_cf(Model, SrfFile, [Roi])
 %
 % Calculates the connective field profiles using reverse correlation:
 % For each vertex in the region of interest Roi, it calculates the 
@@ -11,30 +11,24 @@ function OutFile = samsrf_revcor_cf(Model, SrfFiles, Roi)
 % you will need to run a post-processing function to fit CF models to the
 % reverse correlation profiles.
 %
-%   Model:          Contains the parameters defining the analysis.
-%   SrfFiles:       Cell array of file names without extension (e.g. {'lh_Bars1' 'lh_Bars2'})
-%                       Files will be concatenated in this order.
-%   Roi:            ROI label to restrict the analysis (default = '') 
-%                       Optional, but without this the analysis can take forever.
+%   Model:        Contains the parameters defining the analysis.
+%
+%   SrfFile:      Data to be analysed. You can provide a Srf structure directly or define the 
+%                 Srf data filename is a char array without .mat extension (e.g. 'lh_Bars1').
+%
+%                 NOTE: Unlike in previous SamSrf versions, you cannot provide a file list 
+%                       for concatenation! If you want concatenated runs, do this using the 
+%                       surface projection tools available and provide the input as Srf struct.
+%
+%   Roi:          ROI label to restrict the analysis (default = '') 
+%                     Optional, but without this the analysis can take forever.
 %
 % Returns the name of the map file it saved.
 %
-% 07/04/2022 - pRF fitting now thresholds correlations by half-maximum (DSS)
-% 08/04/2022 - Improved algorithm to home in on pRF size estimates (DSS)
-% 15/04/2022 - Warns if both Hooke-Jeeves steps & Nelder-Mead tolerance are defined (DSS)
-%              Outsourced check for default parameters so no longer needs to check these (DSS)
-%              Fixed error with duration report for generating distance matrix (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 06/05/2022 - Now can estimate CF parameters using convex hull algorithm (DSS)
-%              Fixed inconsequential error with command window reports (DSS)
-% 16/05/2022 - Streamlined correlation & parameter estimation for efficiency (DSS)
-%              Added option to use summary statistics for parameter estimation (DSS)
-% 10/08/2022 - Implemented convex hull estimation of inhibitory surround (DSS)
-%              Convex hull now estimates positive central CF using region growing approach (DSS)
-% 15/09/2022 - Global mean correction is now restricted to analysis ROI (DSS)
-% 03/10/2022 - Negative amplitude is now called Suppression instead of Baseline (DSS)
-% 02/12/2023 - Bugfix in parameter fitting loop when using single (32bit) data (DSS)
 % 04/09/2024 - Instead of a list of files, you can now specify a Srf as input (DSS)
+% 13/09/2024 - Removed option to provife data file list for concatenation (DSS)
+%              Fixed help descriptions (DSS)
+% 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
 %
 
 %% Defaults & constants
@@ -47,20 +41,20 @@ end
 Model = samsrf_model_defaults('samsrf_revcor_cf', Model);
 
 %% Start time of analysis
-t0 = tic; new_line;  
-disp('*** SamSrf connective field analysis ***');
+t0 = tic; samsrf_newline;  
+samsrf_disp('*** SamSrf connective field analysis ***');
 [vn, vd] = samsrf_version;
-disp([' Version ' num2str(vn) ' - ' vd]);
-new_line;
-disp('Current working directory:');
-disp([' ' pwd]);
-new_line;
+samsrf_disp([' Version ' num2str(vn) ' - ' vd]);
+samsrf_newline;
+samsrf_disp('Current working directory:');
+samsrf_disp([' ' pwd]);
+samsrf_newline;
 % Are we also fitting pRF model?
 if Model.Fit_pRF == 1
     % Which optimisation algorithm is used?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Hooke-Jeeves algorithm
-        disp('Using Hooke-Jeeves pattern search algorithm')
+        samsrf_disp('Using Hooke-Jeeves pattern search algorithm')
         hjs = [' with step sizes: '];
         for p = 1:length(Model.Hooke_Jeeves_Steps)
             hjs = [hjs num2str(Model.Hooke_Jeeves_Steps(p))];
@@ -68,89 +62,78 @@ if Model.Fit_pRF == 1
                 hjs = [hjs ', '];
             end
         end
-        disp(hjs);
+        samsrf_disp(hjs);
         if isfield(Model, 'Nelder_Mead_Tolerance')
             warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
         end
     else
         % Nelder-Mead algorithm
-        disp('Using Nelder-Mead (fminsearch) algorithm');
+        samsrf_disp('Using Nelder-Mead (fminsearch) algorithm');
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
+            samsrf_disp([' with parameter tolerance: ' num2str(Model.Nelder_Mead_Tolerance)]);
         else
-            disp(' with default parameter tolerance');
+            samsrf_disp(' with default parameter tolerance');
         end
     end
 else
     if Model.Fit_pRF == 0
         % Convex hull algorithm instead of model fitting
-        disp('Using convex hull algorithm instead of model fitting')    
+        samsrf_disp('Using convex hull algorithm instead of model fitting')    
     elseif Model.Fit_pRF == -1
         % Summary statistics instead of model fitting
-        disp('Using summary statistics instead of model fitting')    
+        samsrf_disp('Using summary statistics instead of model fitting')    
     else
         error('Invalid value chosen for Model.Fit_pRF!');
     end
 end
-new_line;
+samsrf_newline;
 
 %% Load images 
-% If only only file name as char
-if ischar(SrfFiles)
-    SrfFiles = {SrfFiles};
-end
-
 % Were data provided directly?
-if isstruct(SrfFiles)
-    Srf = SrfFiles; % Srf data provided directly
-    Tc = Srf.Data; % Time course matrix 
-    clear SrfFiles % To avoid duplicating massive variable
+if isstruct(SrfFile)
+    samsrf_disp('Surface data input...');
+    Srf = SrfFile; % Srf data provided directly
+    clear SrfFile % To avoid duplicating massive variable
 else
-    disp('Reading surface images...')
-    Tc = [];
-    for f = 1:length(SrfFiles)
-        % Load surface image from each run
-        load([pwd filesep SrfFiles{f}]);
-        Srf = samsrf_expand_srf(Srf);
-        if f == 1
-            OutFile = [Srf.Hemisphere '_' Model.Name];
-        end
-        disp([' Loading ' SrfFiles{f} ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
-        Tc = [Tc; Srf.Data]; % Add run to time course
-    end
+    samsrf_disp('Reading data file...')
+    load([pwd filesep SrfFile]);
+    Srf = samsrf_expand_srf(Srf);
+    samsrf_disp([' Loading ' SrfFile ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
 end
+Tc = Srf.Data; % Time course matrix 
+OutFile = [Srf.Hemisphere '_' Model.Name];
 
 %% Load ROI mask
 if isempty(Roi)
-    new_line; disp('Using all vertices (''tis gonna take forever!)...');
+    samsrf_newline; samsrf_disp('Using all vertices (''tis gonna take forever!)...');
     mver = 1:size(Srf.Vertices,1);
 else
-    new_line; disp('Reading ROI mask...')
+    samsrf_newline; samsrf_disp('Reading ROI mask...')
     mver = samsrf_loadlabel(Roi);
-    disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
+    samsrf_disp([' Loading ' Roi ': ' num2str(size(mver,1)) ' vertices']);
 end
 
 %% Correct by global mean signal?
 if Model.Global_Signal_Correction
-    new_line; disp('Applying global signal correction...');
+    samsrf_newline; samsrf_disp('Applying global signal correction...');
     Srf.Data = Tc;
     Srf = samsrf_removenoise(Srf, nanmean(Srf.Data,2), mver);
     Tc = Srf.Data;
     Srf.Data = [];
 end
-new_line; 
+samsrf_newline; 
 
 %% Limit data due to noise ceiling?
 if isfield(Srf, 'Noise_Ceiling')
     if Model.Noise_Ceiling_Threshold > 0
         mver = mver(Srf.Noise_Ceiling(mver) > Model.Noise_Ceiling_Threshold);
-        disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
-        new_line;
+        samsrf_disp(['Limiting analysis to ' num2str(length(mver)) ' vertices above noise ceiling ' num2str(Model.Noise_Ceiling_Threshold)]);
+        samsrf_newline;
     end
 end
 
 %% Load seed ROI 
-disp(['Loading seed ROI: ' Model.SeedRoi]);
+samsrf_disp(['Loading seed ROI: ' Model.SeedRoi]);
 Srf.SeedVx = samsrf_loadlabel(Model.SeedRoi); % Store in Srf for posterity
 X = Tc(:, Srf.SeedVx); % Time courses in seed ROI
 
@@ -158,16 +141,16 @@ X = Tc(:, Srf.SeedVx); % Time courses in seed ROI
 if Model.Smoothing > 0 % No point when not smoothing
     Ds = samsrf_geomatrix(Srf.Vertices, Srf.Faces, Srf.SeedVx); % Cortical distance matrix
     Weights = exp(-(Ds.^2)/(2*Model.Smoothing.^2)); % Smoothing weight matrix
-    disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' minutes.']);
+    samsrf_disp(['Distance matrix computed in ' num2str(toc(t0)/60) ' minutes.']);
 else 
     Weights = [];
 end
 
 %% Load template map
-disp(['Loading template map: ' Model.Template]);
+samsrf_disp(['Loading template map: ' Model.Template]);
 Temp = load(EnsurePath(Model.Template));
 Temp.Srf = samsrf_expand_srf(Temp.Srf);
-new_line;
+samsrf_newline;
 
 %% Add version number
 Srf.Version = samsrf_version;
@@ -187,9 +170,9 @@ elseif Model.Fit_pRF == -1
 else
     error('Invalid Fit_pRF value provided!');
 end
-disp('Reverse correlation & CF parameter estimation...');
+samsrf_disp('Reverse correlation & CF parameter estimation...');
 if Model.Fit_pRF == 1
-    disp(' Fitting pRF parameters to template pRF coordinates.');
+    samsrf_disp(' Fitting pRF parameters to template pRF coordinates.');
     % Which fitting algorithm?
     if isfield(Model, 'Hooke_Jeeves_Steps')
         % Use Hooke-Jeeves algorithm
@@ -204,18 +187,18 @@ if Model.Fit_pRF == 1
     end    
 else
     if Model.Fit_pRF == 0
-        disp(' Using convex hull algorithm to estimate parameters.');
+        samsrf_disp(' Using convex hull algorithm to estimate parameters.');
         AlgorithmParam = [];
     elseif Model.Fit_pRF == -1
-        disp(' Using summary statistics to estimate parameters.');
+        samsrf_disp(' Using summary statistics to estimate parameters.');
         AlgorithmParam = Inf;
     end
 end
 % Run estimation loop
 [fVimg, fXimg, fYimg, fWimg, fRimg, fSimg, fBimg, Rmaps] = samsrf_cfparam_loop(Tc(:,mver), X, Srf.Area, Srf.SeedVx, Temp.Srf.Data, Weights, AlgorithmParam, Model.Save_Rmaps);
 t2 = toc(t0); 
-disp(['Parameter estimates completed in ' num2str(t2/60/60) ' hours.']);
-new_line;
+samsrf_disp(['Parameter estimates completed in ' num2str(t2/60/60) ' hours.']);
+samsrf_newline;
 
 % Save as surface structure
 Srf.Functional = 'Connective field';
@@ -243,24 +226,24 @@ end
 
 % Are we saving correlation profiles?
 if Model.Save_Rmaps
-    disp('Saving CF profiles in data file.');
+    samsrf_disp('Saving CF profiles in data file.');
     Srf.ConFlds = NaN(length(Srf.SeedVx), size(Srf.Vertices,1));
     Srf.ConFlds(:,mver) = Rmaps;
 else
-    disp('Not saving CF profiles...');
+    samsrf_disp('Not saving CF profiles...');
     Srf.ConFlds = Rmaps; % No Rmaps to save space
 end
 
 % Save map files
-disp('Saving CF results...');
+samsrf_disp('Saving CF results...');
 Srf = samsrf_compress_srf(Srf, mver);
 save(OutFile, 'Model', 'Srf', '-v7.3');
-disp(['Saved ' OutFile '.mat']); 
+samsrf_disp(['Saved ' OutFile '.mat']); 
 
 % End time
 t3 = toc(t0); 
 EndTime = num2str(t3/60/60);
-new_line; disp(['Whole analysis completed in ' EndTime ' hours.']);
-disp('******************************************************************');
-new_line; new_line;
+samsrf_newline; samsrf_disp(['Whole analysis completed in ' EndTime ' hours.']);
+samsrf_disp('******************************************************************');
+samsrf_newline; samsrf_newline;
 

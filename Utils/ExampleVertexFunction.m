@@ -29,7 +29,7 @@ function txt = gvf(empt, event_obj)
     txt = ''; 
 
     % Simple example of something you could do 
-    disp(['Selected vertex: #' num2str(v)]);
+    samsrf_disp(['Selected vertex: #' num2str(v)]);
 end
 
 end

@@ -21,12 +21,8 @@ function Srf = samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %   anatpath:   Defines path where anatomy meshes are stored. Defaults to '../anatomy/'
 %                 If this is empty, the anatomy is not split off!
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 05/10/2022 - Can now also detrend without z-normalisation (DSS)
-% 15/10/2022 - Default normalisation is now 1 instead of true (DSS)
-% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
-% 19/12/2023 - Clarifications in help section (DSS)  
-%              Now has option not to split off anatomy (DSS)  
+% 04/09/2024 - Clarifications in help section (DSS)  
+%              Now allows returning an Srf instead of saving it.
 %
 
 %% Default parameters
@@ -107,7 +103,7 @@ if nrmls
             end
         end
     else
-        disp('Only one volume so won''t perform normalization!');
+        samsrf_disp('Only one volume so won''t perform normalization!');
     end
 end
 
@@ -115,10 +111,10 @@ end
 if length(funimg) > 1
     if avrgd
         % Average runs 
-        disp('Averaging runs...');
+        samsrf_disp('Averaging runs...');
         % Calculate noise ceiling?
         if nsceil && size(Srf.Data, 3) > 1
-            disp('Calculating noise ceiling...');
+            samsrf_disp('Calculating noise ceiling...');
             OddRuns = nanmean(Srf.Data(:,:,1:2:end), 3);
             EvenRuns = nanmean(Srf.Data(:,:,2:2:end), 3);
             % Loop thru vertices
@@ -134,7 +130,7 @@ if length(funimg) > 1
         Srf.Data = nanmean(Srf.Data, 3);
     else
         % Concatenate runs
-        disp('Concatenating runs...');
+        samsrf_disp('Concatenating runs...');
         if size(Srf.Data, 3) > 1 % If individual runs contained only one row this is unnecessary because they have already been squeezed
             nSrf = Srf;
             nSrf.Data = [];
@@ -161,7 +157,7 @@ Srf = samsrf_32bit_srf(Srf);
 if nargout == 0
     [p f e] = fileparts(funimg{1});
     save(f, 'Srf', '-v7.3');
-    disp(['Saved ' f '.mat']);
+    samsrf_disp(['Saved ' f '.mat']);
     samsrf_anatomy_srf(f, anatpath);
-    new_line;
+    samsrf_newline;
 end

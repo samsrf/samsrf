@@ -75,8 +75,8 @@ end
 
 %% Vertex assignments
 t0 = tic;
-disp('Warping native into template surface...');
-disp(' Please stand by...');
+samsrf_disp('Warping native into template surface...');
+samsrf_disp(' Please stand by...');
 Sva = NaN(1,NtgtVx); % Source vertex assignment
 parfor v = 1:NtgtVx
     % Vector from current target vertex to all source vertices
@@ -94,5 +94,5 @@ Srf.Data = NatSrf.Data(:,Sva);
 
 %% Save Srf & ROIs
 save([NatSrfName '_sn'], 'Srf');
-disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
-new_line;
+samsrf_disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
+samsrf_newline;

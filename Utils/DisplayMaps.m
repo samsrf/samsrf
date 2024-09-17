@@ -33,7 +33,7 @@ end
 function DisplayMaps_OpeningFcn(hObject, eventdata, handles, varargin)
 global Srf RoiName Pval
 
-disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
+samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
 load('SamSrf_defaults.mat');
 if ~exist('def_disproi')
     def_disproi = NaN; 
@@ -47,14 +47,14 @@ Pval = 0.0001; % Starting p-value with which to threshold maps
 
 %% Welcome message
 [vn,vd] = samsrf_version;
-clc; 
-disp('****************************************************************************');
-disp('     Welcome to the Seriously Annoying MatLab Surfer Map Display Tool!');
-disp('     by D. S. Schwarzkopf from the University of Auckland, New Zealand');
-new_line;
-disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-disp('****************************************************************************');
+samsrf_clrscr; 
+samsrf_disp('****************************************************************************');
+samsrf_disp('     Kia ora to the Seriously Annoying MatLab Surfer Map Display Tool!');
+samsrf_disp('     by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_newline;
+samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
+samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
+samsrf_disp('****************************************************************************');
 
 % Choose default command line output for DisplayMaps
 handles.output = hObject;
@@ -85,9 +85,9 @@ global Srf Pval R2Thrsh
 [fn,pn] = uigetfile('*.mat', 'Load Srf');
 cd(pn); % Navigate to folder as otherwise anatomicals cannot be loaded
 load(fn); % Load Srf 
-new_line;
-disp(['Loading surface data file: ' pn fn]);
-new_line;
+samsrf_newline;
+samsrf_disp(['Loading surface data file: ' pn fn]);
+samsrf_newline;
 % Is there a pRF model fit?
 if exist('Model', 'var')
     Srf.Model = Model;
@@ -104,7 +104,7 @@ end
 
 % Limit multi-subject Srf?
 if size(Srf.Data,3) > 1
-    disp(['Srf.Data contains ' num2str(size(Srf.Data,3)) ' subjects.']);
+    samsrf_disp(['Srf.Data contains ' num2str(size(Srf.Data,3)) ' subjects.']);
     if ~isfield(Srf, 'Subjects')
         Srf.Subjects = {};
         for i = 1:size(Srf.Data,3)
@@ -113,7 +113,7 @@ if size(Srf.Data,3) > 1
     end
     SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
     if isempty(SubjNum)
-        disp('You must pick a subject! Selecting #1...');
+        samsrf_disp('You must pick a subject! Selecting #1...');
         SubjNum = 1;
     end
     Srf.Data = Srf.Data(:,:,SubjNum);
@@ -124,7 +124,7 @@ if size(Srf.Data,3) > 1
 end
 % In case only raw data has multiple subjects
 if isfield(Srf, 'Raw_Data') && size(Srf.Raw_Data,3) > 1
-    disp(['Srf.Raw_Data contains ' num2str(size(Srf.Raw_Data,3)) ' subjects.']);
+    samsrf_disp(['Srf.Raw_Data contains ' num2str(size(Srf.Raw_Data,3)) ' subjects.']);
     if ~isfield(Srf, 'Subjects')
         Srf.Subjects = {};
         for i = 1:size(Srf.Raw_Data,3)
@@ -133,7 +133,7 @@ if isfield(Srf, 'Raw_Data') && size(Srf.Raw_Data,3) > 1
     end
     SubjNum = listdlg('ListString', Srf.Subjects, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
     if isempty(SubjNum)
-        disp('You must pick a subject! Selecting #1...');
+        samsrf_disp('You must pick a subject! Selecting #1...');
         SubjNum = 1;
     end
     Srf.Raw_Data = Srf.Raw_Data(:,:,SubjNum);
@@ -153,13 +153,13 @@ if isfield(Srf, 'Nvert_Lhem')
         Srf.Vertices(1:Srf.Nvert_Lhem,:) = NaN; % Remove left hemisphere vertices
     end
 end
-% What ROI to display
+% What ROI to samsrf_display
 if isnan(RoiName)
     % Use ROI from Srf
-    disp('Using ROI from Srf if it exists');
+    samsrf_disp('Using ROI from Srf if it exists');
 elseif isempty(RoiName)
     % No ROI defined
-    disp('No default ROI defined!');
+    samsrf_disp('No default ROI defined!');
     vx = NaN;
 elseif ischar(RoiName) && RoiName(1) == '<' || RoiName(1) == '>' 
     % If ROI defined by coordinates
@@ -185,11 +185,11 @@ elseif ischar(RoiName) && RoiName(1) == '<' || RoiName(1) == '>'
     elseif RoiName(1) == '>'
         vx = find(wv > wc);
     end
-    disp(['Only displaying inflated mesh vertices with ' RoiName]);
+    samsrf_disp(['Only samsrf_displaying inflated mesh vertices with ' RoiName]);
 else
     % If ROI was named, load that instead
     vx = samsrf_loadlabel([pn filesep Srf.Hemisphere '_' RoiName]);
-    disp(['Only displaying ROI ' Srf.Hemisphere '_' RoiName]);   
+    samsrf_disp(['Only samsrf_displaying ROI ' Srf.Hemisphere '_' RoiName]);   
 end
 
 % Add transparent border
@@ -238,15 +238,15 @@ set(handles.popupmenu2, 'String', Values, 'Value', 1);
 
 %% Update pRF inspector list
 PrfInspList = {'Vertex inspector off'};
-if isfield(Srf, 'ConFlds') % Can display connective field profiles
+if isfield(Srf, 'ConFlds') % Can samsrf_display connective field profiles
     PrfInspList{2} = 'Connective field profiles';
     Tmp = load(Srf.Model.Template); % Load template map
     Tmp = samsrf_expand_srf(Tmp.Srf); % Expand template map
     Tmp = Tmp.Data(2:3,Srf.SeedVx); % Restrict to template seed ROI 
     Srf.TempMap = Tmp;
-    PrfInspList{3} = 'Visual CF profiles'; % Can display visual CF profiles
+    PrfInspList{3} = 'Visual CF profiles'; % Can samsrf_display visual CF profiles
 end
-if isfield(Srf, 'Rmaps') % Can display reverse correlation profiles
+if isfield(Srf, 'Rmaps') % Can samsrf_display reverse correlation profiles
     PrfInspList{2} = 'Reverse correlation profiles';
 end
 if isfield(Srf, 'Model') && isfield(Srf.Model, 'Prf_Function') % Only if a pRF model fit
@@ -301,24 +301,24 @@ contents = cellstr(get(handles.popupmenu3,'String'));
 PrfInsp = get(handles.popupmenu3,'Value');
 PrfInsp = contents{PrfInsp};
 if strcmpi(PrfInsp, 'pRF parameter estimates')
-    % Display model fit pRF
+    % samsrf_display model fit pRF
     if isfield(Srf, 'Model_')
         Srf.Model = Srf.Model_;
         Srf = rmfield(Srf, 'Model_');
     end
-    % Don't display reverse correlation profile!
+    % Don't samsrf_display reverse correlation profile!
     if isfield(Srf, 'Rmaps')
         Srf.Rmaps_ = Srf.Rmaps;
         Srf = rmfield(Srf, 'Rmaps');
     end
 elseif strcmpi(PrfInsp, 'Reverse correlation profiles')
-    % Display reverse correlation profile
+    % samsrf_display reverse correlation profile
     if isfield(Srf, 'Rmaps_')
         Srf.Rmaps = Srf.Rmaps_;
         Srf = rmfield(Srf, 'Rmaps_');
     end
 elseif strcmpi(PrfInsp, 'Visual CF profiles')
-    % Display connective field profile
+    % samsrf_display connective field profile
     if isfield(Srf, 'TempMap_')
         Srf.TempMap = Srf.TempMap_;
         Srf = rmfield(Srf, 'TempMap_');
@@ -328,7 +328,7 @@ elseif strcmpi(PrfInsp, 'Visual CF profiles')
         Srf = rmfield(Srf, 'ConFlds');
     end
 elseif strcmpi(PrfInsp, 'Connective field profiles')
-    % Display connective field profile
+    % samsrf_display connective field profile
     if isfield(Srf, 'ConFlds_')
         Srf.ConFlds = Srf.ConFlds_;
         Srf = rmfield(Srf, 'ConFlds_');
@@ -343,7 +343,7 @@ elseif strcmpi(PrfInsp, 'Observed vs predicted time series')
         Srf.Y = Srf.Y_;
         Srf = rmfield(Srf, 'Y_');
     end
-    % Don't display model fit pRF
+    % Don't samsrf_display model fit pRF
     if isfield(Srf, 'Model')
         Srf.Model_ = Srf.Model;
         Srf = rmfield(Srf, 'Model');
@@ -358,7 +358,7 @@ elseif strcmpi(PrfInsp, 'Observed time series only') || strcmpi(PrfInsp, 'GLM co
         Srf = rmfield(Srf, 'X');
     end
 else
-    % Not displaying pRFs
+    % Not samsrf_displaying pRFs
     if isfield(Srf, 'Model')
         Srf.Model_ = Srf.Model;
         Srf = rmfield(Srf, 'Model');
@@ -490,11 +490,11 @@ end
 
 %% Clear global variables when figure is closed
 function SamSrfCloseReq(src, evnt)
-new_line;
-disp('SamSrf says:'); 
-disp(' "I hope you''ll come back to be annoyed by me again soon...');
-disp('  Good bye for now!"');
-new_line;
+samsrf_newline;
+samsrf_disp('SamSrf says:'); 
+samsrf_disp(' "I hope you''ll come back to be annoyed by me again soon...');
+samsrf_disp('  Mā te wā!"');
+samsrf_newline;
 
 clear global 
 delete(src);
@@ -598,7 +598,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-%% Which map to display?
+%% Which map to samsrf_display?
 function popupmenu2_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu2

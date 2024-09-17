@@ -26,7 +26,7 @@ Ptc = NaN(size(Y,1), length(SeedVx)*length(Sizes));
 S = [S1(:) S2(:)]'; 
 
 % Generating predictions
-disp(' Please stand by...');
+samsrf_disp(' Please stand by...');
 parfor n = 1:numel(S1)
     Cir = samsrf_georoi(S1(n), S2(n), Srf.Vertices, Srf.Faces); % Circular CF patch
     svx = ismember(Cir,SeedVx); % Vertices in patch overlapping seed ROI

@@ -11,7 +11,7 @@ All these are fundamental changes from previous SamSrf versions & some
 functions may therefore not be compatible with much earlier versions. 
 The toolbox also includes reverse correlation pRF & CF analysis. 
 
-The main standalone GUI is simply called SamSrfAnalysis. It allows you to 
+The main standalone GUI is simply called *SamSrfAnalysis*. It allows you to 
 select between different algorithms, and between Models for various common uses.  
 
 Within the Matlab environment, there are various tools available for specific purposes:  
@@ -30,17 +30,8 @@ Within the Matlab environment, there are various tools available for specific pu
 ## DIFFERENCES TO EARLIER VERSIONS
 
 ### IMPORTANT: FORWARD-MODEL FITS FROM VERSIONS PRIOR TO 9.0 ARE NOT COMPARABLE!  
-The fitting process has considerable differences to previous versions: We changed 
-the way apertures are encoded & how the time course is predicted. While the results
-will typically be close to the old approach, there will be differences. The new algorithm
-is also more flexible. Most importantly, it is considerably faster. Given the advantages,
-we decided not to include the old algorithm in this version. If you need that for some
-reason, you will need to use SamSrf 8.4.
 
-** pRF model fits to reverse correlation profiles are also not *identical* to SamSrf 7.**  
-(Please see *help samsrf_revcor_prf* for more information about this discrepancy.)  
-
-Even if you used earlier versions for your analysis we recommend you use SamSrf 9  
+Even if you used earlier versions for your analysis we recommend you use SamSrf X  
 for your analysis *after* the model fitting (e.g. plotting, quantification & statistics). 
 Data files from SamSrf 6 should already be in the same format. You can also convert old 
 data files from older versions (at least 5.0 upwards) using samsrf_convert_old_srf.m   
@@ -62,12 +53,18 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.913 (11-09-2024) - Alpha Version!!!  
+### Version 9.94 (17-09-2024) - Beta Version!!!  
+- Created new GUI called SamSrfAnalysis for specifying Models & running analysis (DSS)  
+- Modifications needed for standalone GUI app & integration into NeuroDesk (DSS)  
+- When using GUI, information is now displayed there instead of command window (DSS)  
+- Biophysical model now uses unsigned (absolute) pRF profile to determine response (DSS)  
+- Removed option to concatenate data files in pRF/CF fitting functions! (DSS)  
+- Backprojection of apertures for pRF-from-CF analysis now internal to samsrf_fit_prf (DSS)  
 - Added functions for saving & loading Model specifications as JSON files (DSS)  
-- Modifications for creating standalone GUI app & integration into NeuroDesk (DSS)  
 - Updated examples in SamSrf/Models to align with saved versions for standalone app (DSS)  
 - Model fitting functions now allow direct input of Srf instead of filenames (DSS)   
 - ViewApertures now also allow direct input argument (DSS)  
+- All text output & progress bar are now using the GUI if available (DSS)  
 
 ### Version 9.9 (08-08-2024)  
 - Added alternative functionality for multi-condition designs in pRF models (DSS)   

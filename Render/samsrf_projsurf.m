@@ -82,8 +82,8 @@ else
 
     % Calculate overlay
     Colours = NaN(size(Vertices,3),3);
-    disp('Projecting pixels to cortical surface...');
-    disp(' Please stand by...');
+    samsrf_disp('Projecting pixels to cortical surface...');
+    samsrf_disp(' Please stand by...');
     parfor v = 1:length(r)
         if ~r(v)
             % Convert image space into visual space
@@ -121,11 +121,11 @@ patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colour
 axis off;
 if nargin < 7
     if exist('SamSrf_defaults.mat', 'file')
-        disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
+        samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
         load('SamSrf_defaults.mat');
         if ~exist('def_views', 'var')
             % Focus on early visual cortex
-            disp('Warning: def_views is not defined in SamSrf_defaults.mat!');
+            samsrf_disp('Warning: def_views is not defined in SamSrf_defaults.mat!');
             if Srf.Hemisphere(1) == 'l'
                 CamView = [42 -2 1.8];
             else

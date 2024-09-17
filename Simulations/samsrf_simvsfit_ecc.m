@@ -27,9 +27,9 @@ uE = unique(sqrt(Srf.Ground_Truth(1,:).^2 + Srf.Ground_Truth(2,:).^2));
 uS = unique(Srf.Ground_Truth(3,:));
 Cmap = lines(length(uS));
 if nargin < 2
-    new_line;
-    disp('Unique ground truth eccentricities');
-    disp(uE);
+    samsrf_newline;
+    samsrf_disp('Unique ground truth eccentricities');
+    samsrf_disp(uE);
     return
 end
 

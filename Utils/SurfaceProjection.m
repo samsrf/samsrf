@@ -29,20 +29,20 @@ cd(CurrPath);
 
 %% Welcome message
 [vn vd] = samsrf_version; 
-new_line;
-disp('****************************************************************************');
-disp('     Welcome to the Seriously Annoying MatLab Surfer Projection Tool!');
-disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
-new_line;
-disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-disp('      (see SamSrf/ReadMe.txt for what is new in this version)');
-disp('****************************************************************************');
-new_line;
+samsrf_newline;
+samsrf_disp('****************************************************************************');
+samsrf_disp('     Welcome to the Seriously Annoying MatLab Surfer Projection Tool!');
+samsrf_disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_newline;
+samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
+samsrf_disp('      (see SamSrf/ReadMe.txt for what is new in this version)');
+samsrf_disp('****************************************************************************');
+samsrf_newline;
 
 %% Select functional data files
 [ef,ep] = uigetfile({'*.nii'; '*.mgh'; '*.gii'}, 'Select 4D-NIfTI/MGH/GII files', 'MultiSelect', 'on');
 if isnumeric(ef) && ef == 0
-    disp('No functional scans selected.');
+    samsrf_disp('No functional scans selected.');
     return
 end
 if ischar(ef)
@@ -62,9 +62,9 @@ if strcmpi(ft,'nii')
     ctxsteps = inputdlg('Cortex sampling steps?', '');
     ctxsteps = eval(['[' cell2mat(ctxsteps) ']']); % Cortical sampling steps
     if isempty(ctxsteps)
-        disp('Choosing default cortex sampling of 0.5.');
+        samsrf_disp('Choosing default cortex sampling of 0.5.');
         ctxsteps = 0.5;
-        new_line;
+        samsrf_newline;
     end
 
     %% Overlay for functional scans
@@ -86,7 +86,7 @@ end
 %% Normalise data?
 nrmls = questdlg('Time series normalisation?', '', 'Z-Score', 'Detrend only', 'None', 'Z-Score'); 
 if isempty(nrmls)
-    disp('Surface projection aborted by user.');
+    samsrf_disp('Surface projection aborted by user.');
     return
 end
 if strcmpi(nrmls, 'Z-Score')

@@ -11,8 +11,14 @@ switch AnalysisFunc
     %% Forward model pRF
    case 'samsrf_fit_prf'
        switch ParameterName
+           case 'Name'
+               HelpText = { 'Char'
+							''
+							'Defines the name of the analysis, which is what the final data file will be called. For instance, if this is ‘pRF_Gaussian’, the final map file for the left hemisphere will be called lh_pRF_Gaussian.mat. The idea is that you name this something that helps you identify what the data file contains. You could have several map files for different types of analysis of the same raw data in a folder.' };
            case 'Prf_Function'
                HelpText = {	'Function handle'
+							''
+                            'NOTE: This parameter cannot be changed inside the SamSrfAnalysis GUI. This needs to be defined in the Model presets.'
 							''
 							'This defines the pRF model used for predicting the time series. The most common model, first introduced in Dumoulin & Wandell 2008, is a 2D Gaussian. Other models with more complicated shapes, such as antagonistic centre-surround structure, elongated, or asymmetric profiiles, are also possible. You can find the model functions in the SamSrf/pRF subfolder & you can also make your own models. Defining the pRF function requires the following syntax, which will look quite complex at first glance. For example here is the 2D Gaussian model:'							
 							''
@@ -21,10 +27,6 @@ switch AnalysisFunc
 							'P contains the actual pRF parameters, in this case a vector with x0, y0, & sigma. ApWidth is a fixed input, which is required to enable flexibility with regard to the dimensions of your apertures but you can simply follow this basic arrangement.'
 							''
 							'The standard 2D Gaussian model also allows a lot of flexibility for defining 1D tuning functions. You can simply set the x0 or y0 parameter to zero and that way the model only has two free parameters while the other dimension is fixed; e.g. see the tuning curve examples in SamSrf/Models.' };
-           case 'Name'
-               HelpText = { 'Char'
-							''
-							'Defines the name of the analysis, which is what the final data file will be called. For instance, if this is ‘pRF_Gaussian’, the final map file for the left hemisphere will be called lh_pRF_Gaussian.mat. The idea is that you name this something that helps you identify what the data file contains. You could have several map files for different types of analysis of the same raw data in a folder.' };
            case 'Param_Names'
                HelpText = { 'Cell array of chars'
 							''
@@ -60,15 +62,17 @@ switch AnalysisFunc
            case 'Hrf'
                HelpText = { 'Char or Vector of scalars'
 							''
-							'Which hemodynamic response function (HRF) to use. You can typically use the canonical HRF (based on the data in de Haas et al., 2014, Curr Biol), in which case you can leave this empty: [].' 
+							'Which hemodynamic response function (HRF) to use. You can typically use the canonical HRF (based on the data in de Haas et al., 2014, Curr Biol), in which case you must leave this empty (e.g. []).' 
 							''
 							'If you estimated the HRF (see Cookbook or by refitting), you can provide here the file name of the estimated HRF. Or you can provide the HRF directly as a vector, where each component corresponds to one TR. Obviously, this latter option requires that the TR is the same in your HRF and your pRF data whereas the fit parameters of a HRF are more flexible.'
                             ''
-                            'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could use samsrf_doublegamma(Model.TR) for SPM''s canonical shape.'
+                            'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could instead use 0 which defaults to SPM''s canonical shape (samsrf_doublegamma(Model.TR) would produce the same result).'
 							''
                             'It is also possible to fit the HRF parameters as part of the pRF modelling. To do so, set this parameter to Inf. It will then use SPM''s canonical shape for the coarse-fit, and fit five constrained HRF parameters during the fine-fit. However, this is computionally expensive & will probably take a long time.'
                             ''
-							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' };
+							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' 
+                            ''
+                            'Note: If you are using the SamSrfAnalysis GUI then you can only enter single values here, that is, 1, 0, Inf, or []. Other entries will be ignored. You can however load individual subject HRFs or HRF vectors using the menu.'};
            case 'Aperture_File'
                HelpText = { 'Char'
 							''
@@ -80,19 +84,19 @@ switch AnalysisFunc
            case 'Aperture_Mean_Response'
                HelpText = { '[Optional] Boolean'
                             ''
-                            'For the past few main versions of SamSrf, we predicted the neural response of a pRF by normalising the overlap of apertures and pRF profile by the whole pRF profile. This is biologically more plausible than the conventional Dumoulin & Wandell 2008 approach because that models smaller pRFs to respond less than large pRFs. In turn, this will result in artifactual estimates of the response amplitude (Beta).' 
+                            'For the past few main versions of SamSrf, we predicted the neural response of a pRF by normalising the overlap of apertures and pRF profile by the whole pRF (unsigned) profile. This is biologically more plausible than the conventional Dumoulin & Wandell 2008 approach because that models smaller pRFs to respond less than large pRFs. In turn, this will result in artifactual estimates of the response amplitude (Beta).' 
                             ''
-                            'However, our normalised approach will under some circumstances yield a different sign for pRFs with inhibitory components than the conventional approach. We therefore added back the option to use the conventional approach. Using this is generally fine if the Betas are not of interest.'
+                            'By setting this flag to true you can use the conventional Dumoulin & Wandell approach. Using this is generally fine, especially if the Betas are not of interest.'
                             ''
-                            'If true, the conventional Dumoulin & Wandell 2008 approach is used. This simply takes the mean across the overlap between aperture and pRF profle. You could consider using this when your pRF model has an inhibitory component.'
-                            ''
-                            'If false, the standard SamSrf approach is used, and the overlap between aperture and pRF profile is normalised by the whole pRF profile.'
+                            'If false, the standard SamSrf approach is used, and the overlap between aperture and pRF profile is normalised by the whole pRF profile. Note that this is using unsigned (absolute) values for the whole profile to account for the presence of inhibitory components in the pRF profile.'
                             ''
                             'Defaults to false.' };
            case {'Param1' 'Param2' 'Param3' 'Param4' 'Param5' 'Param6' 'Param7' 'Param8' 'Param9' 'Param10'}
 			   HelpText = { 'Vector of scalars'
+                            ''
+                            'NOTE: This parameter cannot be changed inside the SamSrfAnalysis GUI. This needs to be defined in the Model presets. (In this case, the raw search space is in apertures space & is converted into a stimulus space prior to running the analysis).'
 							''
-							'You can define the parameters of the search space used for the coarse fitting (extensive grid search) stage. For each of the five parameters you define a vector of the points of the search grid for that parameter, so this vector determines both the range and the granularity of the search space.' 
+							'You can define the parameters of the search space used for the coarse fitting (extensive grid search) stage. For each of the five parameters you define a vector of the points of the search grid for that parameter, so this vector determines both the range and the granularity of the search space. This is in stimulus (e.g. visual) space, except when fitting pRFs to CF data in which case it is in "aperture" space, that is, relative to the maximum in ApXY.' 
 							''
 							'For most people, there probably isn’t much of a reason to change these parameters. If you make the granularity too fine the search space will become unwieldy and you may even run out of memory. A finer search grid improves your coarse fit but is also slower. If running only the coarse fit, a finer grid is advisable.'
 							''
@@ -223,8 +227,18 @@ switch AnalysisFunc
 							''
 							'Important: The issues with precision we saw in SamSrf 6 were due to the tolerance being 1e-2! This was cleary suboptimal for our purposes but YMMV. There are scenarios where this lenient tolerance may be justified. An intermediate tolerance (e.g. 1e-3?) may also perform well but we never tested this.'
 							''
-							'By default, this parameter is not defined & the standard Nelder-Mead tolerance is used. However, if Hooke_Jeeves_Steps is defined, the Hooke-Jeeves algorithm is used instead, so be sure you know what you are doing!' };
-               
+							'By default, this parameter is not defined & the standard Nelder-Mead tolerance is used. However, if Hooke_Jeeves_Steps is defined, the Hooke-Jeeves algorithm is used instead, so be sure you know what you are doing!' };               
+           case 'SeedRoi'
+               HelpText = { '[Optional] Char'
+							''
+							'Path &  file name of the FreeSurfer label file for the seed region (without file extension). Activity in this ROI will be projected back into visual space using retinotopic map in Model.Template. This backprojection is then used as apertures for pRF analysis of the connective fields.' 
+                            ''
+                            'IMPORTANT: When this is defined, you must also define Model.Template. Moreover, Model.Aperture_File will automatically be set to use these backprojections, & Model.Scaling_Factor will automatically be set to be the absolute maximum in ApXY!' };          
+           case 'Template'
+               HelpText = { '[Optional, but mandatory when Model.SeedRoi is defined] Char'
+							''
+							'Path & file name of the SamSrf map data file (without .mat extension) containing the template map used to translate anatomical positions in Model.SeedRoi into visual field estimates when estimating pRFs from CFs. This file must therefore contain a retinotopic map with at least the x0 & y0 positions of each template pRF in Srf.Data(2:3,:) and a (potentially dummy) goodness-of-fit value in Srf.Data(1,:).' };
+
            otherwise
                error('samsrf_fit_prf does not have this parameter!');
        end
@@ -251,13 +265,15 @@ switch AnalysisFunc
            case 'Hrf'
                HelpText = { 'Char or Vector of scalars'
 							''
-							'Which hemodynamic response function (HRF) to use. You can typically use the canonical HRF (based on the data in de Haas et al., 2014, Curr Biol), in which case you can leave this empty: [].' 
+							'Which hemodynamic response function (HRF) to use. You can typically use the canonical HRF (based on the data in de Haas et al., 2014, Curr Biol), in which case you must leave this empty (e.g []).' 
 							''
 							'If you estimated the HRF (see Cookbook or by refitting), you can provide here the file name of the estimated HRF. Or you can provide the HRF directly as a vector, where each component corresponds to one TR. Obviously, this latter option requires that the TR is the same in your HRF and your pRF data whereas the fit parameters of a HRF are more flexible.'
                             ''
-                            'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could use samsrf_doublegamma(Model.TR) for SPM''s canonical shape.'
+                            'In some designs with very long blocks and/or widely tuned pRFs the canonical HRF in SamSrf may be inappropriate because the undershoot does not capture the signal modulation accurately. In this case, using a canonical with a less pronounced undershoot may be more appropriate. For example, you could instead use 0 which defaults to SPM''s canonical shape (samsrf_doublegamma(Model.TR) would produce the same result).'
 							''
-							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' };
+							'Finally, if you don’t want any HRF to be used (as you might in some situations) you must set this to 1. Whatever you do, you need to specify this, even if it just [] to use the canonical.' 
+                            ''
+                            'Note: If you are using the SamSrfAnalysis GUI then you can only enter single values here, that is, 1, 0, or []. Other entries will be ignored. You can however load individual subject HRFs or HRF vectors using the menu.'};
            case 'Aperture_File'
                HelpText = { 'Char'
 							''
@@ -268,6 +284,8 @@ switch AnalysisFunc
                             'Also this currently does not support multiple conditions within the same time series. This may change in the future but currently there are no plans to implement this.' };
            case 'Prf_Function'
                HelpText = {	'Function handle / Scalar'
+							''
+                            'NOTE: This parameter cannot be changed inside the SamSrfAnalysis GUI. This needs to be defined in the Model presets.'
 							''
 							'If this is a function handle, this defines the pRF model to fit to the reverse correlation profiles. The most common model is a 2D Gaussian. Other models with more complicated shapes, such as antagonistic centre-surround structure, elongated, or asymmetric profiiles, are also possible (but so far we have not tested them). You can find the model functions in the SamSrf/pRF subfolder & you can also make your own models. Defining the pRF function requires the following syntax, which will look quite complex at first glance. For example here is the 2D Gaussian model:'							
 							''
@@ -302,6 +320,8 @@ switch AnalysisFunc
 							'This parameter is mandatory when a 2D pRF model is fit to the reverse correlation profiles (see Prf_Function)!' };
            case 'SeedPar_Function'
                HelpText = { 'Function handle'
+							''
+                            'NOTE: This parameter cannot be changed inside the SamSrfAnalysis GUI. This needs to be defined in the Model presets.'
 							''
 							'This function determines the seed parameters for the model fitting stage. This should therefore be based on the rough estimates obtained from the reverse correlation profiles. In order to allow flexibility with complex pRF models, we added this so you can determine adequate seed values. To date, we have however only tested a conventional 2D Gaussian model. The seed parameter function we used is this:'
 							''
