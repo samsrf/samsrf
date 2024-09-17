@@ -37,7 +37,7 @@ function [curv, fnum] = fs_read_curv(fname)
 fid = fopen(fname, 'rb', 'b') ;
 if (fid < 0)
 	 str = sprintf('could not open curvature file %s', fname) ;
-	 error(str) ;
+	 samsrf_error(str) ;
 end
 vnum = fs_fread3(fid) ;
 NEW_VERSION_MAGIC_NUMBER = 16777215;

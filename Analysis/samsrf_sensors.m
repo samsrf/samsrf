@@ -45,13 +45,13 @@ end
 %% Determine plot type
 PlotType = upper(PlotType(1));
 if (PlotType == '3' ||  PlotType == 'B' || PlotType == 'H') && ~isfield(Srf, 'Sphere')
-    warning('No sphere coordinates included - using 2D plot instead...');
+    samsrf_disp('WARNING: No sphere coordinates included - using 2D plot instead...');
     PlotType = '2';
 end
 
 %% Check if M/EEG data
 if ~strcmpi(Srf.Hemisphere, 'eeg')
-    error('This Srf does not contain MEG/EEG data!');
+    samsrf_error('This Srf does not contain MEG/EEG data!');
 end
 
 %% Default colour schemes
@@ -117,9 +117,9 @@ else
     % Anything else
     loc = strcmpi(Srf.Values, Map);
     if sum(loc) > 1
-        error([Map ' is ambiguous!']);
+        samsrf_error([Map ' is ambiguous!']);
     elseif sum(loc) == 0
-        error([Map ' does not exist!'])
+        samsrf_error([Map ' does not exist!'])
     end
     Data = Srf.Data(loc,:);
 end
@@ -159,7 +159,7 @@ elseif PlotType == 'S' || PlotType == '2'
     axis square
     axis([-.8 .8 -.8 .8]);
 else
-    error('Invalid plot type specified!');
+    samsrf_error('Invalid plot type specified!');
 end
 % Colour scheme
 colormap(Cmap);

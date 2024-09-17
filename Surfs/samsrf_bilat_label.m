@@ -18,7 +18,7 @@ function samsrf_bilat_label(Srf, Roi)
 %
 
 if ~isfield(Srf, 'Nvert_Lhem')
-    error('Not a combined hemispheres Srf!'); 
+    samsrf_error('Not a combined hemispheres Srf!'); 
 end
 
 % Path to label
@@ -33,11 +33,11 @@ Rvx = samsrf_loadlabel([p filesep 'rh_' f]);
 
 % Do labels exist?
 if isnan(Lvx)
-    warning(['lh_' Roi '.label does not exist']);
+    samsrf_disp(['WARNING: lh_' Roi '.label does not exist']);
     Lvx = [];
 end
 if isnan(Rvx)
-    warning(['rh_' Roi '.label does not exist']);
+    samsrf_disp(['WARNING: rh_' Roi '.label does not exist']);
     Rvx = [];
 end
 

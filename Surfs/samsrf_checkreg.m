@@ -35,7 +35,7 @@ if nargin == 0
 end
 wd = labpath(end-4:end);
 if ~strcmp(wd,'label')
-    error('Not in a ''label'' directory!')
+    samsrf_error('Not in a ''label'' directory!')
 end
 
 % Find the structural scan
@@ -43,14 +43,14 @@ fs = dir([labpath filesep '..' filesep 'mri' filesep 'orig' filesep '*.nii']);
 if isempty(fs)
     fs = dir([labpath filesep '..' filesep 'mri' filesep '*.nii']);
     if isempty(fs)
-        error('Cannot locate NII for the reconstructed T1!');
+        samsrf_error('Cannot locate NII for the reconstructed T1!');
     end
     strf = [labpath filesep '..' filesep 'mri' filesep fs(1).name];
 else
     strf = [labpath filesep '..' filesep 'mri' filesep 'orig' filesep fs(1).name];
 end
 if length(fs) > 1
-    error('NII file in mri folder is ambiguous!');
+    samsrf_error('NII file in mri folder is ambiguous!');
 end
 samsrf_newline;
 samsrf_disp(['Using ' fs(1).name ' as template.'])

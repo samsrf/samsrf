@@ -21,11 +21,11 @@ function [vertices, faces, border] = fs_read_patch(fpatch, fsurf)
 % Read patch file (modified from read_patch)
 fid = fopen(fpatch,'r');
 if (fid == -1)
-   error('could not open file %s', fpatch) ;
+   samsrf_error('could not open file %s', fpatch) ;
 end
 ver = fread(fid, 1, 'int', 0, 'b');
 if (ver ~= -1)
-   error('incorrect version # %d (not -1) found in file',ver) ;
+   samsrf_error('incorrect version # %d (not -1) found in file',ver) ;
 end
 patch.npts = fread(fid, 1, 'int', 0, 'b') ;
 for i = 1:patch.npts

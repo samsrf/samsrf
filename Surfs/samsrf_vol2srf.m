@@ -96,7 +96,7 @@ if exist('spm', 'file') % Use SPM
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig); 
 else % Sadly no way to load NIIs
-    error('Sorry but I need SPM to load NII files :(');
+    samsrf_error('Sorry but I need SPM to load NII files :(');
 end
     
 %% Load functional image

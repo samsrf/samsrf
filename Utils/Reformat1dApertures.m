@@ -48,5 +48,5 @@ switch ApFormat
             ApFrm(:,:,v) = double(ismember(Theta, Degs) & Rho <= Width/2); % Stimulated polar angles within eccentricity limit
         end
     otherwise
-        error('Invalid aperture format specified!');
+        samsrf_error('Invalid aperture format specified!');
 end

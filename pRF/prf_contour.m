@@ -19,7 +19,7 @@ function R = prf_contour(Srf, v, Model)
 if nargin > 2
     % Use model parameters
     if ~isstruct(Model)
-        error('Third input is not a Model structure!');
+        samsrf_error('Third input is not a Model structure!');
     end
     P = Srf.Data(2:length(Model.Param_Names)+1, v); % Fit parameters
     P(Model.Scaled_Param==1) = P(Model.Scaled_Param==1) / Model.Scaling_Factor; % Rescale parameters if needed
@@ -29,7 +29,7 @@ if nargin > 2
 else
     % Use reverse correlation profile
     if ~isfield(Srf, 'Rmaps')
-        error('No reverse correlation data in this Srf!');
+        samsrf_error('No reverse correlation data in this Srf!');
     end
     % Stripped Srf?
     if isnan(Srf.Rmaps)

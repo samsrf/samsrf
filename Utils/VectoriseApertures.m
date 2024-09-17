@@ -15,13 +15,13 @@ function VectoriseApertures(ApsFile, Dummy)
 %
 
 if nargin > 1
-    error('Since version 9.81, this function no longer has scaling input!');
+    samsrf_error('Since version 9.81, this function no longer has scaling input!');
 end
 
 % Load apertures
 load(ApsFile);
 if exist('ApXY', 'var') 
-    error('I may be wrong but this already looks like a vectorised apertures...');
+    samsrf_error('I may be wrong but this already looks like a vectorised apertures...');
 end
 
 % Vectorise apertures
@@ -29,10 +29,10 @@ ApDimX = size(ApFrm,2); % Horizontal size of apertures
 ApDimY = size(ApFrm,1); % Vertical size of apertures
 % Odd-numbered side lengths?
 if mod(ApDimX,2)
-    error('X dimension is odd number!');
+    samsrf_error('X dimension is odd number!');
 end
 if mod(ApDimY,2)
-    error('Y dimension is odd number!');
+    samsrf_error('Y dimension is odd number!');
 end
 % If non-square apertures
 if ApDimX ~= ApDimY	
@@ -41,9 +41,9 @@ if ApDimX ~= ApDimY
     else
 		Scaling = [ApDimX/ApDimY 1];
     end
-	disp(['Rectangular apertures: ' num2str(Scaling(1)) ' x ' num2str(Scaling(2))]);
+	samsrf_disp(['Rectangular apertures: ' num2str(Scaling(1)) ' x ' num2str(Scaling(2))]);
 else
-	disp('Square apertures');
+	samsrf_disp('Square apertures');
 	Scaling = [1 1]; % Square aperture
 end
 

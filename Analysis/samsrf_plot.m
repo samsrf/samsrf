@@ -102,7 +102,7 @@ SrfIv = samsrf_expand_srf(SrfIv);
 
 %% Check compatibility
 if size(SrfDv.Data,2) ~= size(SrfIv.Data,2)
-    error('SrfDv & SrfIv are not the same mesh!');
+    samsrf_error('SrfDv & SrfIv are not the same mesh!');
 end
 
 %% Is this M/EEG data?
@@ -197,9 +197,9 @@ for i_var = 1:2
         % Anything else
         loc = strcmpi(Srf.Values, Val);
         if sum(loc) > 1
-            error([ValLab ' ' Val ' is ambiguous!']);
+            samsrf_error([ValLab ' ' Val ' is ambiguous!']);
         elseif sum(loc) == 0
-            error([ValLab ' ' Val ' does not exist!'])
+            samsrf_error([ValLab ' ' Val ' does not exist!'])
         end
         Data = Srf.Data(loc,:);
     end
@@ -222,7 +222,7 @@ if strcmpi(SrfIv.Values{1}, 'R^2') || strcmpi(SrfIv.Values{1}, 'nR^2')
     GoF(SrfIv.Data(1,:) <= Threshold(1)) = false; % Unlabel bad fits
 else
     % Warn user if 1st row isn't R^2
-    warning('1st data row isn''t R^2 so using all good data... Do you really want this?');
+    samsrf_disp('WARNING: 1st data row isn''t R^2 so using all good data... Do you really want this?');
 end
 % Limit data range & remove other rubbish
 GoF(DataDv <= Threshold(2) | DataDv >= Threshold(3) ...
@@ -331,7 +331,7 @@ else % Binning analysis
                 Bs = exp(bootstrp(BootParams(1), @nanmean, log(CurDv))); % Bootstrap distribution
                 CurDv = exp(nanmean(log(CurDv))); % Geometric mean
             else
-                error('Invalid summary statistic specified!');
+                samsrf_error('Invalid summary statistic specified!');
             end
             CurCi = prctile(Bs, BootParams(2:3)); % 95% confidence interval
             % In case it is column vector

@@ -61,7 +61,7 @@ end
 if ~isempty(Roi) && ischar(Roi)
     rver = samsrf_loadlabel(Roi);
     if isnan(rver)
-        error(['ROI ' Roi ' not found!']);
+        samsrf_error(['ROI ' Roi ' not found!']);
     end
 end
 % Roi provided as vector
@@ -104,10 +104,10 @@ elseif strcmpi(Val, 'Curvature')
 else
     D = Srf.Data(strcmpi(Srf.Values, Val),R);
     if isempty(D)
-        error(['Value ' Val ' does not exist!']);
+        samsrf_error(['Value ' Val ' does not exist!']);
     end
     if size(D,1) > 1
-        error(['Value ' Val ' is ambiguous!']);
+        samsrf_error(['Value ' Val ' is ambiguous!']);
     end
 end
 

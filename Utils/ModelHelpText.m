@@ -240,7 +240,7 @@ switch AnalysisFunc
 							'Path & file name of the SamSrf map data file (without .mat extension) containing the template map used to translate anatomical positions in Model.SeedRoi into visual field estimates when estimating pRFs from CFs. This file must therefore contain a retinotopic map with at least the x0 & y0 positions of each template pRF in Srf.Data(2:3,:) and a (potentially dummy) goodness-of-fit value in Srf.Data(1,:).' };
 
            otherwise
-               error('samsrf_fit_prf does not have this parameter!');
+               samsrf_error('samsrf_fit_prf does not have this parameter!');
        end
     
     %% Reverse correlation pRF                
@@ -391,7 +391,7 @@ switch AnalysisFunc
 							'By default, this parameter is not defined & the standard Nelder-Mead tolerance is used. However, if Hooke_Jeeves_Steps is defined, the Hooke-Jeeves algorithm is used instead, so be sure you know what you are doing!' };
                
            otherwise
-               error('samsrf_revcor_prf does not have this parameter!');
+               samsrf_error('samsrf_revcor_prf does not have this parameter!');
        end
 
     %% Reverse correlation CF    
@@ -467,7 +467,7 @@ switch AnalysisFunc
 							'By default, this parameter is not defined & the standard Nelder-Mead tolerance is used. However, if Hooke_Jeeves_Steps is defined, the Hooke-Jeeves algorithm is used instead, so be sure you know what you are doing!' };
                
            otherwise
-               error('samsrf_revcor_cf does not have this parameter!');
+               samsrf_error('samsrf_revcor_cf does not have this parameter!');
        end
             
     %% Forward model CF    
@@ -543,9 +543,9 @@ switch AnalysisFunc
 							'Defaults to 0 meaning no receiving patch is used & vertices are treated individually.' };
                
            otherwise
-               error('samsrf_fit_cf does not have this parameter!');
+               samsrf_error('samsrf_fit_cf does not have this parameter!');
        end
                
     otherwise
-        error('Unknown analysis function specified!')                       
+        samsrf_error('Unknown analysis function specified!')                       
 end

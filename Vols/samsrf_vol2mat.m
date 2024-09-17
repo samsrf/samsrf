@@ -69,7 +69,7 @@ if exist('spm', 'file') % Use SPM
         fimg(:,:,:,:,fi) = spm_read_vols(fhdr);
     end
 else 
-    error('Sorry but I need SPM or NIfTI-patch to load NII files :(');
+    samsrf_error('Sorry but I need SPM or NIfTI-patch to load NII files :(');
 end
 
 %% Load Roi
@@ -81,7 +81,7 @@ if ~isempty(roi)
     % Enforce binary mask
     mimg = logical(mimg);
 else
-    warning('No ROI specified! This is probably unwise...');
+    samsrf_disp('WARNING: No ROI specified! This is probably unwise...');
 end
 
 %% Create SamSrf structure

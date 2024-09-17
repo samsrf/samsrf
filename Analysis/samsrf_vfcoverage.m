@@ -64,7 +64,7 @@ end
 if ~isempty(Roi) && ischar(Roi)
     rver = samsrf_loadlabel(Roi);
     if isnan(rver)
-        error(['ROI ' Roi ' not found!']);
+        samsrf_error(['ROI ' Roi ' not found!']);
     end
 end
 % Roi provided as vector

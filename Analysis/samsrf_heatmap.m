@@ -61,7 +61,7 @@ elseif length(Clipping) == 2
 end
 
 if size(Data,3) > 1
-    error('Data must only be one frame!');
+    samsrf_error('Data must only be one frame!');
 end
 
 %% Was greyscale image supplied?
@@ -89,10 +89,10 @@ else
     Clipping(1:2) = abs(Clipping(1:2)); % Ensure no negative thresholds
     if Clipping(1) == Clipping(2)
         % Both clipping thresholds cannot be the same
-        error('When ignoring sign, lower & upper clipping level cannot be identical!');
+        samsrf_error('When ignoring sign, lower & upper clipping level cannot be identical!');
     elseif Clipping(1) > Clipping(2)
         % Lower clipping level must be below upper level
-        error('When ignoring sign, lower clipping level must be below upper clipping level!');
+        samsrf_error('When ignoring sign, lower clipping level must be below upper clipping level!');
     end
     
     % Set out-of-range values to clipping thresholds

@@ -24,34 +24,34 @@ switch AnalysisFunc
     case 'samsrf_fit_prf'
         % Mandatory parameters
         if ~isfield(Model, 'Name')
-            error('Analysis name is undefined!');
+            samsrf_error('Analysis name is undefined!');
         end
         if ~isfield(Model, 'Prf_Function')
-            error('pRF function is undefined!');
+            samsrf_error('pRF function is undefined!');
         end
         if ~isfield(Model, 'Param_Names')
-            error('Parameter names are undefined!');
+            samsrf_error('Parameter names are undefined!');
         end
         if ~isfield(Model, 'Scaled_Param')
-            error('Scaled parameter flags are undefined!');
+            samsrf_error('Scaled parameter flags are undefined!');
         end
         if ~isfield(Model, 'Only_Positive')
-            error('Only positive flags are undefined!');
+            samsrf_error('Only positive flags are undefined!');
         end
         if ~isfield(Model, 'Scaling_Factor')
-            error('Scaling factor (eccentricity?) is undefined!');
+            samsrf_error('Scaling factor (eccentricity?) is undefined!');
         end
         if ~isfield(Model, 'TR')
-            error('TR is undefined!');
+            samsrf_error('TR is undefined!');
         end
         if ~isfield(Model, 'Downsample_Predictions')
             Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
         end
         if ~isfield(Model, 'Hrf')
-            error('HRF is undefined!');
+            samsrf_error('HRF is undefined!');
         end
         if ~isfield(Model, 'Aperture_File')
-            error('Aperture file is undefined!');
+            samsrf_error('Aperture file is undefined!');
         end
         if ~isfield(Model, 'Noise_Ceiling_Threshold')
             Model.Noise_Ceiling_Threshold = 0; % Limit analysis to data above a certain noise ceiling
@@ -66,7 +66,7 @@ switch AnalysisFunc
         for p = 1:10
             if ~isfield(Model, ['Param' num2str(p)])
                 if p <= length(Model.Param_Names)
-                    error(['Search space parameter #' num2str(p) ' is undefined!']);
+                    samsrf_error(['Search space parameter #' num2str(p) ' is undefined!']);
                 else
                     Model.(['Param' num2str(p)]) = 0; % Unused parameter set to zero
                 end
@@ -105,28 +105,28 @@ switch AnalysisFunc
         
         % If coarse fit percentile invalid
         if Model.Coarse_Fit_Percentile < 0 || Model.Coarse_Fit_Percentile > 100
-            error('Coarse fit percentile invalid! It should probably be between 99.9-100...');
+            samsrf_error('Coarse fit percentile invalid! It should probably be between 99.9-100...');
         end
         if Model.Coarse_Fit_Percentile < 99.9
-            warning('Low coarse fit percentile. It should probably be between 99.9-100...');
+            samsrf_disp('WARNING: Low coarse fit percentile. It should probably be between 99.9-100...');
         end
         % If coarse fit only, we cannot use seed map 
         if Model.Coarse_Fit_Only 
             if ~isempty(Model.Seed_Fine_Fit) % In case stupid choices were made
-                error('No point running only coarse fit when seeding the fine fit!');
+                samsrf_error('No point running only coarse fit when seeding the fine fit!');
             end
         end
 
         % Ensure mandatory model vectors are sound
         if length(Model.Param_Names) ~= length(Model.Scaled_Param)
-            error('Mismatch between number of parameter names & scaled-parameter flags!');
+            samsrf_error('Mismatch between number of parameter names & scaled-parameter flags!');
         end
         if length(Model.Param_Names) ~= length(Model.Only_Positive)
-            error('Mismatch between number of parameter names & only-positive flags!');
+            samsrf_error('Mismatch between number of parameter names & only-positive flags!');
         end
         if isfield(Model, 'Hooke_Jeeves_Steps')
             if length(Model.Param_Names) ~= length(Model.Hooke_Jeeves_Steps)
-                error('Mismatch between number of parameter names & Hooke-Jeeves step sizes!');
+                samsrf_error('Mismatch between number of parameter names & Hooke-Jeeves step sizes!');
             end
         end
                 
@@ -134,19 +134,19 @@ switch AnalysisFunc
     case 'samsrf_revcor_prf'
         % Mandatory parameters
         if ~isfield(Model, 'Name')
-            error('Analysis name is undefined!');
+            samsrf_error('Analysis name is undefined!');
         end            
         if ~isfield(Model, 'Scaling_Factor')
-            error('Scaling factor (eccentricity?) is undefined!');
+            samsrf_error('Scaling factor (eccentricity?) is undefined!');
         end
         if ~isfield(Model, 'TR')
-            error('TR is undefined!');
+            samsrf_error('TR is undefined!');
         end
         if ~isfield(Model, 'Hrf')
-            error('HRF is undefined!');
+            samsrf_error('HRF is undefined!');
         end
         if ~isfield(Model, 'Aperture_File')
-            error('Aperture file is undefined!');
+            samsrf_error('Aperture file is undefined!');
         end
         
         % Default for parameter estimation
@@ -163,18 +163,18 @@ switch AnalysisFunc
         % If fitting 2D pRF model
         if strcmpi(class(Model.Prf_Function), 'function_handle')
             if ~isfield(Model, 'Param_Names')
-                error('Parameter names are undefined!');
+                samsrf_error('Parameter names are undefined!');
             end
             if ~isfield(Model, 'Scaled_Param')
-                error('Scaled parameter flags are undefined!');
+                samsrf_error('Scaled parameter flags are undefined!');
             end
             if ~isfield(Model, 'SeedPar_Function')
-                error('Seed parameter function is undefined!');
+                samsrf_error('Seed parameter function is undefined!');
             end
             
             % Ensure mandatory model vectors are sound
             if length(Model.Param_Names) ~= length(Model.Scaled_Param)
-                error('Mismatch between number of parameter names & scaled-parameter flags!');
+                samsrf_error('Mismatch between number of parameter names & scaled-parameter flags!');
             end
             
             % Optional parameter for fitting
@@ -200,13 +200,13 @@ switch AnalysisFunc
     case {'samsrf_revcor_cf' 'samsrf_fit_cf'}
         % Mandatory parameters
         if ~isfield(Model, 'Name')
-            error('Analysis name is undefined!');
+            samsrf_error('Analysis name is undefined!');
         end
         if ~isfield(Model, 'SeedRoi')
-            error('Seed region is undefined!');
+            samsrf_error('Seed region is undefined!');
         end
         if ~isfield(Model, 'Template')
-            error('Template map is undefined!');
+            samsrf_error('Template map is undefined!');
         end
         
         % Defaults for optional parameters
@@ -231,14 +231,14 @@ switch AnalysisFunc
         else 
             % Is forward-model search space defined?
             if ~isfield(Model, 'Polar') && ~isfield(Model, 'Eccentricity') && ~isfield(Model, 'Sizes')
-                error('CF search space is not defined!');
+                samsrf_error('CF search space is not defined!');
             end
             % Warn about overlapping definitions
             if isfield(Model, 'Polar') && (isfield(Model, 'Eccentricity') || isfield(Model, 'Sizes'))
-                warning('Ambiguous CF search space specified - using polar angle...');
+                samsrf_disp('WARNING: Ambiguous CF search space specified - using polar angle...');
             end
             if ~isfield(Model, 'Polar') && isfield(Model, 'Eccentricity') && isfield(Model, 'Sizes')
-                warning('Ambiguous CF search space specified - using eccentricity...');
+                samsrf_disp('WARNING: Ambiguous CF search space specified - using eccentricity...');
             end
             
             % Optional parameters for forward-model
@@ -251,5 +251,5 @@ switch AnalysisFunc
         end      
         
     otherwise
-        error('Unknown analysis function specified!');
+        samsrf_error('Unknown analysis function specified!');
 end

@@ -168,5 +168,5 @@ if isfield(Srf, 'Sphere')
     samsrf_disp(['Smoothing finished after ' num2str(toc(t0)/60) ' minutes.']);
     samsrf_newline;
 else
-    warning('Skipping smoothing: no sphere data in Srf');
+    samsrf_disp('WARNING: Skipping smoothing: no sphere data in Srf');
 end    

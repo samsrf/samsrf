@@ -57,7 +57,7 @@ if isempty(y0)
     RemoveOrigins = false;
 end
 if isempty(Betas)
-    error('No Beta data in this map!');
+    samsrf_error('No Beta data in this map!');
 end
 
 % Fine bad vertices

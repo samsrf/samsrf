@@ -22,7 +22,7 @@ try
   gcp;
   samsrf_disp(' Parallel computing!');
 catch
-  error(' No parallel computing!');  
+  samsrf_error(' No parallel computing!');  
 end
 
 % Prepare progress report

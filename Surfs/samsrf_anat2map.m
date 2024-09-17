@@ -32,7 +32,7 @@ if isfield(Srf, 'Values')
         samsrf_surf(Srf, 'Inflated', 0.05, '', [], 1); % Show 1st data row
     end
 else
-    error('Selected Srf must be a pRF or pTC map!');
+    samsrf_error('Selected Srf must be a pRF or pTC map!');
 end
 set(gcf, 'name', 'Select origin vertex');
 

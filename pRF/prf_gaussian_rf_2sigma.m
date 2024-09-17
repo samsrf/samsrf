@@ -18,7 +18,7 @@ function Rfp = prf_gaussian_rf_2sigma(x0, y0, sigma1, sigma2, XY)
 
 % Prepare pRF profile
 if size(XY,1) == 1
-    error('This function only works with coordinate input!');
+    samsrf_error('This function only works with coordinate input!');
 else
     % pRF coordinates provided as input
     X = XY(:,1);

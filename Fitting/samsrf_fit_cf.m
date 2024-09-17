@@ -151,13 +151,13 @@ else
     % Does number of grid points match model?
     if isfield(Model, 'Sizes')
         if size(S,2) ~= length(svx) * length(Model.Sizes)
-            error('Mismatch between saved search space and model definition!');
+            samsrf_error('Mismatch between saved search space and model definition!');
         end
     end
     % Does length of search parameter & prediction matrix match?
     if size(S,2) ~= size(X,2)
         % Shouldn't ever happen unless someone screwed with the search space file
-        error('Search space is corrupt! Mismatch between number of parameters & predictions!');
+        samsrf_error('Search space is corrupt! Mismatch between number of parameters & predictions!');
     end
 end
 samsrf_disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);

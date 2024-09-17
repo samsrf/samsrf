@@ -56,7 +56,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
         elseif filesep == '\'
             sl = strfind(Srf.Meshes, '/');
         else
-            error('Unknown path separator in this OS!');
+            samsrf_error('Unknown path separator in this OS!');
         end
         Srf.Meshes(sl) = filesep;
 

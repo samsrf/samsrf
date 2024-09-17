@@ -50,7 +50,7 @@ end
 
 % Have pRF profiles been saved?
 if isnan(Rmaps)
-    error('Requires pRF reverse correlation profiles in Rmaps!');
+    samsrf_error('Requires pRF reverse correlation profiles in Rmaps!');
 end
 
 % Dimensions of correlation profiles

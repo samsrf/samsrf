@@ -107,7 +107,7 @@ if CalcDiff ~= ' ' && r > 1 && r <= size(Srf.Ground_Truth,1) + 1
 end
 % If value is no good
 if isempty(mV)
-    error('Invalid value specified!');
+    samsrf_error('Invalid value specified!');
 end
 
 % Ground truth parameters
@@ -125,7 +125,7 @@ mY = mY(g); tY = tY(g);
 mS = mS(g); tS = tS(g);
 mV = mV(g);
 if isempty(mV)
-    error(['No data with R^2 > ' num2str(Thresholds(2))]);
+    samsrf_error(['No data with R^2 > ' num2str(Thresholds(2))]);
 end
 TitlStr = ['R^2 > ' num2str(Thresholds(2))];
 
@@ -143,7 +143,7 @@ else
 end
 % If this removed all data
 if isempty(mV)
-    error('No data with this ground truth in file!');
+    samsrf_error('No data with this ground truth in file!');
 end
 
 %% Scales for quiver plot

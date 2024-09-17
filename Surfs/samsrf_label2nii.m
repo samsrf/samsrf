@@ -35,7 +35,7 @@ if exist('spm', 'file')
     fs_orig = hdr.dim' / 2;
     fs_orig = fs_orig([3 1 2]) .* sign(nii_orig);
 else
-    error('Sorry but I need SPM or the nifti-patch to load NII files :(');
+    samsrf_error('Sorry but I need SPM or the nifti-patch to load NII files :(');
 end
     
 %% Load functional image

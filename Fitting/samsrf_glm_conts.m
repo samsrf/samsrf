@@ -38,7 +38,7 @@ Srf.Version = samsrf_version;
 
 % Check that contrasts are correct
 if size(Conts,2) ~= size(bSrf.Data,1)-1
-    error('Contrast contains not the right number of columns!');
+    samsrf_error('Contrast contains not the right number of columns!');
 end
 
 % Critical t-statistics

@@ -103,6 +103,6 @@ if isfield(Srf, 'Sphere')
     Srf.Data(end,Vs) = fsD;
 else
     % No sphere data in Srf
-    warning('Skipping field sign calculation: no sphere data in Srf'); 
+    samsrf_disp('WARNING: Skipping field sign calculation: no sphere data in Srf'); 
 end
     

@@ -194,7 +194,7 @@ else
     if strcmpi(Mesh, 'White')
         Vertices = Srf.Vertices;
     else
-        error(['Unknown mesh ' Mesh ' specified!']);
+        samsrf_error(['Unknown mesh ' Mesh ' specified!']);
     end
 end
 Vertices(isnan(Srf.Vertices(:,1)),:) = NaN; 
@@ -256,12 +256,12 @@ else
         % Map type given by name
         dt = find(strcmpi(Values, MapType));
     else
-        error('Invalid map selected!');
+        samsrf_error('Invalid map selected!');
     end
 end
 if isempty(dt)
     close(gcf);
-    error('Invalid map type specified!');
+    samsrf_error('Invalid map type specified!');
 end
 if ~isnan(dt)
     Type = Values{dt};

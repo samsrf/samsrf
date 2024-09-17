@@ -23,10 +23,10 @@ if nargin < 2
 end
 
 if ~isfield(Srf, 'Values')
-    error('No value labels in Srf - probably no mapping data?');
+    samsrf_error('No value labels in Srf - probably no mapping data?');
 end
 if ~strcmpi(Srf.Values{1}, 'R^2')
-    error('1st row of Srf.Data is not R^2!');
+    samsrf_error('1st row of Srf.Data is not R^2!');
 end
 
 % Data fields

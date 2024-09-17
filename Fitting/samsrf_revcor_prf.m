@@ -87,7 +87,7 @@ if strcmpi(class(Model.Prf_Function), 'function_handle')
         end
         samsrf_disp(hjs);
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
+            samsrf_disp('WARNING: (Nelder-Mead parameter tolerance was also defined but isn''t used...)');
         end
     else
         % Nelder-Mead algorithm
@@ -157,7 +157,7 @@ Srf.Data = [];  % Clear data field
 
 % Do aperture & data length match?
 if size(Tc,1) ~= size(ApFrm,3)
-    error('Mismatch between length of apertures and data!');
+    samsrf_error('Mismatch between length of apertures and data!');
 end
 
 %% Load or generate HRF
@@ -205,7 +205,7 @@ else
     samsrf_disp([' Loading ' RegressorFile]);
     % Does length of regressors match apertures?
     if size(ApFrm,3) ~= size(X,1)
-        error('Mismatch between length of search space and apertures!');
+        samsrf_error('Mismatch between length of search space and apertures!');
     end
 end
 samsrf_newline; 
@@ -355,7 +355,7 @@ elseif Model.Prf_Function == -1
     % Summary statistics instead of model fitting
     samsrf_disp('Using summary statistics instead of model fitting')    
 else
-    error('Invalid value chosen for Model.Prf_Function!');
+    samsrf_error('Invalid value chosen for Model.Prf_Function!');
 end
 samsrf_newline;
 

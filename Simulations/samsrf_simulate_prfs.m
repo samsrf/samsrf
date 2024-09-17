@@ -70,7 +70,7 @@ if isstruct(GtPars)
     Srf.Data = NaN(size(ApFrm,2) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
     % Rescale parameters
     if nargin < 4
-        error('Model must be defined!');
+        samsrf_error('Model must be defined!');
     end
     for p = 1:length(Model.Scaled_Param)
         if Model.Scaled_Param(p)

@@ -109,7 +109,7 @@ end
 if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
     % If ROI defined by coordinates
     if length(RoiName) == 1
-        error('You must define inflated mesh coordinate in def_disproi!');
+        samsrf_error('You must define inflated mesh coordinate in def_disproi!');
     end
     switch RoiName(2)
         case 'X'
@@ -119,10 +119,10 @@ if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
         case 'Z'
             wv = Srf.Inflated(:,3);
         otherwise
-            error('Invalid inflated mesh coordinate specified in def_disproi!');
+            samsrf_error('Invalid inflated mesh coordinate specified in def_disproi!');
     end
     if length(RoiName) < 3
-        error('You must define inflated mesh cut-off coordinate in def_disproi!');
+        samsrf_error('You must define inflated mesh cut-off coordinate in def_disproi!');
     end
     wc = str2double(RoiName(3:end));
     if RoiName(1) == '<'

@@ -62,7 +62,7 @@ if isempty(Curv)
     curvstr = ' without curvature.';
 else
     if length(Curv) ~= size(Srf.Vertices,1)
-        error('Curvature statistics don''t match anatomy!');
+        samsrf_error('Curvature statistics don''t match anatomy!');
     end
     Srf.Curvature = Curv;
     curvstr = ' with curvature.';

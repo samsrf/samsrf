@@ -40,10 +40,10 @@ if length(Threshold) == 2
     Threshold = [Threshold 0];
 end
 if Threshold(2) > 1
-    error('Criterion must not be greater than 1!');
+    samsrf_error('Criterion must not be greater than 1!');
 end
 if Threshold(3) < 0 || Threshold(3) >= 1
-    error('Tolerance must be greater than 0 & smaller than 1!');
+    samsrf_error('Tolerance must be greater than 0 & smaller than 1!');
 end
 
 % Is core vertex above threshold?

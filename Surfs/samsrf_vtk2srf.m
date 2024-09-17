@@ -40,7 +40,7 @@ if strfind(Vtks{1}, 'lcr')
 elseif strfind(Vtks{1}, 'rcr')
     Srf.Hemisphere = 'rh';
 else
-    error('Can''t figure out which hemisphere this is!');    
+    samsrf_error('Can''t figure out which hemisphere this is!');    
 end
 
 % Loop through VTK files

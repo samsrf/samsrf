@@ -80,7 +80,7 @@ mY = mY(g);
 mS = mS(g); tS = tS(g);
 mB = mB(g);
 if isempty(mB)
-    error(['No data with R^2 > ' num2str(Thresholds(2))]);
+    samsrf_error(['No data with R^2 > ' num2str(Thresholds(2))]);
 end
 TitlStr = ['R^2 > ' num2str(Thresholds(2))];
 % Limit ground truths?
@@ -97,7 +97,7 @@ else
 end
 % If this removed all data
 if isempty(mB)
-    error('No data with this ground truth in file!');
+    samsrf_error('No data with this ground truth in file!');
 end
 
 %% Map density 

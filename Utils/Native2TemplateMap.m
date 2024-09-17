@@ -58,7 +58,7 @@ cd(curdir);
 
 % Only if sphere data present
 if ~isfield(NatSrf, 'Sphere')
-    error('NatSrf contains no Sphere data!');
+    samsrf_error('NatSrf contains no Sphere data!');
 end
 
 % Vertices
@@ -70,7 +70,7 @@ RegVx = fs_read_surf([MeshFolder filesep NatSrf.Hemisphere '.sphere.reg']);
 if size(NatVx,1) == size(RegVx,1)
     NatVx = RegVx;
 else
-    error('Number of registration vertices does not match native surface mesh!');
+    samsrf_error('Number of registration vertices does not match native surface mesh!');
 end
 
 %% Vertex assignments

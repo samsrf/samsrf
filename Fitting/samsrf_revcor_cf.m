@@ -64,7 +64,7 @@ if Model.Fit_pRF == 1
         end
         samsrf_disp(hjs);
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            warning('(Nelder-Mead parameter tolerance was also defined but isn''t used...)');
+            samsrf_disp('WARNING: (Nelder-Mead parameter tolerance was also defined but not used...)');
         end
     else
         % Nelder-Mead algorithm
@@ -83,7 +83,7 @@ else
         % Summary statistics instead of model fitting
         samsrf_disp('Using summary statistics instead of model fitting')    
     else
-        error('Invalid value chosen for Model.Fit_pRF!');
+        samsrf_error('Invalid value chosen for Model.Fit_pRF!');
     end
 end
 samsrf_newline;
@@ -168,7 +168,7 @@ elseif Model.Fit_pRF == 0
 elseif Model.Fit_pRF == -1
     Srf.Data = zeros(6,size(Srf.Vertices,1)); % Output data when calculating summary stats only
 else
-    error('Invalid Fit_pRF value provided!');
+    samsrf_error('Invalid Fit_pRF value provided!');
 end
 samsrf_disp('Reverse correlation & CF parameter estimation...');
 if Model.Fit_pRF == 1

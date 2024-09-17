@@ -48,7 +48,7 @@ if ~isempty(Roi)
         SrfDv.Rmaps = SrfDv.Rmaps(:,rv);
         SrfIv.Data = SrfIv.Data(:,rv);
     else
-        error(['ROI ' Roi ' not found!']);
+        samsrf_error(['ROI ' Roi ' not found!']);
     end
 end
 
@@ -85,7 +85,7 @@ for i = 1:size(SrfDv.Rmaps,2)
                 R = prf_rotate_prf(R);
                 R = prf_centre_prf(R);
             otherwise
-                error('Invalid normalisation method specified!');
+                samsrf_error('Invalid normalisation method specified!');
         end
         Prf(:,:,i) = R;
     end

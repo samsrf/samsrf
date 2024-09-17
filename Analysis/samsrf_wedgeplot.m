@@ -64,7 +64,7 @@ SrfIv = samsrf_expand_srf(SrfIv);
 
 %% Check compatibility
 if size(SrfDv.Data,2) ~= size(SrfIv.Data,2)
-    error('SrfDv & SrfIv are not the same mesh!');
+    samsrf_error('SrfDv & SrfIv are not the same mesh!');
 end
 
 %% Default inputs
@@ -120,9 +120,9 @@ else
     %% Anything else
     loc = strcmpi(SrfDv.Values, Value);
     if sum(loc) > 1
-        error([ValLab ' ' Value ' is ambiguous!']);
+        samsrf_error([ValLab ' ' Value ' is ambiguous!']);
     elseif sum(loc) == 0
-        error([ValLab ' ' Value ' does not exist!'])
+        samsrf_error([ValLab ' ' Value ' does not exist!'])
     end
     Data = SrfDv.Data(loc,:);
 end
@@ -145,7 +145,7 @@ if strcmpi(SrfIv.Values{1}, 'R^2') || strcmpi(SrfIv.Values{1}, 'nR^2')
     GoF(SrfIv.Data(1,:) <= Threshold(1)) = false; % Unlabel bad fits
 else
     % Warn user if 1st row isn't R^2
-    warning('1st data row isn''t R^2 so using all good data... Do you really want this?');
+    samsrf_disp('WARNING: 1st data row isn''t R^2 so using all good data... Do you really want this?');
 end
 % Limit data range & remove other rubbish
 GoF(Data <= Threshold(2) | Data >= Threshold(3) | isnan(Data) | isnan(GoF) | isinf(Data)) = false;
@@ -155,7 +155,7 @@ if ~isempty(Roi)
     % ROI vertex indeces
     RoiVx = samsrf_loadlabel(Roi);
     if isnan(RoiVx)
-        error(['Could not load ROI ' Roi '!']);
+        samsrf_error(['Could not load ROI ' Roi '!']);
     end
     % Label ROI vertices
     RoiLab = false(1,size(SrfIv.Data,2));
@@ -190,7 +190,7 @@ for R = 1:length(Rings)-1 % Loop thru eccentricity rings
         elseif strcmpi(Mode, 'Geomean')
             CurDat = exp(nanmean(log(CurDat))); % Mean
         else
-            error('Invalid summary statistic specified!');
+            samsrf_error('Invalid summary statistic specified!');
         end
         
         % Output results

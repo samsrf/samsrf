@@ -99,7 +99,7 @@ if ~Model.Coarse_Fit_Only
         end
         samsrf_disp(hjs);
         if isfield(Model, 'Nelder_Mead_Tolerance')
-            warning('(Nelder-Mead parameter tolerance was also defined but not used...)');
+            samsrf_disp('WARNING: (Nelder-Mead parameter tolerance was also defined but not used...)');
         end
     else
         % Nelder-Mead algorithm
@@ -140,7 +140,7 @@ else
     if isfield(Model, 'Template') && ~isempty(Model.Template)
         [ApName, ApMax] = BackprojAps(Model.Template, Model.SeedRoi, SrfFile);
     else
-        error('No template map defined for pRF-from-CF analysis!');
+        samsrf_error('No template map defined for pRF-from-CF analysis!');
     end
     % Set defaults for pRF-from-CF analysis
     Model.Aperture_File = ApName;
@@ -202,7 +202,7 @@ Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 % Do aperture & data length match?
 if size(Tc,1)*Model.Downsample_Predictions ~= size(ApFrm,2)
-    error('Mismatch between length of apertures and data!');
+    samsrf_error('Mismatch between length of apertures and data!');
 end
 
 %% Load or generate HRF
@@ -245,16 +245,16 @@ if isempty(Model.Seed_Fine_Fit) % Only if running coarse fit
         % Does number of grid points match model?
         if size(S,2) ~= length(Model.Param1) * length(Model.Param2) * length(Model.Param3) * length(Model.Param4) * length(Model.Param5) ...
                       * length(Model.Param6) * length(Model.Param7) * length(Model.Param8) * length(Model.Param9) * length(Model.Param10)
-            error('Mismatch between saved search space and model definition!');
+            samsrf_error('Mismatch between saved search space and model definition!');
         end
         % Does length of search space match apertures?
         if size(ApFrm,2) ~= size(X,1)
-            error('Mismatch between length of saved search space and apertures!');
+            samsrf_error('Mismatch between length of saved search space and apertures!');
         end
         % Does length of search parameter & prediction matrix match?
         if size(S,2) ~= size(X,2)
             % Shouldn't ever happen unless someone screwed with the search space file
-            error('Search space is corrupt! Mismatch between number of parameters & predictions!');
+            samsrf_error('Search space is corrupt! Mismatch between number of parameters & predictions!');
         end
     end
     samsrf_disp(['Using search space with ' num2str(size(S,2)) ' grid points.']);

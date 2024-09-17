@@ -77,13 +77,13 @@ if (fid < 0)
         fid = fopen(fname, 'rb', 'b');
         if (fid < 0)
             str = sprintf('could not open surface file %s.', fname);
-            error(str);
+            samsrf_error(str);
         else
             samsrf_disp('Pial data loaded from .T1 file');
         end
     else
         str = sprintf('could not open surface file %s.', fname);
-        error(str);
+        samsrf_error(str);
     end
 end
 % fprintf('...reading surface file: %s\n', fname);
@@ -97,7 +97,7 @@ if contains(fname, 'pial') && magic ~= QUAD_FILE_MAGIC_NUMBER && magic ~= TRIANG
     fid = fopen(fname, 'rb', 'b');
     if (fid < 0)
         str = sprintf('could not open surface file %s.', fname);
-        error(str);
+        samsrf_error(str);
     else
         samsrf_disp('Pial data loaded from .T1 file');
     end
@@ -136,7 +136,7 @@ elseif (magic == TRIANGLE_FILE_MAGIC_NUMBER),
     faces = reshape(faces, 3, Nfaces)';
 else
     str = sprintf('unknown magic number in surface file %s.', fname);
-    error(str);
+    samsrf_error(str);
 end
 
 vertices = reshape(vertices, 3, Nvertices)';

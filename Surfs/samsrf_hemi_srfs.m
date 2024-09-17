@@ -47,37 +47,37 @@ for h = 1:2
     if isfield(Cur, 'Normals')
         Cur.Normals = Srf.Normals(V,:);
     else
-        warning('Normals data not in Srf...');
+        samsrf_disp('WARNING: Normals data not in Srf...');
     end
     
     if isfield(Cur, 'Pial')
         Cur.Pial = Srf.Pial(V,:);
     else
-        warning('Pial surfaces not in Srf...');
+        samsrf_disp('WARNING: Pial surfaces not in Srf...');
     end
 
     if isfield(Cur, 'Inflated')
         Cur.Inflated = Srf.Inflated(V,:);
     else
-        warning('Inflated surfaces not in Srf...');
+        samsrf_disp('WARNING: Inflated surfaces not in Srf...');
     end
     
     if isfield(Cur, 'Sphere')
         Cur.Sphere = Srf.Sphere(V,:);
     else
-        warning('Sphere surfaces not in Srf...');
+        samsrf_disp('WARNING: Sphere surfaces not in Srf...');
     end
     
     if isfield(Cur, 'Curvature')
         Cur.Curvature = Srf.Curvature(1,V); 
     else
-        warning('Curvature data not in Srf...');
+        samsrf_disp('WARNING: Curvature data not in Srf...');
     end
     if isfield(Cur, 'Area')
         Cur.Area = Srf.Area(1,V); 
         Cur.Thickness = Srf.Thickness(1,V); 
     else
-        warning('Cortical dimensions not in Srf...');
+        samsrf_disp('WARNING: Cortical dimensions not in Srf...');
     end
     Cur.Data = Srf.Data(:,V); 
 
@@ -135,5 +135,5 @@ if isfield(Cur, 'Sphere')
     SrfL.Sphere(:,1) = SrfL.Sphere(:,1)+105;
     SrfR.Sphere(:,1) = SrfR.Sphere(:,1)-105;
 else
-    warning('Anatomical surfaces not in Srf...');
+    samsrf_disp('WARNING: Anatomical surfaces not in Srf...');
 end

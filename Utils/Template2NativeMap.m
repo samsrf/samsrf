@@ -39,10 +39,10 @@ end
 
 % Only if sphere data present
 if ~isfield(TmpSrf, 'Sphere')
-    error('TmpSrf contains no Sphere data!');
+    samsrf_error('TmpSrf contains no Sphere data!');
 end
 if ~isfield(NatSrf, 'Sphere')
-    error('NatSrf contains no Sphere data!');
+    samsrf_error('NatSrf contains no Sphere data!');
 end
 
 % Vertices
@@ -54,7 +54,7 @@ RegVx = fs_read_surf([MeshFolder filesep NatSrf.Hemisphere '.sphere.reg']);
 if size(NatVx,1) == size(RegVx,1)
     NatVx = RegVx;
 else
-    error('Number of registration vertices does not match native surface mesh!');
+    samsrf_error('Number of registration vertices does not match native surface mesh!');
 end
 
 % Output Srf
@@ -86,7 +86,7 @@ Srf.Data = TmpSrf.Data(:,Sva);
 save([Srf.Hemisphere '_temp_map'], 'Srf');
 samsrf_anatomy_srf([Srf.Hemisphere '_temp_map']);
 if ~isfield(TmpSrf, 'Roi_Names')
-    warning('No ROI names defined in template map - assuming default names...');
+    samsrf_disp('WARNING: No ROI names defined in template map - assuming default names...');
     Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
 else
     Rois = TmpSrf.Roi_Names; 

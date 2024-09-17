@@ -37,7 +37,7 @@ for i = 1:length(Paths)
             % Load label
             Label = samsrf_loadlabel(Paths{i}(1:end-6));
             if nargin < 4
-                error('Loading labels requires a Srf as input!');
+                samsrf_error('Loading labels requires a Srf as input!');
             else
                 Vs_paths = [Vs_paths; samsrf_borderpath(Srf, Label)];
             end

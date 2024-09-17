@@ -20,7 +20,7 @@ nvols = 0;
 for i = 1:length(f)
     Res = load([p f{i}]);
     if ~isfield(Res, 'ApFrm')
-        error('File contains no apertures!');
+        samsrf_error('File contains no apertures!');
     end
     ApFrm(:,:,nvols+1:nvols+size(Res.ApFrm,3)) = Res.ApFrm;
     nvols = nvols + size(Res.ApFrm,3);

@@ -12,7 +12,7 @@ function Gfp = samsrf_vepgfp(Srf)
 
 %% Check if M/EEG data
 if ~strcmpi(Srf.Hemisphere, 'eeg')
-    error('This Srf does not contain MEG/EEG data!');
+    samsrf_error('This Srf does not contain MEG/EEG data!');
 end
 
 %% Average for each time point 

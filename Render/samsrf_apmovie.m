@@ -22,7 +22,7 @@ end
 if ischar(ApFile)
     load([EnsurePath(ApFile) '.mat']);
 else
-    error('Not a valid ApFile entry')
+    samsrf_error('Not a valid ApFile entry')
 end
 
 % Ensure apertures are in intensity format

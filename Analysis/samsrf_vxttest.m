@@ -39,11 +39,11 @@ if length(B) == 1
     % One-sample t-test
     Type = 0; 
     if ~isempty(tcB)
-        error('TcB must be empty for one-sample t-test!');
+        samsrf_error('TcB must be empty for one-sample t-test!');
     end   
 else 
     if length(A) ~= size(tcA,2)
-        error('TcA must have the same number of vertices as A!');
+        samsrf_error('TcA must have the same number of vertices as A!');
     end
     if isempty(tcB)
         % Paired t-test
@@ -52,7 +52,7 @@ else
         % Two-sample t-test
         Type = 2;
         if length(B) ~= size(tcB,2)
-            error('TcB must have the same number of vertices as B!');
+            samsrf_error('TcB must have the same number of vertices as B!');
         end
     end
 end
@@ -111,7 +111,7 @@ switch Type
         df = nA+nB-2; % Degrees of freedom
         
     otherwise
-        error('Something went wrong - not sure what test this is...');
+        samsrf_error('Something went wrong - not sure what test this is...');
 end
 % Degrees of freedom cannot be below 1
 if df < 1

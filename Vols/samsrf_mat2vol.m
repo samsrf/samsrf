@@ -68,7 +68,7 @@ for v = 1:size(Srf.Data,1)
         spm_write_vol(hdr, img);
         samsrf_disp(['Saved ' hdr.fname ' as volumetric data.']);
     else
-        error('Sorry but I need SPM or NIfTI-patch to load NII files :(');
+        samsrf_error('Sorry but I need SPM or NIfTI-patch to load NII files :(');
     end
 end
 

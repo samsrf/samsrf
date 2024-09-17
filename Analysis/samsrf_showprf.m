@@ -36,7 +36,7 @@ PlotType = upper(PlotType);
 
 if ~isstruct(SrfEcc) 
     if ~isscalar(SrfEcc)
-        error('If plotting pRF profile directly, first input must be scalar with mapping eccentricity!');
+        samsrf_error('If plotting pRF profile directly, first input must be scalar with mapping eccentricity!');
     end
     % Half width of matrix
     hw = size(IdxMat,1) / 2;
@@ -83,7 +83,7 @@ else
     else
         % Use model parameters
         if ~isstruct(Model)
-            error('If plotting pRF from model fit, Model structure must be provided!');
+            samsrf_error('If plotting pRF from model fit, Model structure must be provided!');
         end
         P = SrfEcc.Data(2:length(Model.Param_Names)+1, IdxMat); % Fit parameters
         P(Model.Scaled_Param==1) = P(Model.Scaled_Param==1) / Model.Scaling_Factor; % Rescale parameters if needed
@@ -113,7 +113,7 @@ elseif PlotType == 'S'
 elseif PlotType == 'D'
     scatter3(Xc(:), Yc(:), IdxMat(:), 100, IdxMat(:), 'filled');
 else
-    error('Unknown plotting mode specified.');
+    samsrf_error('Unknown plotting mode specified.');
 end
 if isstruct(Model)
     % If plotting model parameters, we must remove deadspace 

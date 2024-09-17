@@ -33,11 +33,11 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile, GlobalCovar)
 %
 
 if length(Xnames) ~= size(X,2)
-    error('Number of names must match number of regressors in X!');
+    samsrf_error('Number of names must match number of regressors in X!');
 end
 
 samsrf_newline; 
-samsrf_samsrf_disp('Running general linear model analysis...');
+samsrf_disp('Running general linear model analysis...');
 
 %% Default parameters
 if nargin < 4

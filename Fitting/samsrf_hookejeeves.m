@@ -27,13 +27,13 @@ function  [FinalParams, FinalErr] = samsrf_hookejeeves(ErrFcn, SeedParams, InitS
 %% Ensure sound inputs
 NumParams = length(SeedParams); % Number of free parameters
 if length(InitStep) ~= NumParams
-    error('Mismatch between number of seed parameters & step sizes!');
+    samsrf_error('Mismatch between number of seed parameters & step sizes!');
 end
 if nargin < 4
     OnlyPos = false(1,NumParams);
 end
 if length(OnlyPos) ~= NumParams
-    error('Mismatch between number of seed parameters & positive flags!');
+    samsrf_error('Mismatch between number of seed parameters & positive flags!');
 end
 OnlyPos = logical(OnlyPos); % In case doubles 
 % Default number of maximum iterations

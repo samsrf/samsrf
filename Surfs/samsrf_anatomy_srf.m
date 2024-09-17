@@ -93,7 +93,7 @@ if ~isempty(AnatPath)
             mkdir(AnatPath); % Make anatomy folder
         end
         if exist([AnatPath Anat.Hemisphere '_' AnatName '.mat'], 'file')
-            warning('Anatomical mesh file already exists so won''t save another one...');
+            samsrf_disp('WARNING: Anatomical mesh file already exists so won''t save another one...');
         else
             save([AnatPath Anat.Hemisphere '_' AnatName], 'Anat', '-v7.3'); % Save anatomy
             samsrf_disp(['Saved anatomical meshes in ' AnatPath Anat.Hemisphere '_' AnatName]);

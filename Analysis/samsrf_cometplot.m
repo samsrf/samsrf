@@ -37,7 +37,7 @@ function [D, gx, gy] = samsrf_cometplot(SrfDv, ValDv, SrfIv, ValIv, Limits, Roi,
 %
 
 if length(Limits) < 4
-    error('Limits have not been defined!');
+    samsrf_error('Limits have not been defined!');
 end
 if length(Limits) < 5
     Limits(5) = 50;
@@ -61,7 +61,7 @@ SrfIv = samsrf_expand_srf(SrfIv);
 
 %% Check compatibility
 if size(SrfDv.Data,2) ~= size(SrfIv.Data,2)
-    error('SrfDv & SrfIv are not the same mesh!');
+    samsrf_error('SrfDv & SrfIv are not the same mesh!');
 end
 
 %% Retrieve data
@@ -107,9 +107,9 @@ for i_var = 1:2
         %% Anything else
         loc = strcmpi(Srf.Values, Val);
         if sum(loc) > 1
-            error([ValLab ' ' Val ' is ambiguous!']);
+            samsrf_error([ValLab ' ' Val ' is ambiguous!']);
         elseif sum(loc) == 0
-            error([ValLab ' ' Val ' does not exist!'])
+            samsrf_error([ValLab ' ' Val ' does not exist!'])
         end
         Data = Srf.Data(loc,:);
     end
@@ -132,7 +132,7 @@ if strcmpi(SrfIv.Values{1}, 'R^2') || strcmpi(SrfIv.Values{1}, 'nR^2')
     GoF(SrfIv.Data(1,:) <= Threshold) = false; % Unlabel bad fits
 else
     % Warn user if 1st row isn't R^2
-    warning('1st data row isn''t R^2 so using all good data... Do you really want this?');
+    samsrf_disp('WARNING: 1st data row isn''t R^2 so using all good data... Do you really want this?');
 end
 
 % Load ROI label
@@ -140,7 +140,7 @@ if ~isempty(Roi)
     % ROI vertex indeces
     RoiVx = samsrf_loadlabel(Roi);
     if isnan(RoiVx)
-        error(['Could not load ROI ' Roi '!']);
+        samsrf_error(['Could not load ROI ' Roi '!']);
     end
     % Label ROI vertices
     RoiLab = false(1,size(SrfIv.Data,2));

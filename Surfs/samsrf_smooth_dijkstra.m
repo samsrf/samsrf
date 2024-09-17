@@ -33,7 +33,7 @@ function Srf = samsrf_smooth_dijkstra(InSrf, fwhm, roi, thrsh)
 %
 
 if ~exist('dijkstra.m', 'file')
-    error('Joseph Kirk''s Dijkstra algorithm is not on your path! (type ''help samsrf_smooth_dijkstra'')');
+    samsrf_error('Joseph Kirk''s Dijkstra algorithm is not on your path! (type ''help samsrf_smooth_dijkstra'')');
 end
 
 %% Default parameters

@@ -86,7 +86,7 @@ if nargin < 4
     Atlas = 'InfernoSerpents';
 end
 if ~exist(['AutoDelinAtlas_' Atlas '.mat'], 'file')
-    error(['Auto-delineation atlas ' Atlas ' does not exist on the path!']);
+    samsrf_error(['Auto-delineation atlas ' Atlas ' does not exist on the path!']);
 end
 AtlasData = load(['AutoDelinAtlas_' Atlas '.mat']);
 % Assign default parameters from atlas file
@@ -129,7 +129,7 @@ load(SrfName, 'Srf'); % Load Srf
 SrfName = SrfName(4:end); % Remove prefix
 Srf = samsrf_expand_srf(Srf); % Expand Srf
 if ~isfield(Srf, 'Values') % Are there values?
-    error('This file does not contain a pRF map!');
+    samsrf_error('This file does not contain a pRF map!');
 end
 % Which hemisphere(s)? 
 if upper(Srf.Hemisphere(1)) == 'B' 
@@ -140,7 +140,7 @@ elseif upper(Srf.Hemisphere(1)) == 'L' || upper(Srf.Hemisphere(1)) == 'R'
     Hemis = {lower(Srf.Hemisphere(1))};
 else
     % Not a valid brain surface file
-    error('This tool only works for valid surface data files!');
+    samsrf_error('This tool only works for valid surface data files!');
 end
 % If bilateral Srf
 if length(Hemis) > 1
@@ -188,7 +188,7 @@ for h = 1:length(Hemis)
     if ~isempty(def_disproi) && (def_disproi(1) == '<' || def_disproi(1) == '>')
         % If ROI defined by coordinates
         if length(def_disproi) == 1
-            error('You must define inflated mesh coordinate in def_disproi!');
+            samsrf_error('You must define inflated mesh coordinate in def_disproi!');
         end
         switch def_disproi(2)
             case 'X'
@@ -198,10 +198,10 @@ for h = 1:length(Hemis)
             case 'Z'
                 wv = Srf.Inflated(:,3);
             otherwise
-                error('Invalid inflated mesh coordinate specified in def_disproi!');
+                samsrf_error('Invalid inflated mesh coordinate specified in def_disproi!');
         end
         if length(def_disproi) < 3
-            error('You must define inflated mesh cut-off coordinate in def_disproi!');
+            samsrf_error('You must define inflated mesh cut-off coordinate in def_disproi!');
         end
         wc = str2double(def_disproi(3:end));
         if def_disproi(1) == '<'
@@ -234,7 +234,7 @@ for h = 1:length(Hemis)
     if size(NatVx,1) == size(RegVx,1)
         NatVx = RegVx;
     else
-        error('Number of registration vertices does not match native surface mesh!');
+        samsrf_error('Number of registration vertices does not match native surface mesh!');
     end
 
     %% Load waypoints
@@ -243,7 +243,7 @@ for h = 1:length(Hemis)
     elseif upper(Hemis{h}) == 'R'
         Wpts = AtlasData.Rhem; % Right hemisphere waypoints
     else
-        error('Auto-delineation tool currently only works for left & right surface meshes!');
+        samsrf_error('Auto-delineation tool currently only works for left & right surface meshes!');
     end
     % Does atlas contain flexible peripheral border?
     if isfield(Wpts, 'IsoEccentricityLines')

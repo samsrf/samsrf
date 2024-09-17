@@ -111,7 +111,7 @@ if strcmpi(ft,'nii')
     if length(ctxsteps) > 1
         rulenum = listdlg('ListString', RuleStrs, 'SelectionMode', 'single');
         if isempty(rulenum)
-            error('No sampling rule specified!');
+            samsrf_error('No sampling rule specified!');
         end
     else
         % If only one cortex sampling step, there is no point defining the rule

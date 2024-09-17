@@ -53,7 +53,7 @@ if size(SeedParams,2) == 1
 end
 % Check scaling vector matches seed parameter vector
 if length(SeedParams) ~= length(EccScaPars)-1
-    error('Length of seed parameter vector mismatches scaling vector!');
+    samsrf_error('Length of seed parameter vector mismatches scaling vector!');
 end
 
 % Side length

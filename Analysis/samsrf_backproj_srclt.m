@@ -199,7 +199,7 @@ end
 %% Feasibility check-ups
 IdxGeomean = strcmpi(Mode, 'Geomean');
 if sum(IdxGeomean) > 0 && sum(sum(Cleaned_Response(IdxGeomean,:) <= 0)) > 0
-    error('Geometric mean won''t be defined for non-positive numbers.')
+    samsrf_error('Geometric mean won''t be defined for non-positive numbers.')
 end
 
 %% Backprojection with searchlight
@@ -228,7 +228,7 @@ for x = 1:size(X,2)
                         
                         % Check whether enough pRFs have been identified
                         if sum(svx) < -Resolution(2)
-                            error('Could not find enough pRFs. Adjust Resolution(2) or skip analysis.') % Really bad visual fied coverage
+                            samsrf_error('Could not find enough pRFs. Adjust Resolution(2) or skip analysis.') % Really bad visual fied coverage
                         end
                         
                         vx = sx(svx); % Sequential indices for nearest neighbours
@@ -251,7 +251,7 @@ for x = 1:size(X,2)
                     dc = 1 - ed(vx)/sqrt(abs(Resolution(2))^2+abs(Resolution(2))^2); % Normalised to half of square diagonal (aka square radius)
                 end
             else % If searchlight size invalid
-                error('Resolution(2) must not be zero!');
+                samsrf_error('Resolution(2) must not be zero!');
             end
             
             %% Loop through volumes
@@ -305,7 +305,7 @@ for x = 1:size(X,2)
                 
                  %% Unknown mode defined
                 else
-                    error(['Unknown summary statistic ' CurrMode ' specified.']);
+                    samsrf_error(['Unknown summary statistic ' CurrMode ' specified.']);
                 end
                 
                 %% Store current stat in pixel
@@ -344,7 +344,7 @@ for x = 1:size(X,2)
                     Used_pRFs(2,vx) = Used_pRFs(2,vx) + 1; % Unfiltered count of how often pRFs were used
                     
                     if sum(isnan(dc)) > 0 || sum(isnan(vx)) > 0
-                        warning('NaN detected. This should not happen. Please request bugfix.')
+                        samsrf_disp('WARNING: NaN detected. This should not happen.')
                     end
                 end
             end

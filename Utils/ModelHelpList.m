@@ -94,5 +94,5 @@ switch AnalysisFunc
                         'Coarse_Fit_Block_Size';
                         'Patch_Size'  };
     otherwise
-             error('Unknown analysis function specified!');                       
+             samsrf_error('Unknown analysis function specified!');                       
 end
