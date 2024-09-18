@@ -496,7 +496,7 @@ samsrf_disp(' "I hope you''ll come back to be annoyed by me again soon...');
 samsrf_disp('  Mā te wā!"');
 samsrf_newline;
 
-clear global 
+clear global Srf RoiName Pval Paths FigHdl R2Thrsh PatchHdl fv
 delete(src);
 
 

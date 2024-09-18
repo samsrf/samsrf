@@ -12,6 +12,7 @@ Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with de
 GuiFig = uifigure('Name', ['SamSrfAnalysis GUI v' num2str(vn)], 'Units', 'normalized', 'Position', [0.2 0.15 0.7 0.75]); % Open large GUI 
 crfcn = @SamSrfCloseReq;
 set(GuiFig, 'CloseRequestFcn', crfcn);
+global GuiInfo wb % For use with SamSrf algorithms
 
 % Model 
 GuiModelMenu = uimenu(GuiFig,'Text','Model'); 
@@ -123,7 +124,6 @@ GuiRoi.Editable = 'off';
 GuiRoi.Value = {'Region of Interest:'; ''; '< None selected >'}; 
 
 % Model help text
-global GuiInfo % For use with SamSrf algorithms
 GuiInfo = uitextarea(GuiGrid);
 GuiInfo.Layout.Row = [3 6];
 GuiInfo.Layout.Column = 2;
@@ -426,9 +426,12 @@ samsrf_disp('*******************************************************************
             end
         end
 
-        % (De-)activate CF menu?
+        % (De-)activate CF & Apertures menus?
         if isfield(Model, 'SeedRoi') && isfield(Model, 'Template') 
-            GuiCfMenu.Enable = 'on';
+            GuiCfMenu.Enable = 'on'; % CF menu available
+            GuiApsMenu.Enable = 'off'; % No apertures menu
+        else
+            GuiApsMenu.Enable = 'on'; % Apertures menu available
         end
 
         % (De-)activate Analyse menu?
@@ -614,22 +617,30 @@ samsrf_disp('*******************************************************************
     function FcnModelLoad(src,event)
         [fn, pn] = uigetfile('*.mat');
         if ~isscalar(fn)
-            load([pn fn], 'Algorithm', 'Model', 'xP');
-            Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
-            % If this is pRF-from-CF analysis, automatically set fields 
-            if strcmpi(Algorithm, 'samsrf_fit_prf') && isfield(Model, 'SeedRoi')
-                Model.Aperture_File = '[Set by analysis]';
-                Model.Scaling_Factor = Inf;
+            vs = whos('-file', [pn fn]);
+            vs = {vs.name}';
+            if sum(strcmpi(vs, 'Algorithm')) == 0 || sum(strcmpi(vs, 'xP')) == 0
+                samsrf_error([pn fn ' was not saved by SamSrfAnalysis or has been corrupted!']);
+            else
+                warning off
+                load([pn fn], 'Algorithm', 'Model', 'xP');
+                warning on
+                Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
+                % If this is pRF-from-CF analysis, automatically set fields 
+                if strcmpi(Algorithm, 'samsrf_fit_prf') && isfield(Model, 'SeedRoi')
+                    Model.Aperture_File = '[Set by analysis]';
+                    Model.Scaling_Factor = Inf;
+                end
+                
+                GuiAlgo.Value = {fn(1:end-4) ; ''; ['Algorithm: ' Algorithm]};
+                [GuiPars, GuiModel] = UpdateTables(Model);
+                GuiModel.SelectionChangedFcn = @UpdateInfo;
+                GuiModel.CellEditCallback = @UpdateInfo;
+                GuiPars.SelectionChangedFcn = @UpdateInfo;
+                eventdata.EventName = 'SelectionChanged';
+                eventdata.DisplaySelection = [1 1];
+                UpdateInfo(GuiModel, eventdata);        
             end
-            
-            GuiAlgo.Value = {fn(1:end-4) ; ''; ['Algorithm: ' Algorithm]};
-            [GuiPars, GuiModel] = UpdateTables(Model);
-            GuiModel.SelectionChangedFcn = @UpdateInfo;
-            GuiModel.CellEditCallback = @UpdateInfo;
-            GuiPars.SelectionChangedFcn = @UpdateInfo;
-            eventdata.EventName = 'SelectionChanged';
-            eventdata.DisplaySelection = [1 1];
-            UpdateInfo(GuiModel, eventdata);        
         end
     end
     
@@ -792,7 +803,9 @@ samsrf_disp('*******************************************************************
     function FcnSeedSelect(src,event)
         [sn, sp] = uigetfile({'*.label', 'FreeSurfer label'});
         if ~isscalar(sn)
-            GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'SeedRoi')} = [sp sn]; 
+            [sp, sn] = fileparts([sp sn]); % Remove extension
+            GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'SeedRoi')} = [sp filesep sn]; 
+            UpdateInfo(GuiModel, eventdata);
         end
     end
 
@@ -800,6 +813,7 @@ samsrf_disp('*******************************************************************
     function FcnTempSelect(src,event)
         [tn, tp] = uigetfile('*.mat');
         if ~isscalar(tn)
+            [tp, tn] = fileparts([tp tn]); % Remove extension
             GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Template')} = [tp tn]; 
             UpdateInfo(GuiModel, eventdata);
         end
@@ -815,9 +829,6 @@ samsrf_disp('*******************************************************************
 
         % Update model fields
         Model = UpdateModel(Model);
-        if isfield(Model, 'SeedRoi')
-            Model.SeedRoi = Model.SeedRoi(1:end-6); % Remove label extension (even volumetric analysis uses label for this!)
-        end
         
         % Extract ROI label
         Roi = GuiRoi.Value{3};
@@ -837,8 +848,8 @@ samsrf_disp('*******************************************************************
             end
             samsrf_disp('Converting volumetric NII files to Srf...');
             samsrf_disp(DataFiles');
-            samsrf_newline;
             Srf = samsrf_vol2mat(DataFiles, Roi, GuiProc.Data.Normalise{1}, GuiProc.Data.Average{1}, true); % ROI is used for creating data file
+            samsrf_newline;
             Srf.Functional = DataFiles';
             Roi = ''; % Clear now
         elseif strcmpi(de, '.gii') 
@@ -861,8 +872,8 @@ samsrf_disp('*******************************************************************
                 samsrf_newline;
                 samsrf_disp('Converting right hemisphere GII files to Srf...');
                 samsrf_disp(RDataFiles');
-                samsrf_newline;
                 Rsrf = samsrf_gii2srf(RDataFiles, [GuiSurf.Value{3} filesep 'rh'], GuiProc.Data.Normalise{1}, GuiProc.Data.Average{1}, true, '');
+                samsrf_newline;
                 % Combine hemispheres
                 samsrf_disp('Combining hemisphere Srfs...');
                 Srf = samsrf_bilat_srf(Lsrf, Rsrf);
@@ -878,8 +889,8 @@ samsrf_disp('*******************************************************************
                 % GIfTI format
                 samsrf_disp('Converting GII files to Srf...');
                 samsrf_disp(DataFiles');
-                samsrf_newline;
                 Srf = samsrf_gii2srf(DataFiles, [GuiSurf.Value{3} filesep dn(1:2)], GuiProc.Data.Normalise{1}, GuiProc.Data.Average{1}, true, '');
+                samsrf_newline;
                 Srf.Functional = DataFiles';
             end
         end
@@ -957,8 +968,8 @@ samsrf_disp('*******************************************************************
     %% Select file
     function FcnMatLoad(fwc, eventdata)
         [rn, rp] = uigetfile(fwc);
-        [rp, rn] = fileparts([rp rn]); % Remove extension
         if ~isscalar(rn)
+            [rp, rn] = fileparts([rp rn]); % Remove extension
             GuiModel.Data.Value(eventdata.DisplaySelection(1)) = {[rp filesep rn]}; 
         end
     end
@@ -972,7 +983,7 @@ samsrf_disp('*******************************************************************
         samsrf_newline;
         pause(.5);
 
-        clear global 
+        clear global GuiInfo wb
         delete(src);
     end
 end

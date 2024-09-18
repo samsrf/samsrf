@@ -8,6 +8,7 @@ function h = polarpatch(X, Y, C)
 % 02/03/2022 - Written (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 12/02/2024 - Fixed bug when using 32-bit data format (DSS)
+% 17/09/2024 - Removed warning of duplicate points (DSS)
 %
 
 % Ensure column vectors
@@ -29,7 +30,9 @@ C = double(C);
 % Plot patch
 mx = range(X)/100; % Margins for X axis
 my = range(Y)/100; % Margins for Y axis
+warning off
 tri = delaunay(X,Y); % Delaunay triangulation
+warning on
 h = trisurf(tri, X, Y, zeros(size(C)), 'FaceVertexCData', C, 'EdgeColor', 'none', 'FaceColor', 'interp'); % Draw patch
 axis square
 mx = range(X)/100; % Margins for X axis

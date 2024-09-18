@@ -300,6 +300,6 @@ end
 
 % Clear global ApFrm when figure is closed
 function closereq(src, evnt)
-clear global 
+clear global ApFrm ApXY ApCond
 delete(src);
 close all

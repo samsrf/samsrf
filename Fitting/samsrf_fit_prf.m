@@ -34,6 +34,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 % 13/09/2024 - Removed option to provife data file list for concatenation (DSS)
 %              Fixed help descriptions (DSS)
 % 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
+% 18/09/2024 - Fixed bug with pRF-from-CF analysis using incorrect search space (DSS)
 %
 
 %% Defaults & constants
@@ -146,6 +147,18 @@ else
     Model.Aperture_File = ApName;
     Model.Scaling_Factor = ApMax;
     clear ApName ApMax
+    % Rescale search space as needed
+    if Model.Polar_Search_Space
+        p = 2;
+    else
+        p = 1;
+    end
+    % Loop thru parameters
+    for i = p:length(Model.Param_Names)
+        if Model.Scaled_Param(i)
+            Model.(['Param' num2str(i)]) = Model.(['Param' num2str(i)]) * Model.Scaling_Factor;
+        end
+    end    
     % Load backprojected apertures
     load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
 end

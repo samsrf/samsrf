@@ -15,6 +15,8 @@ else
             GuiInfo.Value{end+1} = str{i};
         end
     end
-    scroll(GuiInfo, 'bottom'); % Ensure latest output visible
+    if ~isstruct(GuiInfo)
+        scroll(GuiInfo, 'bottom'); % Ensure latest output visible
+    end
     pause(.1); % Otherwise updating can get stuck
 end

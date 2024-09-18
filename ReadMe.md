@@ -53,7 +53,7 @@ from the Srf structure.
 
 ## LATEST UPDATES 
 
-### Version 9.941 (17-09-2024) - Beta Version!!!  
+### Version 9.95 (18-09-2024) - Beta Version!!!  
 - Created new GUI called SamSrfAnalysis for specifying Models & running analysis (DSS)  
 - Modifications needed for standalone GUI app & integration into NeuroDesk (DSS)  
 - When using GUI, information is now displayed there instead of command window (DSS)  
