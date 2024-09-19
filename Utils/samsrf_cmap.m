@@ -9,13 +9,15 @@ function rgb = samsrf_cmap(MapName, Nrows)
 % 19/09/2024 - Written (DSS)
 %
 
+% global SamSrfXPath
+
 % If sign undefined
 if MapName(1) ~= '+' && MapName(1) ~= '-'
     MapName = ['+' MapName];
 end
 
 % Load colour table
-rgb = csvread([MapName '.csv']);
+rgb = csvread([MapName(2:end) '.csv']);
 
 % Inverting colour map?
 if MapName(1) == '+'

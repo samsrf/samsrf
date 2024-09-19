@@ -1,4 +1,4 @@
-function SamSrfAnalysis
+function SamSrfX
 % GUI for running SamSrf anlyses. Used for standalone app.
 
 %% Version info
@@ -12,7 +12,8 @@ Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with de
 GuiFig = uifigure('Name', ['SamSrf X Analysis GUI v' num2str(vn)], 'Units', 'normalized', 'Position', [0.2 0.15 0.7 0.75]); % Open large GUI 
 crfcn = @SamSrfCloseReq;
 set(GuiFig, 'CloseRequestFcn', crfcn);
-global GuiInfo wb % For use with SamSrf algorithms
+global GuiInfo wb % wb is for samsrf_progbar
+% SamSrfXPath = pwd; % Path to where SamSrfX is located
 
 % Model 
 GuiModelMenu = uimenu(GuiFig,'Text','Model'); 
