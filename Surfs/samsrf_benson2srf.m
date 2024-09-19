@@ -1,6 +1,6 @@
-function samsrf_benson2srf(mghimg, surfdir)
+function samsrf_benson2srf(gii, surfdir, anatpath)
 % 
-% samsrf_benson2srf(mghimg, surfdir)
+% samsrf_benson2srf(gii, surfdir, [anatpath])
 %
 % Converts a Benson-style map prediction MGH file into a SamSrf surface file.
 %   (Need to select the 'all' file containing polar, eccentricity, and ROIs)
@@ -10,27 +10,29 @@ function samsrf_benson2srf(mghimg, surfdir)
 % A future version could adjust this to use a newer template with a larger number 
 % of ROIs as well as predictions for pRF size.
 %
-%   mghimg:     Name of MGH file (without extension)
-%   surfdir:    Folder containing the surface data
+%   gii:        Name of GII file (without extension)
+%   surfdir:    Folder containing the subject's surface data
+%   anatpath:   The folder where anatomical surfaces to stored
+%               (See also other surface projection functions)
+%               Defaults to '' so anatomy is not split off!
 %
-% Note that this function requires fs_load_mgh.m, a function that was 
-% modified from code on the FreeSurfer website.
+% Note that this function requires gifti functionality from SPM12.
 %
-% The function automatically finds the NII file for the T1 in <SubjectID>/mri
-% and adds this to Srf.Structural.
-%
-% 16/02/2022 - Fixed bug when no NII is found for T1 (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 25/09/2022 - Changed structural field to surfir instead of T1 NIfTI (DSS)
-% 29/06/2023 - Added conversion to 32 bit (single) data (DSS)
+% 18/09/2024 - Now expects maps in GII instead of MGH format (DSS)
 %
 
+if nargin < 3
+    anatpath = '';
+end
+
 %% Determine file parts 
-[pn, hemis, mghimg] = fileparts(mghimg);  % Split file name into components
+[pn, gii] = fileparts(gii);  % Split file name into components
+sl = strfind(gii, '_');
+hemis = gii(1:sl-1);
+gii = gii(4:end);
 if isempty(pn)
     pn = '.';
 end
-mghimg = mghimg(2:end);  % Remove dot from beginning
 
 %% Data labels
 valstrs = {'R^2'; 'x0'; 'y0'; 'Sigma'; 'ROI'};
@@ -45,13 +47,13 @@ A = fs_read_curv([surfdir filesep hemis '.area']); % Cortical surface area
 T = fs_read_curv([surfdir filesep hemis '.thickness']); % Cortical thickness
 N = P - V0; % Cortical vectors for each vertex 
 
-%% Find T1 used for reconstruction
+%% Use surf folder name as Structural field
 strimg = surfdir;
 samsrf_disp(['Saving Benson maps for ' strimg]);
 
-%% Load MGH data
-D = fs_load_mgh([pn filesep hemis '.' mghimg '.mgh']);
-D = [squeeze(D(:,:,:,1)), squeeze(D(:,:,:,2)), squeeze(D(:,:,:,3))];
+%% Load GII data
+D = gifti([pn filesep hemis '_' gii '.gii']);
+D = D.cdata;
 D(:,1) = -D(:,1) + 90;
 % Convert to Cartesian coordinates
 x0 = D(:,2) .* cos(D(:,1)/180*pi);
@@ -66,7 +68,7 @@ end
 Srf = struct;
 Srf.Version = samsrf_version;
 Srf.Structural = strimg;
-Srf.Functional = mghimg;
+Srf.Functional = gii;
 Srf.Hemisphere = hemis;
 Srf.Cortex_Steps = NaN;
 Srf.Vertices = V0;
@@ -92,9 +94,9 @@ Srf.Values = valstrs;
 Srf = samsrf_32bit_srf(Srf);
 
 %% Save surface data
-save([hemis '_' mghimg '.mat'], 'Srf', '-v7.3');
-samsrf_disp(['Saved ' hemis '_' mghimg '.mat']);
-samsrf_anatomy_srf([hemis '_' mghimg]);
+save([hemis '_' gii '.mat'], 'Srf', '-v7.3');
+samsrf_disp(['Saved ' hemis '_' gii '.mat']);
+samsrf_anatomy_srf([hemis '_' gii], anatpath);
 samsrf_newline;
 % Save ROI labels
 mkdir('ROIs_Benson');

@@ -4,12 +4,12 @@ function SamSrfAnalysis
 %% Version info
 [vn,vd] = samsrf_version;
 
-%% Load Model 
-load([fileparts(mfilename('fullpath')) '/../Models/Standard_2D_Gaussian_pRF'], 'Algorithm', 'Model', 'xP');
+%% New Model 
+[Model, Algorithm, xP] = Blank2dGModel;
 Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
 
 %% Create GUI
-GuiFig = uifigure('Name', ['SamSrfAnalysis GUI v' num2str(vn)], 'Units', 'normalized', 'Position', [0.2 0.15 0.7 0.75]); % Open large GUI 
+GuiFig = uifigure('Name', ['SamSrf X Analysis GUI v' num2str(vn)], 'Units', 'normalized', 'Position', [0.2 0.15 0.7 0.75]); % Open large GUI 
 crfcn = @SamSrfCloseReq;
 set(GuiFig, 'CloseRequestFcn', crfcn);
 global GuiInfo wb % For use with SamSrf algorithms
@@ -63,6 +63,15 @@ GuiSeedSelect = uimenu(GuiCfMenu,'Text','Select Seed ROI Label'); % Select Seed 
 GuiSeedSelect.MenuSelectedFcn = @FcnSeedSelect; 
 GuiTempSelect = uimenu(GuiCfMenu,'Text','Select Template Map'); % Select Template Map
 GuiTempSelect.MenuSelectedFcn = @FcnTempSelect; 
+
+% Miscellaneous
+GuiMiscMenu = uimenu(GuiFig,'Text','Misc'); 
+GuiBensonMaps = uimenu(GuiMiscMenu,'Text','Convert Benson maps'); % Project Benson maps
+GuiBensonMaps.MenuSelectedFcn = @FcnBensonMaps;
+GuiDispMaps = uimenu(GuiMiscMenu,'Text','Map Display tool'); % Map display tool
+GuiDispMaps.MenuSelectedFcn = @DisplayMaps;
+GuiDelinTool = uimenu(GuiMiscMenu,'Text','Map Delineation Tool'); % Map delineation tool
+GuiDelinTool.MenuSelectedFcn = @DelineationTool;
 
 % Analyse
 GuiAnalyseMenu = uimenu(GuiFig,'Text','Analyse'); 
@@ -230,12 +239,12 @@ samsrf_disp('*******************************************************************
                 if eventdata.DisplaySelection(2) == 2 && strcmpi(source.Data.Field{eventdata.DisplaySelection(1)}, 'Aperture_File') 
                     if ~isfield(Model, 'SeedRoi')
                         % Can select apertures directly if not pRF-from-CF analysis
-                        FcnMatLoad('aps_*.mat', eventdata); % Select aperture file directly
+                        FcnFileLoad('aps_*.mat', eventdata); % Select aperture file directly
                     end
                 elseif eventdata.DisplaySelection(2) == 2 && (strcmpi(source.Data.Field{eventdata.DisplaySelection(1)}, 'Seed_Fine_Fit') || strcmpi(source.Data.Field{eventdata.DisplaySelection(1)}, 'Template')) 
-                    FcnMatLoad('*.mat', eventdata); % Select Srf map file directly
+                    FcnFileLoad('*.mat', eventdata); % Select Srf map file directly
                 elseif eventdata.DisplaySelection(2) == 2 && strcmpi(source.Data.Field{eventdata.DisplaySelection(1)}, 'SeedRoi') 
-                    FcnMatLoad('*.label', eventdata); % Select label file directly
+                    FcnFileLoad('*.label', eventdata); % Select label file directly
                 end
             elseif strcmpi(source.Data.Properties.VariableNames{1}, 'Average')
                 % Show model help text for this column in processing table
@@ -599,9 +608,29 @@ samsrf_disp('*******************************************************************
         GuiModel.Layout.Column = 1;
     end
 
+    
+    %% Blank 2D Gaussian model
+    function [Model, Algorithm, xP] = Blank2dGModel
+        Model.Name = 'pRF_Gaussian'; 
+        Model.Prf_Function = @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth); 
+        Model.Param_Names = {'x0' 'y0' 'Sigma'}; 
+        Model.Scaled_Param = [1 1 1];  
+        Model.Only_Positive = [0 0 1]; 
+        Model.Scaling_Factor = NaN; 
+        Model.TR = 1; 
+        Model.Hrf = []; 
+        Model.Aperture_File = ''; 
+        Model.Polar_Search_Space = true; 
+        Model.Param1 = 0:10:350; 
+        Model.Param2 = 2.^(-5:.2:.6); 
+        Model.Param3 = 2.^(-5.6:.2:1); 
+        Algorithm = 'samsrf_fit_prf'; 
+        xP = [0.4 0.5 0.2];
+    end
+
     %% New Model file
-    function FcnModelNew(srf,event)       
-        load([fileparts(mfilename('fullpath')) '/../Models/Standard_2D_Gaussian_pRF'], 'Algorithm', 'Model', 'xP');
+    function FcnModelNew(srf,event)
+        [Model, Algorithm, xP] = Blank2dGModel;
         Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
         GuiAlgo.Value = {'Standard_2D_Gaussian_pRF'; ''; ['Algorithm: ' Algorithm]};
         [GuiPars, GuiModel] = UpdateTables(Model);
@@ -819,6 +848,51 @@ samsrf_disp('*******************************************************************
         end
     end
 
+    %% Create Benson maps
+    function FcnBensonMaps(src,event)
+        bp = uigetdir('../benson', 'Select folder with Benson GII files');
+        if ~isscalar(bp) 
+            if strcmpi(GuiSurf.Value{3}, '< None selected >')
+                samsrf_error('Surf folder not defined!');
+            else
+                cf = pwd;
+                cd(bp);
+                samsrf_clrscr;
+
+                % Left hemisphere 
+                if exist('lh_benson.gii', 'file')
+                    samsrf_benson2srf('lh_benson', GuiSurf.Value{3});
+                else
+                    samsrf_error('lh_benson.gii does not exist!');
+                end
+                samsrf_newline;
+                % Right hemisphere 
+                if exist('rh_benson.gii', 'file')
+                    samsrf_benson2srf('rh_benson', GuiSurf.Value{3});
+                else
+                    samsrf_error('rh_benson.gii does not exist!');
+                end
+                % Combine hemispheres
+                samsrf_newline;
+                samsrf_disp('Combining hemispheres...');
+                L = load('lh_benson.mat');
+                R = load('rh_benson.mat');
+                Srf = samsrf_bilat_srf(L.Srf, R.Srf);
+                save('bi_benson', 'Srf');
+                samsrf_disp('Saved bi_benson.mat');
+                cd ROIs_Benson
+                samsrf_newline;
+                samsrf_bilat_label(Srf, 'V1');
+                samsrf_bilat_label(Srf, 'V2');
+                samsrf_bilat_label(Srf, 'V3');
+                % Clear & go back
+                clear L R Srf
+                cd(cf);
+                samsrf_done;
+            end
+        end
+    end
+
     %% Run analysis
     function FcnAnalyseRun(src,event)
         % Should be unnecessary but update everything 
@@ -951,6 +1025,7 @@ samsrf_disp('*******************************************************************
                 end
             end
             cd(cf);
+            samsrf_done;
         end
     end
     
@@ -966,7 +1041,7 @@ samsrf_disp('*******************************************************************
     end    
 
     %% Select file
-    function FcnMatLoad(fwc, eventdata)
+    function FcnFileLoad(fwc, eventdata)
         [rn, rp] = uigetfile(fwc);
         if ~isscalar(rn)
             [rp, rn] = fileparts([rp rn]); % Remove extension
@@ -981,7 +1056,7 @@ samsrf_disp('*******************************************************************
         samsrf_disp(' "I hope you''ll come back to be annoyed by me again soon...');
         samsrf_disp('  Mā te wā!"');
         samsrf_newline;
-        pause(.5);
+        pause(1);
 
         clear global GuiInfo wb
         delete(src);

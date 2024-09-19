@@ -11,10 +11,12 @@ All these are fundamental changes from previous SamSrf versions & some
 functions may therefore not be compatible with much earlier versions. 
 The toolbox also includes reverse correlation pRF & CF analysis. 
 
-The main standalone GUI is simply called *SamSrfAnalysis*. It allows you to 
-select between different algorithms, and between Models for various common uses.  
+The main standalone GUI is simply called *SamSrfX*. It allows you to 
+select between different algorithms, and between Models for various common uses, 
+and you can display data, delineate maps, etc.  
 
-Within the Matlab environment, there are various tools available for specific purposes:  
+Within the Matlab environment, you can also call the SamSrfX GUI. But there 
+are also various tools available for specific purposes:  
  
     1. Projecting data to surface:              SurfaceProjection  
     2. Making map figures:                      DisplayMaps  
@@ -46,15 +48,18 @@ analyses, so if you have Matlab's **Parallel Computing Toolbox** installed & you
 code yourself to use the toolbox without parallel computing by replacing parfor calls 
 with for calls.    
  
-By default the anatomical meshes for a reconstruction (recon-all) are kept separate from 
-the functional data in the folder ../anatomy/  
+When using the surface project functions in Matlab, by default the anatomical meshes 
+for a reconstruction (recon-all) are kept separate from  the functional data in the 
+folder ../anatomy/  
 You can use samsrf_expand_srf and samsrf_compress_srf to load and remove these fields 
 from the Srf structure.  
+This is not relevant for the SamSrf GUI because most data will simply be kept in 
+GII or NII format & only few MAT files are saved containing anatomical data.  
 
 ## LATEST UPDATES 
 
-### Version 9.95 (18-09-2024) - Beta Version!!!  
-- Created new GUI called SamSrfAnalysis for specifying Models & running analysis (DSS)  
+### Version 9.952 (19-09-2024) - Beta Version!!!  
+- Created new GUI called SamSrfX for running analysis & inspecting results (DSS)  
 - Modifications needed for standalone GUI app & integration into NeuroDesk (DSS)  
 - When using GUI, information is now displayed there instead of command window (DSS)  
 - Biophysical model now uses unsigned (absolute) pRF profile to determine response (DSS)  
@@ -65,6 +70,10 @@ from the Srf structure.
 - Model fitting functions now allow direct input of Srf instead of filenames (DSS)   
 - ViewApertures now also allow direct input argument (DSS)  
 - All text output & progress bar are now using the GUI if available (DSS)  
+- Benson map projection is now using GII to align with other analyses (DSS)  
+- SamSrf GUI now also can call DisplayMaps tool (DSS)  
+- Replaced colour map functions with editable CSV files (DSS)  
+- Replaced SamSrf_defaults.mat with editable JSON file (DSS)  
 
 ### Version 9.9 (08-08-2024)  
 - Added alternative functionality for multi-condition designs in pRF models (DSS)   

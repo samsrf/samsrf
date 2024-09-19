@@ -19,8 +19,8 @@ function Srf = samsrf_32bit_srf(Srf)
 % 03/10/2023 - Removed overly verbose defaults messages (DSS)
 %
 
-load('SamSrf_defaults.mat');
-if exist('def_64bit', 'var') && def_64bit
+SamSrfDefs = LoadSamSrfDefaults;
+if exist('SamSrfDefs.defs_64bit', 'var') && SamSrfDefs.defs_64bit
     % Using 64 bit data (longer processing time but can avoid some errors!)
 else
     % Using 32 bit data (default & saves disc space but could introduce errors!)

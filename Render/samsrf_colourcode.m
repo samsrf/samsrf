@@ -21,27 +21,13 @@ end
 
 % load defaults
 if nargin < 3
-    samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
-    load('SamSrf_defaults.mat');
+    samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.json')]);
+    SamSrfDefs = LoadSamSrfDefaults;
 else
-    def_cmap_angle = colmap;
-    def_cmap_eccen = colmap;
-    def_cmap_sigma = colmap;
-    def_cmap_other = colmap;
-end
-
-% ensure colour maps have sign
-if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
-    def_cmap_angle = ['+' def_cmap_angle];
-end
-if def_cmap_eccen(1) ~= '-' && def_cmap_eccen(1) ~= '+'
-    def_cmap_eccen = ['+' def_cmap_eccen];
-end
-if def_cmap_other(1) ~= '-' && def_cmap_other(1) ~= '+'
-    def_cmap_other = ['+' def_cmap_other];
-end
-if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
-    def_cmap_sigma = ['+' def_cmap_sigma];
+    SamSrfDefs.defs_cmap_angle = colmap;
+    SamSrfDefs.defs_cmap_eccen = colmap;
+    SamSrfDefs.defs_cmap_sigma = colmap;
+    SamSrfDefs.defs_cmap_other = colmap;
 end
 
 % image pixels
@@ -61,12 +47,7 @@ if strcmpi(vartype, 'Polar_Eeg')
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle(2:end) '(360));'];
-    Cmap = eval(cstr);        
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-    
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360);    
     imgR(r<scale) = Cmap(t(r<scale),1);
     imgG(r<scale) = Cmap(t(r<scale),2);
     imgB(r<scale) = Cmap(t(r<scale),3);
@@ -75,12 +56,7 @@ elseif strcmpi(vartype, 'Polar_Lh')
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle(2:end) '(360));'];
-    Cmap = eval(cstr);        
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-    
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360);        
     imgR(r<scale) = Cmap(t(r<scale),1);
     imgG(r<scale) = Cmap(t(r<scale),2);
     imgB(r<scale) = Cmap(t(r<scale),3);
@@ -89,34 +65,19 @@ elseif strcmpi(vartype, 'Polar_Rh')
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle(2:end) '(360));'];
-    Cmap = eval(cstr);        
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-    
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360);        
     imgR(r<scale) = Cmap(t(r<scale),1);
     imgG(r<scale) = Cmap(t(r<scale),2);
     imgB(r<scale) = Cmap(t(r<scale),3);
 elseif strcmpi(vartype, 'Eccen')
     % Colourmap
-    cstr = ['colormap(' def_cmap_eccen(2:end) '(360));'];
-    Cmap = eval(cstr);        
-    if def_cmap_eccen(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_eccen, 360);        
     imgR(r<scale) = Cmap(nr(r<scale),1);
     imgG(r<scale) = Cmap(nr(r<scale),2);
     imgB(r<scale) = Cmap(nr(r<scale),3);
 elseif strcmpi(vartype, 'Sigma')
     % Colourmap
-    cstr = ['colormap(' def_cmap_sigma(2:end) '(400));'];
-    Cmap = eval(cstr);        
-    if def_cmap_sigma(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-    
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_sigma, 400);        
     for c = 1:size(Cmap,1)
         imgR(c,abs(x(1,:))<50) = Cmap(c,1);
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);
@@ -124,13 +85,7 @@ elseif strcmpi(vartype, 'Sigma')
     end
 elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     % Colourmap
-    cstr = ['colormap(' def_cmap_other(2:end) '(800));'];
-    Cmap = eval(cstr);        
-    Cmap = Cmap(400:end,:);
-    if def_cmap_other(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-    
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_other, 800);        
     for c = 1:size(Cmap,1)
         imgR(c,abs(x(1,:))<50) = Cmap(c,1);
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);
@@ -138,12 +93,7 @@ elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     end
 else
     % Colourmap
-    cstr = ['colormap(' def_cmap_other(2:end) '(400));'];
-    Cmap = eval(cstr);        
-    if def_cmap_other(1) == '-'
-        Cmap = flipud(Cmap);
-    end
-
+    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_other, 400);        
     for c = 1:size(Cmap,1)
         imgR(c,abs(x(1,:))<50) = Cmap(c,1);
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);

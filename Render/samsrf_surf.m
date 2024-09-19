@@ -62,44 +62,20 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %  maps instead of opening a whole new figure. This is mostly for internal
 %  use by the DisplayMaps tool.
 %
-% The colour schemes for maps must be defined as strings in SamSrf_defaults.mat.
+% The colour schemes for maps must be defined as strings in SamSrf_defaults.json.
 %
-% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
-%              Fixed bug when trying to display white-matter surface (DSS)
-% 14/03/2022 - Vertex inspector no longer scales amplitude for reverse correlation profiles (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 29/07/2022 - Turned off transparency by default (DSS)
-%              Fixed bug with eccentricity bound clipping (DSS)
-% 10/08/2022 - Now ensures no NaNs in displayed maps to prevent crash (DSS)
-% 12/08/2022 - Vertex inspector can display visual CF profiles now (DSS)
-% 27/09/2022 - Plots of CFs in visual space are now zoomed in (DSS)
-% 19/06/2023 - Added option for transparency in surface mesh (DSS)
-% 03/10/2023 - Removed overly verbose defaults message (DSS)
-%              R^2 maps now use eccentricity colour scheme (DSS)
-% 12/02/2024 - Fixed bug when using 32bit data with CF maps (DSS)  
+% 19/09/2024 - Now uses JSON for defaults & new colour map function (DSS)
 %
 
 %% Create global variables
 global Vertices Type Data CurvGrey fh fv pv
 
 %% Load default parameters?
-load('SamSrf_defaults.mat');
-% Ensure colour maps have sign
-if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
-    def_cmap_angle = ['+' def_cmap_angle];
-end
-if def_cmap_eccen(1) ~= '-' && def_cmap_eccen(1) ~= '+'
-    def_cmap_eccen = ['+' def_cmap_eccen];
-end
-if def_cmap_other(1) ~= '-' && def_cmap_other(1) ~= '+'
-    def_cmap_other = ['+' def_cmap_other];
-end
-if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
-    def_cmap_sigma = ['+' def_cmap_sigma];
-end
-if ~exist('def_logmaps', 'var')
-    def_logmaps = false;
+SamSrfDefs = LoadSamSrfDefaults;
+if ~exist('SamSrfDefs.defs_logmaps', 'var')
+    SamSrfDefs.defs_logmaps = false;
 end  
+disp(['My current whereabouts: ' cd]);
 
 %% Default thresholds
 if nargin < 3
@@ -152,12 +128,12 @@ end
 
 %% Load curvature
 Curv = Srf.Curvature;
-if exist('def_curv', 'var')
-    if strcmpi(def_curv, 'Greyscale')
+if exist('SamSrfDefs.defs_curv', 'var')
+    if strcmpi(SamSrfDefs.defs_curv, 'Greyscale')
         % Greyscale for curvature
         CurvGrey = gray(11); % Grey scale colour map
         CurvGrey = CurvGrey(1:10,:); % Remove white to avoid transparency issues 
-    elseif strcmpi(def_curv, 'FreeSurfer')
+    elseif strcmpi(SamSrfDefs.defs_curv, 'FreeSurfer')
         % Freesurfer-like curvature
         CurvGrey = gray(4); % Gray scale colour map
         CurvGrey = CurvGrey(2:3, :); % Remove black & white
@@ -324,8 +300,8 @@ if ~isempty(Paths)
         end
     end
     % Default path thickness defined?
-    if exist('def_pathwidth', 'var')
-        for i = 1:def_pathwidth-1
+    if exist('SamSrfDefs.defs_pathwidth', 'var')
+        for i = 1:SamSrfDefs.defs_pathwidth-1
             Vs_paths = [Vs_paths; samsrf_neighbours(Vs_paths, Srf.Faces)];
         end
     end
@@ -357,11 +333,7 @@ if strcmpi(Type, 'Polar')
     Pha(r) = 360;
     
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle(2:end) '(360));'];
-    Cmap = eval(cstr);        
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360); CurvGrey];
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -395,11 +367,7 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     end
     
     % Colourmap
-    cstr = ['[colormap(' def_cmap_angle(2:end) '(360)); CurvGrey];'];
-    Cmap = eval(cstr);        
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360); CurvGrey];
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -416,7 +384,7 @@ elseif strcmpi(Type, 'Eccentricity')
     Rho(r) = 0;
  
     % If logarithmic maps
-    if def_logmaps
+    if SamSrfDefs.defs_logmaps
     	Rho = log2(Rho);
     end	
         
@@ -433,11 +401,7 @@ elseif strcmpi(Type, 'Eccentricity')
     Pha = round(Rho * 360);
 
     % Colourmap
-    cstr = ['[colormap(' def_cmap_eccen(2:end) '(360)); CurvGrey];'];
-    Cmap = eval(cstr);        
-    if def_cmap_eccen(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_eccen, 360); CurvGrey];
     
     % Determine colours
     Pha(Pha==0) = 1;%360;
@@ -455,7 +419,7 @@ elseif strcmpi(Type, 'Mu')
     Mu(r) = 0;
 
     % If logarithmic maps
-    if def_logmaps
+    if SamSrfDefs.defs_logmaps
     	Mu = log2(Mu);
     end	
     
@@ -473,11 +437,7 @@ elseif strcmpi(Type, 'Mu')
     Pha = round(Mu / AdjThr * 100) + 100;
     
     % Colourmap
-    cstr = ['colormap(' def_cmap_angle(2:end) '(200));'];
-    Cmap = eval(cstr);        
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_angle, 200); CurvGrey];
         
     % Determine colours
     Pha(Pha==0) = 1;
@@ -496,7 +456,7 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Sigma(r) = 0;
 
     % If logarithmic maps
-    if def_logmaps
+    if SamSrfDefs.defs_logmaps
     	Sigma = log2(Sigma);
     end	
     
@@ -512,11 +472,7 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Pha = round(Sigma * 200);
     
     % Colourmap
-    cstr = ['[colormap(' def_cmap_sigma(2:end) '(200)); CurvGrey];'];
-    Cmap = eval(cstr);        
-    if def_cmap_sigma(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_sigma, 200); CurvGrey];
     
     % Determine colours
     Pha(Pha > 200) = 200;
@@ -574,13 +530,9 @@ else
     
     % Colormap
     if strcmpi(Type, 'R^2') || strcmpi(Type, 'nR^2') 
-        cstr = ['colormap(' def_cmap_eccen(2:end) '(200));'];
+        Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_eccen, 200); CurvGrey];
     else
-        cstr = ['colormap(' def_cmap_other(2:end) '(200));'];
-    end
-    Cmap = eval(cstr);
-    if def_cmap_other(1) == '-'
-        Cmap = flipud(Cmap);
+        Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_other, 200); CurvGrey];
     end
     
     % Determine colours
@@ -623,7 +575,7 @@ axis off;
 ax = gca;
 ax.Clipping = 'off';
 if nargin < 5 || isempty(CamView)
-    if ~exist('def_views', 'var')
+    if ~exist('SamSrfDefs.defs_views', 'var')
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
@@ -639,14 +591,14 @@ if nargin < 5 || isempty(CamView)
         % Use default camera angle
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
-            CamView = def_views(:,1)';
+            CamView = SamSrfDefs.defs_views(:,1)';
         elseif Srf.Hemisphere(1) == 'r'
             % Right hemisphere
-            CamView = def_views(:,2)';
+            CamView = SamSrfDefs.defs_views(:,2)';
         else
             % Both hemispheres
-            if size(def_views,2) > 2
-                CamView = def_views(:,3)';
+            if size(SamSrfDefs.defs_views,2) > 2
+                CamView = SamSrfDefs.defs_views(:,3)';
             else
                 CamView = [4 -30 2.2];
             end

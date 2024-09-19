@@ -51,23 +51,23 @@ guidata(hObject, handles);
 %% Global variables
 global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
 
-samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
-load('SamSrf_defaults.mat');
-if ~exist('def_disproi')
-    def_disproi = NaN; 
+samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.json')]);
+SamSrfDefs = LoadSamSrfDefaults;
+if ~exist('SamSrfDefs.defs_disproi')
+    SamSrfDefs.defs_disproi = NaN; 
 end
-if ~exist('def_roilist')
+if ~exist('SamSrfDefs.defs_roilist')
     % ROI list if undefined in SamSrf_defaults
-    def_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
+    SamSrfDefs.defs_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 end
 
 %% Default parameters (Change at your own leisure/peril!)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 Mesh = 'sphere'; % Which cortex model to use (Anything but 'sphere' is likely to cause problems with vertex selection! 
-RoiName = def_disproi; % ROI name without hemisphere
+RoiName = SamSrfDefs.defs_disproi; % ROI name without hemisphere
 Pval = 0.0001; % Starting p-value with which to threshold maps
 ActPrct = [5 95]; % Percentiles to threshold activation maps
-RoiList = def_roilist; % ROI list
+RoiList = SamSrfDefs.defs_roilist; % ROI list
 RoiColours = [[1 0 0]; [0 1 0]; [0 0 1]; [1 0 1]; [0 1 0]; [0 0 1]; hsv(6); jet(6)]; % Colours of ROIs
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
  
@@ -109,7 +109,7 @@ end
 if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
     % If ROI defined by coordinates
     if length(RoiName) == 1
-        samsrf_error('You must define inflated mesh coordinate in def_disproi!');
+        samsrf_error('You must define inflated mesh coordinate in SamSrfDefs.defs_disproi!');
     end
     switch RoiName(2)
         case 'X'
@@ -119,10 +119,10 @@ if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
         case 'Z'
             wv = Srf.Inflated(:,3);
         otherwise
-            samsrf_error('Invalid inflated mesh coordinate specified in def_disproi!');
+            samsrf_error('Invalid inflated mesh coordinate specified in SamSrfDefs.defs_disproi!');
     end
     if length(RoiName) < 3
-        samsrf_error('You must define inflated mesh cut-off coordinate in def_disproi!');
+        samsrf_error('You must define inflated mesh cut-off coordinate in SamSrfDefs.defs_disproi!');
     end
     wc = str2double(RoiName(3:end));
     if RoiName(1) == '<'
@@ -317,17 +317,17 @@ end
 %% Load default parameters?
 load('SamSrf_defaults.mat');
 % Ensure colour maps have sign
-if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
-    def_cmap_angle = ['+' def_cmap_angle];
+if SamSrfDefs.defs_cmap_angle(1) ~= '-' && SamSrfDefs.defs_cmap_angle(1) ~= '+'
+    SamSrfDefs.defs_cmap_angle = ['+' SamSrfDefs.defs_cmap_angle];
 end
-if def_cmap_eccen(1) ~= '-' && def_cmap_eccen(1) ~= '+'
-    def_cmap_eccen = ['+' def_cmap_eccen];
+if SamSrfDefs.defs_cmap_eccen(1) ~= '-' && SamSrfDefs.defs_cmap_eccen(1) ~= '+'
+    SamSrfDefs.defs_cmap_eccen = ['+' SamSrfDefs.defs_cmap_eccen];
 end
-if def_cmap_other(1) ~= '-' && def_cmap_other(1) ~= '+'
-    def_cmap_other = ['+' def_cmap_other];
+if SamSrfDefs.defs_cmap_other(1) ~= '-' && SamSrfDefs.defs_cmap_other(1) ~= '+'
+    SamSrfDefs.defs_cmap_other = ['+' SamSrfDefs.defs_cmap_other];
 end
-if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
-    def_cmap_sigma = ['+' def_cmap_sigma];
+if SamSrfDefs.defs_cmap_sigma(1) ~= '-' && SamSrfDefs.defs_cmap_sigma(1) ~= '+'
+    SamSrfDefs.defs_cmap_sigma = ['+' SamSrfDefs.defs_cmap_sigma];
 end
 
 % Remove rubbish
@@ -376,8 +376,8 @@ Pha = round(Rho * 360);
 Pha = mod(Pha, 360);
 Pha(Pha==0) = 360;
 Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
-Cmap = colormap([def_cmap_eccen(2:end) '(360)']);
-if def_cmap_eccen(1) == '-'
+Cmap = colormap([SamSrfDefs.defs_cmap_eccen(2:end) '(360)']);
+if SamSrfDefs.defs_cmap_eccen(1) == '-'
   Cmap = flipud(Cmap);
 end
 figure; Cmap = [Cmap; CurvGrey]; close
@@ -387,8 +387,8 @@ EccRgb(Vs,:) = repmat(WhitePath, size(Vs,1), 1); % Draw paths
 % Polar map
 Pha = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
 Pha(Srf.Data(1,:) <= R2Thrsh | isnan(Rho)) = NaN;
-Cmap = colormap([def_cmap_angle(2:end) '(360)']);
-if def_cmap_angle(1) == '-'
+Cmap = colormap([SamSrfDefs.defs_cmap_angle(2:end) '(360)']);
+if SamSrfDefs.defs_cmap_angle(1) == '-'
   Cmap = flipud(Cmap);
 end
 Cmap = [Cmap; CurvGrey];
@@ -621,9 +621,13 @@ end
 
 %% Clear global variables when figure is closed
 function closereq(src, evnt)
-clear global 
+global hp he hf hc
+delete(hp);
+delete(he); 
+delete(hf);
+delete(hc);
+clear global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
 delete(src);
-close all
 
 
 %% --- Outputs from this function are returned to the command line.

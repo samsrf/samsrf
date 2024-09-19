@@ -33,15 +33,15 @@ end
 function DisplayMaps_OpeningFcn(hObject, eventdata, handles, varargin)
 global Srf RoiName Pval
 
-samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
-load('SamSrf_defaults.mat');
-if ~exist('def_disproi')
-    def_disproi = NaN; 
+samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.json')]);
+SamSrfDefs = LoadSamSrfDefaults;
+if ~exist('SamSrfDefs.defs_disproi')
+    SamSrfDefs.defs_disproi = NaN; 
 end
 
 %% Default parameters (Feel free to edit)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
-RoiName = def_disproi; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
+RoiName = SamSrfDefs.defs_disproi; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
 Pval = 0.0001; % Starting p-value with which to threshold maps
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 
@@ -164,7 +164,7 @@ elseif isempty(RoiName)
 elseif ischar(RoiName) && RoiName(1) == '<' || RoiName(1) == '>' 
     % If ROI defined by coordinates
     if length(RoiName) == 1
-        samsrf_error('You must define inflated mesh coordinate in def_disproi!');
+        samsrf_error('You must define inflated mesh coordinate in SamSrfDefs.defs_disproi!');
     end
     switch RoiName(2)
         case 'X'
@@ -174,10 +174,10 @@ elseif ischar(RoiName) && RoiName(1) == '<' || RoiName(1) == '>'
         case 'Z'
             wv = Srf.Inflated(:,3);
         otherwise
-            samsrf_error('Invalid inflated mesh coordinate specified in def_disproi!');
+            samsrf_error('Invalid inflated mesh coordinate specified in SamSrfDefs.defs_disproi!');
     end
     if length(RoiName) < 3
-        samsrf_error('You must define inflated mesh cut-off coordinate in def_disproi!');
+        samsrf_error('You must define inflated mesh cut-off coordinate in SamSrfDefs.defs_disproi!');
     end
     wc = str2double(RoiName(3:end));
     if RoiName(1) == '<'
@@ -423,7 +423,7 @@ ThrshVec = [ThrshVec eval(['[' get(handles.edit6, 'String') ']'])];
 % Camera angle
 if IsNewFig
     FigHdl = figure;
-    if ~exist('def_views', 'var')
+    if ~exist('SamSrfDefs.defs_views', 'var')
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
@@ -439,14 +439,14 @@ if IsNewFig
         % Use default camera angle
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
-            CamView = def_views(:,1)';
+            CamView = SamSrfDefs.defs_views(:,1)';
         elseif Srf.Hemisphere(1) == 'r'
             % Right hemisphere
-            CamView = def_views(:,2)';
+            CamView = SamSrfDefs.defs_views(:,2)';
         else
             % Both hemispheres
-            if size(def_views,2) > 2
-                CamView = def_views(:,3)';
+            if size(SamSrfDefs.defs_views,2) > 2
+                CamView = SamSrfDefs.defs_views(:,3)';
             else
                 CamView = [4 -30 2.2];
             end
