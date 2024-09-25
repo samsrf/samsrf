@@ -1,6 +1,6 @@
 function rgb = samsrf_cmap(MapName, Nrows)
 %
-% rgb = samsrf_cmap(MapName, Nrows)
+% rgb = samsrf_cmap(MapName, [Nrows=256])
 %
 % Reads in the colour look-up table in the file [MapName].csv & converts it
 % if necessary to have Nrows rows. This allows you to define colour maps
@@ -9,7 +9,9 @@ function rgb = samsrf_cmap(MapName, Nrows)
 % 19/09/2024 - Written (DSS)
 %
 
-% global SamSrfXPath
+if nargin < 2
+    Nrows = 256;
+end
 
 % If sign undefined
 if MapName(1) ~= '+' && MapName(1) ~= '-'
@@ -17,10 +19,17 @@ if MapName(1) ~= '+' && MapName(1) ~= '-'
 end
 
 % Load colour table
-rgb = csvread([MapName(2:end) '.csv']);
+if isdeployed 
+    % Running in deployed SamSrfX app
+    global SamSrfXPath
+    rgb = readmatrix([SamSrfXPath filesep 'Colours' filesep MapName(2:end) '.csv']);
+else
+    % Running in Matlab command window
+    rgb = readmatrix([MapName(2:end) '.csv']);
+end
 
 % Inverting colour map?
-if MapName(1) == '+'
+if MapName(1) == '-'
     rgb = flipud(rgb);
 end
 

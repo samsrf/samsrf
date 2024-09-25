@@ -27,16 +27,19 @@ cd([SubjPath filesep 'label']);
 strimg = samsrf_checkreg;
 cd(CurrPath);
 
+%% Version info
+[vn,vd] = samsrf_version;
+
 %% Welcome message
-[vn vd] = samsrf_version; 
-samsrf_newline;
-samsrf_disp('****************************************************************************');
+samsrf_clrscr; 
+samsrf_disp('********************************************************************************************');
+samsrf_disp('                                Kia ora!');
 samsrf_disp('     Welcome to the Seriously Annoying MatLab Surfer Projection Tool!');
-samsrf_disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('     by D.S. Schwarzkopf from the University of Auckland, New Zealand');
 samsrf_newline;
 samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-samsrf_disp('      (see SamSrf/ReadMe.txt for what is new in this version)');
-samsrf_disp('****************************************************************************');
+samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
+samsrf_disp('********************************************************************************************');
 samsrf_newline;
 
 %% Select functional data files

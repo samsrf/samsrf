@@ -55,20 +55,7 @@ if ~strcmpi(Srf.Hemisphere, 'eeg')
 end
 
 %% Default colour schemes
-load('SamSrf_defaults.mat');
-% Ensure colour maps have sign
-if def_cmap_angle(1) ~= '-' && def_cmap_angle(1) ~= '+'
-    def_cmap_angle = ['+' def_cmap_angle];
-end
-if def_cmap_eccen(1) ~= '-' && def_cmap_eccen(1) ~= '+'
-    def_cmap_eccen = ['+' def_cmap_eccen];
-end
-if def_cmap_other(1) ~= '-' && def_cmap_other(1) ~= '+'
-    def_cmap_other = ['+' def_cmap_other];
-end
-if def_cmap_sigma(1) ~= '-' && def_cmap_sigma(1) ~= '+'
-    def_cmap_sigma = ['+' def_cmap_sigma];
-end
+SamSrfDefs = LoadSamSrfDefaults;
 
 %% Extract data
 % Limit to time points 
@@ -84,35 +71,20 @@ end
 if strcmpi(Map, 'Eccentricity')
     % Eccentricity
     Data = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);   
-    Cmap = colormap(def_cmap_eccen(2:end));
-    if def_cmap_eccen(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_eccen);
 elseif strcmpi(Map, 'Polar') || strcmpi(Map, 'Phase') || strcmpi(Map, 'Phi')
     % Polar angle
     Data = Srf.Data(2:3,:);
-%     Data = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
-    Cmap = colormap(def_cmap_angle(2:end));
-    if def_cmap_angle(1) == '-'
-        Cmap = flipud(Cmap);
-    end
+    Data = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_angle);
 else
     % Is pRF size?
     if strcmpi(Map, 'Sigma') || strcmpi(Map, 'Fwhm') || strcmpi(Map, 'Centre') || strcmpi(Map, 'Surround') 
-        Cmap = colormap(def_cmap_sigma(2:end));
-        if def_cmap_sigma(1) == '-'
-            Cmap = flipud(Cmap);
-        end
+        Cmap = samsrf_cmap(SamSrfDefs.def_cmap_sigma);
     elseif strcmpi(Map, 'R^2') || strcmpi(Map, 'nR^2') 
-        Cmap = colormap(def_cmap_eccen(2:end));
-        if def_cmap_eccen(1) == '-'
-            Cmap = flipud(Cmap);
-        end
+        Cmap = samsrf_cmap(SamSrfDefs.def_cmap_eccen);
     else
-        Cmap = colormap(def_cmap_other(2:end));
-        if def_cmap_other(1) == '-'
-            Cmap = flipud(Cmap);
-        end
+        Cmap = samsrf_cmap(SamSrfDefs.def_cmap_other);
     end
     % Anything else
     loc = strcmpi(Srf.Values, Map);

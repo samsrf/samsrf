@@ -72,10 +72,9 @@ global Vertices Type Data CurvGrey fh fv pv
 
 %% Load default parameters?
 SamSrfDefs = LoadSamSrfDefaults;
-if ~exist('SamSrfDefs.defs_logmaps', 'var')
-    SamSrfDefs.defs_logmaps = false;
+if ~exist('SamSrfDefs.def_logmaps', 'var')
+    SamSrfDefs.def_logmaps = false;
 end  
-disp(['My current whereabouts: ' cd]);
 
 %% Default thresholds
 if nargin < 3
@@ -128,12 +127,12 @@ end
 
 %% Load curvature
 Curv = Srf.Curvature;
-if exist('SamSrfDefs.defs_curv', 'var')
-    if strcmpi(SamSrfDefs.defs_curv, 'Greyscale')
+if exist('SamSrfDefs.def_curv', 'var')
+    if strcmpi(SamSrfDefs.def_curv, 'Greyscale')
         % Greyscale for curvature
         CurvGrey = gray(11); % Grey scale colour map
         CurvGrey = CurvGrey(1:10,:); % Remove white to avoid transparency issues 
-    elseif strcmpi(SamSrfDefs.defs_curv, 'FreeSurfer')
+    elseif strcmpi(SamSrfDefs.def_curv, 'FreeSurfer')
         % Freesurfer-like curvature
         CurvGrey = gray(4); % Gray scale colour map
         CurvGrey = CurvGrey(2:3, :); % Remove black & white
@@ -300,8 +299,8 @@ if ~isempty(Paths)
         end
     end
     % Default path thickness defined?
-    if exist('SamSrfDefs.defs_pathwidth', 'var')
-        for i = 1:SamSrfDefs.defs_pathwidth-1
+    if exist('SamSrfDefs.def_pathwidth', 'var')
+        for i = 1:SamSrfDefs.def_pathwidth-1
             Vs_paths = [Vs_paths; samsrf_neighbours(Vs_paths, Srf.Faces)];
         end
     end
@@ -333,7 +332,7 @@ if strcmpi(Type, 'Polar')
     Pha(r) = 360;
     
     % Colourmap
-    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360); CurvGrey];
+    Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_angle, 360); CurvGrey];
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -367,7 +366,7 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
     end
     
     % Colourmap
-    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360); CurvGrey];
+    Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_angle, 360); CurvGrey];
     
     % Determine colours
     Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
@@ -384,7 +383,7 @@ elseif strcmpi(Type, 'Eccentricity')
     Rho(r) = 0;
  
     % If logarithmic maps
-    if SamSrfDefs.defs_logmaps
+    if SamSrfDefs.def_logmaps
     	Rho = log2(Rho);
     end	
         
@@ -401,7 +400,7 @@ elseif strcmpi(Type, 'Eccentricity')
     Pha = round(Rho * 360);
 
     % Colourmap
-    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_eccen, 360); CurvGrey];
+    Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_eccen, 360); CurvGrey];
     
     % Determine colours
     Pha(Pha==0) = 1;%360;
@@ -419,7 +418,7 @@ elseif strcmpi(Type, 'Mu')
     Mu(r) = 0;
 
     % If logarithmic maps
-    if SamSrfDefs.defs_logmaps
+    if SamSrfDefs.def_logmaps
     	Mu = log2(Mu);
     end	
     
@@ -437,7 +436,7 @@ elseif strcmpi(Type, 'Mu')
     Pha = round(Mu / AdjThr * 100) + 100;
     
     % Colourmap
-    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_angle, 200); CurvGrey];
+    Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_angle, 200); CurvGrey];
         
     % Determine colours
     Pha(Pha==0) = 1;
@@ -456,7 +455,7 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Sigma(r) = 0;
 
     % If logarithmic maps
-    if SamSrfDefs.defs_logmaps
+    if SamSrfDefs.def_logmaps
     	Sigma = log2(Sigma);
     end	
     
@@ -472,7 +471,7 @@ elseif strcmpi(Type, 'Sigma') || strcmpi(Type, 'Fwhm') || strcmpi(Type, 'Visual 
     Pha = round(Sigma * 200);
     
     % Colourmap
-    Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_sigma, 200); CurvGrey];
+    Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_sigma, 200); CurvGrey];
     
     % Determine colours
     Pha(Pha > 200) = 200;
@@ -530,9 +529,9 @@ else
     
     % Colormap
     if strcmpi(Type, 'R^2') || strcmpi(Type, 'nR^2') 
-        Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_eccen, 200); CurvGrey];
+        Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_eccen, 200); CurvGrey];
     else
-        Cmap = [samsrf_cmap(SamSrfDefs.defs_cmap_other, 200); CurvGrey];
+        Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_other, 200); CurvGrey];
     end
     
     % Determine colours
@@ -575,7 +574,8 @@ axis off;
 ax = gca;
 ax.Clipping = 'off';
 if nargin < 5 || isempty(CamView)
-    if ~exist('SamSrfDefs.defs_views', 'var')
+    if ~isfield(SamSrfDefs, 'def_views')
+        samsrf_disp('WARNING: def_views not defined in SamSrf_defaults.json');
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
@@ -591,14 +591,14 @@ if nargin < 5 || isempty(CamView)
         % Use default camera angle
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere
-            CamView = SamSrfDefs.defs_views(:,1)';
+            CamView = SamSrfDefs.def_views(:,1)';
         elseif Srf.Hemisphere(1) == 'r'
             % Right hemisphere
-            CamView = SamSrfDefs.defs_views(:,2)';
+            CamView = SamSrfDefs.def_views(:,2)';
         else
             % Both hemispheres
-            if size(SamSrfDefs.defs_views,2) > 2
-                CamView = SamSrfDefs.defs_views(:,3)';
+            if size(SamSrfDefs.def_views,2) > 2
+                CamView = SamSrfDefs.def_views(:,3)';
             else
                 CamView = [4 -30 2.2];
             end
@@ -842,7 +842,7 @@ if ~isempty(Srf)
         Alpha(Srf.SeedVx,:) = repmat(X(Srf.SeedVx)'/AdjThr * 0.5 + 0.5, [1 3]);
         Alpha(isnan(Alpha)) = 0.5; % To remove white artifacts
         % Colour map
-        Cmap = hotcold(200);
+        Cmap = samsrf_cmap('hotcold', 200);
         Colours = Cmap(Pha,:).*Alpha + CurvGrey(Curv,:).*(1-Alpha); % Colours transparently overlaid onto curvature
         % Draw surface
         set(gca, 'view', curcam);

@@ -12,32 +12,15 @@ Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with de
 GuiFig = uifigure('Name', ['SamSrf X Analysis GUI v' num2str(vn)], 'Units', 'normalized', 'Position', [0.2 0.15 0.7 0.75]); % Open large GUI 
 crfcn = @SamSrfCloseReq;
 set(GuiFig, 'CloseRequestFcn', crfcn);
-global GuiInfo wb % wb is for samsrf_progbar
-% SamSrfXPath = pwd; % Path to where SamSrfX is located
+global SamSrfXPath GuiInfo wb % wb is for samsrf_progbar
+SamSrfXPath = pwd; % Path to where SamSrfX is located
 
-% Model 
-GuiModelMenu = uimenu(GuiFig,'Text','Model'); 
-GuiModelNew = uimenu(GuiModelMenu,'Text','New Model'); % New model item
-GuiModelNew.MenuSelectedFcn = @FcnModelNew;
-GuiModelLoad = uimenu(GuiModelMenu,'Text','Load Model'); % Load model item
-GuiModelLoad.MenuSelectedFcn = @FcnModelLoad;
-GuiModelSave = uimenu(GuiModelMenu,'Text','Save Model'); % Save model item
-GuiModelSave.MenuSelectedFcn = @FcnModelSave;
-
-% Apertures
-GuiApsMenu = uimenu(GuiFig,'Text','Apertures'); 
-GuiApsLoad = uimenu(GuiApsMenu,'Text','Load Apertures'); % Select apertures
-GuiApsLoad.MenuSelectedFcn = @FcnApsLoad;
-GuiApsView = uimenu(GuiApsMenu,'Text','View Apertures'); % View apertures 
-GuiApsView.MenuSelectedFcn = @FcnApsView;
-
-% HRF
-GuiHrfMenu = uimenu(GuiFig,'Text','HRF'); 
-GuiHrfLoad = uimenu(GuiHrfMenu,'Text','Load HRF'); % Select apertures
-GuiHrfLoad.MenuSelectedFcn = @FcnHrfLoad;
+% Working folder
+GuiFolderMenu = uimenu(GuiFig,'Text','Working Folder ~'); % Set current working directory
+GuiFolderMenu.MenuSelectedFcn = @FcnChangeFolder;
 
 % Data 
-GuiDataMenu = uimenu(GuiFig,'Text','Data'); 
+GuiDataMenu = uimenu(GuiFig,'Text','Data Files ~'); 
 GuiDataHemis = uimenu(GuiDataMenu,'Text','Select Hemisphere Data'); % Select GII files from one hemisphere 
 GuiDataHemis.MenuSelectedFcn = @FcnDataHemis;
 GuiDataBilat = uimenu(GuiDataMenu,'Text','Select Bilateral Data'); % Select GII files for both hemispheres 
@@ -46,40 +29,76 @@ GuiDataVols = uimenu(GuiDataMenu,'Text','Select Volume Data'); % Select NII volu
 GuiDataVols.MenuSelectedFcn = @FcnDataVols;
 
 % Surf folder 
-GuiSurfMenu = uimenu(GuiFig,'Text','Surf'); 
+GuiSurfMenu = uimenu(GuiFig,'Text','Surf Folder ~'); 
 GuiSurfSelect = uimenu(GuiSurfMenu,'Text','Select surf folder'); 
 GuiSurfSelect.MenuSelectedFcn = @FcnSurfSelect;
 
 % ROI
-GuiRoiMenu = uimenu(GuiFig,'Text','ROI'); 
+GuiRoiMenu = uimenu(GuiFig,'Text','Region of Interest ~'); 
 GuiRoiSelect = uimenu(GuiRoiMenu,'Text','Select ROI Label'); % Select ROI
 GuiRoiSelect.MenuSelectedFcn = @FcnRoiSelect; 
-GuiOccRoi = uimenu(GuiRoiMenu,'Text','Create occipital ROIs'); % Create occipital ROIs
+GuiOccRoi = uimenu(GuiRoiMenu,'Text','Create Occipital ROIs'); % Create occipital ROIs
 GuiOccRoi.MenuSelectedFcn = @FcnOccRoi;
 
+% Model 
+GuiModelMenu = uimenu(GuiFig,'Text','Model Specification ~'); 
+GuiModelNew = uimenu(GuiModelMenu,'Text','New Model'); % New model item
+GuiModelNew.MenuSelectedFcn = @FcnModelNew;
+GuiModelLoad = uimenu(GuiModelMenu,'Text','Load Model'); % Load model item
+GuiModelLoad.MenuSelectedFcn = @FcnModelLoad;
+GuiModelSave = uimenu(GuiModelMenu,'Text','Save Model'); % Save model item
+GuiModelSave.MenuSelectedFcn = @FcnModelSave;
+GuiModelInfo = uimenu(GuiModelMenu,'Text','Model Information'); % Display model info
+GuiModelInfo.MenuSelectedFcn = @FcnModelInfo;
+
+% Apertures
+GuiApsMenu = uimenu(GuiFig,'Text','Apertures ~'); 
+GuiApsLoad = uimenu(GuiApsMenu,'Text','Load Apertures'); % Select apertures
+GuiApsLoad.MenuSelectedFcn = @FcnApsLoad;
+GuiApsView = uimenu(GuiApsMenu,'Text','View Apertures'); % View apertures 
+GuiApsView.MenuSelectedFcn = @FcnApsView;
+
+% HRF
+GuiHrfMenu = uimenu(GuiFig,'Text','Hemodynamic Response ~'); 
+GuiHrfLoad = uimenu(GuiHrfMenu,'Text','Load HRF'); % Load prefit HRF 
+GuiHrfLoad.MenuSelectedFcn = @FcnHrfLoad;
+
 % Seed info for CF 
-GuiCfMenu = uimenu(GuiFig,'Text','CF'); 
+GuiCfMenu = uimenu(GuiFig,'Text','Connective Fields ~'); 
 GuiCfMenu.Enable = 'off'; % Starts off inactive as undefined for standard 2D Gaussian
-GuiSeedSelect = uimenu(GuiCfMenu,'Text','Select Seed ROI Label'); % Select Seed ROi
+GuiSeedSelect = uimenu(GuiCfMenu,'Text','Select Seed ROI Label'); % Select seed ROI
 GuiSeedSelect.MenuSelectedFcn = @FcnSeedSelect; 
-GuiTempSelect = uimenu(GuiCfMenu,'Text','Select Template Map'); % Select Template Map
+GuiTempSelect = uimenu(GuiCfMenu,'Text','Select Template Map'); % Select template map
 GuiTempSelect.MenuSelectedFcn = @FcnTempSelect; 
 
+% Analyse
+GuiAnalyseMenu = uimenu(GuiFig,'Text','Model Fitting ~'); 
+GuiAnalyseMenu.MenuSelectedFcn = @CompletenessCheck;
+GuiAnalyseRun = uimenu(GuiAnalyseMenu,'Text','Fit Model'); % Run analysis
+GuiAnalyseRun.MenuSelectedFcn = @FcnAnalyseRun; 
+GuiAnalyseRun.Enable = 'off'; % Inactive until all necessary field filled in!
+GuiRepStr = uimenu(GuiAnalyseMenu,'Text','Replace String'); % Replace string
+GuiRepStr.MenuSelectedFcn = @FcnRepStr; 
+GuiRunBatch = uimenu(GuiAnalyseMenu,'Text','Run Batch Analysis'); % Run batch analysis
+GuiRunBatch.MenuSelectedFcn = @FcnRunBatch; 
+
 % Miscellaneous
-GuiMiscMenu = uimenu(GuiFig,'Text','Misc'); 
+GuiMiscMenu = uimenu(GuiFig,'Text','Miscellaneous'); 
 GuiBensonMaps = uimenu(GuiMiscMenu,'Text','Convert Benson maps'); % Project Benson maps
 GuiBensonMaps.MenuSelectedFcn = @FcnBensonMaps;
+GuiTmp2Nat = uimenu(GuiMiscMenu,'Text','Warp Template > Native'); % Template 2 Native conversion
+GuiTmp2Nat.MenuSelectedFcn = @FcnTmp2Nat;
+GuiNat2Tmp = uimenu(GuiMiscMenu,'Text','Warp Native > Template'); % Native 2 Template conversion
+GuiNat2Tmp.MenuSelectedFcn = @FcnNat2Tmp;
 GuiDispMaps = uimenu(GuiMiscMenu,'Text','Map Display tool'); % Map display tool
 GuiDispMaps.MenuSelectedFcn = @DisplayMaps;
 GuiDelinTool = uimenu(GuiMiscMenu,'Text','Map Delineation Tool'); % Map delineation tool
 GuiDelinTool.MenuSelectedFcn = @DelineationTool;
+GuiEccenPlot = uimenu(GuiMiscMenu,'Text','Eccentricity Plots'); % Plot data by eccentricity
+GuiEccenPlot.MenuSelectedFcn = @FcnPlotByEccen;
+GuiVisFldCov = uimenu(GuiMiscMenu,'Text','Visual Field Coverage'); % Plot visual field coverage
+GuiVisFldCov.MenuSelectedFcn = @FcnVisFldCov;
 
-% Analyse
-GuiAnalyseMenu = uimenu(GuiFig,'Text','Analyse'); 
-GuiAnalyseMenu.MenuSelectedFcn = @CompletenessCheck;
-GuiAnalyseRun = uimenu(GuiAnalyseMenu,'Text','Run Analysis'); % Run Analysis
-GuiAnalyseRun.MenuSelectedFcn = @FcnAnalyseRun; 
-GuiAnalyseRun.Enable = 'off'; % Inactive until all necessary field filled in!
 
 % Create grid layout
 GuiGrid = uigridlayout(GuiFig, [6 3]); 
@@ -109,7 +128,7 @@ if isfield(Model, 'Prf_Function')
 else
     title(GuiPrf, 'No visualisation of CF');
 end
-colormap(GuiPrf, 'berlin');
+colormap(GuiPrf, samsrf_cmap('berlin'));
 GuiPrf.CLim = [-1 1] * max(abs(Rfp(:)));
 GuiPrf.Toolbar = [];
 disableDefaultInteractivity(GuiPrf)
@@ -175,13 +194,14 @@ UpdateInfo(GuiModel, eventdata);
 
 %% Welcome message
 samsrf_clrscr; 
-samsrf_disp('****************************************************************************');
-samsrf_disp('     Kia ora to the Seriously Annoying MatLab Surfer Analysis Tool!');
-samsrf_disp('     by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('********************************************************************************************');
+samsrf_disp('                                Kia ora!');
+samsrf_disp('     Welcome to the Seriously Annoying MatLab Surfer Analysis Tool!');
+samsrf_disp('     by D.S. Schwarzkopf from the University of Auckland, New Zealand');
 samsrf_newline;
 samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
 samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('****************************************************************************');
+samsrf_disp('********************************************************************************************');
 
 
     %% Info samsrf_display function
@@ -446,7 +466,7 @@ samsrf_disp('*******************************************************************
 
         % (De-)activate Analyse menu?
         GuiAnalyseRun.Enable = 'on';
-        if isnan(GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Scaling_Factor')})
+        if sum(strcmpi(GuiModel.Data.Field, 'Scaling_Factor')) > 0 && isnan(GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Scaling_Factor')})
             % Scaling factor not yet defined
             GuiAnalyseRun.Enable = 'off';
         end
@@ -480,12 +500,16 @@ samsrf_disp('*******************************************************************
     function CompletenessCheck(srf,event)
         CompCheckInfo = {'COMPLETENESS CHECK:'; ''};
         cl = 3;
-        
+        CompCheckInfo{cl,1} = ['Current working folder: ' pwd];
+        cl = cl + 1;
+        CompCheckInfo{cl,1} = '';
+        cl = cl + 1;
+
         % ROI undefined
         if strcmpi(GuiRoi.Value{3}, '< None selected >')
             CompCheckInfo{cl,1} = 'Warning: No Region of Interest selected';
             cl = cl + 1;
-            CompCheckInfo{cl,1} = '';
+            CompCheckInfo{cl,1} = ['Region of Interest: ' GuiRoi.Value{5}];
             cl = cl + 1;
         end
 
@@ -539,7 +563,7 @@ samsrf_disp('*******************************************************************
                 CompCheckInfo{cl,1} = '';
             end
         end      
-        if cl == 3
+        if cl == 5
             CompCheckInfo{cl,1} = 'Ready to analyse!';
         end
         
@@ -609,7 +633,18 @@ samsrf_disp('*******************************************************************
         GuiModel.Layout.Column = 1;
     end
 
-    
+
+    %% Change working directory
+    function FcnChangeFolder(src,event)
+        wp = uigetdir('.', 'Select working folder');
+        figure(GuiFig);
+        if ~isscalar(wp)
+            cd(wp);
+            samsrf_newline;
+            samsrf_disp(['Changed working folder to: ' wp]);
+        end
+    end
+
     %% Blank 2D Gaussian model
     function [Model, Algorithm, xP] = Blank2dGModel
         Model.Name = 'pRF_Gaussian'; 
@@ -641,25 +676,37 @@ samsrf_disp('*******************************************************************
         eventdata.EventName = 'SelectionChanged';
         eventdata.DisplaySelection = [1 1];
         UpdateInfo(GuiModel, eventdata);        
+        figure(GuiFig);
     end
 
     %% Load Model file
     function FcnModelLoad(src,event)
-        [fn, pn] = uigetfile('*.mat');
+        [fn, pn] = uigetfile('*.mod');
         if ~isscalar(fn)
             vs = whos('-file', [pn fn]);
             vs = {vs.name}';
             if sum(strcmpi(vs, 'Algorithm')) == 0 || sum(strcmpi(vs, 'xP')) == 0
-                samsrf_error([pn fn ' was not saved by SamSrfAnalysis or has been corrupted!']);
+                samsrf_error([pn fn ' was not saved by SamSrfX or has been corrupted!']);
             else
                 warning off
-                load([pn fn], 'Algorithm', 'Model', 'xP');
+                load([pn fn], '-mat', 'Algorithm', 'Model', 'xP', 'DataFiles', 'SurfFolder', 'Roi');
                 warning on
                 Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
                 % If this is pRF-from-CF analysis, automatically set fields 
                 if strcmpi(Algorithm, 'samsrf_fit_prf') && isfield(Model, 'SeedRoi')
                     Model.Aperture_File = '[Set by analysis]';
                     Model.Scaling_Factor = Inf;
+                end
+
+                % If Model Spec contains file info
+                samsrf_newline;
+                if exist('DataFiles', 'var')
+                    samsrf_disp('Saved Model contains data file & ROI info...');
+                    GuiFiles.Items = DataFiles;
+                    GuiSurf.Value{3} = SurfFolder;
+                    GuiRoi.Value{3} = Roi;
+                else
+                    samsrf_disp('Predefined Model only contains parameters...');
                 end
                 
                 GuiAlgo.Value = {fn(1:end-4) ; ''; ['Algorithm: ' Algorithm]};
@@ -670,8 +717,11 @@ samsrf_disp('*******************************************************************
                 eventdata.EventName = 'SelectionChanged';
                 eventdata.DisplaySelection = [1 1];
                 UpdateInfo(GuiModel, eventdata);        
+                figure(GuiFig);
             end
         end
+        FcnModelInfo([],[]);
+        figure(GuiFig);
     end
     
     %% Update Model struct from tables 
@@ -694,9 +744,14 @@ samsrf_disp('*******************************************************************
     %% Save Model file
     function FcnModelSave(src,event)
         Model = UpdateModel(Model);
-        [fn, pn] = uiputfile('*.mat');
+        [fn, pn] = uiputfile('*.mod');
         if ~isscalar(fn)
-            save([pn fn], 'Algorithm', 'Model', 'xP');
+            DataFiles = GuiFiles.Items;
+            SurfFolder = GuiSurf.Value{3};
+            Roi = GuiRoi.Value{3};
+            save([pn fn], '-mat', 'Algorithm', 'Model', 'xP', 'DataFiles', 'SurfFolder', 'Roi');
+            GuiAlgo.Value{1} = fn(1:end-4);
+            figure(GuiFig);
         end
     end
 
@@ -707,6 +762,7 @@ samsrf_disp('*******************************************************************
             GuiModel.Data.Value(strcmpi(GuiModel.Data.Field, 'Aperture_File')) = {[rp rn(1:end-4)]}; 
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
     %% View apertures 
@@ -728,6 +784,7 @@ samsrf_disp('*******************************************************************
             eventdata.DisplaySelection = [find(strcmpi(GuiModel.Data.Field, 'Hrf')) 1];
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
     %% Select hemispheric surface files 
@@ -747,6 +804,7 @@ samsrf_disp('*******************************************************************
             GuiFiles.Items = DataFiles;
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
     %% Select bilateral surface files 
@@ -766,6 +824,7 @@ samsrf_disp('*******************************************************************
             GuiFiles.Items = DataFiles;
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
     %% Select volumetric files 
@@ -785,111 +844,118 @@ samsrf_disp('*******************************************************************
             GuiFiles.Items = DataFiles;
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
-
 
     %% Select surf folder
     function FcnSurfSelect(src,event)
         sp = uigetdir('../surf', 'Select surf folder');
+        figure(GuiFig);
         if ~isscalar(sp)
             GuiSurf.Value = {'Subject surf folder:'; ''; sp}; 
         end
+        figure(GuiFig);
     end
 
     %% Select ROI label
     function FcnRoiSelect(src,event)
-        [rn, rp] = uigetfile({'*.label', 'FreeSurfer label'; '*.nii', 'Binary NIfTI mask'});
+        [rn, rp] = uigetfile({'*.label', 'FreeSurfer label'; '*.nii', 'Binary NIfTI mask'}, 'Select Region of Interest');
         if ~isscalar(rn)
             GuiRoi.Value = {'Region of Interest:'; ''; [rp rn]}; 
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
     %% Create occipital ROI
     function FcnOccRoi(src,event)
-        dp = fileparts(GuiFiles.Items{1});
-        if isempty(dp)
+        if ~strcmpi(GuiSurf.Value{3}, '< None selected >') && ~strcmpi(GuiSurf.Value{3}, '< Not required for NII >')
             samsrf_clrscr;
-            samsrf_disp('ERROR: You need to select data files first!');
-        else
-            if ~strcmpi(GuiSurf.Value{3}, '< None selected >') && ~strcmpi(GuiSurf.Value{3}, '< Not required for NII >')
-                samsrf_clrscr;
-                samsrf_disp('Creating occipital ROIs...');
-                cf = pwd;
-                cd(dp);
-                warning off
-                MakeOccRoi(GuiSurf.Value{3})
-                warning on
-                cd(cf);
-                samsrf_disp(' Occipital ROIs created.');
-            elseif strcmpi(GuiSurf.Value{3}, '< None selected >')
-                samsrf_clrscr;
-                samsrf_disp('ERROR: No surf folder selected!');
-            end
+            samsrf_disp('Creating occipital ROIs...');
+            warning off
+            MakeOccRoi(GuiSurf.Value{3})
+            warning on
+            samsrf_disp(' Occipital ROIs created.');
+            samsrf_done;
+        elseif strcmpi(GuiSurf.Value{3}, '< None selected >')
+            samsrf_clrscr;
+            samsrf_disp('ERROR: No surf folder selected!');
         end
+        figure(GuiFig);
     end
 
     %% Select seed ROI label
     function FcnSeedSelect(src,event)
-        [sn, sp] = uigetfile({'*.label', 'FreeSurfer label'});
+        [sn, sp] = uigetfile({'*.label', 'FreeSurfer label'}, 'Select seed ROI');
         if ~isscalar(sn)
             [sp, sn] = fileparts([sp sn]); % Remove extension
             GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'SeedRoi')} = [sp filesep sn]; 
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
     %% Select template map 
     function FcnTempSelect(src,event)
-        [tn, tp] = uigetfile('*.mat');
+        [tn, tp] = uigetfile('*.mat', 'Select template map');
         if ~isscalar(tn)
             [tp, tn] = fileparts([tp tn]); % Remove extension
             GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Template')} = [tp tn]; 
             UpdateInfo(GuiModel, eventdata);
         end
+        figure(GuiFig);
     end
 
-    %% Create Benson maps
-    function FcnBensonMaps(src,event)
-        bp = uigetdir('../benson', 'Select folder with Benson GII files');
-        if ~isscalar(bp) 
-            if strcmpi(GuiSurf.Value{3}, '< None selected >')
-                samsrf_error('Surf folder not defined!');
-            else
-                cf = pwd;
-                cd(bp);
-                samsrf_clrscr;
+    %% Replace string
+    function FcnRepStr(src,event)
+        % If strings provided?
+        if ischar(src)
+            Old = src;
+            New = event;
+        else
+            % Which string to replace?
+            Old = cell2mat(inputdlg('Find string:', 'Old string'));
+        end
 
-                % Left hemisphere 
-                if exist('lh_benson.gii', 'file')
-                    samsrf_benson2srf('lh_benson', GuiSurf.Value{3});
-                else
-                    samsrf_error('lh_benson.gii does not exist!');
+        if ~isempty(Old)
+            wp = pwd;
+            % Check if there is anything to replace
+            if ~contains(wp, Old)
+                samsrf_error([Old ' does not appear in working path!']);
+            end
+            % What to replace with?
+            if ~ischar(New)
+                New = cell2mat(inputdlg('Replace with:', 'New string'));
+            end
+            if ~isempty(New)    
+                wp = strrep(wp, Old, New);
+                if ~exist(wp, 'dir') 
+                    samsrf_error([New ' does not exist!']);
                 end
-                samsrf_newline;
-                % Right hemisphere 
-                if exist('rh_benson.gii', 'file')
-                    samsrf_benson2srf('rh_benson', GuiSurf.Value{3});
-                else
-                    samsrf_error('rh_benson.gii does not exist!');
+                cd(wp);
+                % Replace all instance with wildcard
+                for i = 1:length(GuiFiles.Items)
+                    GuiFiles.Items{i} = strrep(GuiFiles.Items{i}, Old, New);
                 end
-                % Combine hemispheres
+                % Replace in surf folder
+                GuiSurf.Value{3} = strrep(GuiSurf.Value{3}, Old, New);
+                % Replace in ROI label
+                GuiRoi.Value{3} = strrep(GuiRoi.Value{3}, Old, New);
+                % Replace in all strings in Model
+                Model = UpdateModel(Model);
+                Fs = fieldnames(Model);
+                for i = 1:length(Fs)
+                    if ischar(Model.(Fs{i})) 
+                        Model.(Fs{i}) = strrep(Model.(Fs{i}), Old, New);
+                    end
+                end
+                [GuiPars, GuiModel] = UpdateTables(Model);
+                UpdateInfo(GuiModel, eventdata);
+                figure(GuiFig);
+                samsrf_clrscr;
+                samsrf_disp(['Replaced all instances of "' Old '" with "' New '".']);
                 samsrf_newline;
-                samsrf_disp('Combining hemispheres...');
-                L = load('lh_benson.mat');
-                R = load('rh_benson.mat');
-                Srf = samsrf_bilat_srf(L.Srf, R.Srf);
-                save('bi_benson', 'Srf');
-                samsrf_disp('Saved bi_benson.mat');
-                cd ROIs_Benson
-                samsrf_newline;
-                samsrf_bilat_label(Srf, 'V1');
-                samsrf_bilat_label(Srf, 'V2');
-                samsrf_bilat_label(Srf, 'V3');
-                % Clear & go back
-                clear L R Srf
-                cd(cf);
-                samsrf_done;
+                samsrf_disp(['Working folder is now: ' wp]);
             end
         end
     end
@@ -913,7 +979,7 @@ samsrf_disp('*******************************************************************
 
         % Convert data to Srf
         Srf = [];
-        DataFiles = GuiFiles.Items;
+        DataFiles = GuiFiles.Items;            
         [dp,dn,de] = fileparts(DataFiles{1});
         % What file format?
         if strcmpi(de, '.nii')
@@ -976,8 +1042,6 @@ samsrf_disp('*******************************************************************
             samsrf_clrscr;
             samsrf_disp('ERROR: Something went wrong with importing data!');
         else
-            cf = pwd;
-            cd(dp);
             switch Algorithm
                 case 'samsrf_fit_prf'
                     % Forward-model pRF analysis
@@ -1024,12 +1088,305 @@ samsrf_disp('*******************************************************************
                         samsrf_export_giis(Srf, [Srf.Hemisphere '_' Model.Name]);
                     end
                 end
+                samsrf_done;
             end
-            cd(cf);
-            samsrf_done;
         end
     end
     
+    %% Run analysis batch
+    function FcnRunBatch(src,event)
+        % Current working folder
+        wp = pwd;
+        % Select main folder
+        bp = uigetdir('../..', 'Select main folder');
+        if ~isscalar(bp)
+            % Select subjects
+            DataBatch = dir([bp filesep '*.']);
+            DataBatch = {DataBatch.name}';
+            x = listdlg('ListString', DataBatch, 'PromptString', 'Select subjects to analyse');
+            if ~isempty(x)
+                % Selected subjects but ignore . & ..
+                DataBatch = DataBatch(x);
+                DataBatch = DataBatch(~strcmpi(DataBatch, '.') & ~strcmpi(DataBatch, '..'));
+
+                % Current subject ID
+                CurSub = '';
+                for i = 1:length(DataBatch)
+                    if contains(wp, DataBatch{i})
+                        CurSub = DataBatch{i};
+                    end
+                end
+
+                % Ready to run batch?
+                if isempty(CurSub)
+                    samsrf_error('Cannot find this subject in your batch! Are you sure you''re in the correct working folder?');
+                else
+                    % Open batch window
+                    Bf = uifigure('Name', 'SamSrfX Batch Analysis');
+                    Bf.Position(3) = 300; % Narrower than normal
+                    Bg = uigridlayout(Bf, [1 1]);
+                    Bt = table;
+                    Bt.Subject = DataBatch;     
+                    Bt = uitable(Bg, 'Data', Bt, 'ColumnEditable', false);
+                    Bt.Enable = 'inactive';
+    
+                    % Loop thru subjects
+                    for i = 1:length(DataBatch)
+                        % Replace string with current subject
+                        FcnRepStr(CurSub, DataBatch{i});
+                        Bt.Selection = [i 1];
+                        CurSub = DataBatch{i};
+                        figure(Bf);
+                        pause(.1);
+                        % Analyse this subject
+                        FcnAnalyseRun([],[]);
+                        % Record as completed
+                        Bt.Data.Subject{i} = [Bt.Data.Subject{i} ' completed'];
+                        figure(Bf);
+                    end
+                    samsrf_newline;
+                    samsrf_disp(['Completed batch analysis of ' num2str(length(DataBatch)) ' subjects!']);
+                end
+            end
+        end
+    end
+
+    %% Create Benson maps
+    function FcnBensonMaps(src,event)
+        bp = uigetdir('../benson', 'Select folder with Benson GII files');
+        figure(GuiFig);
+        if ~isscalar(bp) 
+            if strcmpi(GuiSurf.Value{3}, '< None selected >')
+                samsrf_error('Surf folder not defined!');
+            else
+                cf = pwd;
+                cd(bp);
+                samsrf_clrscr;
+
+                % Left hemisphere 
+                if exist('lh_benson.gii', 'file')
+                    samsrf_benson2srf('lh_benson', GuiSurf.Value{3});
+                else
+                    samsrf_error('lh_benson.gii does not exist!');
+                end
+                samsrf_newline;
+                % Right hemisphere 
+                if exist('rh_benson.gii', 'file')
+                    samsrf_benson2srf('rh_benson', GuiSurf.Value{3});
+                else
+                    samsrf_error('rh_benson.gii does not exist!');
+                end
+                % Combine hemispheres
+                samsrf_newline;
+                samsrf_disp('Combining hemispheres...');
+                L = load('lh_benson.mat');
+                R = load('rh_benson.mat');
+                Srf = samsrf_bilat_srf(L.Srf, R.Srf);
+                save('bi_benson', 'Srf');
+                samsrf_disp('Saved bi_benson.mat');
+                cd ROIs_Benson
+                samsrf_newline;
+                samsrf_bilat_label(Srf, 'V1');
+                samsrf_bilat_label(Srf, 'V2');
+                samsrf_bilat_label(Srf, 'V3');
+                % Clear & go back
+                clear L R Srf
+                cd(cf);
+                samsrf_done;
+            end
+        end
+    end
+
+    %% Template to Native conversion
+    function FcnTmp2Nat(src,event)
+        if strcmpi(GuiSurf.Value{3}, '< None selected >')
+            samsrf_error('Surf folder not defined!');
+        else
+            [nn, np] = uigetfile('*.mat', 'Select native data');
+            tp = uigetdir('*.mat', 'Select template map folder');            
+            figure(GuiFig);
+            if ~isscalar(nn) 
+                samsrf_clrscr;
+                cf = cd;
+                cd(np);
+                Template2NativeMap(nn, GuiSurf.Value{3}, tp);
+                cd(cf);
+                samsrf_done;
+            end
+        end
+    end
+
+    %% Native to Template conversion
+    function FcnNat2Tmp(src,event)
+        if strcmpi(GuiSurf.Value{3}, '< None selected >')
+            samsrf_error('Surf folder not defined!');
+        else
+            [nn, np] = uigetfile('*.mat', 'Select native data');            
+            figure(GuiFig);
+            if ~isscalar(nn) 
+                samsrf_clrscr;
+                SamSrfDefs = LoadSamSrfDefaults;
+                if isfield(SamSrfDefs, 'def_fsaverage') && ~isempty(SamSrfDefs.def_fsaverage)                
+                    cf = cd;
+                    cd(np);
+                    Native2TemplateMap([np nn(1:end-4)], GuiSurf.Value{3}, [SamSrfDefs.def_fsaverage filesep 'surf']);
+                    cd(cf);
+                    samsrf_done;
+                else
+                    samsrf_error('No template brain defined!');
+                end
+            end
+        end
+    end
+
+    %% Plot by eccentricity
+    function FcnPlotByEccen(srf,event)
+        [mn, mp] = uigetfile('*.mat', 'Select map file');
+        if ~isscalar(mn)
+            % Load map
+            load([mp mn]);
+            Srf = samsrf_expand_srf(Srf);
+            
+            % Select ROIs
+            [Rois, rp] = uigetfile('*.label', 'Select ROI labels', 'MultiSelect', 'on');
+            if ischar(Rois)
+                Rois = {Rois(1:end-6)};
+            elseif isscalar(Rois)
+                Rois = {''};
+            end
+            if length(Rois) > 1
+                Colours = lines(length(Rois));
+                for r = 1:length(Rois)
+                    Rois{r} = Rois{r}(1:end-6); % Remove label extension
+                end
+            else
+                Colours = [0 0 0];
+            end
+            
+            % Define R^2 threshold
+            Thrsh = inputdlg('R^2 threshold: ', 'Select R^2 threshold');
+            Thrsh = str2double(cell2mat(Thrsh));
+            if isnan(Thrsh)
+                samsrf_error('Invalid R^2 threshold entered!');
+                Thrsh = 0;
+            end
+           
+            % Select data field
+            ValNum = listdlg('ListString', Srf.Values, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
+            if isempty(ValNum)
+                samsrf_disp('You must pick a field! Selecting 1st one...');
+                ValNum = 1;
+            end
+            
+            % Define bins
+            Bins = inputdlg('Eccentricity bins: ', 'Select eccentricity bins');
+            try
+                Bins = eval(['[' cell2mat(Bins) ']']);
+            catch
+                samsrf_error('Invalid eccentricity bins entered!');
+                Bins = [0 Inf];
+            end
+
+            % Loop thru ROIs
+            figure('Name', [Srf.Values{ValNum} ' by eccentricity']);
+            hs = [];
+            for r = 1:length(Rois)
+                T = table;
+                if length(Bins) > 2
+                    % Binned medians
+                    [Res,h] = samsrf_plot(Srf, Srf.Values{ValNum}, Srf, 'Eccentricity', Bins, [rp Rois{r}], Thrsh, 'Median', Colours(r,:));
+                    T.Eccentricity_Bin = Res(:,1);
+                    T.(['Median_' Srf.Values{ValNum}]) = Res(:,2);
+                    T.Lower_Bound = Res(:,3);
+                    T.Upper_Bound = Res(:,4);
+                    T.Num_Data_Pts = Res(:,5);
+                else
+                    % Scatter plot
+                    [Res,h] = samsrf_plot(Srf, Srf.Values{ValNum}, Srf, 'Eccentricity', Bins, [rp Rois{r}], Thrsh, 'Scatter', Colours(r,:));
+                    T.Eccentricity = Res(:,1);
+                    T.(Srf.Values{ValNum}) = Res(:,2);
+                end
+                hs = [hs h];
+                % Save results
+                writetable(T, [mn(1:end-4) '_' Srf.Values{ValNum} '-vs-Eccentricity_' Rois{r} '_R^2=' num2str(Thrsh*100) '%.csv']);
+            end
+            title([Srf.Values{ValNum} ' by eccentricity']);
+            legend(hs, Rois);
+        end        
+    end
+
+    %% Visual field coverage plots
+    function FcnVisFldCov(src,event)
+        [mn, mp] = uigetfile('*.mat', 'Select map file');
+        if ~isscalar(mn)
+            % Load map
+            load([mp mn]);
+            Srf = samsrf_expand_srf(Srf);
+            
+            % Select ROIs
+            [Rois, rp] = uigetfile('*.label', 'Select ROI labels', 'MultiSelect', 'on');
+            if isscalar(Rois)
+                samsrf_error('You must select a ROI!');
+            elseif ischar(Rois)
+                Rois = {Rois(1:end-6)};
+            end
+            if length(Rois) > 1
+                for r = 1:length(Rois)
+                    Rois{r} = Rois{r}(1:end-6); % Remove label extension
+                end
+            end
+
+            % Define R^2 threshold
+            Thrsh = inputdlg('R^2 threshold: ', 'Select R^2 threshold');
+            Thrsh = str2double(cell2mat(Thrsh));
+            if isnan(Thrsh)
+                samsrf_error('Invalid R^2 threshold entered!');
+                Thrsh = 0;
+            end
+            
+            % Loop thru ROIs
+            for r = 1:length(Rois)
+                figure('Name', ['Visual Field Coverage - ' Rois{r}]);
+                samsrf_vfcoverage(Srf, Model.Scaling_Factor, [rp Rois{r}], Thrsh);
+                axis([-1 1 -1 1] * Model.Scaling_Factor);
+                colormap(samsrf_cmap('batlow'));
+            end
+        end
+    end
+
+    %% Model information
+    function FcnModelInfo(src,event)
+        if strcmpi(Algorithm, 'samsrf_fit_prf') && ~isfield(Model, 'SeedRoi')          
+            GuiInfo.Value = {'Forward-modelling pRF analysis'; ''; 
+                             'The standard approach for pRF analysis based on the original description by Dumoulin & Wandell, 2008. See the Introduction to pRF document for more detail.'; ''; 
+                             'Essentially, the model works by predicting the neural response of an assumed pRF model to the stimuli as defined in your apertures file. This is then usually convolved with an HRF (which may be predefined or fit concurrently) and may also involve a compressive nonlinearity of the response.'; ''; 
+                             'The model then attempts to find the pRF parameters that provide the best fit of this predicted time series with the actually measured response. This can be done via a coarse-to-fine fitting approach or by initialising the fit using a map, e.g. a coarse-fit you already ran before, a group-average atlas map, or the maps predicted by the DeepRetinotopy model.'; '';
+                             'This approach probably yields the best estimates of pRF size, that is, how selective a given voxel is to stimulus position. However, this is based on a lot of assumptions (such as the shape and parameters of your pRF model) and can take a long time to fit.'};
+
+        elseif strcmpi(Algorithm, 'samsrf_revcor_prf')
+            GuiInfo.Value = {'Reverse correlation pRF analysis'; ''; 
+                             'This approach uses reverse correlation to fit a pRF like in our study Urale et al., 2022, Human Brain Mapping.'; ''; 
+                             'The analysis convolves the stimulus apertures with a predefined HRF and the correlates these convolved apertures with the actual measured response for each voxel. This yields a correlation profile of where in the stimulus space the voxel responded. By default, this only quantifies basic geometric properties of this profile but you can also fit a pRF model to this profile.'; '';
+                             'This approach makes far fewer assumptions and is -much- faster than forward-modelling pRF analysis. In our blind spot mapping study we found that it is also much more accurate in delineating scotomas. This makes sense because it captures irreguar shapes of responses without forcing a pRF model on them (unless you deliberately fit a pRF model to the reverse correlation profiles of course).'; '';
+                             'Estimates of pRF size are not directly comparable to those from forward-modelling analysis especially when you use a stimulus design with strong spatio-temporal correlations (i.e. most people).'};
+
+        elseif strcmpi(Algorithm, 'samsrf_revcor_cf')
+            GuiInfo.Value = {'Reverse correlation CF analysis'; ''; 
+                             'This approach uses reverse correlation to fit a connective field like in our study Tangtartharakul et al., 2023, Human Brain Mapping.'; ''; 
+                             'The analysis takes activity in a seed ROI (such as V1) and correlates this with the measured time series for a voxel. This yields a correlation profiles across the seed ROI. Using a template retinotopic map (e.g. the Benson templates, DeepRetinotopy prediction, or an empirical pRF map) these correlations are then projected into stimulus space to produce a correlation profile (e.g. a reflection of the CF in the visual field). By default, only basic geometric properties of this profile are estimated, although you can also fit a 2D Gaussian model to these.'; '';
+                             'Estimates of the CF size are not directly comparable to pRF size from forward-modelling analysis. They reflect different things: while pRFs show how a voxel''s response is modulated as the stimulus traverse space, the CF reflects how neighbouring voxels coactivate. There is clearly a relationship between these measures but they are no equivalent.'};
+
+        elseif strcmpi(Algorithm, 'samsrf_fit_prf') && isfield(Model, 'SeedRoi')          
+            GuiInfo.Value = {'Deriving forward-modelling pRF estimates from CF profiles'; ''; 
+                             'This approach uses standard forward-modelling pRF analysis to fit CF models directly in stimulus space.'; ''; 
+                             'The analysis first uses a template retinotopic map (e.g. the Benson templates, DeepRetinotopy prediction, or an empirical pRF map) of a seed ROI (such as V1) to project brain activity during your runs into the stimulus space. These backprojections are then used in the same way stimulus apertures are used in normal forward-modelling pRF analysis.'; '';
+                             'This approach may yield better guestimates of pRF size from CF data than reverse correlation CF analysis but the caveats for CF analysis also apply here (anyway, watch this space - this analysis is still experimental!). Like forward-modelling pRF analysis it is based on a lot of assumptions (such as the shape and parameters of your pRF model) and due to the amount of data and noisy responses it typically takes a long time to fit.'};
+
+        else
+            GuiInfo.Value = {'Something is amiss! I do not know anything about this algorithm!'}; 
+        end
+    end
+
     %% Help on Files 
     function HelpOnFiles(source, eventdata)
         GuiInfo.Value = {'Help for data file list';
@@ -1044,6 +1401,7 @@ samsrf_disp('*******************************************************************
     %% Select file
     function FcnFileLoad(fwc, eventdata)
         [rn, rp] = uigetfile(fwc);
+        figure(GuiFig);
         if ~isscalar(rn)
             [rp, rn] = fileparts([rp rn]); % Remove extension
             GuiModel.Data.Value(eventdata.DisplaySelection(1)) = {[rp filesep rn]}; 
@@ -1052,6 +1410,7 @@ samsrf_disp('*******************************************************************
 
     %% Clear global variables when figure is closed
     function SamSrfCloseReq(src, evnt)
+        samsrf_clrscr;
         samsrf_newline;
         samsrf_disp('SamSrf says:'); 
         samsrf_disp(' "I hope you''ll come back to be annoyed by me again soon...');
@@ -1059,7 +1418,7 @@ samsrf_disp('*******************************************************************
         samsrf_newline;
         pause(1);
 
-        clear global GuiInfo wb
+        clear global SamSrfXPath GuiInfo wb
         delete(src);
     end
 end

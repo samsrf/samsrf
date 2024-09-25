@@ -86,14 +86,7 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 %                If only two inputs are defined, the second input defines
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
-% 09/04/2022 - Changed scatter plot to use transparent dots instead of crosses (DSS)
-%              Removed Octave compatibility because never gonna happen (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 15/07/2023 - Fixed bug with handle for polar plots (DSS)
-%              Polar plots are now enforce square scaled (DSS)
-% 31/08/2023 - Added option to provide ROI vertex indeces instead of char (DSS)
-% 03/09/2023 - Now allows plotting time courses of EEG data (DSS)
-% 17/11/2023 - Binning now includes minimum boundary (DSS)
+% 20/09/2024 - Adjusted scaling of X-axis (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -358,6 +351,7 @@ if strcmpi(Mode, 'Scatter')
         Bins = [-Inf Inf];
     end
     Res(Res(:,1)<Bins(1) | Res(:,1)>Bins(end),:) = []; % Restrict range 
+    hold on
     FigHdl = scatter(Res(:,1), Res(:,2), 'filled', 'markerfacecolor', Colour);
     alpha(FigHdl, 0.1);
     ylabel([ValDv RawLabelDv]);
@@ -381,8 +375,15 @@ else
         hold on
         plot(Res(:,1), Res(:,2)+Res(:,3), 'linestyle',':', 'color', Colour); % CI lower limit
         plot(Res(:,1), Res(:,2)+Res(:,4), 'linestyle',':', 'color', Colour); % CI upper limit
-        ylabel([ValDv RawLabelDv]);
+        ylabel([Mode ' ' ValDv RawLabelDv]);
         xlabel([ValIv RawLabelIv]);
+        if length(Bins) == 3 && Bins(end) < 0
+            % Sliding windows
+            xlim(Bins(1:2));
+        else
+            % Fixed bins 
+            xlim([Bins(1) Bins(end)]);
+        end
     end
 end
 

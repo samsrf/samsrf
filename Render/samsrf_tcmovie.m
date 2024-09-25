@@ -14,8 +14,7 @@ function samsrf_tcmovie(Srf, Mesh, Thrsh, Paths, CamView, MapType, ColorMap)
 % ColorMap defines the colour map to use for projecting signal. 
 %   This can either be a 
 %
-% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 20/09/2024 - Fixed for JSON file for default parameters (DSS)
 %
 
 %% Defaults
@@ -35,9 +34,8 @@ if nargin < 7
     ColorMap = [];
 end
 
-%% Load default parameters?
-samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
-load('SamSrf_defaults.mat');
+%% Load default parameters
+SamSrfDefs = LoadSamSrfDefaults;
 
 %% Create figure handle
 fh = figure;
@@ -47,12 +45,12 @@ Srf = samsrf_expand_srf(Srf);
 
 %% Load curvature
 Curv = Srf.Curvature;
-if exist('def_curv', 'var')
-    if strcmpi(def_curv, 'Greyscale')
+if isfield(SamSrfDefs, 'def_curv')
+    if strcmpi(SamSrfDefs.def_curv, 'Greyscale')
         % Greyscale for curvature
         CurvGrey = gray(11); % Grey scale colour map
         CurvGrey = CurvGrey(1:10,:); % Remove black & white
-    elseif strcmpi(def_curv, 'FreeSurfer')
+    elseif strcmpi(SamSrfDefs.def_curv, 'FreeSurfer')
         % Freesurfer-like curvature
         CurvGrey = gray(4); % Gray scale colour map
         CurvGrey = CurvGrey(2:3, :); % Remove black & white
@@ -182,18 +180,12 @@ Pha(Pha==0) = 1;
 
 % If colour map is string
 if ischar(ColorMap)
-    % Not explicitly inverted?
-    if ColorMap(1) ~= '-'
+    % Not explicitly signed?
+    if ColorMap(1) ~= '-' && ColorMap(1) ~= '+'
         ColorMap = ['+' ColorMap]; % Label explictly as upright
     end
     % Create colour map
-    cmap = eval([ColorMap '(200)']);
-    % Inverted colour map?
-    if ColorMap(1) == '-'
-        cmap = flipud(cmap);
-    end
-    % Now store in original variable
-    ColorMap = cmap;
+    ColorMap = samsrf_cmap(ColorMap, 200);
 end
 
 % Color map
@@ -230,11 +222,42 @@ ax = gca;
 ax.Clipping = 'off';
 set(gca, 'projection', 'perspective');
 
-% Apply CamView, if any
-if ~isempty(CamView)
-    set(gca, 'view', CamView(1:2));
-    zoom(CamView(3));
+% Apply CamView
+if isempty(CamView)
+    SamSrfDefs = LoadSamSrfDefaults;
+    if ~isfield(SamSrfDefs, 'def_views')
+        samsrf_disp('WARNING: def_views not defined in SamSrf_defaults.json');
+        % Focus on early visual cortex
+        if Srf.Hemisphere(1) == 'l'
+            % Left hemisphere
+            CamView = [15 -30 1.8];
+        elseif Srf.Hemisphere(1) == 'r'
+            % Right hemisphere
+            CamView = [-13 -38 1.8];
+        else
+            % Both hemispheres
+            CamView = [4 -30 2.2];
+        end
+    else
+        % Use default camera angle
+        if Srf.Hemisphere(1) == 'l'
+            % Left hemisphere
+            CamView = SamSrfDefs.def_views(:,1)';
+        elseif Srf.Hemisphere(1) == 'r'
+            % Right hemisphere
+            CamView = SamSrfDefs.def_views(:,2)';
+        else
+            % Both hemispheres
+            if size(SamSrfDefs.def_views,2) > 2
+                CamView = SamSrfDefs.def_views(:,3)';
+            else
+                CamView = [4 -30 2.2];
+            end
+        end
+    end
 end
+set(gca, 'view', CamView(1:2));
+zoom(CamView(3));
 
 %% User input
 
@@ -285,5 +308,3 @@ close(vidObj);
 % Show last frame
 fh.Visible = 'on';
 
-% Done
-%

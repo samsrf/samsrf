@@ -24,7 +24,8 @@ function Srf = samsrf_gii2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %                 If this is empty, the anatomy is not split off!
 %
 % 04/09/2024 - Clarifications in help section (DSS)
-%              Now allows returning an Srf instead of saving it.
+%              Now allows returning an Srf instead of saving it. (DSS)
+% 19/09/2024 - Srf.Structural is now the subject's surf folder (DSS)
 %
 
 %% Default parameters

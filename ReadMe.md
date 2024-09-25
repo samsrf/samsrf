@@ -58,7 +58,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 9.952 (19-09-2024) - Beta Version!!!  
+### Version 9.98 (25-09-2024) - SamSrf X-Beta - *Use at own risk!!!*  
 - Created new GUI called SamSrfX for running analysis & inspecting results (DSS)  
 - Modifications needed for standalone GUI app & integration into NeuroDesk (DSS)  
 - When using GUI, information is now displayed there instead of command window (DSS)  
@@ -74,6 +74,8 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 - SamSrf GUI now also can call DisplayMaps tool (DSS)  
 - Replaced colour map functions with editable CSV files (DSS)  
 - Replaced SamSrf_defaults.mat with editable JSON file (DSS)  
+- Added batch analysis & option to replace subject IDs in SamSrfX (DSS)  
+- SamSrfX can now show basic explanation of different algorithms (DSS)  
 
 ### Version 9.9 (08-08-2024)  
 - Added alternative functionality for multi-condition designs in pRF models (DSS)   

@@ -12,12 +12,11 @@ function samsrf_drawpaths(PatchHdl, Paths, Colour, Srf)
 %   Colour:     1x3 vector with colour RGB value or Inf to make transparent path
 %   Srf:        Srf with surface data - only required if loading .label files
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
-% 03/10/2023 - Removed overly verbose defaults message (DSS)
+% 20/09/2024 - Fixed for JSON file for default parameters (DSS)
 %
 
 %% Load default parameters?
-load('SamSrf_defaults.mat');
+SamSrfDefs = LoadSamSrfDefaults;
 
 %% Ensure cell array
 if ~iscell(Paths)
@@ -49,8 +48,8 @@ for i = 1:length(Paths)
 end
 
 %% Default path thickness defined?
-if exist('def_pathwidth', 'var')
-    for i = 1:def_pathwidth-1
+if isfield(SamSrfDefs, 'def_pathwidth')
+    for i = 1:SamSrfDefs.def_pathwidth-1
         Vs_paths = [Vs_paths; samsrf_neighbours(Vs_paths, Srf.Faces)];
     end
 end

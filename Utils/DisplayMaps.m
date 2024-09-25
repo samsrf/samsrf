@@ -33,9 +33,8 @@ end
 function DisplayMaps_OpeningFcn(hObject, eventdata, handles, varargin)
 global Srf RoiName Pval
 
-samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.json')]);
 SamSrfDefs = LoadSamSrfDefaults;
-if ~exist('SamSrfDefs.defs_disproi')
+if ~exist('SamSrfDefs.def_disproi')
     SamSrfDefs.defs_disproi = NaN; 
 end
 
@@ -45,16 +44,19 @@ RoiName = SamSrfDefs.defs_disproi; % ROI name to limit the mesh (without hemisph
 Pval = 0.0001; % Starting p-value with which to threshold maps
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 
-%% Welcome message
+%% Version info
 [vn,vd] = samsrf_version;
+
+%% Welcome message
 samsrf_clrscr; 
-samsrf_disp('****************************************************************************');
-samsrf_disp('     Kia ora to the Seriously Annoying MatLab Surfer Map Display Tool!');
-samsrf_disp('     by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('********************************************************************************************');
+samsrf_disp('                                Kia ora!');
+samsrf_disp('     Welcome to the Seriously Annoying MatLab Surfer Map Display Tool!');
+samsrf_disp('     by D.S. Schwarzkopf from the University of Auckland, New Zealand');
 samsrf_newline;
 samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
 samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('****************************************************************************');
+samsrf_disp('********************************************************************************************');
 
 % Choose default command line output for DisplayMaps
 handles.output = hObject;
@@ -83,6 +85,9 @@ global Srf Pval R2Thrsh
 
 %% Load surface data file
 [fn,pn] = uigetfile('*.mat', 'Load Srf');
+if isscalar(fn)
+    samsrf_error('No map file selected!');
+end
 cd(pn); % Navigate to folder as otherwise anatomicals cannot be loaded
 load(fn); % Load Srf 
 samsrf_newline;

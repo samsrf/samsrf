@@ -2,7 +2,7 @@ function samsrf_benson2srf(gii, surfdir, anatpath)
 % 
 % samsrf_benson2srf(gii, surfdir, [anatpath])
 %
-% Converts a Benson-style map prediction MGH file into a SamSrf surface file.
+% Converts a Benson-style map prediction GII file into a SamSrf surface file.
 %   (Need to select the 'all' file containing polar, eccentricity, and ROIs)
 % Also saves the ROI labels for V1-V3 in a subfolder called ROIs_Benson.
 %

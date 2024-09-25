@@ -26,9 +26,6 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 %
 
 %% Default parameters
-if exist('SamSrf_defaults.mat', 'file')
-    load('SamSrf_defaults.mat');
-end
 if nargin < 2
     roi = [];
 end

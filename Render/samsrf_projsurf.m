@@ -15,8 +15,7 @@ function OutSrf = samsrf_projsurf(Srf, Mesh, Img, Eccen, Thrsh, CamView)
 % This projection does not use pRF size but only position. It also simply 
 % uses the pixel nearest to the pRF position rather than interpolating. 
 %
-% 13/03/2022 - Now reports which default parameter file it's loading (DSS)
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 20/09/2024 - Fixed for JSON file for default parameters (DSS)
 %
 
 %% Expand Srf if necessary
@@ -119,32 +118,38 @@ OutSrf.Values = {'R^2'; 'Red'; 'Green'; 'Blue'};
 set(fh, 'name', 'Cortical image', 'color', 'w');
 patch('vertices', Vertices, 'faces', Faces(:,[1 3 2]), 'FaceVertexCData', Colours, 'FaceColor', 'interp', 'EdgeColor', 'none');
 axis off;
+ax = gca;
+ax.Clipping = 'off';
 if nargin < 7
-    if exist('SamSrf_defaults.mat', 'file')
-        samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.mat')]);
-        load('SamSrf_defaults.mat');
-        if ~exist('def_views', 'var')
-            % Focus on early visual cortex
-            samsrf_disp('Warning: def_views is not defined in SamSrf_defaults.mat!');
-            if Srf.Hemisphere(1) == 'l'
-                CamView = [42 -2 1.8];
-            else
-                CamView = [-50 -6 1.6];
-            end
-        else
-            % Use default camera angle
-            if Srf.Hemisphere(1) == 'l'
-                CamView = def_views(:,1)';
-            else
-                CamView = def_views(:,2)';
-            end
-        end
-    else
+    SamSrfDefs = LoadSamSrfDefaults;
+    if ~isfield(SamSrfDefs, 'def_views')
+        samsrf_disp('WARNING: def_views not defined in SamSrf_defaults.json');
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
-            CamView = [36 -20 1.8];
+            % Left hemisphere
+            CamView = [15 -30 1.8];
+        elseif Srf.Hemisphere(1) == 'r'
+            % Right hemisphere
+            CamView = [-13 -38 1.8];
         else
-            CamView = [-26 -7 1.6];
+            % Both hemispheres
+            CamView = [4 -30 2.2];
+        end
+    else
+        % Use default camera angle
+        if Srf.Hemisphere(1) == 'l'
+            % Left hemisphere
+            CamView = SamSrfDefs.def_views(:,1)';
+        elseif Srf.Hemisphere(1) == 'r'
+            % Right hemisphere
+            CamView = SamSrfDefs.def_views(:,2)';
+        else
+            % Both hemispheres
+            if size(SamSrfDefs.def_views,2) > 2
+                CamView = SamSrfDefs.def_views(:,3)';
+            else
+                CamView = [4 -30 2.2];
+            end
         end
     end
 end

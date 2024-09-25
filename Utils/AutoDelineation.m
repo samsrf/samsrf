@@ -1,6 +1,6 @@
-function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad)
+function AutoDelFile = AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad)
 %
-% AutoDelineation(Srf, NatMesh, TmpMesh, [Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad])
+% AutoDelFile = AutoDelineation(Srf, NatMesh, TmpMesh, [Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad])
 %
 % Simple algorithm to fits the borders of visual regions. It shows a movie 
 % of the search process so you can see how well it's going. Then it saves a 
@@ -48,14 +48,14 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, Max
 % obviously cannot do a great job if you used a much larger field of view
 % than the atlas allows for.
 %
-% The parameters used are saved in the delineation file for posterity.
-% Even though you may need to correct & adjust the automatic delineation,
-% this makes your delineation much more reproducible. The auto-delineation
-% is saved inside the delineation file for posterity so you can compare
-% this to the final version.
+% The parameters used are saved in the delineation file & the function
+% returns the filename. Even though you may need to correct & adjust the 
+% automatic delineation, this makes your delineation much more reproducible. 
+% The auto-delineation is saved inside the delineation file for posterity 
+% so you can compare this to the final version.
 % 
-%   SrfName:    Name of input surface data file with retinotopic map 
-%               NOTE: Must be in current folder!
+%   SrfName:    Srf struct with a pRF map or
+%                name of Srf file with retinotopic map 
 %   NatMesh:    Subject's surf folder which must contain lh/rh.sphere.reg
 %   TmpMesh:    Template's surf folder which must contain lh/rh.sphere
 %
@@ -68,27 +68,37 @@ function AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, Max
 %   Niter:      Number of search iterations (default = 20)
 %   InitRad:    Initial search radius (default = 2)
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 19/09/2024 - Now also takes Srf struct as input map (DSS)
+%              Returns file name of autodelineation (DSS)
 %
 
+global SamSrfXPath
+
 % ROI list for delineation file 
-load('SamSrf_defaults.mat', 'def_roilist');
-if ~exist('def_roilist')
+SamSrfDefs = LoadSamSrfDefaults;
+if ~exist('SamSrfDefs.SamSrfDefs.def_roilist')
     % ROI list if undefined in SamSrf_defaults
     RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 else
     % Pre-defined default ROI list
-    RoiList = def_roilist;
+    RoiList = SamSrfDefs.SamSrfDefs.def_roilist;
 end
 
 %% Parameters
 if nargin < 4
     Atlas = 'InfernoSerpents';
 end
-if ~exist(['AutoDelinAtlas_' Atlas '.mat'], 'file')
-    samsrf_error(['Auto-delineation atlas ' Atlas ' does not exist on the path!']);
+if isempty(SamSrfXPath)
+    % Matlab command window
+    AtlasFile = ['AutoDelinAtlas_' Atlas '.mat'];
+else
+    % SamSrf X GUI
+    AtlasFile = [SamSrfXPath filesep 'Utils' filesep 'AutoDelinAtlas_' Atlas '.mat'];
 end
-AtlasData = load(['AutoDelinAtlas_' Atlas '.mat']);
+if ~exist(AtlasFile, 'file')
+    samsrf_error(['Auto-delineation atlas ' Atlas ' does not exist!']);
+end
+AtlasData = load(AtlasFile);
 % Assign default parameters from atlas file
 RoiSeeds = NaN(length(RoiList),1); % Initialise list of ROI seed vertices
 if nargin < 5 
@@ -125,8 +135,15 @@ samsrf_newline;
 
 %% Load map
 samsrf_disp('Loading map...');
-load(SrfName, 'Srf'); % Load Srf
-SrfName = SrfName(4:end); % Remove prefix
+if isstruct(SrfName)
+    % Map provided as Srf
+    Srf = SrfName;
+    SrfName = 'SamSrfX';
+else
+    % Map file defined
+    load(SrfName, 'Srf'); % Load Srf
+    SrfName = SrfName(4:end); % Remove prefix
+end
 Srf = samsrf_expand_srf(Srf); % Expand Srf
 if ~isfield(Srf, 'Values') % Are there values?
     samsrf_error('This file does not contain a pRF map!');
@@ -181,16 +198,15 @@ for h = 1:length(Hemis)
     end
 
     %% Viewing region
-    load('SamSrf_defaults.mat', 'def_disproi');
-    if ~exist('def_disproi')
-        def_disproi = NaN; 
+    if ~exist('SamSrfDefs.SamSrfDefs.def_disproi')
+        SamSrfDefs.SamSrfDefs.def_disproi = NaN; 
     end
-    if ~isempty(def_disproi) && (def_disproi(1) == '<' || def_disproi(1) == '>')
+    if ~isempty(SamSrfDefs.SamSrfDefs.def_disproi) && (SamSrfDefs.SamSrfDefs.def_disproi(1) == '<' || SamSrfDefs.def_disproi(1) == '>')
         % If ROI defined by coordinates
-        if length(def_disproi) == 1
-            samsrf_error('You must define inflated mesh coordinate in def_disproi!');
+        if length(SamSrfDefs.def_disproi) == 1
+            samsrf_error('You must define inflated mesh coordinate in SamSrfDefs.def_disproi!');
         end
-        switch def_disproi(2)
+        switch SamSrfDefs.def_disproi(2)
             case 'X'
                 wv = Srf.Inflated(:,1);
             case 'Y'
@@ -198,24 +214,24 @@ for h = 1:length(Hemis)
             case 'Z'
                 wv = Srf.Inflated(:,3);
             otherwise
-                samsrf_error('Invalid inflated mesh coordinate specified in def_disproi!');
+                samsrf_error('Invalid inflated mesh coordinate specified in SamSrfDefs.def_disproi!');
         end
-        if length(def_disproi) < 3
-            samsrf_error('You must define inflated mesh cut-off coordinate in def_disproi!');
+        if length(SamSrfDefs.def_disproi) < 3
+            samsrf_error('You must define inflated mesh cut-off coordinate in SamSrfDefs.def_disproi!');
         end
-        wc = str2double(def_disproi(3:end));
-        if def_disproi(1) == '<'
+        wc = str2double(SamSrfDefs.def_disproi(3:end));
+        if SamSrfDefs.def_disproi(1) == '<'
             ViewRoi = find(wv < wc);
-        elseif def_disproi(1) == '>'
+        elseif SamSrfDefs.def_disproi(1) == '>'
             ViewRoi = find(wv > wc);
         end
-        samsrf_disp(['Only displaying inflated mesh vertices with ' def_disproi]);
-    elseif isnan(def_disproi)
+        samsrf_disp(['Only displaying inflated mesh vertices with ' SamSrfDefs.def_disproi]);
+    elseif isnan(SamSrfDefs.def_disproi)
         % Use ROI from Srf
         samsrf_disp('Using ROI from Srf if it exists');
     else
         % Load region of interest
-        Roi = [Hemis{h} 'h_' def_disproi];
+        Roi = [Hemis{h} 'h_' SamSrfDefs.def_disproi];
         ViewRoi = samsrf_loadlabel(Roi);
         samsrf_disp(['Only displaying ROI ' Roi]);
     end
@@ -528,13 +544,15 @@ for h = 1:length(Hemis)
         Vs = [Vs; Paths{i}];
     end
     % Saves everything to disc
+    AutoDelFile = ['autodel_' Hemis{h} 'h_' SrfName '.mat'];
     samsrf_newline;
-    save(['autodel_' Hemis{h} 'h_' SrfName], 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds', 'AutoDelin');
-    samsrf_disp(['Saved auto-delineation autodel_' Hemis{h} 'h_' SrfName '.mat']);
+    save(AutoDelFile, 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds', 'AutoDelin');
+    samsrf_disp(['Saved auto-delineation ' AutoDelFile]);
 
     %% Display final delineation
     samsrf_surf(Srf, 'Sphere', [R2Thresh 0 0 MinEcc MaxEcc -.1], DrawPaths, '', 'Polar', ph);
-    set(gcf, 'name', 'Inspect auto delineation');
+    set(gcf, 'Name', 'Inspect auto delineation', 'CloseRequestFcn', 'closereq');
+    clear global Type Data CurvGrey fh fv pv % Clearing all but Vertices to avoid failure in DelineationTool
     rotate3d;
     samsrf_disp('Don''t forget to inspect & correct in DelineationTool before labelling the ROIs!');
     samsrf_newline;

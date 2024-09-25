@@ -3,7 +3,7 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 % img = samsrf_colourcode(vartype, [scale, colmap])
 %
 % Displays the pseudo-colour codes for samsrf_surf. 
-% Note: this will reflect if you redefined the colour maps in SamSrf_defaults.mat. 
+% Note: this will reflect if you redefined the colour maps in SamSrf_defaults.json. 
 %   
 %   vartype :     'Polar_Lh', 'Polar_Rh', 'Eccen', 'Sigma', 'R^2', or 'Polar_Eeg'
 %   scale :       Optional, determines the size of the image (defaults = 100%)
@@ -11,7 +11,6 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 %
 % The output of this function is a bitmap which can be displayed or saved.
 % 
-% 20/04/2022 - SamSrf 8 version (DSS)
 % 31/10/2023 - Added option for M/EEG colour wheel (DSS)
 %
 

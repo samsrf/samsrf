@@ -8,7 +8,8 @@ function varargout = DelineationTool(varargin)
 %  If you wish to change default parameters change them in this script.
 %  Look for the section indicated by '%%% %%% %%%'.
 %
-% 20/04/2022 - SamSrf 8 version (DSS)
+% 19/09/2024 - Added autodelineation button (DSS)
+%              Various smaller bugfixes (DSS)
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -49,25 +50,24 @@ guidata(hObject, handles);
 
 
 %% Global variables
-global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
+global SrfPath SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct 
 
-samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.json')]);
 SamSrfDefs = LoadSamSrfDefaults;
-if ~exist('SamSrfDefs.defs_disproi')
-    SamSrfDefs.defs_disproi = NaN; 
+if ~exist('SamSrfDefs.def_disproi')
+    SamSrfDefs.def_disproi = NaN; 
 end
-if ~exist('SamSrfDefs.defs_roilist')
+if ~exist('SamSrfDefs.def_roilist')
     % ROI list if undefined in SamSrf_defaults
-    SamSrfDefs.defs_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
+    SamSrfDefs.def_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 end
 
 %% Default parameters (Change at your own leisure/peril!)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 Mesh = 'sphere'; % Which cortex model to use (Anything but 'sphere' is likely to cause problems with vertex selection! 
-RoiName = SamSrfDefs.defs_disproi; % ROI name without hemisphere
+RoiName = SamSrfDefs.def_disproi; % ROI name without hemisphere
 Pval = 0.0001; % Starting p-value with which to threshold maps
 ActPrct = [5 95]; % Percentiles to threshold activation maps
-RoiList = SamSrfDefs.defs_roilist; % ROI list
+RoiList = SamSrfDefs.def_roilist; % ROI list
 RoiColours = [[1 0 0]; [0 1 0]; [0 0 1]; [1 0 1]; [0 1 0]; [0 0 1]; hsv(6); jet(6)]; % Colours of ROIs
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
  
@@ -83,9 +83,14 @@ EccThrsh = EccVec(1:2);
 
 %% Load map data & mesh folder & region of interest
 % Load data
-SrfName = uigetfile('*_*.mat', 'Select pRF map');
+[SrfName, SrfPath] = uigetfile('*_*.mat', 'Select pRF map');
+if isscalar(SrfName)
+    samsrf_error('No map chosen!');
+end
 SrfName = SrfName(1:end-4);
-load(SrfName);
+warning off
+load([SrfPath SrfName]);
+warning on
 [Srf, vx] = samsrf_expand_srf(Srf);
 % Is this bilateral Srf?
 if upper(Srf.Hemisphere(1)) == 'B'
@@ -99,6 +104,7 @@ if upper(Srf.Hemisphere(1)) == 'B'
         clear lh_Srf rh_Srf % We already hog enough memory as it is...
     elseif SelHem(1) == 'R'
         vx(vx <= Srf.Nvert_Lhem) = []; % Remove left hemisphere ROI vertices
+        vx = vx - Srf.Nvert_Lhem; % Correct indices for right hemisphere
         Srf = rh_Srf; % Srf is now right hemisphere
         SrfName = ['rh_' SrfName(4:end)]; % Correct name for loading & saving later
         clear lh_Srf rh_Srf % We already hog enough memory as it is...
@@ -109,7 +115,7 @@ end
 if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
     % If ROI defined by coordinates
     if length(RoiName) == 1
-        samsrf_error('You must define inflated mesh coordinate in SamSrfDefs.defs_disproi!');
+        samsrf_error('You must define inflated mesh coordinate in SamSrfDefs.def_disproi!');
     end
     switch RoiName(2)
         case 'X'
@@ -119,10 +125,10 @@ if ~isempty(RoiName) && (RoiName(1) == '<' || RoiName(1) == '>')
         case 'Z'
             wv = Srf.Inflated(:,3);
         otherwise
-            samsrf_error('Invalid inflated mesh coordinate specified in SamSrfDefs.defs_disproi!');
+            samsrf_error('Invalid inflated mesh coordinate specified in SamSrfDefs.def_disproi!');
     end
     if length(RoiName) < 3
-        samsrf_error('You must define inflated mesh cut-off coordinate in SamSrfDefs.defs_disproi!');
+        samsrf_error('You must define inflated mesh cut-off coordinate in SamSrfDefs.def_disproi!');
     end
     wc = str2double(RoiName(3:end));
     if RoiName(1) == '<'
@@ -150,8 +156,7 @@ if ~isnan(vx)
     Srf.Vertices(roivx,:) = NaN;
 end
 if ~isfield(Srf, 'Values')
-    samsrf_disp('This file does not contain a pRF map!');
-    return
+    samsrf_error('This file does not contain a pRF map!');
 end
 Srf.Values{end+1} = 'Custom';
 if sum(strcmpi(Srf.Values, 'Beta')) == 1
@@ -219,27 +224,31 @@ end
 
 %% Display maps
 CalculateMapRgb;
+[hp pp] = DisplayMesh('Polar map', Srf, Vertices, Faces, PolRgb);
+[he pe] = DisplayMesh('Eccentricity map', Srf, Vertices, Faces, EccRgb);
 [hc pc] = DisplayMesh('Cortex & ROIs', Srf, Vertices, Faces, CfRgb);
 [hf pf] = DisplayMesh(FsMapName, Srf, Vertices, Faces, FsRgb);
-[he pe] = DisplayMesh('Eccentricity map', Srf, Vertices, Faces, EccRgb);
-[hp pp] = DisplayMesh('Polar map', Srf, Vertices, Faces, PolRgb);
 set(hc, 'Units', 'normalized');
 fpos = get(hc, 'Position');
-set(hc, 'Units', 'normalized', 'Position', [fpos(3)*0.25 fpos(2:4)]);
-set(hf, 'Units', 'normalized', 'Position', [fpos(3)*0.75 fpos(2:4)]);
-set(he, 'Units', 'normalized', 'Position', [fpos(3)*1.25 fpos(2:4)]);
-set(hp, 'Units', 'normalized', 'Position', [fpos(3)*1.75 fpos(2:4)]);
+set(hp, 'Units', 'normalized', 'Position', [fpos(3)*0.25 fpos(2) fpos(3:4)]);
+set(he, 'Units', 'normalized', 'Position', [fpos(3)*1.3 fpos(2) fpos(3:4)]);
+set(hc, 'Units', 'normalized', 'Position', [fpos(3)*0.25 fpos(2)-fpos(4)*1.2 fpos(3:4)]);
+set(hf, 'Units', 'normalized', 'Position', [fpos(3)*1.3 fpos(2)-fpos(4)*1.2 fpos(3:4)]);
+figure(hp); figure(he); figure(hc); figure(hf);
+
+%% Version info
+[vn,vd] = samsrf_version;
 
 %% Welcome message
-[vn vd] = samsrf_version;
 samsrf_clrscr; 
-samsrf_disp('****************************************************************************');
-samsrf_disp('   Welcome to the Seriously Annoying MatLab Surfer Map Delineation Tool!');
-samsrf_disp('    by D. S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('********************************************************************************************');
+samsrf_disp('                                Kia ora!');
+samsrf_disp('     Welcome to the Seriously Annoying MatLab Surfer Delineation Tool!');
+samsrf_disp('     by D.S. Schwarzkopf from the University of Auckland, New Zealand');
 samsrf_newline;
 samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
 samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('****************************************************************************');
+samsrf_disp('********************************************************************************************');
 samsrf_newline;
 samsrf_disp(['Displaying map: ' SrfName]);
 samsrf_newline;
@@ -308,27 +317,14 @@ dcm_obj.removeAllDataCursors();
 
 %% Calculate RGB colours for the maps in the delineation tool 
 function CalculateMapRgb(LoadSavedDelins) 
-global SrfName Srf Paths R2Thrsh EccThrsh Curv CfRgb PolRgb EccRgb FsRgb RoiList RoiSeeds RoiColours pc IsFsMap ActPrct
+global SrfPath SrfName Srf Paths R2Thrsh EccThrsh Curv CfRgb PolRgb EccRgb FsRgb RoiList RoiSeeds RoiColours pc IsFsMap ActPrct
 
 if nargin == 0
     LoadSavedDelins = true;
 end
 
 %% Load default parameters?
-load('SamSrf_defaults.mat');
-% Ensure colour maps have sign
-if SamSrfDefs.defs_cmap_angle(1) ~= '-' && SamSrfDefs.defs_cmap_angle(1) ~= '+'
-    SamSrfDefs.defs_cmap_angle = ['+' SamSrfDefs.defs_cmap_angle];
-end
-if SamSrfDefs.defs_cmap_eccen(1) ~= '-' && SamSrfDefs.defs_cmap_eccen(1) ~= '+'
-    SamSrfDefs.defs_cmap_eccen = ['+' SamSrfDefs.defs_cmap_eccen];
-end
-if SamSrfDefs.defs_cmap_other(1) ~= '-' && SamSrfDefs.defs_cmap_other(1) ~= '+'
-    SamSrfDefs.defs_cmap_other = ['+' SamSrfDefs.defs_cmap_other];
-end
-if SamSrfDefs.defs_cmap_sigma(1) ~= '-' && SamSrfDefs.defs_cmap_sigma(1) ~= '+'
-    SamSrfDefs.defs_cmap_sigma = ['+' SamSrfDefs.defs_cmap_sigma];
-end
+SamSrfDefs = LoadSamSrfDefaults;
 
 % Remove rubbish
 if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
@@ -338,7 +334,7 @@ else
 end
 
 % Greyscale for curvature
-figure; CurvGrey = gray(11); close; % Grey scale colour map
+CurvGrey = gray(11);  % Grey scale colour map
 CurvGrey = CurvGrey(1:10,:); % Remove black & white
 
 % Colours of paths
@@ -350,11 +346,11 @@ YellowPath = [1 1 0];
 Vs = [];
 if LoadSavedDelins
     % Load any previously saved paths
-    if exist(['del_' SrfName '.mat'], 'file')
-        [Vs, Paths] = samsrf_loadpaths(['del_' SrfName '.mat']);
+    if exist([SrfPath filesep 'del_' SrfName '.mat'], 'file')
+        [Vs, Paths] = samsrf_loadpaths([SrfPath filesep 'del_' SrfName '.mat']);
         samsrf_disp('Loaded saved delineation for this map.');
-    elseif exist(['autodel_' SrfName '.mat'], 'file')
-        [Vs, Paths] = samsrf_loadpaths(['autodel_' SrfName '.mat']);
+    elseif exist([SrfPath filesep 'autodel_' SrfName '.mat'], 'file')
+        [Vs, Paths] = samsrf_loadpaths([SrfPath filesep 'autodel_' SrfName '.mat']);
         samsrf_disp('Loaded auto-delineation for this map.');
     else
         samsrf_disp('No delineations exist yet for this map.');
@@ -376,21 +372,15 @@ Pha = round(Rho * 360);
 Pha = mod(Pha, 360);
 Pha(Pha==0) = 360;
 Pha(r|isnan(Pha)) = 360 + Curv(r|isnan(Pha));
-Cmap = colormap([SamSrfDefs.defs_cmap_eccen(2:end) '(360)']);
-if SamSrfDefs.defs_cmap_eccen(1) == '-'
-  Cmap = flipud(Cmap);
-end
-figure; Cmap = [Cmap; CurvGrey]; close
+Cmap = samsrf_cmap(SamSrfDefs.def_cmap_eccen, 360);
+Cmap = [Cmap; CurvGrey]; 
 EccRgb = Cmap(Pha,:);
 EccRgb(Vs,:) = repmat(WhitePath, size(Vs,1), 1); % Draw paths
 
 % Polar map
 Pha = atan2(Srf.Data(3,:), Srf.Data(2,:)) / pi * 180;
 Pha(Srf.Data(1,:) <= R2Thrsh | isnan(Rho)) = NaN;
-Cmap = colormap([SamSrfDefs.defs_cmap_angle(2:end) '(360)']);
-if SamSrfDefs.defs_cmap_angle(1) == '-'
-  Cmap = flipud(Cmap);
-end
+Cmap = samsrf_cmap(SamSrfDefs.def_cmap_angle, 360);
 Cmap = [Cmap; CurvGrey];
 if Srf.Hemisphere(1) == 'l'
     Pha = mod(ceil(Pha + 270), 360) + 1;
@@ -438,7 +428,7 @@ end
 Cmap = [CurvGrey; RoiColours];
 CfRgb = Cmap(Curv,:);
 % Load ROI labels
-if exist(['del_' SrfName '.mat'], 'file')
+if exist([SrfPath filesep 'del_' SrfName '.mat'], 'file')
     for i = 1:length(RoiList)
         if ~isnan(RoiSeeds(i))
             % Load label
@@ -513,7 +503,7 @@ set(pc, 'FaceVertexCData', CfRgb);
 
 %% Fill in the ROIs assigned to the list bounded by the paths & save 
 function OutRoi = FloodFillRoi(RoiNum, RoiSeed)
-global SrfName RoiList RoiColours Srf Vertices Paths CfRgb hc pc 
+global SrfPath SrfName RoiList RoiColours Srf Vertices Paths CfRgb hc pc 
 
 % Only fill if a vertex has been assigned
 WhitePath = [1 1 1];
@@ -571,10 +561,10 @@ if OutRoi > 0
     set(pc, 'FaceVertexCData', CfRgb); 
 
     % Save new ROI
-    if ~exist(['ROIs_' SrfName(4:end)], 'dir') 
-        mkdir(['ROIs_' SrfName(4:end)]);
+    if ~exist([SrfPath filesep 'ROIs_' SrfName(4:end)], 'dir') 
+        mkdir([SrfPath filesep 'ROIs_' SrfName(4:end)]);
     end
-    samsrf_srf2label(Srf, ['ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_' RoiList{RoiNum}], 1, find(Fvs));
+    samsrf_srf2label(Srf, [SrfPath filesep 'ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_' RoiList{RoiNum}], 1, find(Fvs));
 end
 
 
@@ -626,7 +616,7 @@ delete(hp);
 delete(he); 
 delete(hf);
 delete(hc);
-clear global SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct
+clear global SrfPath SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct 
 delete(src);
 
 
@@ -730,7 +720,7 @@ if ~isempty(RoiNum)
             % Update message
             set(handles.text2, 'String', ['Unlabelled' RoiList{RoiNum}]);
             % Delete unlabelled ROI!
-            delete(['ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_' RoiList{RoiNum} '.label']);
+            delete([SrfPath filesep 'ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_' RoiList{RoiNum} '.label']);
         end
     else
         % Which vertex is seed?
@@ -758,21 +748,21 @@ ClearDataCursors;
 
 %% Save delineations
 function pushbutton7_Callback(hObject, eventdata, handles)
-global SrfName Paths RoiList RoiSeeds Srf
+global SrfPath SrfName Paths RoiList RoiSeeds Srf
 % Saves paths & ROI seeds to disc
 Vs = [];
 for i = 1:length(Paths)
     Vs = [Vs; Paths{i}];
 end
-save(['del_' SrfName], 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds');
+save([SrfPath filesep 'del_' SrfName], 'SrfName', 'Vs', 'Paths', 'RoiList', 'RoiSeeds');
 % Update message
 set(handles.text2, 'String', ['Saved del_' SrfName]);
 
 % Combine ventral & dorsal quadrants of V2 and V3 if they exist 
 for a = 2:3
-    IsOkay = samsrf_combine_labels({['ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_V' num2str(a) 'v'] ...
-                                    ['ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_V' num2str(a) 'd']}, ...
-                                    ['ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_V' num2str(a)]);
+    IsOkay = samsrf_combine_labels({[SrfPath filesep 'ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_V' num2str(a) 'v'] ...
+                                    [SrfPath filesep 'ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_V' num2str(a) 'd']}, ...
+                                    [SrfPath filesep 'ROIs_' SrfName(4:end) filesep Srf.Hemisphere '_V' num2str(a)]);
     if IsOkay    
         % Update message
         set(handles.text2, 'String', 'Combined Quadrants');
@@ -986,4 +976,23 @@ RedrawAllPaths;
 function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+%% Auto-Delineation Tool
+function pushbutton15_Callback(hObject, eventdata, handles)
+global Srf SrfPath Paths R2Thrsh EccThrsh 
+
+SamSrfDefs = LoadSamSrfDefaults;
+if isfield(SamSrfDefs, 'def_fsaverage') && ~isempty(SamSrfDefs.def_fsaverage)
+    TmpMesh = SamSrfDefs.def_fsaverage; % Normalised template brain
+    cf = pwd;
+    cd(SrfPath);
+    AutoDelFile = AutoDelineation(Srf, Srf.Structural, [TmpMesh filesep 'surf'], 'InfernoSerpents', R2Thrsh, EccThrsh(1), EccThrsh(2)); % Run autodelineation
+    [~,Paths] = samsrf_loadpaths(AutoDelFile); % Load autodelineation
+    RedrawAllPaths; % Redraw paths
+    cd(cf);
+    samsrf_done;
+else
+    samsrf_error('No template brain defined: Quitting AutoDelineation...');
 end
