@@ -509,7 +509,7 @@ samsrf_disp('*******************************************************************
         if strcmpi(GuiRoi.Value{3}, '< None selected >')
             CompCheckInfo{cl,1} = 'Warning: No Region of Interest selected';
             cl = cl + 1;
-            CompCheckInfo{cl,1} = ['Region of Interest: ' GuiRoi.Value{5}];
+            CompCheckInfo{cl,1} = '';
             cl = cl + 1;
         end
 
