@@ -194,14 +194,14 @@ UpdateInfo(GuiModel, eventdata);
 
 %% Welcome message
 samsrf_clrscr; 
-samsrf_disp('********************************************************************************************');
+samsrf_disp('**************************************************************************');
 samsrf_disp('                                Kia ora!');
-samsrf_disp('     Welcome to the Seriously Annoying MatLab Surfer Analysis Tool!');
-samsrf_disp('     by D.S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('  Welcome to the Seriously Annoying MatLab Surfer Analysis Tool!');
+samsrf_disp('  by D.S. Schwarzkopf from the University of Auckland, New Zealand');
 samsrf_newline;
-samsrf_disp(['                 Version ' num2str(vn) ', Released on ' vd]);
-samsrf_disp('      (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('********************************************************************************************');
+samsrf_disp(['              Version ' num2str(vn) ', Released on ' vd]);
+samsrf_disp('   (see SamSrf/ReadMe.md for what is new in this version)');
+samsrf_disp('**************************************************************************');
 
 
     %% Info samsrf_display function
@@ -704,7 +704,10 @@ samsrf_disp('*******************************************************************
                     samsrf_disp('Saved Model contains data file & ROI info...');
                     GuiFiles.Items = DataFiles;
                     GuiSurf.Value{3} = SurfFolder;
-                    GuiRoi.Value{3} = Roi;
+                    GuiRoi.Value{3} = Roi;                    
+                    cd(pn);
+                    samsrf_newline;
+                    samsrf_disp(['Changed working folder to: ' pn]);
                 else
                     samsrf_disp('Predefined Model only contains parameters...');
                 end

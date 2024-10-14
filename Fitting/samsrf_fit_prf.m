@@ -119,7 +119,7 @@ if ~isfield(Model, 'SeedRoi')
     % If loading apertures for conventional pRF analysis
     samsrf_disp('Load stimulus apertures...');
     load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
-    samsrf_disp([' Loading ' Model.Aperture_File ': ' num2str(size(ApFrm,2)) ' volumes']);
+    samsrf_disp([' Loading ' Model.Aperture_File]); 
     if sum(ApFrm(:)<0) > 0
         samsrf_disp(' Warning: Apertures contain negative values!');
     end
@@ -135,6 +135,9 @@ if ~isfield(Model, 'SeedRoi')
     % Rescale apertures
     ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
     ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
+
+    % How many volumes?
+    samsrf_disp([' There are ' num2str(size(ApFrm,2)) ' volumes']);
 else
     % If backprojecting seed activity for pRF-from-CF analysis
     samsrf_disp('Backprojecting CF apertures...');
