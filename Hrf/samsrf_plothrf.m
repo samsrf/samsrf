@@ -29,6 +29,9 @@ if isempty(vx)
     vx = 1:size(Srf.Data,1);
 end
 
+% Expand Srf
+Srf = samsrf_expand_srf(Srf);
+
 % Generate HRFs
 Hrf = [];
 for x = 1:length(vx)
