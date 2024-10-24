@@ -22,7 +22,7 @@ Model.Scaled_Param = [1 1 1 1 0]; % Which of these parameters are scaled
 Model.Only_Positive = [0 0 1 1 0]; % Which parameters must be positive? (refer to ModelHelp for issues with Nelder-Mead algorithm)
 Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Temporal resolution of stimulus apertures (can be faster than scanner TR if downsampling predictions)
-Model.Hrf = []; % HRF file or vector to use (empty = canonical)
+Model.Hrf = 0; % HRF file or vector to use (0 = SPM canonical, [] = de Haas canonical)
 Model.Aperture_File = ''; % Aperture file must be defined!
 
 %% Optional fine-fitting parameters

@@ -18,7 +18,7 @@ function Reverse_Correlation_Prf(DataPath, SrfFiles, Roi)
 Model.Name = 'pRF'; % File name to indicate type of pRF model
 Model.Scaling_Factor = 1; % Scaling factor of the stimulus space (e.g. eccentricity)
 Model.TR = 1; % Repetition time (TR) of pulse sequence
-Model.Hrf = []; % HRF file or vector to use (empty = canonical)
+Model.Hrf = 0; % HRF file or vector to use (0 = SPM canonical, [] = de Haas canonical)
 Model.Aperture_File = ''; % Aperture file must be defined!
 
 %% Optional fine-fitting parameters

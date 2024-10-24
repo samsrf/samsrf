@@ -1,18 +1,23 @@
-function Hrf = samsrf_plothrf(Srf, vx)
+function [Hrf, Params] = samsrf_plothrf(Srf, vx, R2Thr)
 %
-% Hrf = samsrf_plothrf(Srf, [vx=''])
+% [Hrf, Params] = samsrf_plothrf(Srf, [vx=[], R2Thr=0])
 %
 % If HRF parameters were estimated during pRF modelling of map Srf, this 
-% function plots the HRF for vertices vx. For comparison it also plots the
-% canonical HRFs from SamSrf, SPM12, and mrVista. If vx is empty (default)
-% all vertices are included.
+% function plots the HRF for vertices vx. The 3rd optional input R2Thr
+% defines the R^2 threshold for vertices to include.
+%
+% For comparison it also plots canonical HRFs by de Haas (previous SamSrf default), 
+% from SPM12, and mrVista. If vx is empty (default) all vertices are included.
 %
 % If an output argument is defined, the function returns the HRF but does 
-% not plot anything. Useful for analysis.
+% not plot anything. Useful for analysis. The second output contains the
+% actual HRF parameters of the fit.
 %
 % 13/11/2023 - Written (DSS)
 % 12/10/2024 - Can now analyse list of vertices (DSS)
-%              Now has option not to plot figure (DSS)                
+%              Now has option not to plot figure (DSS) 
+% 20/10/2024 - Added R^2 threshold option (DSS)
+% 21/10/2024 - Outputs HRF parameters as well now (DSS)
 %
 
 % Which data rows are HRF parameters?
@@ -21,9 +26,15 @@ HrfParams = [find(strcmpi(Srf.Values, 'RLat')) ...
              find(strcmpi(Srf.Values, 'RDisp')) ...
              find(strcmpi(Srf.Values, 'UDisp')) ... 
              find(strcmpi(Srf.Values, 'R/U'))];
+if isempty(HrfParams)
+    samsrf_error('This data file does not contain HRF fits!');
+end
 
 if nargin < 2
     vx = [];
+end
+if nargin < 3
+    R2Thr = 0;
 end
 if isempty(vx)
     vx = 1:size(Srf.Data,1);
@@ -34,11 +45,17 @@ Srf = samsrf_expand_srf(Srf);
 
 % Generate HRFs
 Hrf = [];
+Params = [];
 for x = 1:length(vx)
     v = vx(x); % Current vertex
-    Hrf = [Hrf samsrf_doublegamma(.1, Srf.Data(HrfParams,v))]; % HRF fit for this vertex
+    if Srf.Data(1,v) > R2Thr
+        Hrf = [Hrf samsrf_doublegamma(.1, Srf.Data(HrfParams,v))]; % HRF fit for this vertex
+        Params = [Params Srf.Data(HrfParams,v)]; % HRF parameters for this vertex
+    end
 end
-Hrf = nanmean(Hrf,2); % Average across vertices
+% Average across vertices
+Hrf = nanmean(Hrf,2); 
+Params = nanmean(Params,2); 
 
 % Plot HRFs?
 if nargout == 0
@@ -60,5 +77,5 @@ if nargout == 0
     else
         title('Multiple vertices');
     end
-    legend({'Fit HRF' 'SamSrf' 'SPM12' 'Vista'});
+    legend({'Fit HRF' 'de Haas' 'SPM12' 'Vista'});
 end

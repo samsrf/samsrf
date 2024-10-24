@@ -20,6 +20,8 @@ function [ApName, ApMax] = BackprojAps(SeedMap, SeedRoi, Data)
 % 07/03/2024 - Written (DSS)
 % 13/09/2024 - Fixed help section & updated for SamSrf X usage (DSS)
 % 17/09/2024 - Now ensures correct path for seed ROI label (DSS)
+% 18/10/2024 - Fixed bug when only single functional run in Srf input (DSS)
+%              Fixed bug with folder names (DSS)
 %
 
 % Load seed map
@@ -35,6 +37,9 @@ ApMax = max(abs(ApXY(:)));
 % Data provided or load file?
 if isstruct(Data)
     Srf = Data;
+    if ischar(Srf.Functional)
+        Srf.Functional = {Srf.Functional};
+    end
     Data = Srf.Functional{1}; % Update name to first 
 else
     load(EnsurePath(Data));
@@ -45,6 +50,9 @@ ApFrm = double(Srf.Data(:,roi)');
 
 % Save apertures
 [DataPath,Data] = fileparts(Data);
+if isempty(DataPath)
+    DataPath = '.';
+end
 [~,SeedRoi] = fileparts(SeedRoi);
 ApName = [DataPath filesep 'aps_' Data '_' SeedRoi];
 save(ApName, 'ApXY', 'ApFrm');

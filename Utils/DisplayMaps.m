@@ -49,14 +49,8 @@ Pval = 0.0001; % Starting p-value with which to threshold maps
 
 %% Welcome message
 samsrf_clrscr; 
-samsrf_disp('**************************************************************************');
-samsrf_disp('                                Kia ora!');
-samsrf_disp('  Welcome to the Seriously Annoying MatLab Surfer Map Display Tool!');
-samsrf_disp('  by D.S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('*** SamSrf Map Display Tool ***');
 samsrf_newline;
-samsrf_disp(['              Version ' num2str(vn) ', Released on ' vd]);
-samsrf_disp('   (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('**************************************************************************');
 
 % Choose default command line output for DisplayMaps
 handles.output = hObject;

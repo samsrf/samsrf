@@ -42,6 +42,7 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 % 17/08/2022 - Can now implement CSS nonlinearity if defined in model (DSS)
 %              Fixed mistake in the help section (DSS)
 % 23/12/2023 - Apertures now automatically rescaled to scaling factor/eccentricity (DSS)  
+% 21/10/2024 - Added option for SPM canonical HRF (DSS)
 %
 
 %% Default parameters 
@@ -89,8 +90,11 @@ end
 
 samsrf_disp('Haemodynamic response function...')
 if isempty(Model.Hrf)
-    samsrf_disp(' Using canonical HRF');
+    samsrf_disp(' Using de Haas canonical HRF');
     Model.Hrf = samsrf_hrf(Model.TR);
+elseif isscalar(Model.Hrf) && Model.Hrf == 0
+    samsrf_disp(' Using SPM canonical HRF');
+    Model.Hrf = samsrf_doublegamma(Model.TR, [6 16 1 1 6 0 32]);
 elseif isscalar(Model.Hrf) && Model.Hrf == 1
     samsrf_disp(' No HRF used!');
 else

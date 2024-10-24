@@ -241,14 +241,7 @@ figure(hp); figure(he); figure(hc); figure(hf);
 
 %% Welcome message
 samsrf_clrscr; 
-samsrf_disp('**************************************************************************');
-samsrf_disp('                                Kia ora!');
-samsrf_disp('  Welcome to the Seriously Annoying MatLab Surfer Delineation Tool!');
-samsrf_disp('  by D.S. Schwarzkopf from the University of Auckland, New Zealand');
-samsrf_newline;
-samsrf_disp(['              Version ' num2str(vn) ', Released on ' vd]);
-samsrf_disp('   (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('**************************************************************************');
+samsrf_disp('*** SamSrf Delineation Tool ***');
 samsrf_newline;
 samsrf_disp(['Displaying map: ' SrfName]);
 samsrf_newline;

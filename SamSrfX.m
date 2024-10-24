@@ -194,14 +194,13 @@ UpdateInfo(GuiModel, eventdata);
 
 %% Welcome message
 samsrf_clrscr; 
-samsrf_disp('**************************************************************************');
-samsrf_disp('                                Kia ora!');
-samsrf_disp('  Welcome to the Seriously Annoying MatLab Surfer Analysis Tool!');
-samsrf_disp('  by D.S. Schwarzkopf from the University of Auckland, New Zealand');
+samsrf_disp('******************************************************************');
+samsrf_disp(' Kia ora - this is Seriously Annoying MatLab Surfer!');
+samsrf_disp(' by Sam Schwarzkopf at the University of Auckland, NZ');
 samsrf_newline;
-samsrf_disp(['              Version ' num2str(vn) ', Released on ' vd]);
-samsrf_disp('   (see SamSrf/ReadMe.md for what is new in this version)');
-samsrf_disp('**************************************************************************');
+samsrf_disp([' Version ' num2str(vn) ', Released on ' vd]);
+samsrf_disp('   (see SamSrf/ReadMe.md for what is new)');
+samsrf_disp('******************************************************************');
 
 
     %% Info samsrf_display function
@@ -514,7 +513,7 @@ samsrf_disp('*******************************************************************
         end
 
         % Scaling factor undefined
-        if isnan(GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Scaling_Factor')})
+        if ~strcmpi(Algorithm, 'samsrf_revcor_cf') && isnan(GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Scaling_Factor')})
             CompCheckInfo{cl} = 'Error: Scaling Factor not yet defined!';
             cl = cl + 1;
             CompCheckInfo{cl,1} = '';
@@ -654,7 +653,7 @@ samsrf_disp('*******************************************************************
         Model.Only_Positive = [0 0 1]; 
         Model.Scaling_Factor = NaN; 
         Model.TR = 1; 
-        Model.Hrf = []; 
+        Model.Hrf = 0; 
         Model.Aperture_File = ''; 
         Model.Polar_Search_Space = true; 
         Model.Param1 = 0:10:350; 
@@ -689,7 +688,7 @@ samsrf_disp('*******************************************************************
                 samsrf_error([pn fn ' was not saved by SamSrfX or has been corrupted!']);
             else
                 warning off
-                load([pn fn], '-mat', 'Algorithm', 'Model', 'xP', 'DataFiles', 'SurfFolder', 'Roi');
+                load([pn fn], '-mat', 'Algorithm', 'Model', 'xP', 'DataFiles', 'SurfFolder', 'Roi', 'Avg', 'Nrm', 'Exp');
                 warning on
                 Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
                 % If this is pRF-from-CF analysis, automatically set fields 
@@ -712,6 +711,13 @@ samsrf_disp('*******************************************************************
                     samsrf_disp('Predefined Model only contains parameters...');
                 end
                 
+                % If Model Spec contained flags
+                if exist('Avg', 'var')
+                    GuiProc.Data.Average{1} = Avg;
+                    GuiProc.Data.Normalise{1} = Nrm;
+                    GuiProc.Data.Export{1} = Exp;
+                end
+
                 GuiAlgo.Value = {fn(1:end-4) ; ''; ['Algorithm: ' Algorithm]};
                 [GuiPars, GuiModel] = UpdateTables(Model);
                 GuiModel.SelectionChangedFcn = @UpdateInfo;
@@ -752,7 +758,10 @@ samsrf_disp('*******************************************************************
             DataFiles = GuiFiles.Items;
             SurfFolder = GuiSurf.Value{3};
             Roi = GuiRoi.Value{3};
-            save([pn fn], '-mat', 'Algorithm', 'Model', 'xP', 'DataFiles', 'SurfFolder', 'Roi');
+            Avg = GuiProc.Data.Average{1};
+            Nrm = GuiProc.Data.Normalise{1};
+            Exp = GuiProc.Data.Export{1};
+            save([pn fn], '-mat', 'Algorithm', 'Model', 'xP', 'DataFiles', 'SurfFolder', 'Roi', 'Avg', 'Nrm', 'Exp');
             GuiAlgo.Value{1} = fn(1:end-4);
             figure(GuiFig);
         end
@@ -903,7 +912,7 @@ samsrf_disp('*******************************************************************
         [tn, tp] = uigetfile('*.mat', 'Select template map');
         if ~isscalar(tn)
             [tp, tn] = fileparts([tp tn]); % Remove extension
-            GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Template')} = [tp tn]; 
+            GuiModel.Data.Value{strcmpi(GuiModel.Data.Field, 'Template')} = [tp filesep tn]; 
             UpdateInfo(GuiModel, eventdata);
         end
         figure(GuiFig);

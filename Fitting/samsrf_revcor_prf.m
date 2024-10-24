@@ -52,6 +52,7 @@ function OutFile = samsrf_revcor_prf(Model, SrfFile, Roi)
 % 13/09/2024 - Removed option to provife data file list for concatenation (DSS)
 %              Fixed help descriptions (DSS)
 % 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
+% 21/10/2024 - Fixed bug when using SPM canonical HRF (DSS)
 %
 
 %% Defaults & constants
@@ -167,7 +168,7 @@ if isempty(Model.Hrf)
     Model.Hrf = samsrf_hrf(Model.TR);
 elseif isscalar(Model.Hrf) && Model.Hrf == 0
     samsrf_disp(' Using SPM canonical HRF');
-    Model.Hrf = samsrf_doublegamma(TR, [6 16 1 1 6 0 32]);
+    Model.Hrf = samsrf_doublegamma(Model.TR, [6 16 1 1 6 0 32]);
 elseif isscalar(Model.Hrf) && Model.Hrf == 1
     samsrf_disp(' No HRF used!');
 else
