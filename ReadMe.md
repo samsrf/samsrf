@@ -58,6 +58,11 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
+### Version 10.003 (04-11-2024) - *SamSrf X Official Release!*
+- Changed how samsrf_plothrf outputs the average HRF fit (DSS)  
+- Minor bugfix in samsrf_gsr2 function when using SPM or concurrent HRF (DSS)  
+- Fixed minor typo in SamSrfX GUI (DSS)  
+
 ### Version 10 (21-10-2024) - *SamSrf X Official Release!*
 - *Default HRF is now SPM canonical but check what works best for your needs! (DSS)*   
 - Created new GUI called SamSrfX for running analysis & inspecting results (DSS)  

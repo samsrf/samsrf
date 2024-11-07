@@ -39,6 +39,7 @@ function R = samsrf_gsr2(Y, X, S, Model)
 % 14/04/2022 - Renamed function to avoid confusion with CF analysis (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 03/12/2023 - Bugfix when using concurrent HRF fitting (DSS)
+% 04/11/2024 - Fixed bug assuming wrong HRF when concurrent fitting or using SPM (DSS) 
 %
 
 if ~isfield(Model, 'Downsampling')
@@ -60,8 +61,10 @@ else
 end
 
 % Canonical HRF or concurrent fitting?
-if isempty(Hrf) || isinf(Hrf)
-    Hrf = samsrf_hrf(TR);
+if isempty(Hrf) 
+    Hrf = samsrf_hrf(TR); % de Haas canonical HRF
+elseif isinf(Hrf) || Hrf == 0
+    Hrf = samsrf_doublegamma(TR); % SPM 12 canonical HRF
 end
 
 % Convolve with HRF

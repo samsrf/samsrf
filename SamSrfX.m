@@ -1284,7 +1284,7 @@ samsrf_disp('******************************************************************'
             end
            
             % Select data field
-            ValNum = listdlg('ListString', Srf.Values, 'SelectionMode', 'single', 'PromptString', 'Which subject?');
+            ValNum = listdlg('ListString', Srf.Values, 'SelectionMode', 'single', 'PromptString', 'Which map?');
             if isempty(ValNum)
                 samsrf_disp('You must pick a field! Selecting 1st one...');
                 ValNum = 1;

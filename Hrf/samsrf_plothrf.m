@@ -18,6 +18,7 @@ function [Hrf, Params] = samsrf_plothrf(Srf, vx, R2Thr)
 %              Now has option not to plot figure (DSS) 
 % 20/10/2024 - Added R^2 threshold option (DSS)
 % 21/10/2024 - Outputs HRF parameters as well now (DSS)
+% 02/11/2024 - HRF output is now determined by average parameters (DSS)
 %
 
 % Which data rows are HRF parameters?
@@ -49,13 +50,13 @@ Params = [];
 for x = 1:length(vx)
     v = vx(x); % Current vertex
     if Srf.Data(1,v) > R2Thr
-        Hrf = [Hrf samsrf_doublegamma(.1, Srf.Data(HrfParams,v))]; % HRF fit for this vertex
         Params = [Params Srf.Data(HrfParams,v)]; % HRF parameters for this vertex
     end
 end
-% Average across vertices
-Hrf = nanmean(Hrf,2); 
+% Average parameters across vertices
 Params = nanmean(Params,2); 
+% HRF with these parameters
+Hrf = samsrf_doublegamma(.1, Params); 
 
 % Plot HRFs?
 if nargout == 0
