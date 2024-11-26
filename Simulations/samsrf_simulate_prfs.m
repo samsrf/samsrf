@@ -1,9 +1,9 @@
-function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
+function Srf = samsrf_simulate_prfs(GtPars, Model, ApFrm, ApXY)
 %
-% Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, [Model])
+% Srf = samsrf_simulate_prfs(GtPars, Model, ApFrm, ApXY)
 %
 % Simulates time courses for ground truth pRF parameters based on the 
-%  pRF function PrfFcn and the stimulus apertures defined by ApFrm.
+%  pRF function in Model & the stimulus apertures defined by ApFrm.
 %  Responses are modelled in terms of percentage of pRF activation. 
 %
 % Note: When generating noisy time courses it is advisable to z-normalise 
@@ -12,18 +12,18 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 %
 % GtPars can be a matrix where each column is a "vertex" and each row 
 %  is a parameter necessary for the pRF function (excluding betas).
-%  If the model includes the CSS nonlinearity, the final row of GtPars
+%  These parameters are in stimulus space so your Model must reflect this. 
+%  If the Model includes the CSS nonlinearity, the final row of GtPars
 %  defines the compressive summation exponent.
 %
-% Alternatively, it can be a Srf structure containing a ground truth map.
-%  In this case you must also define Model so that the function knows your
-%  eccentricity / scaling factor & which parameters need to be scaled.
-%  Moreover, you should prefilter your data by setting any vertices in
-%  Srf.Data(1,:) to 1 or 0, if they should be simulated or not, respectively.
+% Alternatively, GtPars can be a Srf structure containing a ground truth map.
 %
+% Model is the normal parameter struct defining your analysis. For these
+% simulations, this must contain the TR, Hrf & Scaling_Factor fields.
 % Model.Hrf can define the HRF to use just like in a normal model fit. 
-%  If Model is undefined, this defaults to the canonical HRF and TR = 1s.
-%  Model can also define downsampling of predictions if TR mismatches stimulus timing.
+% 
+% Optionally, your Model can also define include the fields 
+%  Downsample_Predictions & Compressive_Nonlinearity.
 %
 % Returns a Srf structure Srf which will contain the simulated timeseries
 %  in Srf.Data. Srf.Ground_Truth contains the ground truth parameters. 
@@ -43,17 +43,12 @@ function Srf = samsrf_simulate_prfs(GtPars, PrfFcn, ApFrm, ApXY, Model)
 %              Fixed mistake in the help section (DSS)
 % 23/12/2023 - Apertures now automatically rescaled to scaling factor/eccentricity (DSS)  
 % 21/10/2024 - Added option for SPM canonical HRF (DSS)
+% 26/11/2024 - Fixed bug when using map as ground truth (DSS)
+%              Model is now a mandatory input (DSS)
+%              Reorganised input parameters (DSS)
 %
 
 %% Default parameters 
-if nargin < 4
-    % Use canonical HRF if undefined
-    Model = struct;
-    Model.TR = 1;
-    Model.Hrf = [];
-    Model.Downsample_Predictions = 1; 
-    Model.Compressive_Nonlinearity = false;
-end
 % Downsampling timeseries?
 if ~isfield(Model, 'Downsample_Predictions')
     Model.Downsample_Predictions = 1; % Downsampling factor by which Model.TR mismatches the true TR
@@ -63,21 +58,15 @@ if ~isfield(Model, 'Compressive_Nonlinearity')
     Model.Compressive_Nonlinearity = false; % Default to having no compressive nonlinearity
 end
 
+%% pRF function
+PrfFcn = Model.Prf_Function;
+
 %% What type of input?
 if isstruct(GtPars)
     % Input is a map file
     Srf = samsrf_expand_srf(GtPars);
     Srf.Ground_Truth = Srf.Data(2:end,:); % Store ground truth 
     Srf.Data = NaN(size(ApFrm,2) / Model.Downsample_Predictions, size(Srf.Ground_Truth,2)); % Time course data
-    % Rescale parameters
-    if nargin < 4
-        samsrf_error('Model must be defined!');
-    end
-    for p = 1:length(Model.Scaled_Param)
-        if Model.Scaled_Param(p)
-            Srf.Ground_Truth(p,:) = Srf.Ground_Truth / Model.Scaling_Factor;
-        end
-    end
 else
     % Input is a parameter matrix
     Srf = struct;

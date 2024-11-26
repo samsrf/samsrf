@@ -44,7 +44,7 @@ Model.Param3 = 2 .^ (-5.6 : 0.2 : 1) * Model.Scaling_Factor; % Sigma search grid
 [X,Y] = pol2cart(Theta/180*pi, Rho); % Convert polar to Cartesian coordinates
 Ground_Truth = [X(:) Y(:) Sigma(:)]'; % Matrix of ground truth parameters
 load(EnsurePath(['aps_' SimAps])); % Load apertures to simulate responses for
-Srf = samsrf_simulate_prfs(Ground_Truth, @(P,ApWidth) prf_gaussian_rf(P(1), P(2), P(3), ApWidth), ApFrm, ApXY, Model); % Simulate time courses
+Srf = samsrf_simulate_prfs(Ground_Truth, Model, ApFrm, ApXY); % Simulate time courses
 Srf.Vertices = repmat(Srf.Vertices, Nreps, 1); % Number of repeats of vertices
 Srf.Ground_Truth = repmat(Ground_Truth, 1, Nreps); % Number of repeats of ground truth set 
 Srf.Data = repmat(Srf.Data, 1, Nreps); % Number of repeats of simulated time courses
