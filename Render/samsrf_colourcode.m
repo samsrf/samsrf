@@ -12,6 +12,7 @@ function img = samsrf_colourcode(vartype, scale, colmap)
 % The output of this function is a bitmap which can be displayed or saved.
 % 
 % 31/10/2023 - Added option for M/EEG colour wheel (DSS)
+% 19/12/2024 - Bugfix for incorrect naming of JSON defaults (DSS)
 %
 
 if nargin < 2
@@ -23,10 +24,10 @@ if nargin < 3
     samsrf_disp(['Using defaults in: ' which('SamSrf_defaults.json')]);
     SamSrfDefs = LoadSamSrfDefaults;
 else
-    SamSrfDefs.defs_cmap_angle = colmap;
-    SamSrfDefs.defs_cmap_eccen = colmap;
-    SamSrfDefs.defs_cmap_sigma = colmap;
-    SamSrfDefs.defs_cmap_other = colmap;
+    SamSrfDefs.def_cmap_angle = colmap;
+    SamSrfDefs.def_cmap_eccen = colmap;
+    SamSrfDefs.def_cmap_sigma = colmap;
+    SamSrfDefs.def_cmap_other = colmap;
 end
 
 % image pixels
@@ -46,7 +47,7 @@ if strcmpi(vartype, 'Polar_Eeg')
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360);    
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_angle, 360);    
     imgR(r<scale) = Cmap(t(r<scale),1);
     imgG(r<scale) = Cmap(t(r<scale),2);
     imgB(r<scale) = Cmap(t(r<scale),3);
@@ -55,7 +56,7 @@ elseif strcmpi(vartype, 'Polar_Lh')
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360);        
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_angle, 360);        
     imgR(r<scale) = Cmap(t(r<scale),1);
     imgG(r<scale) = Cmap(t(r<scale),2);
     imgB(r<scale) = Cmap(t(r<scale),3);
@@ -64,19 +65,19 @@ elseif strcmpi(vartype, 'Polar_Rh')
     t = mod(ceil(t),360) + 1;   % ensure between 1-360
 
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_angle, 360);        
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_angle, 360);        
     imgR(r<scale) = Cmap(t(r<scale),1);
     imgG(r<scale) = Cmap(t(r<scale),2);
     imgB(r<scale) = Cmap(t(r<scale),3);
 elseif strcmpi(vartype, 'Eccen')
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_eccen, 360);        
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_eccen, 360);        
     imgR(r<scale) = Cmap(nr(r<scale),1);
     imgG(r<scale) = Cmap(nr(r<scale),2);
     imgB(r<scale) = Cmap(nr(r<scale),3);
 elseif strcmpi(vartype, 'Sigma')
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_sigma, 400);        
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_sigma, 400);        
     for c = 1:size(Cmap,1)
         imgR(c,abs(x(1,:))<50) = Cmap(c,1);
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);
@@ -84,7 +85,7 @@ elseif strcmpi(vartype, 'Sigma')
     end
 elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_other, 800);        
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_other, 800);        
     for c = 1:size(Cmap,1)
         imgR(c,abs(x(1,:))<50) = Cmap(c,1);
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);
@@ -92,7 +93,7 @@ elseif strcmpi(vartype, 'R^2') || strcmpi(vartype, 'nR^2')
     end
 else
     % Colourmap
-    Cmap = samsrf_cmap(SamSrfDefs.defs_cmap_other, 400);        
+    Cmap = samsrf_cmap(SamSrfDefs.def_cmap_other, 400);        
     for c = 1:size(Cmap,1)
         imgR(c,abs(x(1,:))<50) = Cmap(c,1);
         imgG(c,abs(x(1,:))<50) = Cmap(c,2);
