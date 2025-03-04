@@ -410,7 +410,7 @@ else
     Fs(Fs<0) = Fs(Fs<0) + Thrsh(1);
     mThr = Thrsh - Thrsh(1);
     Pha = round(Fs / abs(mThr(2)) * 100) + 100;
-    Cmap = [berlin(200); CurvGrey];
+    Cmap = [samsrf_cmap(SamSrfDefs.def_cmap_other, 200); CurvGrey];
     Pha(Pha==0) = 1;
     Pha(r|isnan(Pha)|Pha==100) = 200 + Curv(r|isnan(Pha)|Pha==100);
     FsRgb = Cmap(Pha,:);

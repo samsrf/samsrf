@@ -12,6 +12,7 @@ function Native2TemplateMap(NatSrf, MeshFolder, TmpFolder)
 % Saves the spatially normalised Srf called the same as NatSrf with the suffix _sn.
 %
 % 19/09/2024 - Now accepts bilateral Srf input (DSS)
+% 28/02/2025 - Fixed bug with too large files (DSS)
 %
 
 % Load native map
@@ -120,7 +121,7 @@ for h = 1:length(Hemis)
     Srf.Data = NatSrf.Data(:,Sva);
     
     %% Save Srf & ROIs
-    save([NatSrfName '_sn'], 'Srf');
+    save([NatSrfName '_sn'], 'Srf', '-v7.3');
     samsrf_disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
     samsrf_newline;
 end
@@ -134,10 +135,10 @@ if length(Hemis) == 2
     if isfield(L, 'Model')
         % pRF or CF map
         Model = L.Model;
-        save(['bi' NatSrfName(3:end) '_sn'], 'Srf', 'Model');
+        save(['bi' NatSrfName(3:end) '_sn'], 'Srf', 'Model', '-v7.3');
     else
         % Other surface data
-        save(['bi' NatSrfName(3:end) '_sn'], 'Srf');
+        save(['bi' NatSrfName(3:end) '_sn'], 'Srf', '-v7.3');
     end
     delete(['lh' NatSrfName(3:end) '_sn.mat']);
     delete(['rh' NatSrfName(3:end) '_sn.mat']);

@@ -16,6 +16,7 @@ function [SrfL, SrfR] = samsrf_hemi_srfs(Srf)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/11/2022 - Now supports Srfs with missing surface fields (DSS)
+% 28/03/2025 - Fixed bug when Rmaps field empty (DSS)
 %
 
 % Expand Srf
@@ -91,7 +92,9 @@ for h = 1:2
         Cur.Y = Srf.Y(:,V); 
     end
     if isfield(Cur, 'Rmaps')
-        Cur.Rmaps = Srf.Rmaps(:,V); 
+        if ~isnan(Cur.Rmaps)
+            Cur.Rmaps = Srf.Rmaps(:,V);
+        end
     end
     if isfield(Cur, 'ConFlds')
         if ~isnan(Cur.ConFlds(1))

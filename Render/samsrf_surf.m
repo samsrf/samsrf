@@ -761,7 +761,7 @@ if ~isempty(Srf)
         xlabel('Horizontal position (deg)');
         ylabel('Vertical position (deg)');
         colorbar
-        colormap berlin
+        colormap(samsrf_cmap(SamSrfDefs.def_cmap_other));
         caxis([-1 1] * sqrt(Srf.Data(1,v)));
         cblabel('Correlation');
         title(['Selected vertex: #' num2str(v)]);

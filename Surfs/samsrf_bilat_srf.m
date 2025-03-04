@@ -108,7 +108,9 @@ if isfield(SrfL, 'Y')
     Srf.Y = [SrfL.Y SrfR.Y];
 end
 if isfield(SrfL, 'Rmaps')
-    Srf.Rmaps = [SrfL.Rmaps SrfR.Rmaps];
+    if ~isnan(SrfL.Rmaps)
+        Srf.Rmaps = [SrfL.Rmaps SrfR.Rmaps];
+    end
 end
 if isfield(SrfL, 'ConFlds')
     if ~isnan(SrfL.ConFlds) && ~isnan(SrfR.ConFlds)

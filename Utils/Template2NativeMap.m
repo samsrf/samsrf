@@ -18,6 +18,7 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % separate folder called ROIs_temp_map.
 %
 % 19/09/2024 - Now accepts bilateral Srf input (DSS)
+% 28/02/2025 - Fixed bug with too large files (DSS)
 %
 
 % Load native map
@@ -115,7 +116,7 @@ for h = 1:length(Hemis)
     Srf.Data = TmpSrf.Data(:,Sva);
     
     %% Save Srf & ROIs
-    save([Srf.Hemisphere '_temp_map'], 'Srf');
+    save([Srf.Hemisphere '_temp_map'], 'Srf', '-v7.3');
     if ~isfield(TmpSrf, 'Roi_Names')
         samsrf_disp('WARNING: No ROI names defined in template map - assuming default names...');
         Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
@@ -142,7 +143,7 @@ if length(Hemis) == 2
     L = load('lh_temp_map');
     R = load('rh_temp_map');
     Srf = samsrf_bilat_srf(L.Srf, R.Srf);
-    save('bi_temp_map', 'Srf');
+    save('bi_temp_map', 'Srf', '-v7.3');
     delete('lh_temp_map.mat');
     delete('rh_temp_map.mat');
     cd ROIs_temp_map
