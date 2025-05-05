@@ -58,7 +58,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.008 (04-03-2025)  
+### Version 10.01 (05-05-2025)  
 - Changed how samsrf_plothrf outputs the average HRF fit (DSS)  
 - Minor bugfix in samsrf_gsr2 function when using SPM or concurrent HRF (DSS)  
 - Fixed bug with samsrf_simulate_prfs when using ground truth map (DSS)  
@@ -69,6 +69,8 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 - Minor bug fix with bilateral hemispheres of reverse correlation pRF maps (DSS)  
 - Bugfix for template map transformation when files are too large (DSS)  
 - Fixed issues with colour maps in samsrf_surf & DelineationTool (DSS)  
+- Made handling of colour maps in samsrf_simvsfit consistent with new version (DSS)  
+- Fixed how time is displayed on X-axis in samsrf_fitvsobs (DSS)  
 
 ### Version 10 (21-10-2024) - *SamSrf X Official Release!*
 - *Default HRF is now SPM canonical but check what works best for your needs! (DSS)*   

@@ -60,6 +60,7 @@ function h = samsrf_simvsfit(Srf, Thresholds, SearchSpace, Value)
 %              Colour schemes for zero-bounded values now start at 0 (DSS)
 % 18/11/2023 - Dot colour can now also plot differences & percentages (DSS)
 % 20/11/2023 - Now returns handle to the scatter dots (DSS)
+% 01/05/2025 - Made colour maps handling consistent with new version (DSS)
 %
 
 if nargin < 2
@@ -183,13 +184,13 @@ axis square
 if CalcDiff == ' ' && (strcmpi(Value, 'R^2') || strcmpi(Value, 'nR^2') || strcmpi(Value, 'Sigma') || strcmpi(Value, 'Sigma1') || strcmpi(Value, 'Sigma2') || strcmpi(Value, 'Fwhm') || strcmpi(Value, 'Centre') || strcmpi(Value, 'Surround'))  
     set(gca, 'fontsize', 20, 'Clim', [0 1]*sB);
     if strcmpi(Value, 'R^2') || strcmpi(Value, 'nR^2') 
-        colormap batlow
+        colormap(samsrf_cmap('batlow'));
     else
-        colormap hawaii
+        colormap(samsrf_cmap('hawaii'));
     end
 else
     set(gca, 'fontsize', 20, 'Clim', [-1 1]*sB);
-    colormap berlin
+    colormap(samsrf_cmap('berlin'));
 end
 xlabel('Horizontal position');
 ylabel('Vertical position');

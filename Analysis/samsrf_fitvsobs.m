@@ -12,6 +12,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % 04/10/2023 - Another bug fix with downsampling predictions (DSS)
 % 23/10/2023 - Removed zero line as makes no sense when mean is non-zero (DSS)
 % 12/11/2023 - Can incorporate parameters from concurrent HRF fitting (DSS)
+% 05/05/2025 - Fixed how time units are displayed on X-axis (DSS)
 %
 
 % Expand Srf if necessary
@@ -78,10 +79,10 @@ else
     TR = 1;
 end
 hold off
-plot((1:length(Y))*TR*Model.Downsample_Predictions, Y, 'color', [.5 .5 1], 'linewidth', 2);
+plot((0:length(Y)-1)*TR*Model.Downsample_Predictions, Y, 'color', [.5 .5 1], 'linewidth', 2);
 hold on
-plot((1:length(X))*TR, X, 'r', 'linewidth', 2);
-xlim([1 length(X)]*TR);
+plot((0:length(X)-1)*TR, X, 'r', 'linewidth', 2);
+xlim([0 length(X)]*TR);
 grid on
 legend({'Observed' 'Predicted'});
 set(gcf, 'Units', 'normalized');
