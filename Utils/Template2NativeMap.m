@@ -9,6 +9,10 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % the third input TmpFolder points to the folder where the *h_pRF_fsaverage
 % surface data files with the template map are located.
 %
+% If MeshFolder points to a GII file it loads this instead of the *h.sphere.reg.
+% If using bilateral Srf files, the file name must contain wildcard *
+% instead of the actual hemisphere letter.
+%
 % This procedure is a simple nearest neighbour transformation. It achieves
 % very similar but non-identical results to FreeSurfer's tool.
 %
@@ -19,6 +23,7 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 %
 % 19/09/2024 - Now accepts bilateral Srf input (DSS)
 % 28/02/2025 - Fixed bug with too large files (DSS)
+% 05/06/2025 - Can now also load GII registrations from HCP (DSS) 
 %
 
 % Load native map
@@ -83,7 +88,20 @@ for h = 1:length(Hemis)
     NtgtVx = size(NatSrf.Sphere,1); % Number of target vertices
     TmpVx = TmpSrf.Sphere; % Source vertices
     NatVx = NatSrf.Sphere; % Target vertices
-    RegVx = fs_read_surf([MeshFolder filesep NatSrf.Hemisphere '.sphere.reg']);
+    [~,~,e] = fileparts(MeshFolder); % Extension of MeshFolder
+    if strcmpi(e, '.gii')
+        wc = strfind(MeshFolder, '*');
+        if ~isempty(wc)
+            MeshFolder(wc) = upper(NatSrf.Hemisphere(1)); % Replace wildcard
+        end
+        % Load GII registration
+        RegVx = gifti(MeshFolder); 
+        RegVx = RegVx.vertices; 
+        MeshFolder(wc) = '*';
+    else
+        % Load FreeSurfer registration
+        RegVx = fs_read_surf([MeshFolder filesep NatSrf.Hemisphere '.sphere.reg']); 
+    end
     if size(NatVx,1) == size(RegVx,1)
         NatVx = RegVx;
     else
