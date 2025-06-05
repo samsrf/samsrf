@@ -34,6 +34,7 @@ function [Srf, vx] = samsrf_expand_srf(Srf, Use64bit)
 % 29/06/2023 - Data now converted into 32 bit unless fixed in SamSrf_defaults (DSS)
 %              Also addded option to force using 64 bit data though (DSS)
 % 22/08/2023 - Now supports EEG/MEG data files (DSS)
+% 31/05/2025 - Added hack to convert awkward GIIs converted from HCP (DSS)
 %
 
 %% In case no values defined
@@ -136,6 +137,13 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
 else
     % For volumetric data return empty vertex field
     vx = [];
+end
+
+% Deal with awkward HCP surfaces straight from GIIs 
+if isfield(Srf, 'Faces')
+    if ~isa(Srf.Faces, 'single') || ~isa(Srf.Faces, 'double')
+        Srf.Faces = single(Srf.Faces);
+    end
 end
 
 % Convert to 32 bit?

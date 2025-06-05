@@ -1,6 +1,6 @@
-function AnonymiseSrf(SrfFile, RoiVx, Curv)
+function AnonymiseSrf(SrfFile, Curv)
 %
-% AnonymiseSrf(SrfFile, [RoiVx=[], Curv=[]])
+% AnonymiseSrf(SrfFile, [Curv=[]])
 %
 % Removes potentially sensitive anatomical data from the Srf structure in
 % SrfFile and replaces the Srf.Vertices field with the Srf.Inflated field.
@@ -27,19 +27,17 @@ function AnonymiseSrf(SrfFile, RoiVx, Curv)
 %
 % 14/03/2022 - Written (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 27/05/2025 - Removed redundant input for ROI vertices (DSS)
 %
 
 if nargin < 2
-    RoiVx = [];
-end
-if nargin < 3
     Curv = [];
 end
 
 % Load data file
 load(EnsurePath(SrfFile));
 % Expand Srf
-Srf = samsrf_expand_srf(Srf);
+[Srf,RoiVx] = samsrf_expand_srf(Srf);
 
 % Remove meshes if it exists
 if isfield(Srf, 'Meshes')

@@ -53,10 +53,10 @@ guidata(hObject, handles);
 global SrfPath SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct 
 
 SamSrfDefs = LoadSamSrfDefaults;
-if ~exist('SamSrfDefs.def_disproi')
+if ~isfield(SamSrfDefs, 'def_disproi')
     SamSrfDefs.def_disproi = NaN; 
 end
-if ~exist('SamSrfDefs.def_roilist')
+if ~isfield(SamSrfDefs, 'def_roilist')
     % ROI list if undefined in SamSrf_defaults
     SamSrfDefs.def_roilist = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 end
@@ -726,7 +726,7 @@ if ~isempty(RoiNum)
         % Update message
         if Roi == -1
             set(handles.text2, 'String', 'Something''s amiss!');
-            samsrf_disp('Something is amiss: Flood filling took too way long!');
+            samsrf_disp('Something is amiss: Flood filling took way too long!');
             RoiSeeds(RoiNum) = NaN;
         else
             set(handles.text2, 'String', ['Labelled ' RoiList{RoiNum}]);

@@ -34,13 +34,13 @@ function DisplayMaps_OpeningFcn(hObject, eventdata, handles, varargin)
 global Srf RoiName Pval
 
 SamSrfDefs = LoadSamSrfDefaults;
-if ~exist('SamSrfDefs.def_disproi')
-    SamSrfDefs.defs_disproi = NaN; 
+if ~isfield(SamSrfDefs, 'def_disproi')
+    SamSrfDefs.def_disproi = NaN; 
 end
 
 %% Default parameters (Feel free to edit)
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
-RoiName = SamSrfDefs.defs_disproi; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
+RoiName = SamSrfDefs.def_disproi; % ROI name to limit the mesh (without hemisphere prefix, e.g. 'occ') - If this is NaN & Srf.Roi exists, it uses this instead
 Pval = 0.0001; % Starting p-value with which to threshold maps
 %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%% %%%
 
