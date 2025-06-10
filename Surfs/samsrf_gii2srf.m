@@ -5,7 +5,7 @@ function Srf = samsrf_gii2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % Converts a GIfTI surface in GII format to a SamSrf surface structure. If no output argument is provided, it saves the Srf as a file.
 % You can use this instead of the MGH format when using FreeSurfer to project functional data to the surface and then analysing it in SamSrf.
 %
-% NOTE: This function requires SPM12 for GIfTI functionality.
+% IMPORTANT: This function requires SPM12 for GIfTI functionality!
 %
 %   funimg:     Name of functional GII files (without extension!)
 %                 If this a cell array, files are averaged or concatenated (see avrgd) 
@@ -26,6 +26,7 @@ function Srf = samsrf_gii2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % 04/09/2024 - Clarifications in help section (DSS)
 %              Now allows returning an Srf instead of saving it. (DSS)
 % 19/09/2024 - Srf.Structural is now the subject's surf folder (DSS)
+% 10/06/2025 - Added check if SPM is on path for GII functionality (DSS)
 %
 
 %% Default parameters
@@ -54,13 +55,17 @@ for fi = 1:length(funimg)
 end
     
 %% Load functional image
-run1 = gifti([EnsurePath(funimg{1}) '.gii']);
-run1 = run1.cdata';
-fimg = NaN([size(run1) length(funimg)]);
-for fi = 1:length(funimg)
-    cur_run = gifti([funimg{fi} '.gii']);
-    cur_run = cur_run.cdata';
-    fimg(:,:,fi) = cur_run;
+if exist('spm', 'file') % Use SPM 
+    run1 = gifti([EnsurePath(funimg{1}) '.gii']);
+    run1 = run1.cdata';
+    fimg = NaN([size(run1) length(funimg)]);
+    for fi = 1:length(funimg)
+        cur_run = gifti([funimg{fi} '.gii']);
+        cur_run = cur_run.cdata';
+        fimg(:,:,fi) = cur_run;
+    end
+else
+    samsrf_error('Requires SPM for reading GII files!');
 end
 
 %% Load surface vertices

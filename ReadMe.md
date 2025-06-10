@@ -58,7 +58,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.014 (05-06-2025)  
+### Version 10.015 (10-06-2025)  
 - Template warping functions now support GII registrations like from HCP (DSS)  
 - Hacked samsrf_expand_srf to deal with awkward Srfs converted from HCP GIIs (DSS)  
 - Fixed bug with DisplayMaps & DelineationTool not loading ROIs correctly (DSS)  

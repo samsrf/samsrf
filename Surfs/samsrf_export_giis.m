@@ -12,13 +12,18 @@ function samsrf_export_giis(Srf, OutFile, Raw)
 %
 % You can use this function to load maps in Freeview, tksurfer, or other tools.
 %
-% NOTE: This function requires SPM12 for GIfTI functionality.
+% IMPORTANT: This function requires SPM12 for GIfTI functionality!
 %
 % This is a modern equivalent of samsrf_export_labels which we kept in the
 % toolbox for backwards compatibility.
 %
 % 30/07/2024 - Created (DSS)
+% 10/06/2025 - Added check if SPM is on path for GII functionality (DSS)
 %
+
+if ~exist('spm', 'file') % Use SPM 
+    samsrf_error('Requires SPM for writing GII files!');
+end
 
 % Default
 if nargin < 3 

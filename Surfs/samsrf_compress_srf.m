@@ -22,7 +22,7 @@ function Srf = samsrf_compress_srf(Srf,vx)
 %
 
 %% Do nothing if volumetric data! 
-if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
+if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg') && ~strcmpi(Srf.Hemisphere, 'mat')
 
     %% Remove data outside of region of interest
     if ~isempty(vx) && length(vx) < size(Srf.Vertices,1)

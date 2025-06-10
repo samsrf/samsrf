@@ -46,7 +46,7 @@ if ~isfield(Srf, 'Values')
 end
 
 %% Do nothing if volumetric data! 
-if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg')
+if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg') && ~strcmpi(Srf.Hemisphere, 'mat')
     
     %% Deal with anatomical meshes
     if isfield(Srf, 'Meshes') && ~isfield(Srf, 'Vertices')
