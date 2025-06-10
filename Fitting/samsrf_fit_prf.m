@@ -36,6 +36,7 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 % 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
 % 18/09/2024 - Fixed bug with pRF-from-CF analysis using incorrect search space (DSS)
 % 20/10/2024 - Fixed bug when using SPM canonical HRF (DSS)
+% 10/06/2025 - Remained HRF-parameter R/U to make it possible to export (DSS)
 %
 
 %% Defaults & constants
@@ -416,7 +417,7 @@ else
     
     % Are we estimating HRF parameters?
     if FittingHrf
-        HrfParams = {'RLat' 'ULat' 'RDisp' 'UDisp' 'R/U'};
+        HrfParams = {'RLat' 'ULat' 'RDisp' 'UDisp' 'AmpRat'};
         for p = 1:5
             Model.Param_Names{end+1} = HrfParams{p}; % Add name for CSS exponent
             Model.Scaled_Param(end+1) = 0; % HRF parameters aren't scaled

@@ -58,12 +58,13 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.015 (10-06-2025)  
+### Version 10.02 (10-06-2025)  
 - Template warping functions now support GII registrations like from HCP (DSS)  
 - Hacked samsrf_expand_srf to deal with awkward Srfs converted from HCP GIIs (DSS)  
 - Fixed bug with DisplayMaps & DelineationTool not loading ROIs correctly (DSS)  
 - Fixed inconsequential typo in DelineationTool when flood filling fails (DSS)  
 - Minor fix in AnonymiseSrf removing redundant input parameter (DSS)  
+- HRF parameter R/U is now called AmpRat to allow exporting (DSS)  
 
 ### Version 10.01 (05-05-2025)  
 - Changed how samsrf_plothrf outputs the average HRF fit (DSS)  
