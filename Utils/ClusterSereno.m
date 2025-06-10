@@ -11,6 +11,7 @@ function ClusterSereno(Hemis, RoiPath)
 % 25/08/2022 - Written (PWBU & DSS)
 % 17/09/2022 - Fixed bug when directing to different path (DSS)
 % 14/12/2023 - Bugfix when providing a path (DSS)
+% 09/06/2025 - Added cluster for dlPFC (DSS)
 %
 
 if nargin == 0
@@ -34,55 +35,58 @@ cd(RoiPath);
 cluster_struct = struct;
 
 complexes = {'V1' ,'V2', 'V3', 'V3AB', 'VO', 'LO', 'MT', 'V6', 'ProSt', 'STVPIC', ...
-    'V4', 'PeriFus', 'FEFs', 'IntrParSul', 'AntPre', 'EarlyIntP'};
+    'V4', 'PeriFus', 'FEFs', 'IntrParSul', 'AntPre', 'EarlyIntP' 'dlPFC'};
 
 % V1
 cluster_struct.(complexes{1}) = {'V1_lower', 'V1_upper'};
 
-%V2
+% V2
 cluster_struct.(complexes{2}) = {'V2_lower', 'V2_upper'};
 
-%V3
+% V3
 cluster_struct.(complexes{3}) = {'V3' 'VP'};
 
-%V3A+B
+% V3A+B
 cluster_struct.(complexes{4}) = {'V3A', 'V3B' 'DI'};
 
-%VO+
+% VO+
 cluster_struct.(complexes{5}) = {'VO2', 'VO1' 'V8'};
 
-%LO+
+% LO+
 cluster_struct.(complexes{6}) = {'LO1', 'LO2', 'LO3' 'PGp' 'OPA'};
 
-%MT+
+% MT+
 cluster_struct.(complexes{7}) = {'MSTd', 'MSTv', 'MT_lower', 'MT_upper', 'MTc' 'FSTd'};
 
-%V6+
+% V6+
 cluster_struct.(complexes{8}) = {'V6', 'V6A' 'aPOS', 'POm'};
 
-%Prostriata
+% Prostriata
 cluster_struct.(complexes{9}) = {'ProS1', 'ProS2' };
 
-%STV+PIC
+% STV+PIC
 cluster_struct.(complexes{10}) = {'STV1', 'STV2' '7b_PICv', '7b_PICvs'};
 
-%V4
+% V4
 cluster_struct.(complexes{11}) = {'V4v' 'hV4'} ;
 
-%Perifusiform
+% Perifusiform
 cluster_struct.(complexes{12}) = {'FFC' 'VVC' 'PH'};
 
-%FEFs
+% FEFs
 cluster_struct.(complexes{13}) = {'FEF' 'dmFEF'} ;
 
-%Intraparietal sulcus area
+% Intraparietal sulcus area
 cluster_struct.(complexes{14}) = {'IPS4', 'IPS5'  'VIP1v' 'VIP2v' 'VIP1vs' 'VIP2vs'};
 
-%Anterior pre-cuneus
+% Anterior pre-cuneus
 cluster_struct.(complexes{15}) = {'aPCu1', 'aPCu2'};
 
-%Early intraparietal
-cluster_struct.(complexes{16}) = {'LIP0', 'LIP1' 'V7' 'cIPS' 'PEc' };
+% Early intraparietal
+cluster_struct.(complexes{16}) = {'LIP0', 'LIP1' 'V7' 'cIPS' 'PEc'};
+
+% Dorso-lateral prefrontal cortex
+cluster_struct.(complexes{17}) = {'DLPFC', 'DLPFCA' 'DLPFCaud'};
 
 %% Add hemisphere prefix if needed
 for i = 1:length(complexes)
