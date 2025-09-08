@@ -40,6 +40,7 @@ function R = samsrf_gsr2(Y, X, S, Model)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 03/12/2023 - Bugfix when using concurrent HRF fitting (DSS)
 % 04/11/2024 - Fixed bug assuming wrong HRF when concurrent fitting or using SPM (DSS) 
+% 09/09/2025 - Bugfix for missing colour maps (DSS)
 %
 
 if ~isfield(Model, 'Downsampling')
@@ -116,7 +117,7 @@ for s = sU
         scatter(M(1), M(2), 200, [0 .5 0], '+', 'linewidth', 2);
         TitlStr = ['*** ' TitlStr ' ***'];
     end
-    colormap berlin
+    colormap(samsrf_cmap('berlin'));
     caxis([-1 +1]*max(R)); 
     if Is1D
         title('1D pTC model');

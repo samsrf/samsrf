@@ -30,6 +30,7 @@ function samsrf_glm(SrfCell, X, Xnames, Roi, GlmFile, GlobalCovar)
 % each regressor in the design matrix. The final row contains the residuals.
 %
 % 13/09/2024 - Fixed help description & added advice about other GLMs (DSS)
+% 08/09/2025 - Fixed error with colour map needed on path (DSS)
 %
 
 if length(Xnames) ~= size(X,2)
@@ -84,7 +85,7 @@ X = [X Ct];
 % Plot design matrix
 figure('name', 'Design matrix');
 hold on
-cm = berlin(size(X,2)); % Colour scheme
+cm = samsrf_cmap('berlin', size(X,2)); % Colour scheme
 % Plot each regressor
 for i = 1:size(X,2)
     plot(X(:,i)/10 + i, 'linewidth', 2, 'color', cm(i,:));

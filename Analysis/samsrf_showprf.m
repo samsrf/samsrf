@@ -24,6 +24,7 @@ function samsrf_showprf(SrfEcc, IdxMat, Model, PlotType)
 % 14/03/2022 - Can now compute pRF profile for Srfs stripped of Rmaps (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 08/09/2023 - Now possible to invert sign if needed (DSS)
+% 09/09/2025 - Bugfix for missing colour maps (DSS)
 %
 
 if nargin < 3
@@ -124,7 +125,7 @@ if Scale == 0
     Scale = 1;
 end
 set(gca, 'Clim', [-1 +1]*Scale);
-colormap berlin
+colormap(samsrf_cmap('berlin'));
 colorbar 
 xlabel('Horizontal position (deg)');
 ylabel('Vertical position (deg)');
