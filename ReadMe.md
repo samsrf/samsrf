@@ -58,8 +58,8 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.101 (09-09-2025)  
-- Bugfix for missing colour maps (DSS)  
+### Version 10.102 (26-09-2025)  
+- Bugfix for missing colour maps & interpolation errors in samsrf_cmap (DSS)  
 
 ### Version 10.1 (24-06-2025)  
 - *Added BSD 3 license on GitHub*

@@ -7,6 +7,7 @@ function rgb = samsrf_cmap(MapName, Nrows)
 % without having Matlab functions & is essential for standalone app.
 %
 % 19/09/2024 - Written (DSS)
+% 26/09/2025 - Fixed errors with interpolation (DSS)
 %
 
 if nargin < 2
@@ -37,3 +38,7 @@ end
 if Nrows ~= size(rgb,1)
     rgb = imresize(rgb, [Nrows 3]);
 end
+
+% Ensure range
+rgb(rgb < 0) = 0;
+rgb(rgb > 1) = 1;
