@@ -13,6 +13,7 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % 23/10/2023 - Removed zero line as makes no sense when mean is non-zero (DSS)
 % 12/11/2023 - Can incorporate parameters from concurrent HRF fitting (DSS)
 % 05/05/2025 - Fixed how time units are displayed on X-axis (DSS)
+% 28/09/2025 - Fixed critical bug with renamed amplitude ratio! (DSS)
 %
 
 % Expand Srf if necessary
@@ -44,7 +45,7 @@ elseif isfield(Srf, 'X')
                          find(strcmpi(Srf.Values, 'ULat')) ...
                          find(strcmpi(Srf.Values, 'RDisp')) ...
                          find(strcmpi(Srf.Values, 'UDisp')) ... 
-                         find(strcmpi(Srf.Values, 'R/U'))];
+                         find(strcmpi(Srf.Values, 'AmpRat') | strcmpi(Srf.Values, 'R/U'))];
             X = prf_convolve_hrf(X, samsrf_doublegamma(Model.TR, Srf.Data(HrfParams,v)), 1); % No downsampling to retain temporal resolution of prediction!
         else
             % Predefined HRF

@@ -19,6 +19,7 @@ function [Hrf, Params] = samsrf_plothrf(Srf, vx, R2Thr)
 % 20/10/2024 - Added R^2 threshold option (DSS)
 % 21/10/2024 - Outputs HRF parameters as well now (DSS)
 % 02/11/2024 - HRF output is now determined by average parameters (DSS)
+% 28/09/2025 - Fixed critical bug with renamed amplitude ratio! (DSS)
 %
 
 % Which data rows are HRF parameters?
@@ -26,7 +27,7 @@ HrfParams = [find(strcmpi(Srf.Values, 'RLat')) ...
              find(strcmpi(Srf.Values, 'ULat')) ...
              find(strcmpi(Srf.Values, 'RDisp')) ...
              find(strcmpi(Srf.Values, 'UDisp')) ... 
-             find(strcmpi(Srf.Values, 'R/U'))];
+             find(strcmpi(Srf.Values, 'AmpRat') | strcmpi(Srf.Values, 'R/U'))];
 if isempty(HrfParams)
     samsrf_error('This data file does not contain HRF fits!');
 end

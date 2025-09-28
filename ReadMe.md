@@ -58,7 +58,8 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.102 (26-09-2025)  
+### Version 10.2 (28-09-2025)  
+- Critical bug fix in functions visualising HRF fits! (DSS)  
 - Bugfix for missing colour maps & interpolation errors in samsrf_cmap (DSS)  
 
 ### Version 10.1 (24-06-2025)  
