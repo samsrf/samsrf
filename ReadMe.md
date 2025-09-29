@@ -58,9 +58,10 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.2 (28-09-2025)  
+### Version 10.201 (29-09-2025)  
 - Critical bug fix in functions visualising HRF fits! (DSS)  
 - Bugfix for missing colour maps & interpolation errors in samsrf_cmap (DSS)  
+- Fixed issues with DelineationTool GUI for Matlab versions post R2023b (DSS)  
 
 ### Version 10.1 (24-06-2025)  
 - *Added BSD 3 license on GitHub*
