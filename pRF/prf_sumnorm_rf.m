@@ -1,6 +1,6 @@
-function Rfp = prf_sumnorm_rf(x0, y0, sigma, phi, screen_width)
+function Rfp = prf_sumnorm_rf(x0, y0, sigma, kappa, screen_width)
 %
-% Rfp = prf_sumnorm_rf(x0, y0, sigma, phi, [screen_width])
+% Rfp = prf_sumnorm_rf(x0, y0, sigma, kappa, [screen_width])
 %
 % Returns a Gaussian receptive field profile plus the same Gaussian
 % multiplied with its logarithm. Any values > 1 are clipped to 1.
@@ -8,7 +8,7 @@ function Rfp = prf_sumnorm_rf(x0, y0, sigma, phi, screen_width)
 % inhibition to nonlinear summation by only fitting one extra parameter.
 % 
 % 	The pRF is described by its position (x0,y0), the standard deviation 
-% 	of sigma, and the modulating factor phi. Units are in proportion of 
+% 	of sigma, and the modulating factor kappa. Units are in proportion of 
 %   screen space with the origin at the centre of gaze.
 %
 %   The optional fifth input screen_width determines the size of the 
@@ -22,6 +22,7 @@ function Rfp = prf_sumnorm_rf(x0, y0, sigma, phi, screen_width)
 %
 % 30/09/2025 - Written (DSS)
 % 01/10/2025 - Fixed issue with NaN outputs (DSS) 
+%              Renamed modulating parameter to kappa (DSS)
 %
 
 if nargin < 5
@@ -47,7 +48,7 @@ end
 % Calculate the Gaussian
 Rfp = exp(-((X-x0).^2+(Y-y0).^2) ./ (2*sigma.^2));
 % Modulate by itself
-Rfp = Rfp + phi * log(Rfp) .* Rfp;
+Rfp = Rfp + kappa * log(Rfp) .* Rfp;
 % Clip to 1
 Rfp(Rfp > 1) = 1;
 % Remove bad points
