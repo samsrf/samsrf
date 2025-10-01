@@ -21,6 +21,7 @@ function Rfp = prf_sumnorm_rf(x0, y0, sigma, phi, screen_width)
 %   but you may find other uses for this feature.
 %
 % 30/09/2025 - Written (DSS)
+% 01/10/2025 - Fixed issue with NaN outputs (DSS) 
 %
 
 if nargin < 5
@@ -49,3 +50,5 @@ Rfp = exp(-((X-x0).^2+(Y-y0).^2) ./ (2*sigma.^2));
 Rfp = Rfp + phi * log(Rfp) .* Rfp;
 % Clip to 1
 Rfp(Rfp > 1) = 1;
+% Remove bad points
+Rfp(isnan(Rfp)) = 0;

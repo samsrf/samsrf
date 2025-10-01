@@ -58,7 +58,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.202 (01-10-2025)  
+### Version 10.203 (01-10-2025)  
 - Added sumnorm pRF model to fit complex shape with only 1 extra parameter (DSS)  
 - Further attempt to fix issue with DelineationTool GUI due to Matlab 2024 bug (DSS)  
 
