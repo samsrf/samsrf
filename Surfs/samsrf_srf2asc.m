@@ -2,6 +2,10 @@ function samsrf_srf2asc(srfdata, ascname, srfdir, valnum)
 %
 % samsrf_srf2asc(srfdata, ascname, srfdir, [valnum])
 %
+% WARNING: This is a deprecated function & is no longer supported! The standard file format for surface data is GIfTI. 
+% We include this function for backwards compatibility but it won't be updated with bugfixes or new features. 
+% USE AT YOUR OWN RISK!
+%
 % Saves srfdata as a Freesurfer ASCII overlay file in ascname.
 % The input can be either a filename or a Srf structure.
 %
@@ -17,6 +21,7 @@ function samsrf_srf2asc(srfdata, ascname, srfdir, valnum)
 % using mris_convert. It always saves the entire hemisphere.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 09/10/2025 - Added warning that function is no longer being supported.
 %
 
 if ischar(srfdata)

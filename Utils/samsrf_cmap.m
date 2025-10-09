@@ -23,6 +23,9 @@ end
 if isdeployed 
     % Running in deployed SamSrfX app
     global SamSrfXPath
+    if isempty(SamSrfXPath)
+        SamSrfXPath = pwd;
+    end
     rgb = readmatrix([SamSrfXPath filesep 'Colours' filesep MapName(2:end) '.csv']);
 else
     % Running in Matlab command window

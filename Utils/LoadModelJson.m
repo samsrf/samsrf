@@ -16,13 +16,14 @@ function Model = LoadModelJson(Filename)
 %
 % 08/09/2024 - Written (DSS)
 % 11/09/2024 - Added note about backwards compatibility (DSS)
+% 07/10/2025 - Fixed issue with not reading pRF function correctly (DSS)
 %
 
 % Read as a file
 Model = readstruct([Filename '.json']);
 
 % Convert function back from char array
-if isfield(Model, 'Prf_Function') && ~isscalar(Model.Prf_Function)
+if isfield(Model, 'Prf_Function') && isstring(Model.Prf_Function)
     Model.Prf_Function = str2func(Model.Prf_Function);
 end
 

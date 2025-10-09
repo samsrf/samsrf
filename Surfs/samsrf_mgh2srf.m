@@ -2,6 +2,10 @@ function Srf = samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 % 
 % Srf = samsrf_mgh2srf(funimg, hemsurf, [nrmls=true, avrgd=true, nsceil=true, anatpath='../anatomy/'])
 %
+% WARNING: This is a deprecated function & is no longer supported! The standard file format for surface data is GIfTI. 
+% We include this function for backwards compatibility but it won't be updated with bugfixes or new features. 
+% USE AT YOUR OWN RISK!
+%
 % Converts a FreeSurfer surface in MGH format to a SamSrf surface structure. If no output argument is provided, it saves the Srf as a file.
 % Use this when using FreeSurfer to project functional data to the surface and then analysing it in SamSrf.
 %
@@ -23,6 +27,7 @@ function Srf = samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %
 % 04/09/2024 - Clarifications in help section (DSS)  
 %              Now allows returning an Srf instead of saving it.
+% 09/10/2025 - Added warning that function is no longer being supported.
 %
 
 %% Default parameters

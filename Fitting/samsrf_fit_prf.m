@@ -13,6 +13,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 %                 but note that both of these can result in imprecise parameter esstimates.
 %
 %   Model:        Contains the parameters defining the analysis.
+%                 This is either a Matlab struct or the name of a JSON file
+%                 with the model specification (without .json extension)
 %
 %   SrfFile:      Data to be analysed. You can provide a Srf structure directly or define the 
 %                 Srf data filename is a char array without .mat extension (e.g. 'lh_Bars1').
@@ -38,7 +40,18 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 % 20/10/2024 - Fixed bug when using SPM canonical HRF (DSS)
 % 10/06/2025 - Renamed HRF-parameter R/U to AmpRat to make it possible to export (DSS)
 % 28/09/2025 - Fixed typo in help (but see note in samsrf_plothrf & samsrf_fitvsobs (DSS)
+% 07/10/2025 - Models can now be provided as JSON files (DSS)
+% 08/10/2025 - Apertures can now be provided as volumetric NII or animated GIF (DSS)
 %
+
+%% Load Model as JSON?
+if ischar(Model) || isstring(Model)
+    try
+        Model = LoadModelJson(Model);
+    catch
+        samsrf_error(['Cannot load model file ' Model '.json!']);
+    end
+end
 
 %% Defaults & constants
 % If no ROI defined, analyse whole brain...
@@ -120,8 +133,9 @@ samsrf_newline;
 %% Prepare apertures
 if ~isfield(Model, 'SeedRoi')
     % If loading apertures for conventional pRF analysis
+    Model.Aperture_File = MakeApsMat(Model.Aperture_File); % Convert NII apertures if necessary
     samsrf_disp('Load stimulus apertures...');
-    load(EnsurePath(Model.Aperture_File));  % Supposed to loads variables called ApFrm & ApXY
+    load(EnsurePath(Model.Aperture_File));  % Supposed to load variables called ApFrm & ApXY
     samsrf_disp([' Loading ' Model.Aperture_File]); 
     if sum(ApFrm(:)<0) > 0
         samsrf_disp(' Warning: Apertures contain negative values!');

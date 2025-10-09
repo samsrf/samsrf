@@ -25,19 +25,33 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 %
 % SrfL/SrfR: Srf structures for left & right hemispheres, respectively.
 %             Automatically expanded but you may want to denoise them first.
-%
+%			  You can also provide the filenames for both.
 %
 % Warning: May fail with very large data files due to lack of memory.
 %
+%
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/11/2022 - Now supports Srfs with missing surface fields (DSS)
+% 07/10/2025 - Can now accept filenames as input (DSS)
 %
 
-% Expand Srfs
+%% Srf file names provided?
+if ischar(SrfL)
+	if ~ischar(SrfR)
+    	samsrf_error('Both inputs must be of the same format (Srf struct or filenames)!');
+    end
+    SrfName = SrfL(4:end);
+    SrfL = load(SrfL);
+    SrfR = load(SrfR);
+    SrfL = SrfL.Srf;
+    SrfR = SrfR.Srf;
+end
+
+%% Expand Srfs
 SrfL = samsrf_expand_srf(SrfL);
 SrfR = samsrf_expand_srf(SrfR);
 
-% Shift hemispheres
+%% Shift hemispheres
 if isfield(SrfL, 'Pial')
     SrfL.Pial(:,1) = SrfL.Pial(:,1)-3;
     SrfR.Pial(:,1) = SrfR.Pial(:,1)+3;
@@ -59,7 +73,7 @@ else
     samsrf_disp('Warning: Sphere surfaces not in Srf...');
 end
 
-% Combine hemispheres
+%% Combine hemispheres
 Srf = SrfL;
 Srf.Hemisphere = 'bi';
 Srf.Nvert_Lhem = size(SrfL.Vertices,1);

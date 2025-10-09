@@ -11,8 +11,8 @@ function [SrfL, SrfR] = samsrf_hemi_srfs(Srf)
 %  These are not compressed or processed in any other way. Also, if you want 
 %  to save them to a file you need to rename each as Srf before saving.
 %
-%
 % Warning: May fail with very large data files due to lack of memory.
+%
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/11/2022 - Now supports Srfs with missing surface fields (DSS)

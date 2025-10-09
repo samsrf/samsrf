@@ -4,6 +4,13 @@ function SamSrfX
 %% Version info
 [vn,vd] = samsrf_version;
 
+%% To include in compiler
+prf_gaussian_rf(0,0,.1);
+prf_multivariate_rf(0,0,.1,.2,45);
+prf_dog_rf(0,0,.1,.2,.5);
+prf_sumnorm_rf(0,0,.1,1);
+prf_skewgauss_rf(0,0,.1,1,2);
+
 %% New Model 
 [Model, Algorithm, xP] = Blank2dGModel;
 Model = samsrf_model_defaults(Algorithm, Model); % Populate empty fields with defaults 
@@ -442,9 +449,11 @@ samsrf_disp('******************************************************************'
                     end
                     hold(GuiPrf, 'off');
                     GuiPrf.CLim = [-1 1] * max(abs(Rfp(:)));
+                    warning off
                     for i = 1:size(GuiPars.Data.Parameter)
                         tstr = strrep(tstr, ['P(' num2str(i) ')'], GuiPars.Data.Parameter{i});
                     end
+                    warning on
                     title(GuiPrf, tstr, 'Interpreter', 'none');
                 end
             else
@@ -1093,8 +1102,6 @@ samsrf_disp('******************************************************************'
                         [Lsrf, Rsrf] = samsrf_hemi_srfs(Srf);
                         samsrf_export_giis(Lsrf, [Lsrf.Hemisphere '_' Model.Name]);
                         samsrf_export_giis(Rsrf, [Rsrf.Hemisphere '_' Model.Name]);
-                    elseif strcmpi(Srf.Hemisphere, 'vol') 
-                        % Export NII files
                     else
                         % Export single hemisphere
                         samsrf_export_giis(Srf, [Srf.Hemisphere '_' Model.Name]);

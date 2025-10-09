@@ -1,0 +1,7 @@
+{
+    "Name": "pRF",
+    "Scaling_Factor": 9.5,
+    "TR": 1.0,
+    "Hrf": 0.0,
+    "Aperture_File": "aps_Bars"
+}

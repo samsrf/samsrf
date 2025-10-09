@@ -23,6 +23,8 @@ function Srf = samsrf_vol2mat(funimg, roi, nrmls, avrgd, nsceil)
 %                   (this may change in future versions)
 %
 % 14/09/2024 - Saving the file is now optional (DSS)  
+% 08/10/2025 - Now accepts wildcard input for GII files (DSS)
+% 			   Adapted for compiled command line analysis (DSS)
 %
 
 %% Default parameters
@@ -41,7 +43,14 @@ end
 
 % If input functional is a string, turn into cell array
 if isa(funimg, 'char')
-    funimg = {funimg};
+    if contains(funimg, '*')
+    	funimg = dir([funimg '.nii']);
+        funimg = {funimg.name}';
+        samsrf_disp('Found NII files:');
+        samsrf_disp(funimg);
+    else
+    	funimg = {funimg};
+    end
 end
 % Trim file names if neccesary
 for fi = 1:length(funimg) 

@@ -15,19 +15,24 @@ The main standalone GUI is simply called *SamSrfX*. It allows you to
 select between different algorithms, and between Models for various common uses, 
 and you can display data, delineate maps, etc.  
 
+The toolbox also includes a standalone command line app called *SamSrfAnalysis*.
+This is specifically designed for use with external data & doesn't require Matlab.
+So you can read in GII or NII files & the analysis outputs maps in that format.
+
 Within the Matlab environment, you can also call the SamSrfX GUI. But there 
 are also various tools available for specific purposes:  
  
-    1. Projecting data to surface:              SurfaceProjection  
-    2. Making map figures:                      DisplayMaps  
-    3. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
-	4. Automatic ROI delineation:               AutoDelineation  
-    5. Delineating ROIs:                        DelineationTool  
-    6. Viewing stimulus apertures:              ViewApertures  
-    7. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
-	8. Help on model parameters:                ModelHelp  
-    9. Help on all SamSrf functions:            FuncHelp  
+    1. Making map figures:                      DisplayMaps*  
+    2. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
+	3. Automatic ROI delineation:               AutoDelineation  
+    4. Delineating ROIs:                        DelineationTool*  
+    5. Viewing stimulus apertures:              ViewApertures*  
+    6. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
+	7. Help on model parameters:                ModelHelp*  
+    8. Help on all SamSrf functions:            FuncHelp  
+    9. Projecting data to surface:              SurfaceProjection  
 
+(* These tools are also available as separate standalone apps)
 
 ## DIFFERENCES TO EARLIER VERSIONS
 
@@ -58,9 +63,18 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.203 (01-10-2025)  
+### Version 10.295 (09-10-2025) - Pre-release beta
+- Added standalone app SamSrfAnalysis for use in NeuroDesk or system terminal etc (DSS) **!!! Beta - not fully tested !!!**
+- Can now provide apertures as volumetric NII files (DSS)  
+- Model specification for algorithms can now be provided as JSON file (DSS)  
 - Added sumnorm pRF model to fit complex shape with only 1 extra parameter (DSS)  
-- Further attempt to fix issue with DelineationTool GUI due to Matlab 2024 bug (DSS)  
+- The sumnorm model has also been implemented in SamSrfX GUI now (DSS)  
+- More failed attempts to fix issue with DelineationTool GUI due to Matlab 2024 bug (DSS)  
+- Fixed various compatibility bugs with AutoDelineation function (DSS)  
+- Removed warning in samsrf_surf if default view undefined (DSS)  
+- Fixed bug with right hemisphere labels of bilateral surfaces in DisplayMaps (DSS)  
+- Can now read in GII files without anatomy or by providing a surface GII (DSS)  
+- Added warnings about out-of-date functions for surface projection (DSS)  
 
 ### Version 10.201 (29-09-2025)  
 - Critical bug fix in functions visualising HRF fits! (DSS)  

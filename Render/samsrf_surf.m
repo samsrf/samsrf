@@ -65,6 +65,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % The colour schemes for maps must be defined as strings in SamSrf_defaults.json.
 %
 % 19/09/2024 - Now uses JSON for defaults & new colour map function (DSS)
+% 07/10/2025 - Removed warning if no default view defined (DSS)
+% 09/10/2025 - Now automatically displays Srf.Vertices if mesh not found (DSS)
 %
 
 %% Create global variables
@@ -126,6 +128,9 @@ if size(Srf.Data,3) > 1
 end
 
 %% Load curvature
+if ~isfield(Srf, 'Curvature')
+	Srf.Curvature = zeros(1,size(Srf.Vertices,1));
+end
 Curv = Srf.Curvature;
 if exist('SamSrfDefs.def_curv', 'var')
     if strcmpi(SamSrfDefs.def_curv, 'Greyscale')
@@ -169,7 +174,8 @@ else
     if strcmpi(Mesh, 'White')
         Vertices = Srf.Vertices;
     else
-        samsrf_error(['Unknown mesh ' Mesh ' specified!']);
+        samsrf_disp(['Warning: Unknown mesh ' Mesh ' specified, so using Vertices...']);
+        Vertices = Srf.Vertices;
     end
 end
 Vertices(isnan(Srf.Vertices(:,1)),:) = NaN; 
@@ -195,6 +201,8 @@ if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
         Alpha(Alpha > 0) = Thrsh(6);
     end
 else 
+    UniformAlpha = true;
+    Alpha = ones(size(Srf.Data,2),3);
     r = isnan(Srf.Data(1,:));
 end
 
@@ -575,7 +583,6 @@ ax = gca;
 ax.Clipping = 'off';
 if nargin < 5 || isempty(CamView)
     if ~isfield(SamSrfDefs, 'def_views')
-        samsrf_disp('WARNING: def_views not defined in SamSrf_defaults.json');
         % Focus on early visual cortex
         if Srf.Hemisphere(1) == 'l'
             % Left hemisphere

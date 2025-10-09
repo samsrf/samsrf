@@ -24,7 +24,17 @@ function OutFile = samsrf_fit_cf(Model, SrfFile, Roi)
 % 13/09/2024 - Removed option to provife data file list for concatenation (DSS)
 %              Fixed help descriptions (DSS)
 % 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
+% 07/10/2025 - Models can now be provided as JSON files (DSS)
 %
+
+%% Load Model as JSON?
+if ischar(Model) || isstring(Model)
+    try
+        Model = LoadModelJson(Model);
+    catch
+        samsrf_error(['Cannot load model file ' Model '.json!']);
+    end
+end
 
 %% Defaults & constants
 % If no ROI defined, analyse whole brain...

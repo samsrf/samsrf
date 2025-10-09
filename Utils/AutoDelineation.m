@@ -70,18 +70,19 @@ function AutoDelFile = AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thres
 %
 % 19/09/2024 - Now also takes Srf struct as input map (DSS)
 %              Returns file name of autodelineation (DSS)
+% 07/10/2025 - Fixed bugs that shouldn't be happening anyway (DSS)
 %
 
 global SamSrfXPath
 
 % ROI list for delineation file 
 SamSrfDefs = LoadSamSrfDefaults;
-if ~exist('SamSrfDefs.SamSrfDefs.def_roilist')
+if ~exist('SamSrfDefs.def_roilist')
     % ROI list if undefined in SamSrf_defaults
     RoiList = {'V1' 'V2v' 'V3v' 'V4' 'V2d' 'V3d' 'V3A' 'V3B' 'LO1' 'LO2' 'VO1' 'VO2' 'TO1' 'TO2' 'V6' 'IPS0' 'IPS1' 'IPS2'}'; % For backwards compatability
 else
     % Pre-defined default ROI list
-    RoiList = SamSrfDefs.SamSrfDefs.def_roilist;
+    RoiList = SamSrfDefs.def_roilist;
 end
 
 %% Parameters
@@ -198,10 +199,10 @@ for h = 1:length(Hemis)
     end
 
     %% Viewing region
-    if ~exist('SamSrfDefs.SamSrfDefs.def_disproi')
-        SamSrfDefs.SamSrfDefs.def_disproi = NaN; 
+    if ~exist('SamSrfDefs.def_disproi')
+        SamSrfDefs.def_disproi = NaN; 
     end
-    if ~isempty(SamSrfDefs.SamSrfDefs.def_disproi) && (SamSrfDefs.SamSrfDefs.def_disproi(1) == '<' || SamSrfDefs.def_disproi(1) == '>')
+    if ~isempty(SamSrfDefs.def_disproi) && (SamSrfDefs.def_disproi(1) == '<' || SamSrfDefs.def_disproi(1) == '>')
         % If ROI defined by coordinates
         if length(SamSrfDefs.def_disproi) == 1
             samsrf_error('You must define inflated mesh coordinate in SamSrfDefs.def_disproi!');
@@ -229,6 +230,11 @@ for h = 1:length(Hemis)
     elseif isnan(SamSrfDefs.def_disproi)
         % Use ROI from Srf
         samsrf_disp('Using ROI from Srf if it exists');
+        if isfield(Srf, 'Roi')
+            ViewRoi = Srf.Roi;
+        else
+            ViewRoi = NaN;
+        end
     else
         % Load region of interest
         Roi = [Hemis{h} 'h_' SamSrfDefs.def_disproi];

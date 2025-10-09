@@ -1,0 +1,5 @@
+{
+    "Name": "CF_Rcp",
+    "SeedRoi": "../benson/ROIs_Benson/V1",
+    "Template": "../benson/bi_benson"
+}

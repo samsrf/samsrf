@@ -147,9 +147,9 @@ if isfield(Srf, 'Nvert_Lhem')
         qh = 'Both';
     end 
     if qh(1) == 'L'
-        Srf.Vertices(Srf.Nvert_Lhem+1:end,:) = NaN; % Remove right hemisphere vertices       
+        Srf = samsrf_hemi_srfs(Srf); % Remove right hemisphere 
     elseif qh(1) == 'R'
-        Srf.Vertices(1:Srf.Nvert_Lhem,:) = NaN; % Remove left hemisphere vertices
+        [~,Srf] = samsrf_hemi_srfs(Srf); % Remove left hemisphere 
     end
 end
 % What ROI to samsrf_display

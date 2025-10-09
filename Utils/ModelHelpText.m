@@ -74,11 +74,11 @@ switch AnalysisFunc
            case 'Aperture_File'
                HelpText = { 'Char'
 							''
-							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
+							'Specify the file containing the apertures. This can be a .mat file (in which case you don''t need the extension, so e.g. ''aps_Bars''), a volumetric NII, or an animated GIF. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
                             ''
-                            'Since SamSrf 9 this file must be a vectorised aperture matrix ApFrm with pixels (locations) in rows & volumes in columns. It must also contain the ApXY matrix defining the pixel coordinates.' 
+                            'Apertures are vectorised as an aperture matrix ApFrm with pixels (locations) in rows & volumes in columns. This also contains the ApXY matrix defining the pixel coordinates. In the later versions of SamSrf, this step is done internally by the algorithm. It is only essentially that the outer edges of your apertures correspond to the eccentricity/scaling factor.' 
                             ''
-                            'If there are multiple conditions within the same time series, the condition indeces must be stored in the 1st row of the ApFrm matrix. In that case, you must use the prf_predict_timecourse_multicond function (see help for this function)!' };
+                            'If there are multiple conditions within the same time series, the condition indeces must be stored in the 1st row of the ApFrm matrix. In that case, you must use the prf_predict_timecourse_multicond function (see help for this function)! Note that this is currently only supported for apertures in .mat format & they must be vectorised!' };
            case 'Aperture_Mean_Response'
                HelpText = { '[Optional] Boolean'
                             ''
@@ -273,7 +273,7 @@ switch AnalysisFunc
            case 'Aperture_File'
                HelpText = { 'Char'
 							''
-							'Specify the file containing the apertures without .mat extension, so e.g. ‘aps_Bars’. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
+							'Specify the file containing the apertures. This can be a .mat file (in which case you don''t need the extension, so e.g. ''aps_Bars''), a volumetric NII, or an animated GIF. Since this will typically depend on your experimental setup, you must define this. If you used the exact same stimulus design for each participant, you could just keep the aperture file in a common folder (with your model script) and provide the full path name here.' 
                             ''
                             'Important: unlike for forward-model pRF analysis, the apertures in reverse-correlation analysis are still using movies, -not- vectorised apertures! While there could be reasons to change this, the reverse correlation analysis is already very fast anyway & so we went with the maxim, "Don''t fix what ain''t broken"...' 
                             ''

@@ -53,7 +53,18 @@ function OutFile = samsrf_revcor_prf(Model, SrfFile, Roi)
 %              Fixed help descriptions (DSS)
 % 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
 % 21/10/2024 - Fixed bug when using SPM canonical HRF (DSS)
+% 07/10/2025 - Models can now be provided as JSON files (DSS)
+% 08/10/2025 - Apertures can now be provided as volumetric NII or animated GIF (DSS)
 %
+
+%% Load Model as JSON?
+if ischar(Model) || isstring(Model)
+    try
+        Model = LoadModelJson(Model);
+    catch
+        samsrf_error(['Cannot load model file ' Model '.json!']);
+    end
+end
 
 %% Defaults & constants
 % If no ROI defined, analyse whole brain...
@@ -103,6 +114,7 @@ if strcmpi(class(Model.Prf_Function), 'function_handle')
 end
 
 %% Load apertures
+Model.Aperture_File = MakeApsMat(Model.Aperture_File); % Convert NII apertures if necessary
 samsrf_disp('Load stimulus apertures...');
 load(EnsurePath(Model.Aperture_File));  % Loads a variable called ApFrm
 samsrf_disp([' Loading '  Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volumes']);

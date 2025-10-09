@@ -65,14 +65,19 @@ global ApFrm ApXY ApCond
 % Load apertures
 ApCond = [];
 if isempty(varargin) 
-    [ApName, ApPath] = uigetfile('aps_*.mat', 'Select apertures');
+    [ApName, ApPath] = uigetfile({'aps_*.mat'; '*.nii'; '*.gif'}, 'Select apertures');
 else
     ApName = [varargin{1} '.mat'];
     ApPath = '';
 end
 if ApName ~= 0
-    ApName = ApName(1:end-4);
-    load([ApPath ApName]);
+    if contains(lower(ApName), '.nii') || contains(lower(ApName), '.gif')
+        ApName = MakeApsMat([ApPath ApName]); % Convert in case NII or GIF version
+        load(ApName);
+    else
+        % ApName = ApName(1:end-4);
+        load([ApPath ApName]);
+    end
 end
 
 % Plot first frame
