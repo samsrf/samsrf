@@ -63,7 +63,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.295 (09-10-2025) - Pre-release beta
+### Version 10.296 (10-10-2025) - Pre-release beta updated
 - Added standalone app SamSrfAnalysis for use in NeuroDesk or system terminal etc (DSS) **!!! Beta - not fully tested !!!**
 - Can now provide apertures as volumetric NII files (DSS)  
 - Model specification for algorithms can now be provided as JSON file (DSS)  
