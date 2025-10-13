@@ -27,8 +27,12 @@ function Srf = samsrf_mgh2srf(funimg, hemsurf, nrmls, avrgd, nsceil, anatpath)
 %
 % 04/09/2024 - Clarifications in help section (DSS)  
 %              Now allows returning an Srf instead of saving it.
-% 09/10/2025 - Added warning that function is no longer being supported.
+% 13/10/2025 - Added warning that function is no longer being supported.
 %
+
+warning(['This is a deprecated function & is no longer supported! The standard file format for surface data is GIfTI.' newline ... 
+         'We include this function for backwards compatibility but it won''t be updated with bugfixes or new features.' newline ... 
+         'USE AT YOUR OWN RISK!']);
 
 %% Default parameters
 if nargin < 3

@@ -63,8 +63,8 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.296 (10-10-2025) - Pre-release beta updated
-- Added standalone app SamSrfAnalysis for use in NeuroDesk or system terminal etc (DSS) **!!! Beta - not fully tested !!!**
+### Version 10.3 (13-10-2025) - Pre-release Beta  
+- Added standalone app SamSrfAnalysis for use in NeuroDesk or system terminal etc (DSS)  
 - Can now provide apertures as volumetric NII files (DSS)  
 - Model specification for algorithms can now be provided as JSON file (DSS)  
 - Added sumnorm pRF model to fit complex shape with only 1 extra parameter (DSS)  
@@ -75,6 +75,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 - Fixed bug with right hemisphere labels of bilateral surfaces in DisplayMaps (DSS)  
 - Can now read in GII files without anatomy or by providing a surface GII (DSS)  
 - Added warnings about out-of-date functions for surface projection (DSS)  
+- Some small fixes with file outputs in command line app (DSS)  
 
 ### Version 10.201 (29-09-2025)  
 - Critical bug fix in functions visualising HRF fits! (DSS)  

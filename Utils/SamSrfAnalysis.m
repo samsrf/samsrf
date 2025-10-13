@@ -152,21 +152,22 @@ else
             OutFile = samsrf_revcor_cf(ModelJson, Srf, Roi);
     end
     
-    % Export GII/NII files
+    %% Export GII/NII files
     load(OutFile); % Load maps  
     if contains(lower(DataWildcard), '.nii')
         % Export as NIIs 
         samsrf_mat2vol(Srf, OutFile);
     else
         % Export as GIIs
+	    usc = strfind(OutFile, '_');
         if strcmpi(Srf.Hemisphere, 'bi')
             % Explore both hemispheres
             [Lsrf, Rsrf] = samsrf_hemi_srfs(Srf);
-            samsrf_export_giis(Lsrf, [Lsrf.Hemisphere '_' OutFile(4:end)]);
-            samsrf_export_giis(Rsrf, [Rsrf.Hemisphere '_' OutFile(4:end)]);
+            samsrf_export_giis(Lsrf, [Lsrf.Hemisphere '_' OutFile(usc(1)+1:end)]);
+            samsrf_export_giis(Rsrf, [Rsrf.Hemisphere '_' OutFile(usc(1)+1:end)]);
         else
             % Export single hemisphere
-            samsrf_export_giis(Srf, [Srf.Hemisphere '_' OutFile(4:end)]);
+            samsrf_export_giis(Srf, [Srf.Hemisphere '_' OutFile(usc(1)+1:end)]);
         end
     end
     samsrf_done;

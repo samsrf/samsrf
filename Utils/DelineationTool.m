@@ -981,6 +981,9 @@ if isfield(SamSrfDefs, 'def_fsaverage') && ~isempty(SamSrfDefs.def_fsaverage)
     TmpMesh = SamSrfDefs.def_fsaverage; % Normalised template brain
     cf = pwd;
     cd(SrfPath);
+    if ~exist([TmpMesh filesep 'surf'],'dir')
+    	samsrf_error('Cannot find fsaverage folder! Check your SamSrf_defaults.JSON file');
+    end
     AutoDelFile = AutoDelineation(Srf, Srf.Structural, [TmpMesh filesep 'surf'], 'InfernoSerpents', R2Thrsh, EccThrsh(1), EccThrsh(2)); % Run autodelineation
     [~,Paths] = samsrf_loadpaths(AutoDelFile); % Load autodelineation
     RedrawAllPaths; % Redraw paths

@@ -58,7 +58,7 @@ if isfield(Srf, 'Values')
         Pr(Srf.Data(1,:) == 0) = 0;
         Pi(Srf.Data(1,:) == 0) = 0;
         P = P / pi * 180;
-        if Srf.Hemisphere == 'rh'
+        if strcmpi(Srf.Hemisphere, 'rh')
             Pr = -Pr;
         end
         
