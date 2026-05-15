@@ -3,16 +3,24 @@ function Srf = samsrf_fieldsign(InSrf, radius, roi, thrsh)
 % Srf = samsrf_fieldsign(InSrf, [radius=2, roi='', thrsh=0.1])
 %
 % Calculates a field sign map from the retinotopic maps in InSrf.
-% The function determines the neighbours (and thus the gradient) for each vertex. 
-% All vertices within radius (geodesic steps) of a given vertex are considered 
-% a neighbour. Only vertices with R^2>=thrsh (default = 0.1) are included. 
 %
-% This can and probably should be limited to a ROI.
+% The function determines the neighbours (and thus the gradient) for each vertex. 
+% All vertices within radius of a given vertex are considered a neighbour. 
+%
+% If radius is positive, this is using geodesic steps along the surface.
+%
+% If radius is negative, it is using the Euclidean distance in sphere space.
+%   This may be a lot faster although perhaps less accurate.
+%
+% Only vertices with R^2>=thrsh (default = 0.1) are included. 
+%
+% This can (and probably should) be limited to a ROI.
 %
 % Adds the field sign map to Srf.Data as the bottom row. 
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 14/03/2024 - Can now use vector of vertices as ROI (DSS)
+% 23/04/2026 - Added option for spherical Euclidean instead of geodesic distance (DSS)
 %
 
 %% Default parameters
@@ -76,8 +84,14 @@ if isfield(Srf, 'Sphere')
         samsrf_disp('    Please stand by...');
         parfor vi = 1:length(Vs)
             v = Vs(vi);
-            % Vertices in geodesic ROI within radius 
-            Nv = samsrf_georoi(v, radius, Srf.Vertices, Srf.Faces);
+            % Vertices in ROI within radius
+            if radius < 0
+                % Euclidean distance in sphere space
+                Nv = find(sqrt(sum((sphV-sphV(v,:)).^2,2)) < -radius);
+            else
+                % Geodesic distance in steps
+                Nv = samsrf_georoi(v, radius, Srf.Vertices, Srf.Faces);
+            end
             Nv = Nv(Srf.Data(1,Nv) >= thrsh);
             cE = E(Nv);
             cP = P(Nv);

@@ -16,14 +16,19 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % This procedure is a simple nearest neighbour transformation. It achieves
 % very similar but non-identical results to FreeSurfer's tool.
 %
-% Saves a new Srf called lh/rh/bi_temp_map with the same number of vertices 
-% as NatSrf but containing the map data from the group average template.
-% Further, it saves the visual region labels from the average map in a
-% separate folder called ROIs_temp_map.
+% Saves a new Srf called lh/rh/bi_temp_map_[TmpFolderName] with the same 
+% number of vertices as NatSrf but containing the map data from the group 
+% average template. Further, it saves the visual region labels from the 
+% average map in a separate folder called ROIs_temp_map_[TmpFolderName].
 %
 % 19/09/2024 - Now accepts bilateral Srf input (DSS)
 % 28/02/2025 - Fixed bug with too large files (DSS)
 % 05/06/2025 - Can now also load GII registrations from HCP (DSS) 
+% 22/04/2026 - Now also transforms multi-subject maps (DSS)
+% 24/04/2026 - Will not export ROIs for multi-subject maps (DSS)
+% 12/05/2026 - Reverted previous change (DSS)
+%              But now only exports ROIs when names are defined (DSS)
+%              Includes name of template map in name now (DSS)
 %
 
 % Load native map
@@ -40,6 +45,9 @@ if isempty(NatSrfDir)
     NatSrfDir = '.';
 end
 cd(NatSrfDir);
+
+% Template folder name
+[~, TmpName] = fileparts(TmpFolder);
 
 % Is bilateral Srf?
 if strcmpi(NatSrf.Hemisphere, 'bi')
@@ -131,45 +139,51 @@ for h = 1:length(Hemis)
     
     %% Reassign vertices
     Srf.Source_Vertices = Sva;
-    Srf.Data = TmpSrf.Data(:,Sva);
-    
+    Srf.Data = TmpSrf.Data(:,Sva,:);
+    if isfield(TmpSrf, 'Raw_Data')
+        % Reassign individual subject maps
+        Srf.Raw_Data = TmpSrf.Raw_Data(:,Sva,:);
+        % Keep ROI names for classification of empirical maps
+        Srf.Roi_Names = TmpSrf.Roi_Names; 
+    end
+
     %% Save Srf & ROIs
-    save([Srf.Hemisphere '_temp_map'], 'Srf', '-v7.3');
-    if ~isfield(TmpSrf, 'Roi_Names')
-        samsrf_disp('WARNING: No ROI names defined in template map - assuming default names...');
-        Rois = {'V1' 'V2' 'V3' 'V3A' 'V3B' 'V4' 'TO1' 'TO2'};
-    else
+    save([Srf.Hemisphere '_temp_map_' TmpName], 'Srf', '-v7.3');
+    if isfield(TmpSrf, 'Roi_Names')
+        % Only save ROIs if names have been defined
         Rois = TmpSrf.Roi_Names; 
-    end
-    if h == 1 
-        % Only need to do once
-        mkdir('ROIs_temp_map');
-    end
-    for r = 1:length(Rois)
-        rvx = find(Srf.Data(5,:)==r);
-        if ~isempty(rvx)
-            samsrf_srf2label(Srf, ['ROIs_temp_map' filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
+        if h == 1 
+            % Only need to do once
+            mkdir(['ROIs_temp_map_' TmpName]);
         end
+        for r = 1:length(Rois)
+            rvx = find(Srf.Data(5,:)==r);
+            if ~isempty(rvx)
+                samsrf_srf2label(Srf, ['ROIs_temp_map_' TmpName filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
+            end
+        end
+        samsrf_disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
+        samsrf_newline;
     end
-    samsrf_disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
-    samsrf_newline;
 end
 
 % Combine hemisphere maps?
 if length(Hemis) == 2
     samsrf_disp('Combining hemispheres...');
-    L = load('lh_temp_map');
-    R = load('rh_temp_map');
+    L = load(['lh_temp_map_' TmpName]);
+    R = load(['rh_temp_map_' TmpName]);
     Srf = samsrf_bilat_srf(L.Srf, R.Srf);
-    save('bi_temp_map', 'Srf', '-v7.3');
-    delete('lh_temp_map.mat');
-    delete('rh_temp_map.mat');
-    cd ROIs_temp_map
-    for r = 1:length(Rois)
-        samsrf_bilat_label(Srf, Rois{r});
+    save(['bi_temp_map_' TmpName], 'Srf', '-v7.3');
+    delete(['lh_temp_map_' TmpName '.mat']);
+    delete(['rh_temp_map_' TmpName '.mat']);
+    if isfield(TmpSrf, 'Roi_Names')
+        cd(['ROIs_temp_map_' TmpName]);
+        for r = 1:length(Rois)
+            samsrf_bilat_label(Srf, Rois{r});
+        end
+        delete('lh_*.label');
+        delete('rh_*.label');
     end
-    delete('lh_*.label');
-    delete('rh_*.label');
 end
 samsrf_newline;
 

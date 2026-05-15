@@ -63,6 +63,13 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
+### Version 10.33 (12-05-2026) 
+- Created LabelRegions function to automatically delineate ROIs (DSS)  
+- Template2NativeMaps now also transforms multi-subject matrices (DSS)  
+- Template2NativeMaps now saves template maps with their name (DSS)  
+- samsrf_fieldsign can now also use Euclidean spherical distance (DSS) 
+- Smoothing functions can now also use vertex list as ROI (DSS)   
+
 ### Version 10.3 (13-10-2025) - Pre-release Beta  
 - Added standalone app SamSrfAnalysis for use in NeuroDesk or system terminal etc (DSS)  
 - Can now provide apertures as volumetric NII files (DSS)  

@@ -21,6 +21,7 @@ function Srf = samsrf_smooth_georoi(InSrf, fwhm, roi, thrsh)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 26/09/2022 - Fixed bug with NaNs in coordinates (DSS) 
+% 04/05/2026 - Added option to provide vertex list as ROI (DSS)
 %
 
 %% Default parameters
@@ -93,9 +94,14 @@ end
 
 % Load region of interest
 if ~isempty(roi)
-    Vs = samsrf_loadlabel(roi);
+    if ischar(roi)
+        Vs = samsrf_loadlabel(roi);
+        roistr = [' in RoI: ' roi ')'];
+    else
+        Vs = roi;
+        roistr = ' in vertex list)';
+    end
     si = 1;
-    roistr = [' in RoI: ' roi ')'];
     % Set R^2 of vertices outside ROI to 0
     RoiVx = zeros(1, size(Data,2));
     RoiVx(Vs) = 1;

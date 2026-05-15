@@ -3,16 +3,18 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 % Srf = samsrf_smooth_sphere(InSrf, fwhm, [roi='', thrsh=0.01])
 %
 % Surface-based smoothing of the data in surface data InSrf using the 
-% sphere surface in surfdir. So be aware that the smoothing kernel becomes 
-% increasingly less geodesic the further away we are from the centre and 
-% there may be wrapping artifacts if you set the kernel size really large).
+% sphere surface. So be aware that the smoothing kernel becomes increasingly 
+% % less geodesic the further away we are from the centre and there may be 
+% wrapping artifacts if you set the kernel size really large).
+% 
 % The kernel is the full width half maximum (fwhm) of the spherical Gaussian 
 % smoothing kernel used to determine Euclidian distances of each vertex from 
 % its neighbours. For the sake of speed, only vertices within a radius of 
 % 3*stdev are used for this smoothing, so it is not completely invertible.
 % The R^2 threshold of vertices to include is defined by thrsh. 
 %
-% This can and probably should be limited to a ROI.
+% This can and probably should be limited to a ROI. This can either be a
+% label filename or a vector with vertices.
 %
 % If InSrf is a data set that has already been smoothed, the function
 % automatically selects the unsmoothed data to be smoothed again. This way
@@ -28,6 +30,7 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 26/09/2022 - Fixed bug with NaNs in coordinates (DSS) 
+% 04/05/2026 - Added option to provide vertex list as ROI (DSS)
 %
 
 %% Default parameters
@@ -100,9 +103,14 @@ end
 
 % Load region of interest
 if ~isempty(roi)
-    Vs = samsrf_loadlabel(roi);
+    if ischar(roi)
+        Vs = samsrf_loadlabel(roi);
+        roistr = [' in RoI: ' roi ')'];
+    else
+        Vs = roi;
+        roistr = ' in vertex list)';
+    end
     si = 1;
-    roistr = [' in RoI: ' roi ')'];
     % Set R^2 of vertices outside ROI to 0
     RoiVx = zeros(1, size(Data,2));
     RoiVx(Vs) = 1;
