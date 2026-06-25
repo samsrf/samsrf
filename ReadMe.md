@@ -63,6 +63,16 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
+### Version 10.335 (25-06-2026) 
+- DisplayMaps no longer needs Statistics Toolbox for thresholding (DSS)  
+- Fixed bug in samsrf_gsr2 when providing HRF vector (DSS)  
+- Analytically inconsequential fixes to help texts (DSS)  
+- Added option to pre-smooth maps in region predictor function (DSS) 
+- Region predictor now has option to threshold by confidence (DSS)  
+- Predicted ROI map is now smoothed at the end (DSS)   
+- Renamed region predictor to samsrf_pred_rois (DSS)  
+- Made plotting in samsrf_gsr2 optional (DSS)  
+
 ### Version 10.33 (12-05-2026) 
 - Created LabelRegions function to automatically delineate ROIs (DSS)  
 - Template2NativeMaps now also transforms multi-subject matrices (DSS)  

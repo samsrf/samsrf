@@ -1,15 +1,14 @@
-function R = samsrf_gsr2(Y, X, S, Model) 
+function [R, M] = samsrf_gsr2(Y, X, S, Model) 
 %
-% R = samsrf_gsr2(Y, X, S, [Model])
+% [R, M] = samsrf_gsr2(Y, X, S, Model)
 %
 % Plots the squared correlations of time course Y with the regressors in X 
 %   just as the grid search (coarse fit) does. S contains the search space 
 %   parameters. You can retrieve X and S from the search space file src_*.mat.
 %
-% The third input Model is optional. This can be the model structure for
-%   your pRF analysis and it defines the TR, Hrf, Downsampling constant,
-%   and also defines whether the model is 2D or 1D, and if you used a polar
-%   or a Cartesian search grid.
+% The fourth input Model is the model structure for your pRF analysis and 
+%   defines the TR, Hrf, Downsampling constant, and also defines whether the 
+%   model is 2D or 1D, and if you used a polar or a Cartesian search grid.
 %
 %   Model.TR is defines the repetition time (TR) of your scans.
 %       This can also be the temporal resolution of the stimulus if that is faster.
@@ -26,7 +25,7 @@ function R = samsrf_gsr2(Y, X, S, Model)
 %
 %   Look at the Model structure for forward-model pRFs for more information.
 %
-% Returns the R^2 of Y with each search grid position.
+% Returns in R the R^2 of Y with each search grid position.
 %
 % Also plots the R^2 for each X and Y position (i.e. S(1:2,:) using a separate plot for each unique Sigma (S(3,:). 
 %   If this is a 1D model, there is only one plot comparing the tuning (X-axis) to the sigma parameter (Y-axis).
@@ -41,6 +40,10 @@ function R = samsrf_gsr2(Y, X, S, Model)
 % 03/12/2023 - Bugfix when using concurrent HRF fitting (DSS)
 % 04/11/2024 - Fixed bug assuming wrong HRF when concurrent fitting or using SPM (DSS) 
 % 09/09/2025 - Bugfix for missing colour maps (DSS)
+% 06/06/2026 - Corrected help text (DSS)
+%              Fixed bug when providing HRF vector (DSS)   
+% 23/06/2026 - Now only plots figure without output argument (DSS)
+%              Also now returns the maximum goodness-of-fit (DSS)
 %
 
 if ~isfield(Model, 'Downsampling')
@@ -64,7 +67,7 @@ end
 % Canonical HRF or concurrent fitting?
 if isempty(Hrf) 
     Hrf = samsrf_hrf(TR); % de Haas canonical HRF
-elseif isinf(Hrf) || Hrf == 0
+elseif isscalar(Hrf) & (isinf(Hrf) || Hrf == 0)
     Hrf = samsrf_doublegamma(TR); % SPM 12 canonical HRF
 end
 
@@ -78,53 +81,55 @@ R = corr(Y,X).^2;
 % Maximum correlation
 M = S(:, R == max(R));
 
-% Search space parameters
-xU = unique(S(1,:)); % Unique X values
-yU = unique(S(2,:)); % Unique Y values
-sU = unique(S(3,:)); % Unique Sigma values
-
-% Polar or Cartesian search grid?
-if IsPolar
-    % Polar search grid is same as unique 
-    Xc = S(1,:);
-    Yc = S(2,:);
-else
-    [Xc,Yc] = meshgrid(xU,yU); % Meshgrid of unique X & Y values
-end
-
-% Plot correlations
-figure('Units', 'Normalized', 'Position', [0 0 1 1]);
-p = 0; 
-for s = sU
-    p = p + 1;
-    subplot(ceil(sqrt(length(sU))), ceil(sqrt(length(sU))), p); 
-    hold on
+if nargout == 0
+    % Search space parameters
+    xU = unique(S(1,:)); % Unique X values
+    yU = unique(S(2,:)); % Unique Y values
+    sU = unique(S(3,:)); % Unique Sigma values
+    
+    % Polar or Cartesian search grid?
     if IsPolar
-        polarpatch(Xc(S(3,:)==s), Yc(S(3,:)==s), R(S(3,:)==s));
+        % Polar search grid is same as unique 
+        Xc = S(1,:);
+        Yc = S(2,:);
     else
-        Rc = NaN(length(yU), length(xU));
-        for x = 1:length(xU)
-            for y = 1:length(yU)
-                Rc(y,x) = R(S(1,:)==Xc(y,x) & S(2,:)==Yc(y,x) & S(3,:)==s); % Store correlation
+        [Xc,Yc] = meshgrid(xU,yU); % Meshgrid of unique X & Y values
+    end
+    
+    % Plot correlations
+    figure('Units', 'Normalized', 'Position', [0 0 1 1]);
+    p = 0; 
+    for s = sU
+        p = p + 1;
+        subplot(ceil(sqrt(length(sU))), ceil(sqrt(length(sU))), p); 
+        hold on
+        if IsPolar
+            polarpatch(Xc(S(3,:)==s), Yc(S(3,:)==s), R(S(3,:)==s));
+        else
+            Rc = NaN(length(yU), length(xU));
+            for x = 1:length(xU)
+                for y = 1:length(yU)
+                    Rc(y,x) = R(S(1,:)==Xc(y,x) & S(2,:)==Yc(y,x) & S(3,:)==s); % Store correlation
+                end
             end
+            contourf(Xc, Yc, Rc, 40, 'edgecolor', 'none'); 
+            axis([min(S(1,:)) max(S(1,:)) min(S(2,:)) max(S(2,:))]);
+            axis square
         end
-        contourf(Xc, Yc, Rc, 40, 'edgecolor', 'none'); 
-        axis([min(S(1,:)) max(S(1,:)) min(S(2,:)) max(S(2,:))]);
-        axis square
+        TitlStr = ['\sigma = ' num2str(s)];
+        if M(3) == s
+            scatter(M(1), M(2), 200, [0 .5 0], '+', 'linewidth', 2);
+            TitlStr = ['*** ' TitlStr ' ***'];
+        end
+        colormap(samsrf_cmap('berlin'));
+        caxis([-1 +1]*max(R)); 
+        if Is1D
+            title('1D pTC model');
+            xlabel(Model.Param_Names{1});
+            ylabel(Model.Param_Names{2});
+        else
+            title(TitlStr); 
+        end
+        colorbar
     end
-    TitlStr = ['\sigma = ' num2str(s)];
-    if M(3) == s
-        scatter(M(1), M(2), 200, [0 .5 0], '+', 'linewidth', 2);
-        TitlStr = ['*** ' TitlStr ' ***'];
-    end
-    colormap(samsrf_cmap('berlin'));
-    caxis([-1 +1]*max(R)); 
-    if Is1D
-        title('1D pTC model');
-        xlabel(Model.Param_Names{1});
-        ylabel(Model.Param_Names{2});
-    else
-        title(TitlStr); 
-    end
-    colorbar
 end

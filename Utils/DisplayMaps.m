@@ -8,6 +8,7 @@ function varargout = DisplayMaps(varargin)
 %  change them below where indicated by '%%% %%% %%%'.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 29/05/2026 - No longer requires Stats Toolbox for thresholding (DSS)
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -267,7 +268,7 @@ set(handles.popupmenu3, 'String', PrfInspList, 'Value', 1);
 %% Update R^2 threshold
 if isfield(Srf, 'Y')  
     % If time course is saved
-    Tval = tinv(1 - Pval/2, size(Srf.Y,1)-2); % t-statistic for this p-value
+    Tval = sqrt(2) * erfinv(2*(1 - Pval/2) - 1); % t-statistic for this p-value without needing Statistics Toolbox
     R = sign(Tval) .* (abs(Tval) ./ sqrt(size(Srf.Y,1)-2 + Tval.^2)); % Convert t-testistic into correlation coefficient
     R2Thrsh = R.^2; % Variance explained 
     set(handles.edit1, 'String', num2str(R2Thrsh)); % Set threshold
