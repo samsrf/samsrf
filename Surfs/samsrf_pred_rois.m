@@ -21,8 +21,9 @@ function Srf = samsrf_pred_rois(SrfOrName, Tmp, Kernels, Threshs)
 %   Kernels:    1 x 2 vector with kernels for analysis:
 %                   Radius in mm of search light around each vertex to use (default = 10)
 %                   Smoothing kernel (on surface) to apply to empirical map (default = 0, no smoothing)
-%   Threshs:     1 x 3 vector with thresholds for analysis:
+%   Threshs:     1 x 4 vector with thresholds for analysis:
 %                   Threshold of confidence map to be used for labelling ROIs (default = 0.1)
+%                   Goodness-of-fit threshold of empirical map (default = 0.01) - applied before smoothing if used
 %                   Minimum eccentricity of empirical map to be considered (default = 0)
 %                   Maximum eccentricity of empirical map to be considered (default = Inf)
 %
@@ -35,6 +36,7 @@ function Srf = samsrf_pred_rois(SrfOrName, Tmp, Kernels, Threshs)
 % 22/06/2026 - Changed input arguments (DSS)
 %              Added confidence thresholding (DSS)
 % 25/06/2026 - ROI map is now smoothed with mode function (DSS)
+% 29/07/2026 - Added R^2 threshold for empirical map (DSS)
 %
 
 % Empirical map
@@ -53,21 +55,28 @@ if isscalar(Kernels)
     Kernels = [Kernels 0];
 end
 if nargin < 4
-    Threshs = [0.1 0 Inf]; % Eccentricity range
+    Threshs = [0.1 0.01 0 Inf]; % Confidence & R^2 threshold & eccentricity range
 end
 if isscalar(Threshs)
-    Threshs = [Threshs 0 Inf];
+    Threshs = [Threshs 0.01 0 Inf];
 elseif length(Threshs) == 2
+    Threshs = [Threshs 0 Inf];
+elseif length(Threshs) == 3
     Threshs = [Threshs Inf];
 end
 % Assign to named variables
 Rad = Kernels(1); % Searchlight radius
 Smo = Kernels(2); % Smoothing kernel
 Con = Threshs(1); % Confidence threshold
-Ecc = Threshs(2:3); % Eccentricity range
+GoF = Threshs(2); % Goodness-of-fit threshold
+Ecc = Threshs(3:4); % Eccentricity range
 
 %% Prepare maps
 mver = find(Tmp.Data(6,:) > 0); % Only vertices labelled in any individual map
+% Update version number in Srf
+Srf.Version = samsrf_version;
+% Filter out bad vertices
+Srf.Data(:, Srf.Data(1,:) < GoF) = 0; 
 % Smooth map
 Srf = samsrf_smooth_sphere(Srf, Smo, mver);
 

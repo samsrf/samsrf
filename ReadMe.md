@@ -63,6 +63,9 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
+### Version 10.336 (29-07-2026) 
+- Region predictor now includes R^2 thresholding (DSS)  
+
 ### Version 10.335 (25-06-2026) 
 - DisplayMaps no longer needs Statistics Toolbox for thresholding (DSS)  
 - Fixed bug in samsrf_gsr2 when providing HRF vector (DSS)  
