@@ -63,7 +63,8 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.341 (28-08-2026)  
+### Version 10.349 (28-08-2026)  
+- Removed option to seed fine fit with file - you must now use a matrix! (DSS)  
 - Add option in samsrf_fit_prf to take absolute values of pRF parameters (DSS)  
 - pRF forward modelling can now use vertex-specific HRFs (DSS)  
 - samsrf_fitvsobs now also plots the HRF used (DSS)  

@@ -44,6 +44,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 % 08/10/2025 - Apertures can now be provided as volumetric NII or animated GIF (DSS)
 % 26/08/2026 - Added option to provide vertex-wise HRFs for fine fit (DSS)
 % 27/08/2026 - You can now take absolute value of parameters that mustn't be negative (DSS)
+% 28/08/2026 - In concurrent HRF fit you can now seed with prior HRF parameters (DSS)
+%              Removed option to seed fine-fit with a saved map file! (DSS) 
 %
 
 %% Load Model as JSON?
@@ -242,6 +244,7 @@ end
 
 %% Load or generate HRF
 samsrf_disp('Haemodynamic response function...')
+HrfParams = {'RLat' 'ULat' 'RDisp' 'UDisp' 'AmpRat'};
 if isempty(Model.Hrf) 
     samsrf_disp(' Using de Haas canonical HRF');
     Model.Hrf = samsrf_hrf(Model.TR);
@@ -326,18 +329,8 @@ end
 %% Coarse fit / Load seed map
 if ~isempty(Model.Seed_Fine_Fit)
     % Seeding fine fit with prior parameters
-    if ischar(Model.Seed_Fine_Fit)
-        % Load a previous map as seeds for fine fit
-        samsrf_disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
-        SeedMap = load(EnsurePath(Model.Seed_Fine_Fit));
-        SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
-        Pimg = SeedMap.Srf.Data(2:length(Model.Param_Names)+1,:); % Fitted parameter maps
-        Rimg = SeedMap.Srf.Data(1,:); % R^2 map
-    else
-        % Seed map supplied as variable
-        Pimg = Model.Seed_Fine_Fit(2:length(Model.Param_Names)+1,:);
-        Rimg = Model.Seed_Fine_Fit(1,:);
-    end
+    Pimg = Model.Seed_Fine_Fit(2:end,:);
+    Rimg = Model.Seed_Fine_Fit(1,:);
 
     % In case saved as singles
     Pimg = double(Pimg);
@@ -453,19 +446,24 @@ else
         Model.Param_Names{end+1} = 'Exponent'; % Add name for CSS exponent
         Model.Scaled_Param(end+1) = 0; % Exponent isn't scaled
         Model.Only_Positive(end+1) = 1; % Exponent cannot be negative
-        Pimg = [Pimg; ones(1,size(Pimg,2))]; % Add seed parameters for exponent
+        % Were no seeds for CSS exponent supplied?
+        if size(Pimg,1) ~= length(Model.Param_Names) 
+            Pimg = [Pimg; ones(1,size(Pimg,2))]; % Add seed 1 for exponent
+        end
         OutFile = [OutFile '_Css']; % Suffix to indicate compressive nonlinearity 
     end
     
     % Are we estimating HRF parameters?
-    if FittingHrf
-        HrfParams = {'RLat' 'ULat' 'RDisp' 'UDisp' 'AmpRat'};
+    if FittingHrf       
         for p = 1:5
-            Model.Param_Names{end+1} = HrfParams{p}; % Add name for CSS exponent
+            Model.Param_Names{end+1} = HrfParams{p}; % Add name of this HRF parameter
             Model.Scaled_Param(end+1) = 0; % HRF parameters aren't scaled
             Model.Only_Positive(end+1) = 1; % HRF parameters cannot be negative
         end
-        Pimg = [Pimg; repmat([6 16 1 1 6]', 1, size(Pimg,2))]; % Seed parameters for HRF fit
+        % Were no seeds for HRF parameter supplied?
+        if size(Pimg,1) ~= length(Model.Param_Names) 
+            Pimg = [Pimg; repmat([6 16 1 1 6]', 1, size(Pimg,2))]; % Seed parameters for HRF fit using SPM canonical
+        end
         Model.Hrf = -Model.TR; % Negative TR indicates HRF fit
     end
     
