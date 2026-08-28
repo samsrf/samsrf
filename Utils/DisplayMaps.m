@@ -141,6 +141,18 @@ end
 
 % Expand if necessary
 [Srf,vx] = samsrf_expand_srf(Srf);
+% Vertex-wise HRFs?
+if isfield(Srf, 'Model') && isfield(Srf.Model, 'Hrf') && size(Srf.Model.Hrf,2) > 1
+    if (size(Srf.Model.Hrf,2) ~= size(Srf.Data,2)) && isempty(vx)
+        samsrf_error('Model.Hrf must have the same number of columns as Srf.Data or the Srf cannot already have been expanded!');
+    else
+        Hrfs = zeros(size(Srf.Model.Hrf,1), size(Srf.Data,2));
+        Hrfs(:,vx) = Srf.Model.Hrf;
+        Srf.Model.Hrf = Hrfs;
+        clear Hrfs
+    end
+end
+
 % If bilateral ask about hemisphere
 if isfield(Srf, 'Nvert_Lhem')
     qh = questdlg('Which hemisphere?', 'Bilateral Srf', 'Left', 'Right', 'Both', 'Both');   
@@ -301,24 +313,24 @@ contents = cellstr(get(handles.popupmenu3,'String'));
 PrfInsp = get(handles.popupmenu3,'Value');
 PrfInsp = contents{PrfInsp};
 if strcmpi(PrfInsp, 'pRF parameter estimates')
-    % samsrf_display model fit pRF
+    % Display model fit pRF
     if isfield(Srf, 'Model_')
         Srf.Model = Srf.Model_;
         Srf = rmfield(Srf, 'Model_');
     end
-    % Don't samsrf_display reverse correlation profile!
+    % Don't display reverse correlation profile!
     if isfield(Srf, 'Rmaps')
         Srf.Rmaps_ = Srf.Rmaps;
         Srf = rmfield(Srf, 'Rmaps');
     end
 elseif strcmpi(PrfInsp, 'Reverse correlation profiles')
-    % samsrf_display reverse correlation profile
+    % Display reverse correlation profile
     if isfield(Srf, 'Rmaps_')
         Srf.Rmaps = Srf.Rmaps_;
         Srf = rmfield(Srf, 'Rmaps_');
     end
 elseif strcmpi(PrfInsp, 'Visual CF profiles')
-    % samsrf_display connective field profile
+    % Display connective field profile
     if isfield(Srf, 'TempMap_')
         Srf.TempMap = Srf.TempMap_;
         Srf = rmfield(Srf, 'TempMap_');
@@ -328,7 +340,7 @@ elseif strcmpi(PrfInsp, 'Visual CF profiles')
         Srf = rmfield(Srf, 'ConFlds');
     end
 elseif strcmpi(PrfInsp, 'Connective field profiles')
-    % samsrf_display connective field profile
+    % Display connective field profile
     if isfield(Srf, 'ConFlds_')
         Srf.ConFlds = Srf.ConFlds_;
         Srf = rmfield(Srf, 'ConFlds_');
@@ -343,7 +355,7 @@ elseif strcmpi(PrfInsp, 'Observed vs predicted time series')
         Srf.Y = Srf.Y_;
         Srf = rmfield(Srf, 'Y_');
     end
-    % Don't samsrf_display model fit pRF
+    % Don't display model fit pRF
     if isfield(Srf, 'Model')
         Srf.Model_ = Srf.Model;
         Srf = rmfield(Srf, 'Model');
@@ -358,7 +370,7 @@ elseif strcmpi(PrfInsp, 'Observed time series only') || strcmpi(PrfInsp, 'GLM co
         Srf = rmfield(Srf, 'X');
     end
 else
-    % Not samsrf_displaying pRFs
+    % Not displaying pRFs
     if isfield(Srf, 'Model')
         Srf.Model_ = Srf.Model;
         Srf = rmfield(Srf, 'Model');

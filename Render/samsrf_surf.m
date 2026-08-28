@@ -28,10 +28,10 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %    (Obviously, this only works if there is actually a 2D visual map present in the data).
 %   
 %   Thrsh(6) defines the proportion of the range beyond which the map is scaled to be transparent.
-%    If R^2 is present, this proportion is relative to the range between Thrsh(1) and 1.
-%    If no R^2 is present, this proportion refers to the range between Thrsh(2) and Thrsh(3).
+%    If R^2 or nR^2 are present, this proportion is relative to the range between Thrsh(1) and 1.
+%    If no R^2 is present, this is determined by the range between Thrsh(2) and Thrsh(3).
 %   If Thrsh(6) is negative, the same transparency level is used uniformly for the whole map.
-%   To turn off transparency, set Thrsh(6) to zero. This is the default.
+%   To turn off transparency, set Thrsh(6) to 0. This is the default.
 %
 % Paths is a cell array that defines the filenames of the paths to be displayed. If this is 
 %   undefined a dialog box opens allowing you to select the file (close it if none needed).
@@ -67,6 +67,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 19/09/2024 - Now uses JSON for defaults & new colour map function (DSS)
 % 07/10/2025 - Removed warning if no default view defined (DSS)
 % 09/10/2025 - Now automatically displays Srf.Vertices if mesh not found (DSS)
+% 26/08/2026 - Fixed bug with transparency scaling esp. for non-pRF maps (DSS)
+%              Minor changes to improve performance (DSS)
 %
 
 %% Create global variables
@@ -180,7 +182,7 @@ else
 end
 Vertices(isnan(Srf.Vertices(:,1)),:) = NaN; 
 Faces = Srf.Faces;
-if length(Curv) == 1
+if isscalar(Curv)
     Curv = repmat(Curv, 1, size(Vertices,1));
 end
 
@@ -192,7 +194,7 @@ if length(Srf.Values) > 1 && strcmpi(Srf.Values{2}, 'x0') && strcmpi(Srf.Values{
 end
 
 %% Remove rubbish
-if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
+if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2') || strcmpi(Srf.Values{1}, 'Noise Ceiling')
     r = Srf.Data(1,:) <= Thrsh(1) | isnan(Srf.Data(1,:));
     Srf.Data(1,r) = NaN; % Set rubbish to NaN
     Alpha = CalcAlphas(Srf.Data(1,:), [Thrsh(1) Thrsh(1) + (1-Thrsh(1))*Thrsh(6)]); % Transparency based on R^2
@@ -201,8 +203,6 @@ if strcmpi(Srf.Values{1}, 'R^2') || strcmpi(Srf.Values{1}, 'nR^2')
         Alpha(Alpha > 0) = Thrsh(6);
     end
 else 
-    UniformAlpha = true;
-    Alpha = ones(size(Srf.Data,2),3);
     r = isnan(Srf.Data(1,:));
 end
 
@@ -288,7 +288,7 @@ if ~isempty(Paths)
             % If paths contain strings
             if i == length(Paths) && ~ischar(Paths{i})
                 % Is a path colour defined?
-                if isnan(Paths{i}(1)) && length(Paths{i}) == 1
+                if isnan(Paths{i}(1)) && isscalar(Paths{i})
                     PathColour = NaN;
                 elseif isnan(Paths{i}(1))
                     PathColour = Paths{i}(2:4);
@@ -370,7 +370,7 @@ elseif strcmpi(Type, 'Phase') || strcmpi(Type, 'Phi')
         % If uniform alpha desired
         if UniformAlpha
             Alpha(Alpha > 0) = Thrsh(6);
-        end
+        end  
     end
     
     % Colourmap
@@ -514,7 +514,7 @@ else
     X(r) = 0;
     
     % If no R^2 present
-    if ~strcmpi(Srf.Values{1}, 'R^2') && ~strcmpi(Srf.Values{1}, 'nR^2')
+    if ~strcmpi(Srf.Values{1}, 'R^2') && ~strcmpi(Srf.Values{1}, 'nR^2') && ~strcmpi(Srf.Values{1}, 'Noise Ceiling')
         Alpha = CalcAlphas(X, [Thrsh(2) Thrsh(2) + (Thrsh(3)-Thrsh(2))*Thrsh(6)]); % Transparency based on X
         % If uniform alpha desired
         if UniformAlpha

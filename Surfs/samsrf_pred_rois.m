@@ -1,6 +1,6 @@
 function Srf = samsrf_pred_rois(SrfOrName, Tmp, Kernels, Threshs)
 %
-% Srf = samsrf_pred_rois(SrfOrName, Tmp, [Kernels=[10 0], Threshs=[0.1 0 Inf]])
+% Srf = samsrf_pred_rois(SrfOrName, Tmp, [Kernels=[10 0], Threshs=[0.1 0.01 0 Inf]])
 %
 % Simple decoder that uses a set of spatially normalised maps warped into
 % the subject's native space to determine the most likely ROI each vertex
@@ -21,7 +21,7 @@ function Srf = samsrf_pred_rois(SrfOrName, Tmp, Kernels, Threshs)
 %   Kernels:    1 x 2 vector with kernels for analysis:
 %                   Radius in mm of search light around each vertex to use (default = 10)
 %                   Smoothing kernel (on surface) to apply to empirical map (default = 0, no smoothing)
-%   Threshs:     1 x 4 vector with thresholds for analysis:
+%   Threshs:    1 x 4 vector with thresholds for analysis:
 %                   Threshold of confidence map to be used for labelling ROIs (default = 0.1)
 %                   Goodness-of-fit threshold of empirical map (default = 0.01) - applied before smoothing if used
 %                   Minimum eccentricity of empirical map to be considered (default = 0)
@@ -37,6 +37,8 @@ function Srf = samsrf_pred_rois(SrfOrName, Tmp, Kernels, Threshs)
 %              Added confidence thresholding (DSS)
 % 25/06/2026 - ROI map is now smoothed with mode function (DSS)
 % 29/07/2026 - Added R^2 threshold for empirical map (DSS)
+% 26/08/2026 - Fixed mistake in help section (DSS)
+% 27/08/2026 - Still work in progress... (DSS)
 %
 
 % Empirical map
@@ -47,6 +49,9 @@ else
     % Directly supplied
     Srf = SrfOrName;
 end
+% Expand if needed
+Srf = samsrf_expand_srf(Srf);
+Tmp = samsrf_expand_srf(Tmp);
 
 if nargin < 3
     Kernels = [10 0]; % Searchlight radius & smoothing kernel
@@ -86,6 +91,9 @@ Emsk = Eccen < Ecc(1) | Eccen > Ecc(2); % Vertices out of eccentricity range
 Srf.Data(:,Emsk) = 0;
 Tmp.Data(:,Emsk) = 0;
 mver = find(sum(Srf.Data) ~= 0); % Create new mask
+% Create meridian maps
+Mer = cart2pol(abs(Srf.Data(2,:)), abs(Srf.Data(3,:)));
+TmpMer = cart2pol(abs(Tmp.Raw_Data(2,:,:)), abs(Tmp.Raw_Data(3,:,:)));
 
 %% Loop thru mask vertices
 samsrf_disp('Labelling ROIs...'); 
@@ -102,9 +110,11 @@ parfor i = 1:length(mver)
     Rx = corr(Srf.Data(2,sl)', squeeze(Tmp.Raw_Data(2,sl,:)))'; % Correlations with X-coordinates
     Ry = corr(Srf.Data(3,sl)', squeeze(Tmp.Raw_Data(3,sl,:)))'; % Correlations with Y-coordinates
     W = (Rx+Ry)/2; % Mean correlation to be used as weight
-    W(W < 0) = 0; % Negative correlations weighted as zero
-    W(L == 0) = 0; % Any individuals were this vertex is unlabelled don't matter    
-    Pred = wmode(L, W); % Predicted label for this vertex
+    % W = corr(Mer(sl)', squeeze(TmpMer(1,sl,:)))'; % Correlations with meridian map
+    % W(W < 0) = 0; % Negative correlations weighted as zero
+    % W(L == 0) = 0; % Any individuals were this vertex is unlabelled don't matter    
+    % Pred = wmode(L, W); % Predicted label for this vertex
+    Pred = L(W==max(W));
     LabMap(i) = Pred; % Rounded weighted mean of ROI label
     ConMap(i) = mean(L==Pred); % Proportion of consistent labels
 end

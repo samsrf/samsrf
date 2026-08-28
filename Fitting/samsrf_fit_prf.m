@@ -42,6 +42,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 % 28/09/2025 - Fixed typo in help (but see note in samsrf_plothrf & samsrf_fitvsobs (DSS)
 % 07/10/2025 - Models can now be provided as JSON files (DSS)
 % 08/10/2025 - Apertures can now be provided as volumetric NII or animated GIF (DSS)
+% 26/08/2026 - Added option to provide vertex-wise HRFs for fine fit (DSS)
+% 27/08/2026 - You can now take absolute value of parameters that mustn't be negative (DSS)
 %
 
 %% Load Model as JSON?
@@ -252,10 +254,19 @@ elseif isscalar(Model.Hrf) && Model.Hrf == 1
     samsrf_disp(' No HRF used!');
 else
     if ischar(Model.Hrf)
-        samsrf_disp([' Subject-specific HRF: ' Model.Hrf]);
-        load(Model.Hrf);
-         % HRF based on loaded parameters but TR defined here
-        Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
+        if strcmpi(Model.Hrf(1:4), 'hrf_')
+            % Load old school subject-specific HRF fit
+            samsrf_disp([' Old School Subject-specific HRF: ' Model.Hrf]);
+            load(Model.Hrf);
+            % HRF based on loaded parameters but TR defined here
+            Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
+        else
+            % Load vertex-wise HRF fits
+            samsrf_disp([' Using vertex-wise HRF fits from: ' Model.Hrf]);
+            HrfFits = load(Model.Hrf);
+            HrfFits = samsrf_extract_hrf_fits(HrfFits.Srf, Model.TR, mver); % HRF for each vertex in ROI
+            Model.Hrf = samsrf_doublegamma(Model.TR); % For coarse-fit use SPM12 HRF - but in such an analysis you'd probably seed the fine-fit instead!
+        end
     else
         samsrf_disp(' Using Subject-specific HRF provided');
     end
@@ -314,37 +325,45 @@ end
 
 %% Coarse fit / Load seed map
 if ~isempty(Model.Seed_Fine_Fit)
-  % Load a previous map as seeds for fine fit
-  samsrf_disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
-  SeedMap = load(EnsurePath(Model.Seed_Fine_Fit));
-  SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
-  Pimg = SeedMap.Srf.Data(2:length(Model.Param_Names)+1,:); % Fitted parameter maps
-  Rimg = SeedMap.Srf.Data(1,:); % R^2 map
-  % In case saved as singles
-  Pimg = double(Pimg);
-  Rimg = double(Rimg);
+    % Seeding fine fit with prior parameters
+    if ischar(Model.Seed_Fine_Fit)
+        % Load a previous map as seeds for fine fit
+        samsrf_disp(['Loading ' Model.Seed_Fine_Fit ' to seed fine fit...']);
+        SeedMap = load(EnsurePath(Model.Seed_Fine_Fit));
+        SeedMap.Srf = samsrf_expand_srf(SeedMap.Srf);
+        Pimg = SeedMap.Srf.Data(2:length(Model.Param_Names)+1,:); % Fitted parameter maps
+        Rimg = SeedMap.Srf.Data(1,:); % R^2 map
+    else
+        % Seed map supplied as variable
+        Pimg = Model.Seed_Fine_Fit(2:length(Model.Param_Names)+1,:);
+        Rimg = Model.Seed_Fine_Fit(1,:);
+    end
+
+    % In case saved as singles
+    Pimg = double(Pimg);
+    Rimg = double(Rimg);
 else
-  % Coarse fitting procedure
-  samsrf_disp('Coarse fitting...');
-  Srf.X = zeros(size(Tc,1), size(Tc,2));  % Matrix with predictions
-  Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
-  Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
-  % If only running coarse fit
-  if Model.Coarse_Fit_Only
+    % Coarse fitting procedure
+    samsrf_disp('Coarse fitting...');
+    Srf.X = zeros(size(Tc,1), size(Tc,2));  % Matrix with predictions
+    Pimg = zeros(length(Model.Param_Names), size(Srf.Vertices,1)); % Fitted parameter maps
+    Rimg = zeros(1, size(Srf.Vertices,1)); % R^2 map
+    % If only running coarse fit
+    if Model.Coarse_Fit_Only
       Bimg = zeros(2,size(Srf.Vertices,1)); % Beta map
-  end
-  
-  % Which percentile of correlations to include in parameter estimate
-  if Model.Coarse_Fit_Percentile == 100
+    end
+    
+    % Which percentile of correlations to include in parameter estimate
+    if Model.Coarse_Fit_Percentile == 100
     samsrf_disp(' Using only the maximal coarse fit R^2 as parameter estimate');
-  else
+    else
     samsrf_disp([' Including top ' num2str(100-Model.Coarse_Fit_Percentile) '% of coarse fit R^2s in parameter estimates']);
-  end
-  
-  % Loop through mask vertices (in blocks if Matlab R2012a or higher)
-  samsrf_disp([' Block size: ' num2str(cfvb) ' vertices']);
-  samsrf_progbar(0);
-  for vs = 1:cfvb:length(mver)
+    end
+    
+    % Loop through mask vertices (in blocks if Matlab R2012a or higher)
+    samsrf_disp([' Block size: ' num2str(cfvb) ' vertices']);
+    samsrf_progbar(0);
+    for vs = 1:cfvb:length(mver)
       % Starting index of current vertex block
       ve = vs + cfvb - 1;
       if ve > length(mver)
@@ -354,18 +373,18 @@ else
       % Find best prediction
       Y = Tc(:,vx);  % Time course of current vertex
       if Model.Only_Positive_Coarse_Fits
-      	 R = corr(Y,X); % Best correlating prediction 
-      	 mR = max(R,[],2).^2; % Find best fit & square now
-      	 R = R.^2; % Now turn others into R^2 too
+	         R = corr(Y,X); % Best correlating prediction 
+	         mR = max(R,[],2).^2; % Find best fit & square now
+	         R = R.^2; % Now turn others into R^2 too
       else
-      	 R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
-      	 mR = max(R,[],2); % Find best fit
+	         R = corr(Y,X).^2; % Best correlating prediction (squared to allow for negative betas!)
+	         mR = max(R,[],2); % Find best fit
       end
       for v = 1:length(vx)
           rx = R(v,:) >= prctile(R(v,:), Model.Coarse_Fit_Percentile); % Predictions with correlation above percentile
           % Store parameters
           Pimg(:,vx(v)) = mean(S(1:length(Model.Param_Names),rx),2); % Mean parameter across top percentile predictions
-
+    
           % Ensure vector isn't all false
           if sum(rx) > 0
               % Store prediction
@@ -381,7 +400,7 @@ else
                 Rimg(1,vx(v)) = corr(Y(:,v),nX)^2; % New goodness of fit
                 Srf.X(:,vx(v)) = nX;  % Store new prediction with convolution
               end              
-
+    
               % If running coarse fit only determine betas now
               if Model.Coarse_Fit_Only 
                 % Fit betas for amplitude & intercept
@@ -394,9 +413,9 @@ else
           end
           samsrf_progbar((vs+v-1)/length(mver));
       end
-  end
-  t2 = toc(t0); 
-  samsrf_disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
+    end
+    t2 = toc(t0); 
+    samsrf_disp(['Coarse fitting completed in ' num2str(t2/60) ' minutes.']);
 end
 samsrf_newline;
 
@@ -419,6 +438,14 @@ else
     Tc = Srf.Y(:,mver); % Always use unsmoothed data for fine fit
     Rimg = Rimg(1,mver);
     Pimg = Pimg(:,mver);
+
+    % Use vertex-wise HRF?
+    if exist('HrfFits', 'var')
+        samsrf_disp(' Modelling neural response with vertex-wise HRF fits');
+        samsrf_newline;
+        Model.Hrf = HrfFits;
+        clear HrfFits
+    end
     
     % Are we modelling compressive nonlinearity?
     if Model.Compressive_Nonlinearity
@@ -475,7 +502,14 @@ else
                 end
                 % If a parameter is negative but shouldn't be
                 if Model.Only_Positive(p) && fPimg(p,v) <= 0
-                    IsGoodFit = false;
+                    if Model.Only_Positive(p) == 1
+                        % Reject negative parameter estimate
+                        IsGoodFit = false;
+                    elseif Model.Only_Positive(p) == -1
+                        % Take absolute parameter estimate
+                        fPimg(p,v) = abs(fPimg(p,v));
+                        IsGoodFit = true;
+                    end
                 end
             end
         end
@@ -516,7 +550,13 @@ else
             if FittingHrf
                 fX = prf_convolve_hrf(fX, samsrf_doublegamma(Model.TR, fPimg(end-4:end,v)), Model.Downsample_Predictions);
             else
-                fX = prf_convolve_hrf(fX, Model.Hrf, Model.Downsample_Predictions);
+                if size(Model.Hrf,2) > 1
+                    % Vertex-wise HRF fit
+                    fX = prf_convolve_hrf(fX, Model.Hrf(:,v), Model.Downsample_Predictions);
+                else
+                    % One predefined HRF
+                    fX = prf_convolve_hrf(fX, Model.Hrf, Model.Downsample_Predictions);
+                end
             end
             % Fit betas for amplitude & intercept
             warning off % In case of rank deficient GLM

@@ -117,6 +117,9 @@ switch AnalysisFunc
             end
         end
 
+        % Only positive is a signed binary
+        Model.Only_Positive = sign(Model.Only_Positive);
+
         % Ensure mandatory model vectors are sound
         if length(Model.Param_Names) ~= length(Model.Scaled_Param)
             samsrf_error('Mismatch between number of parameter names & scaled-parameter flags!');

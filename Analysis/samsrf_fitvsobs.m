@@ -6,6 +6,9 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % You must define Model to convolve the predicted time course with the HRF.
 % Also reports the model parameters (S) in the figure.
 %
+% If the map was analysed with vertex-wise HRFs, the matrix in Model.Hrf
+% must have the same number of columns as Srf.Data!
+%
 % 12/02/2022 - Now allows plotting convolved predictions stored in coarse-fit data files (DSS)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 12/07/2023 - Fixed bug with downsampling predictions (DSS)
@@ -14,10 +17,18 @@ function [S, X, Y] = samsrf_fitvsobs(Srf, Model, v)
 % 12/11/2023 - Can incorporate parameters from concurrent HRF fitting (DSS)
 % 05/05/2025 - Fixed how time units are displayed on X-axis (DSS)
 % 28/09/2025 - Fixed critical bug with renamed amplitude ratio! (DSS)
+% 26/08/2026 - Can now use vertex-wise HRF vectors if same matrix width as Srf.Data (DSS)
+% 27/08/2026 - Now also plots the HRF used in pRF models (DSS)
 %
 
 % Expand Srf if necessary
 Srf = samsrf_expand_srf(Srf);
+% Vertex-wise HRFs?
+if isfield(Model, 'Hrf') && size(Model.Hrf,2) > 1
+    if size(Model.Hrf,2) ~= size(Srf.Data,2) 
+        samsrf_error('Model.Hrf must have the same number of columns as Srf.Data!');
+    end
+end
 
 % Observed time course
 Y = Srf.Y(:,v); 
@@ -46,11 +57,15 @@ elseif isfield(Srf, 'X')
                          find(strcmpi(Srf.Values, 'RDisp')) ...
                          find(strcmpi(Srf.Values, 'UDisp')) ... 
                          find(strcmpi(Srf.Values, 'AmpRat') | strcmpi(Srf.Values, 'R/U'))];
-            X = prf_convolve_hrf(X, samsrf_doublegamma(Model.TR, Srf.Data(HrfParams,v)), 1); % No downsampling to retain temporal resolution of prediction!
+            Model.Hrf = samsrf_doublegamma(Model.TR, Srf.Data(HrfParams,v)); % Replace with actual HRF
         else
-            % Predefined HRF
-            X = prf_convolve_hrf(X, Model.Hrf, 1); % No downsampling to retain temporal resolution of prediction!
+            % Predefined HRFs 
+            if size(Model.Hrf,2) > 1
+                % Vertex-wise HRFs
+                Model.Hrf = Model.Hrf(:,v); 
+            end
         end
+        X = prf_convolve_hrf(X, Model.Hrf, 1); % No downsampling to retain temporal resolution of prediction!
     end
 
     % If raw data exists use that
@@ -85,7 +100,14 @@ hold on
 plot((0:length(X)-1)*TR, X, 'r', 'linewidth', 2);
 xlim([0 length(X)]*TR);
 grid on
-legend({'Observed' 'Predicted'});
+if isfield(Model, 'Hrf')
+    plot(0:Model.TR:32, Model.Hrf/max(Model.Hrf)*max(X), 'k-', 'linewidth', 2);
+    Can = samsrf_doublegamma(Model.TR);
+    plot(0:Model.TR:32, Can/max(Can)*max(X), '--', 'color', [.5 .5 .5], 'linewidth', 2);    
+    legend({'Observed' 'Predicted' 'Actual HRF' 'Canonical (SPM)'});
+else
+    legend({'Observed' 'Predicted'});
+end
 set(gcf, 'Units', 'normalized');
 set(gcf, 'Position', [.1 .1 .8 .4]);
 set(gca, 'fontsize', 12);

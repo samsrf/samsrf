@@ -15,6 +15,7 @@ function [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Y, ApFrm, ApXY, Rimg, Pimg
 %   Pimg:   Coarse fit/seed map parameters, restricted to mask
 %
 % 06/07/2022 - Rewritten for vectorised apertures (DSS)
+% 26/08/2026 - Added option for vertex-wise HRFs (DSS)
 %
 
 % Number of vertices
@@ -29,6 +30,13 @@ if isfield(Model, 'Hooke_Jeeves_Steps')
     UseHookeJeeves = true; % Use HookeJeeves pattern search
 else
     UseHookeJeeves = false; % Use Nelder-Mead (fminsearch)
+end
+
+% Vertex-wise HRF?
+if size(Model.Hrf,2) > 1
+    VertexWiseHrf = true;
+else
+    VertexWiseHrf = false;
 end
 
 % Parallel processing?
@@ -67,14 +75,21 @@ if ProgReps
 end
 parfor v = 1:nver
     if Rimg(v) >= Model.Fine_Fit_Threshold % Only reasonable coarse fits
+        % Which HRF?
+        if VertexWiseHrf
+            Hrf = Model.Hrf(:,v); % Vertex-wise HRF
+        else
+            Hrf = Model.Hrf; % One HRF for all vertices
+        end
+
         % Find best prediction
         if UseHookeJeeves
             % Use Hooke-Jeeves
-            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, ApXY, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), ...
+            [fP,fR] = samsrf_hookejeeves(@(P) prf_errfun(Model.Prf_Function, ApFrm, ApXY, Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), ...
                         Pimg(:,v)', Model.Hooke_Jeeves_Steps, Model.Only_Positive, 15, 3);  
         else
             % Use Nelder-Mead
-            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, ApXY, Model.Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), Pimg(:,v)', OptimOpts);  
+            [fP,fR] = fminsearch(@(P) prf_errfun(Model.Prf_Function, ApFrm, ApXY, Hrf, P, Y(:,v), Model.Downsample_Predictions, Model.Compressive_Nonlinearity), Pimg(:,v)', OptimOpts);  
         end
         fPimg(:,v) = fP;
         fRimg(1,v) = 1 - fR;
