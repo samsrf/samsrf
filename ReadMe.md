@@ -63,12 +63,13 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.34 (27-08-2026)  
+### Version 10.341 (28-08-2026)  
 - Add option in samsrf_fit_prf to take absolute values of pRF parameters (DSS)  
 - pRF forward modelling can now use vertex-specific HRFs (DSS)  
 - samsrf_fitvsobs now also plots the HRF used (DSS)  
 - Region predictor now includes R^2 thresholding (DSS)  
 - Fixed bugs with transparency in samsrf_surf (DSS)  
+- Split dog_fwhm from samsrf_dog_fwhm as a utility function (DSS)
 
 ### Version 10.335 (25-06-2026) 
 - DisplayMaps no longer needs Statistics Toolbox for thresholding (DSS)  
