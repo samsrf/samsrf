@@ -63,14 +63,19 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.349 (28-08-2026)  
-- Removed option to seed fine fit with file - you must now use a matrix! (DSS)  
-- Add option in samsrf_fit_prf to take absolute values of pRF parameters (DSS)  
+### Version 10.36 (31-08-2026)  
+- Removed option to seed forward model fine-fit with file - now needs a matrix! (DSS)  
+- Added micro-probing algorithm as alternative to samsrf_revcor_prf! (DSS)  
+- Added option in samsrf_fit_prf to take absolute values of pRF parameters (DSS)  
+- Fitting functions now remove any raw data from input data files (DSS)  
 - pRF forward modelling can now use vertex-specific HRFs (DSS)  
 - samsrf_fitvsobs now also plots the HRF used (DSS)  
 - Region predictor now includes R^2 thresholding (DSS)  
 - Fixed bugs with transparency in samsrf_surf (DSS)  
 - Split dog_fwhm from samsrf_dog_fwhm as a utility function (DSS)
+- Fixed bug in samsrf_surf with visual CF profile colour scheme (DSS)  
+- Turned parfor loop in prf_generate_searchspace back on... (DSS)  
+- Vertex-inspector for model-based pRFs no longer used fixed colour scale (DSS)  
 
 ### Version 10.335 (25-06-2026) 
 - DisplayMaps no longer needs Statistics Toolbox for thresholding (DSS)  

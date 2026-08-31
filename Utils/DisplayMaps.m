@@ -9,6 +9,7 @@ function varargout = DisplayMaps(varargin)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/05/2026 - No longer requires Stats Toolbox for thresholding (DSS)
+% 28/08/2026 - Latest working version (DSS)
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -141,17 +142,6 @@ end
 
 % Expand if necessary
 [Srf,vx] = samsrf_expand_srf(Srf);
-% Vertex-wise HRFs?
-if isfield(Srf, 'Model') && isfield(Srf.Model, 'Hrf') && size(Srf.Model.Hrf,2) > 1
-    if (size(Srf.Model.Hrf,2) ~= size(Srf.Data,2)) && isempty(vx)
-        samsrf_error('Model.Hrf must have the same number of columns as Srf.Data or the Srf cannot already have been expanded!');
-    else
-        Hrfs = zeros(size(Srf.Model.Hrf,1), size(Srf.Data,2));
-        Hrfs(:,vx) = Srf.Model.Hrf;
-        Srf.Model.Hrf = Hrfs;
-        clear Hrfs
-    end
-end
 
 % If bilateral ask about hemisphere
 if isfield(Srf, 'Nvert_Lhem')

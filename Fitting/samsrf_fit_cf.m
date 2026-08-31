@@ -25,6 +25,7 @@ function OutFile = samsrf_fit_cf(Model, SrfFile, Roi)
 %              Fixed help descriptions (DSS)
 % 15/09/2024 - Fixed bug with undefined output filename when providing Srf data (DSS)
 % 07/10/2025 - Models can now be provided as JSON files (DSS)
+% 29/08/2026 - Now removes Srf.Raw_Data if it exists in the input data file (DSS)
 %
 
 %% Load Model as JSON?
@@ -70,6 +71,9 @@ else
     samsrf_disp([' Loading ' SrfFile ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
 end
 Tc = Srf.Data; % Time course matrix 
+if isfield(Srf, 'Raw_Data')
+    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field	
+end
 OutFile = [Srf.Hemisphere '_' Model.Name];
 
 %% Load ROI mask

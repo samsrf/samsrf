@@ -55,6 +55,7 @@ switch AnalysisFunc
                         'Hrf';
                         'Aperture_File';
                         'Noise_Ceiling_Threshold';
+                        'Micro_Probing';
                         'Prf_Function';
                         'Convex_Hull_Threshold';
                         'Param_Names';

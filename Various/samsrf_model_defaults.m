@@ -198,6 +198,9 @@ switch AnalysisFunc
         if ~isfield(Model, 'Save_Rmaps')
             Model.Save_Rmaps = false; % Whether or not to save correlation profiles in data file
         end
+        if ~isfield(Model, 'Micro_Probing')
+            Model.Micro_Probing = 0; % Sigma for micro-probing or 0 for reverse-correlation
+        end
         
     %% Connective field analysis
     case {'samsrf_revcor_cf' 'samsrf_fit_cf'}

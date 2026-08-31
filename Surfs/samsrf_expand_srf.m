@@ -35,7 +35,11 @@ function [Srf, vx] = samsrf_expand_srf(Srf, Use64bit)
 %              Also addded option to force using 64 bit data though (DSS)
 % 22/08/2023 - Now supports EEG/MEG data files (DSS)
 % 31/05/2025 - Added hack to convert awkward GIIs converted from HCP (DSS)
+% 28/08/2026 - Bugfix when Srf.Data contains imaginary numbers (DSS)
 %
+
+%% Ensure no imagery numbers
+Srf.Data = real(Srf.Data);
 
 %% In case no values defined
 if ~isfield(Srf, 'Values')
@@ -106,6 +110,7 @@ if ~strcmpi(Srf.Hemisphere, 'vol') && ~strcmpi(Srf.Hemisphere, 'eeg') && ~strcmp
             Srf.X(:,vx) = X;
         end
         if isfield(Srf, 'Raw_Data')
+            Srf.Raw_Data = real(Srf.Raw_Data); % Should also not have imaginary numbers
             Rd = Srf.Raw_Data;
             Srf.Raw_Data = zeros(size(Rd,1),nv);
             Srf.Raw_Data(:,vx) = Rd;

@@ -91,9 +91,9 @@ Emsk = Eccen < Ecc(1) | Eccen > Ecc(2); % Vertices out of eccentricity range
 Srf.Data(:,Emsk) = 0;
 Tmp.Data(:,Emsk) = 0;
 mver = find(sum(Srf.Data) ~= 0); % Create new mask
-% Create meridian maps
-Mer = cart2pol(abs(Srf.Data(2,:)), abs(Srf.Data(3,:)));
-TmpMer = cart2pol(abs(Tmp.Raw_Data(2,:,:)), abs(Tmp.Raw_Data(3,:,:)));
+% % Create meridian maps
+% Mer = cart2pol(abs(Srf.Data(2,:)), abs(Srf.Data(3,:)));
+% TmpMer = cart2pol(abs(Tmp.Raw_Data(2,:,:)), abs(Tmp.Raw_Data(3,:,:)));
 
 %% Loop thru mask vertices
 samsrf_disp('Labelling ROIs...'); 

@@ -69,6 +69,8 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 % 09/10/2025 - Now automatically displays Srf.Vertices if mesh not found (DSS)
 % 26/08/2026 - Fixed bug with transparency scaling esp. for non-pRF maps (DSS)
 %              Minor changes to improve performance (DSS)
+% 29/08/2026 - Fixed bug with visual CF profiles colour scheme (DSS)
+% 31/08/2026 - Now calibrates colour scale of model-based pRF profiles individually (DSS)
 %
 
 %% Create global variables
@@ -661,7 +663,11 @@ if ~isempty(Srf)
                 Srf.Rmaps(1,v)=.001;
             end
         end
-        samsrf_showprf(Srf, v);
+        if isfield(Srf.Model_, 'Micro_Probing') && Srf.Model_.Micro_Probing > 0
+            samsrf_showprf(Srf, v, Srf.Model_);
+        else
+            samsrf_showprf(Srf, v);
+        end
         legend off
         title(['Vertex: ', num2str(v)]);
         set(gcf, 'Units', 'normalized');
@@ -675,7 +681,6 @@ if ~isempty(Srf)
             figure(fv);
             samsrf_showprf(Srf, v, Srf.Model);
             legend off
-            caxis([-1 1]);
             title(['Vertex: ', num2str(v)]);
             set(gcf, 'Units', 'normalized');
             set(gcf, 'Position', [.6 .1 .3 .3]);
@@ -768,7 +773,7 @@ if ~isempty(Srf)
         xlabel('Horizontal position (deg)');
         ylabel('Vertical position (deg)');
         colorbar
-        colormap(samsrf_cmap(SamSrfDefs.def_cmap_other));
+        colormap(samsrf_cmap('hotcold', 200));
         caxis([-1 1] * sqrt(Srf.Data(1,v)));
         cblabel('Correlation');
         title(['Selected vertex: #' num2str(v)]);

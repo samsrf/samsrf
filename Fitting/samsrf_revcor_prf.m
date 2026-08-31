@@ -6,8 +6,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFile, Roi)
 % It first creates a regressor for each pixel in the stimulus apertures
 % convolved with the HRF and then correlates these with the observed time
 % series. This produces a map of correlation coefficients that is then
-% thresholded, downsampled, and saved. A standard retinotopic map with
-% X0 and Y0 coordinates (peak correlation position) is also saved.
+% thresholded, and downsampled. A standard retinotopic map with X0 and Y0 
+% coordinates (peak correlation position) is derived from this.
 %
 % Note that by default this procedure does not estimate pRF size, only a 
 % guestimate based on the area the pRF profile subtends in visual space. 
@@ -55,7 +55,11 @@ function OutFile = samsrf_revcor_prf(Model, SrfFile, Roi)
 % 21/10/2024 - Fixed bug when using SPM canonical HRF (DSS)
 % 07/10/2025 - Models can now be provided as JSON files (DSS)
 % 08/10/2025 - Apertures can now be provided as volumetric NII or animated GIF (DSS)
-%
+% 29/08/2026 - Now removes Srf.Raw_Data if it exists in the input data file (DSS)
+% 30/08/2026 - Adapted the help section to better reflect reality (DSS)
+%              Added option to provide vertex-wise HRFs (DSS)
+%              Implemented micro-probing algorithm (DSS)
+%              Fixed bug with rescaling dimensions of pRF profiles (DSS)
 
 %% Load Model as JSON?
 if ischar(Model) || isstring(Model)
@@ -77,7 +81,14 @@ Model = samsrf_model_defaults('samsrf_revcor_prf', Model);
 
 %% Start time of analysis
 t0 = tic; samsrf_newline;  
-samsrf_disp('*** SamSrf reverse-correlation pRF analysis ***');
+if Model.Micro_Probing
+    if ~isscalar(Model.Micro_Probing)
+        samsrf_error('Micro-probing Sigma must be defined as a scalar!');
+    end
+    samsrf_disp('*** SamSrf micro-probing pRF analysis ***');
+else
+    samsrf_disp('*** SamSrf reverse-correlation pRF analysis ***');
+end
 [vn, vd] = samsrf_version;
 samsrf_disp([' Version ' num2str(vn) ' - ' vd]);
 samsrf_newline;
@@ -121,6 +132,26 @@ samsrf_disp([' Loading '  Model.Aperture_File ': ' num2str(size(ApFrm,3)) ' volu
 if sum(ApFrm(:)<0) > 0
     samsrf_disp(' Warning: Apertures contain negative values!');
 end
+% Micro-probing or Reverse-correlation?
+if Model.Micro_Probing
+    % Apertures vectorised already?
+    if ~exist('ApXY', 'var') 
+        samsrf_disp('Aperture pixel coordinates undefined. Vectorising apertures...');
+        VectoriseApertures(EnsurePath(Model.Aperture_File));
+        Model.Aperture_File = [Model.Aperture_File '_vec']; % Use vectorised apertures instead
+        load(EnsurePath(Model.Aperture_File));  % Loads variables called ApFrm & ApXY
+    end
+
+    % Rescale apertures
+    ApXY = ApXY / max(abs(ApXY(:))); % Normalise scale to maximum
+    ApXY = ApXY * Model.Scaling_Factor; % Rescale to current scaling factor
+
+    % How many volumes?
+    samsrf_disp([' There are ' num2str(size(ApFrm,2)) ' volumes']);
+else
+    % How many volumes?
+    samsrf_disp([' There are ' num2str(size(ApFrm,3)) ' volumes']);    
+end
 samsrf_newline; 
 % Regressor file name
 [~,ApsName] = fileparts(Model.Aperture_File);
@@ -139,6 +170,9 @@ else
     samsrf_disp([' Loading ' SrfFile ': ' num2str(size(Srf.Vertices,1)) ' vertices & ' num2str(size(Srf.Data,1)) ' volumes']);
 end
 Tc = Srf.Data; % Time course matrix 
+if isfield(Srf, 'Raw_Data')
+    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field	
+end
 OutFile = [Srf.Hemisphere '_' Model.Name];
 
 %% Load ROI mask
@@ -169,8 +203,14 @@ Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
 
 % Do aperture & data length match?
-if size(Tc,1) ~= size(ApFrm,3)
-    samsrf_error('Mismatch between length of apertures and data!');
+if Model.Micro_Probing
+    if size(Tc,1) ~= size(ApFrm,2)
+        samsrf_error('Mismatch between length of apertures and data!');
+    end
+else
+    if size(Tc,1) ~= size(ApFrm,3)
+        samsrf_error('Mismatch between length of apertures and data!');
+    end
 end
 
 %% Load or generate HRF
@@ -185,45 +225,77 @@ elseif isscalar(Model.Hrf) && Model.Hrf == 1
     samsrf_disp(' No HRF used!');
 else
     if ischar(Model.Hrf)
-        samsrf_disp([' Subject-specific HRF: ' Model.Hrf]);
-        load(Model.Hrf);
-         % HRF based on loaded parameters but TR defined here
-        Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
+        if strcmpi(Model.Hrf(1:4), 'hrf_')
+            % Load old school subject-specific HRF fit
+            samsrf_disp([' Old School Subject-specific HRF: ' Model.Hrf]);
+            load(Model.Hrf);
+            % HRF based on loaded parameters but TR defined here
+            Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
+        else
+            % Use vertex-wise HRF fits
+            samsrf_disp([' Using vertex-wise HRF fits from: ' Model.Hrf]);
+            HrfFits = load(Model.Hrf);
+            Model.Hrf = samsrf_extract_hrf_fits(HrfFits.Srf, Model.TR); % HRF for each vertex in Srf
+            clear HrfFits
+        end
     else
         samsrf_disp(' Using Subject-specific HRF provided');
     end
 end
 samsrf_newline; 
 
-%% Generate regressors
-if ~exist([pwd filesep RegressorFile], 'file') 
-    samsrf_disp('Generating regressors...');
-    % Reshape apertures to matrix
-    X = reshape(ApFrm, size(ApFrm,1)*size(ApFrm,2), size(ApFrm,3))';
-    % Convolve with HRF
-    for i = 1:size(X,2) 
-        X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf, 1); % Added 3rd input to ensure it works but dowwnsampling has not yet been implemented!
+%% Generate regressors/searchspace
+if Model.Micro_Probing
+    samsrf_disp('Running micro-probing analysis...');
+    MpRes = Model.Scaling_Factor*2 / Model.Rdim; % Resolution of micro-probe map
+    SrcSpcGrd = [-Model.Scaling_Factor+MpRes/2:MpRes:-MpRes/2 MpRes/2:MpRes:Model.Scaling_Factor-MpRes/2];
+    [X,S] = prf_generate_searchspace(@(P,ApWidth) prf_gaussian_rf(P(1), P(2), Model.Micro_Probing, ApWidth), ApFrm, ApXY, SrcSpcGrd, SrcSpcGrd, 0, 0, 0, 0, 0, 0, 0, 0);    
+    samsrf_disp(['  Search space with ' num2str(size(S,2)) ' grid points']);
+    samsrf_disp(['  Grid resolution:  ' num2str(MpRes)]);
+    samsrf_disp(['  Probe sigma:      ' num2str(Model.Micro_Probing)]);    
+    xc = S(1,:);
+    yc = S(2,:);
+    clear S
+    if size(Model.Hrf,2) == 1
+        % Convolve with HRF
+        for i = 1:size(X,2) 
+            X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf, 1); % Added 3rd input to ensure it works but dowwnsampling has not yet been implemented!
+        end
     end
-    % X & Y coordinates
-    [xc,yc] = meshgrid(linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,2)), ...
-                       linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,1)));
-    yc = flipud(yc);  % Flip vertically to be in Cartesian space
-    % Save regressors
-    save(RegressorFile, 'X', 'xc', 'yc', '-v7.3');
     t1 = toc(t0); 
-    samsrf_disp([' Regressors generated in ' num2str(t1) ' seconds.']);
+    samsrf_disp([' Micro-probe search space generated in ' num2str(t1/60) ' minutes.']);    
 else
-    samsrf_disp('Loading regressors...');
-    load([pwd filesep RegressorFile]);
-    samsrf_disp([' Loading ' RegressorFile]);
-    % Does length of regressors match apertures?
-    if size(ApFrm,3) ~= size(X,1)
-        samsrf_error('Mismatch between length of search space and apertures!');
+    if ~exist([pwd filesep RegressorFile], 'file') 
+        samsrf_disp('Generating regressors...');
+        % Reshape apertures to matrix
+        X = reshape(ApFrm, size(ApFrm,1)*size(ApFrm,2), size(ApFrm,3))';
+        if size(Model.Hrf,2) == 1
+            % Convolve with HRF
+            for i = 1:size(X,2) 
+                X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf, 1); % Added 3rd input to ensure it works but dowwnsampling has not yet been implemented!
+            end
+        end
+        % X & Y coordinates
+        [xc,yc] = meshgrid(linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,2)), ...
+                           linspace(-Model.Scaling_Factor, Model.Scaling_Factor, size(ApFrm,1)));
+        yc = flipud(yc);  % Flip vertically to be in Cartesian space
+        % Save regressors
+        save(RegressorFile, 'X', 'xc', 'yc', '-v7.3');
+        t1 = toc(t0); 
+        samsrf_disp([' Regressors generated in ' num2str(t1) ' seconds.']);
+    else
+        samsrf_disp('Loading regressors...');
+        load([pwd filesep RegressorFile]);
+        samsrf_disp([' Loading ' RegressorFile]);
+        % Does length of regressors match apertures?
+        if size(ApFrm,3) ~= size(X,1)
+            samsrf_error('Mismatch between length of search space and apertures!');
+        end
     end
 end
 samsrf_newline; 
 
-%% Calculate reverse correlation map 
+%% Calculate pRF profile map
 samsrf_disp('Calculating pRF profiles...');
 Srf.Regs = X;  % Design matrix (regressors per pixel)
 % R-map for each vertex 
@@ -237,10 +309,19 @@ fRimg = zeros(1,length(mver)); % R^2 map
 % Loop through mask vertices 
 samsrf_progbar(0);
 for v = 1:length(mver)
-    % Calculate r-map
-    Y = Tc(:,mver(v));  % Time course of current vertex
+    % Vertex-wise HRF?
+    if size(Model.Hrf,2) > 1
+        X = Srf.Regs; % Regressors for aperture pixels or micro-probes
+        % Convolve with HRF
+        for i = 1:size(X,2) 
+            X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf(:,mver(v)), 1); % Added 3rd input to ensure it works but dowwnsampling has not yet been implemented!
+        end
+    end
+    % Time course of current vertex
+    Y = Tc(:,mver(v));  
+    % Calculate pRF profile map
     warning off
-    cM = [Y ones(size(Y,1),1)] \ X; % Linear regression
+    cM = [Y ones(size(Y,1),1)] \ X; % Regress time series on regressors (convolved pixels or micro-probes)
     warning on
     cM = cM(1,:); % Remove intercept beta
     % If peak can be negative
@@ -257,10 +338,14 @@ for v = 1:length(mver)
     gp = cM > mM/2; % Full area at half maximum
     m = find(cM==mM,1); % Find peak coordinate
     mR = corr(Y, X(:,m)); % Peak correlation with stimulus design
+    
     % Create profile & store parameters
     if ~isempty(mR) && ~isnan(mR) 
-        cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
-        cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
+        if ~Model.Micro_Probing
+            % Only makes sense for reverse correlation
+            cM = reshape(cM,size(ApFrm,1),size(ApFrm,2)); % Reshape into a map
+            cM = imresize(cM,[Model.Rdim Model.Rdim]); % Down-sample r-map
+        end
         cM = cM(:); % Vectorise again
         % Store pRF parameters
         Rmaps(:,v) = cM; % Activation map as vector 
@@ -278,15 +363,15 @@ samsrf_disp(['pRF profiles completed in ' num2str(t2/60) ' minutes.']);
 samsrf_newline;
 
 % Coordinates for contour/surf plots
-Srf.X_coords = imresize(xc,[Model.Rdim Model.Rdim]);
-Srf.Y_coords = imresize(yc,[Model.Rdim Model.Rdim]);
+Srf.X_coords = reshape(xc, Model.Rdim, Model.Rdim);
+Srf.Y_coords = reshape(yc, Model.Rdim, Model.Rdim);    
 
 % Save as surface structure
 Srf.Functional = 'Reverse correlation';
 Srf.Data = zeros(5, size(Srf.Vertices,1));
 Srf.Data(:,mver) = [fRimg; fXimg; fYimg; fSimg; fBimg];
 Srf.Values = {'R^2'; 'x0'; 'y0'; 'Fwhm'; 'Beta'};
-Srf.Rmaps = NaN; % If fitting pRF models, need to calculate profiles anew
+Srf.Rmaps = NaN; % If fitting pRF models, profiles are recalculated anyway
 
 %% Fit 2D pRF models?
 if strcmpi(class(Model.Prf_Function), 'function_handle')
@@ -391,7 +476,11 @@ end
 %% Save map files
 samsrf_disp('Saving pRF results...');
 Srf = samsrf_compress_srf(Srf, mver);
-OutFile = [OutFile '_Rcp'];
+if Model.Micro_Probing
+    OutFile = [OutFile '_Mp'];
+else
+    OutFile = [OutFile '_Rcp'];
+end
 save(OutFile, 'Model', 'Srf', '-v7.3');
 samsrf_disp(['Saved ' OutFile '.mat']); 
 

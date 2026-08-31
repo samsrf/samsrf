@@ -25,6 +25,8 @@ function samsrf_showprf(SrfEcc, IdxMat, Model, PlotType)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 08/09/2023 - Now possible to invert sign if needed (DSS)
 % 09/09/2025 - Bugfix for missing colour maps (DSS)
+% 30/08/2026 - Fixed typo in comments (DSS)
+%              Now supports micro-probing & vertex-wise HRFs (DSS)
 %
 
 if nargin < 3
@@ -50,8 +52,8 @@ if ~isstruct(SrfEcc)
 else
     % Expand Srf if necessary
     SrfEcc = samsrf_expand_srf(SrfEcc);
-    % Use Model structur?
-    if isempty(Model) || islogical(Model)
+    % Use Model structure?
+    if isempty(Model) || islogical(Model) || isfield(SrfEcc, 'Regs')
         % Reverse correlation plots
         Xc = SrfEcc.X_coords;
         Yc = SrfEcc.Y_coords;
@@ -59,6 +61,13 @@ else
         if isnan(SrfEcc.Rmaps)
             % Compute pRF profile 
             X = SrfEcc.Regs;  % Design matrix (regressors per pixel)
+            % Vertex-wise HRF?
+            if ~isempty(Model) && size(Model.Hrf,2) > 1
+                % Convolve with HRF
+                for i = 1:size(X,2) 
+                    X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf(:,IdxMat), 1); % Note that dowwnsampling has not been implemented!
+                end
+            end
             if isfield(SrfEcc, 'Y_')
                 Y = SrfEcc.Y_(:,IdxMat); % Observed time series
             else

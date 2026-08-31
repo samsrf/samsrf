@@ -14,6 +14,7 @@ function Rmap = samsrf_revcor_rmap(Srf, Model, RoiVx)
 %              Removed unnecessary line (DSS)
 %              Now allows ROI to be undefined (DSS)
 %              Fixed ambiguous variable name (DSS)
+% 30/08/2026 - Now works also for micro-probe maps (DSS)          
 %
 
 % If no ROI defined
@@ -33,8 +34,16 @@ dim = sqrt(size(Srf.Regs,2));
 for v = 1:length(RoiVx)
     % Calculate r-map
     cY = Srf.Y(:,RoiVx(v));  % Time course of current vertex
+    X = Srf.Regs; % Regressors
+    % Vertex-wise HRF?
+    if size(Model.Hrf,2) > 1
+        % Convolve with HRF
+        for i = 1:size(X,2) 
+            X(:,i) = prf_convolve_hrf(X(:,i), Model.Hrf(:,RoiVx(v)), 1); % Note that dowwnsampling has not been implemented!
+        end
+    end
     warning off
-    cM = [cY ones(size(cY,1),1)] \ Srf.Regs; % Linear regression
+    cM = [cY ones(size(cY,1),1)] \ X; % Linear regression
     warning on
     cM = cM(1,:); % Remove intercept beta
     % If peak can be negative

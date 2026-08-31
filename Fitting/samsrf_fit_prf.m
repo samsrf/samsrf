@@ -46,6 +46,8 @@ function OutFile = samsrf_fit_prf(Model, SrfFile, Roi)
 % 27/08/2026 - You can now take absolute value of parameters that mustn't be negative (DSS)
 % 28/08/2026 - In concurrent HRF fit you can now seed with prior HRF parameters (DSS)
 %              Removed option to seed fine-fit with a saved map file! (DSS) 
+%              For consistency, vertex-wise HRFs are now saved for -all- vertices in Model.Hrf (DSS)
+% 29/08/2026 - Now removes Srf.Raw_Data if it exists in the input data file (DSS)
 %
 
 %% Load Model as JSON?
@@ -237,6 +239,9 @@ Srf.Version = samsrf_version;
 %% Preprocess data
 Srf.Y = Tc; % Raw time coarse stored away
 Srf.Data = [];  % Clear data field
+if isfield(Srf, 'Raw_Data')
+    Srf = rmfield(Srf, 'Raw_Data'); % Remove raw data field	
+end
 % Do aperture & data length match?
 if size(Tc,1)*Model.Downsample_Predictions ~= size(ApFrm,2)
     samsrf_error('Mismatch between length of apertures and data!');
@@ -264,7 +269,7 @@ else
             % HRF based on loaded parameters but TR defined here
             Model.Hrf = samsrf_doublegamma(Model.TR, [fP(1:2) 1 1 fP(3) 0 32])' * fP(4);
         else
-            % Load vertex-wise HRF fits
+            % Use vertex-wise HRF fits
             samsrf_disp([' Using vertex-wise HRF fits from: ' Model.Hrf]);
             HrfFits = load(Model.Hrf);
             HrfFits = samsrf_extract_hrf_fits(HrfFits.Srf, Model.TR, mver); % HRF for each vertex in ROI
@@ -329,6 +334,7 @@ end
 %% Coarse fit / Load seed map
 if ~isempty(Model.Seed_Fine_Fit)
     % Seeding fine fit with prior parameters
+    samsrf_disp('Seeding fine fit with prior parameters...');
     Pimg = Model.Seed_Fine_Fit(2:end,:);
     Rimg = Model.Seed_Fine_Fit(1,:);
 
@@ -470,7 +476,7 @@ else
     % Run fine fit (must be separate function for parallel computing toolbox
     [fPimg, fRimg] = samsrf_prfoptim_loop(Model, Tc, ApFrm, ApXY, Rimg, Pimg);
     if FittingHrf
-        Model.Hrf = Inf;
+        Model.Hrf = Inf; % Return to original to make clear concurrent fit was used
     end
     t3 = toc(t0);
     samsrf_disp(['Fine fitting completed in ' num2str(t3/60/60) ' hours.']);
@@ -569,6 +575,12 @@ else
 end
 
 samsrf_disp('Tidying up final results structure...');
+% Was vertex-wise HRF?
+if size(Model.Hrf,2) > 1
+    HrfFits = Model.Hrf; % HRFs for each vertex analysed
+    Model.Hrf = zeros(size(HrfFits,1), size(Srf.Vertices,1)); % Empty full matrix
+    Model.Hrf(:,mver) = HrfFits; % Each vertex now has HRF if it was analysed
+end
 % Prepare surface structure
 Srf.Functional = PrfFcnName; % pRF function name
 Data = [fRimg; fPimg; fBimg];
