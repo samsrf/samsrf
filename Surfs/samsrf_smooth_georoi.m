@@ -3,7 +3,8 @@ function Srf = samsrf_smooth_georoi(InSrf, fwhm, roi, thrsh)
 % Srf = samsrf_smooth_georoi(InSrf, fwhm, [roi='', thrsh=0.01])
 %
 % Surface-based smoothing of the data in surface data InSrf using geodesic 
-% steps along the white matter surface. The R^2 threshold of vertices to include is defined by thrsh.
+% steps along the white matter surface. The R^2 threshold of vertices to 
+% include is defined by thrsh.
 %
 % This can and probably should be limited to a ROI.
 %
@@ -22,6 +23,8 @@ function Srf = samsrf_smooth_georoi(InSrf, fwhm, roi, thrsh)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 26/09/2022 - Fixed bug with NaNs in coordinates (DSS) 
 % 04/05/2026 - Added option to provide vertex list as ROI (DSS)
+% 02/09/2026 - Inconsequential change (famouse last words...) (DSS)
+% 10/09/2026 - Now reports more information (DSS)
 %
 
 %% Default parameters
@@ -111,7 +114,7 @@ else
     roistr = ')';
 end
 
-samsrf_disp('Smoothing vertices...');
+samsrf_disp(['Smoothing vertices with geodesic searchlights (FWHM = ' num2str(fwhm) ' steps)...']);
 for j = 1:si
     if isempty(roi)
         if j == si

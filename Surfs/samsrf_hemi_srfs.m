@@ -17,6 +17,8 @@ function [SrfL, SrfR] = samsrf_hemi_srfs(Srf)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/11/2022 - Now supports Srfs with missing surface fields (DSS)
 % 28/03/2025 - Fixed bug when Rmaps field empty (DSS)
+% 03/09/2026 - Fixed bug with bilateral Srf from template brains (DSS)
+% 15/09/2026 - Added new line before warning about source vertices (DSS)
 %
 
 % Expand Srf
@@ -112,6 +114,19 @@ for h = 1:2
     end
     if isfield(Cur, 'Noise_Ceiling')
         Cur.Noise_Ceiling = Srf.Noise_Ceiling(:,V); 
+    end
+    if isfield(Cur, 'Source_Vertices')
+        if length(Srf.Source_Vertices) == size(Srf.Vertices,1)
+            Cur.Source_Vertices = Srf.Source_Vertices(:,V);
+        else
+            Cur = rmfield(Cur, 'Source_Vertices');
+            if h == 1 % Avoid redundant message
+                samsrf_newline;
+                samsrf_disp('WARNING: This bilateral Srf does not contain the correct number Source Vertices!');
+                samsrf_disp('         It was probably generated in a version prior to 10.363...');
+                samsrf_newline;
+            end
+        end
     end
 
     % Remove mesh field if it exists

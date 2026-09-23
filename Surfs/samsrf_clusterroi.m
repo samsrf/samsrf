@@ -15,7 +15,7 @@ function Vs = samsrf_clusterroi(v, Statistic, Threshold, Faces)
 %   0 (Default) = Filling as long as -any- neighbours are above threshold
 %   0.5 = Filling as long as half of neighbours are suprathreshold
 % 	1 = Filling only continues as long as all neighbours are suprathreshold
-%   <0 = Filling whie absolute number of neighbours are suprathreshold
+%   <0 = Filling while absolute number of neighbours are suprathreshold
 %
 % The 3rd element of Threshold defines the tolerance. This is the
 % proportion of vertices -below- threshold in an iteration that will be 
@@ -29,10 +29,11 @@ function Vs = samsrf_clusterroi(v, Statistic, Threshold, Faces)
 % 13/03/2024 - Added stopping parameter for filling (DSS)
 % 16/03/2024 - Added tolerance parameter for filling subthreshold (DSS)
 %              Fixed incorrect comment (DSS)
+% 03/09/2026 - Inconsequential cosmetic change (DSS)
 %
 
 % Criterion?
-if length(Threshold) == 1
+if isscalar(Threshold)
     Threshold = [Threshold 0];
 end
 % Tolerance?

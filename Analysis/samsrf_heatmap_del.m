@@ -16,6 +16,8 @@ function samsrf_heatmap_del(Tri, X, Y, Data, Clipping, Cmap)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 05/03/2024 - No longer allows supplying more than one data frame (DSS)
+% 16/09/2026 - Fixed bug with missing colour map functions (DSS)
+%              Cosmetic changes (DSS)
 %
 
 %% Default inputs
@@ -26,7 +28,7 @@ if nargin <= 5
     Cmap = 'berlin';
 end
 
-if length(Clipping) == 1
+if isscalar(Clipping)
     Clipping = [Clipping Inf 0];
 elseif length(Clipping) == 2
     Clipping = [Clipping 0];
@@ -76,7 +78,7 @@ if ischar(Cmap)
     else
         InvertColours = false;
     end
-    Rgb = colormap(eval([Cmap '(256)']));
+    Rgb = samsrf_cmap(Cmap);
     if InvertColours
         Rgb = flipud(Rgb);
     end    

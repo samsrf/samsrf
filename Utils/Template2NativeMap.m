@@ -29,6 +29,8 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % 12/05/2026 - Reverted previous change (DSS)
 %              But now only exports ROIs when names are defined (DSS)
 %              Includes name of template map in name now (DSS)
+% 11/09/2026 - Now supports negative ROI numbers to incorporate field sign (DSS)
+% 15/09/2026 - Always retains ROI names now for fast delineation (DSS)
 %
 
 % Load native map
@@ -143,11 +145,10 @@ for h = 1:length(Hemis)
     if isfield(TmpSrf, 'Raw_Data')
         % Reassign individual subject maps
         Srf.Raw_Data = TmpSrf.Raw_Data(:,Sva,:);
-        % Keep ROI names for classification of empirical maps
-        Srf.Roi_Names = TmpSrf.Roi_Names; 
     end
 
-    %% Save Srf & ROIs
+    %% Save Srf & ROIs        
+    Srf.Roi_Names = TmpSrf.Roi_Names; % Keep ROI names for fast delineation 
     save([Srf.Hemisphere '_temp_map_' TmpName], 'Srf', '-v7.3');
     if isfield(TmpSrf, 'Roi_Names')
         % Only save ROIs if names have been defined
@@ -156,8 +157,9 @@ for h = 1:length(Hemis)
             % Only need to do once
             mkdir(['ROIs_temp_map_' TmpName]);
         end
+        UniqueRoiNums = unique(Srf.Data(5,:)); % Unique ROI numbers (can be negative for negative field signs)
         for r = 1:length(Rois)
-            rvx = find(Srf.Data(5,:)==r);
+            rvx = find(Srf.Data(5,:)==UniqueRoiNums(r));
             if ~isempty(rvx)
                 samsrf_srf2label(Srf, ['ROIs_temp_map_' TmpName filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
             end

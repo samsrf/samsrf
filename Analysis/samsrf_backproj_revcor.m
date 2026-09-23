@@ -36,12 +36,13 @@ function Bp = samsrf_backproj_revcor(Response, Rmaps, GoF, Threshold, NormaliseB
 %              Updated error message when Rmaps is NaN (DSS)
 % 03/09/2023 - NaNs are now set to zero (DSS)
 % 16/09/2023 - Clarified that Rmaps can also be regenerated (DSS)
+%              Cosmetic changes (DSS)
 %
 
 if nargin < 4
     Threshold = [0 0];
 end
-if length(Threshold) == 1
+if isscalar(Threshold)
     Threshold = [Threshold 0];
 end
 if nargin < 5

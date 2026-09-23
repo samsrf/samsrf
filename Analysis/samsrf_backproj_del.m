@@ -17,6 +17,7 @@ function Mesh = samsrf_backproj_del(Response, pRF_Data, Threshold)
 %           
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 05/03/2024 - Fixed bug when using 32-bit (single) data 
+% 16/09/2026 - Cosmetic changes (DSS)
 %
 
 if nargin < 3
@@ -24,7 +25,7 @@ if nargin < 3
 end
 if isempty(Threshold)
     Threshold = [0 0 Inf]; 
-elseif length(Threshold) == 1
+elseif isscalar(Threshold)
     Threshold = [Threshold 0 Inf];
 elseif length(Threshold) == 2
     Threshold = [Threshold Inf];

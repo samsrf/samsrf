@@ -33,6 +33,7 @@ function Srf = samsrf_bilat_srf(SrfL, SrfR)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/11/2022 - Now supports Srfs with missing surface fields (DSS)
 % 07/10/2025 - Can now accept filenames as input (DSS)
+% 03/09/2026 - Fixed bug with bilateral Srf from template brains (DSS)
 %
 
 %% Srf file names provided?
@@ -138,6 +139,9 @@ if isfield(SrfL, 'SeedVx')
 end
 if isfield(SrfL, 'Noise_Ceiling')
     Srf.Noise_Ceiling = [SrfL.Noise_Ceiling SrfR.Noise_Ceiling];
+end
+if isfield(SrfL, 'Source_Vertices')
+    Srf.Source_Vertices = [SrfL.Source_Vertices SrfR.Source_Vertices];
 end
 
 % Remove mesh field if it exists

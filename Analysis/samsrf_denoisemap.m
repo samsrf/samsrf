@@ -68,8 +68,11 @@ if RemoveOrigins
 else
     ovx = false(1,size(Srf.Data,2));
 end
+
 vx = Betas <= BetaThr(1) | Betas > BetaThr(2) | ovx | Sigma <= SigmaThr;
 % Remove bad vertices
 Srf.Data(1,vx) = 0;
 % Denoised vertex indeces
 vx = find(vx);
+
+samsrf_newline;

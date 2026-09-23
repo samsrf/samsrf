@@ -87,6 +87,7 @@ function [Res, FigHdl] = samsrf_plot(SrfDv, ValDv, SrfIv, ValIv, Bins, Roi, Thre
 %                the percentage of the interval (e.g. 95 for 95% CI).
 %
 % 20/09/2024 - Adjusted scaling of X-axis (DSS)
+% 17/09/2026 - Added grid lines (DSS)
 %
 
 %% Expand Srfs if necessary
@@ -386,6 +387,7 @@ else
         end
     end
 end
+grid on
 
 % Reformat title
 Roi(strfind(Roi,'_')) = '-';

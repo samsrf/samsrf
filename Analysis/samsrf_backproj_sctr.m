@@ -28,6 +28,7 @@ function xysb = samsrf_backproj_sctr(Response, pRF_Data, Threshold)
 % (The same problem also applies to samsrf_polarplot)
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 16/09/2026 - Cosmetic changes (DSS)
 %
 
 if nargin < 3
@@ -35,7 +36,7 @@ if nargin < 3
 end
 if isempty(Threshold)
     Threshold = [0 85 0 Inf]; 
-elseif length(Threshold) == 1
+elseif isscalar(Threshold)
     Threshold = [Threshold 85 0 Inf];
 elseif length(Threshold) == 2
     Threshold = [Threshold 0 Inf];

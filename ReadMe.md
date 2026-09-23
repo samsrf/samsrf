@@ -24,13 +24,11 @@ are also various tools available for specific purposes:
  
     1. Making map figures:                      DisplayMaps*  
     2. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
-	3. Automatic ROI delineation:               AutoDelineation  
-    4. Delineating ROIs:                        DelineationTool*  
-    5. Viewing stimulus apertures:              ViewApertures*  
-    6. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
-	7. Help on model parameters:                ModelHelp*  
-    8. Help on all SamSrf functions:            FuncHelp  
-    9. Projecting data to surface:              SurfaceProjection  
+    3. Viewing stimulus apertures:              ViewApertures*  
+    4. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
+	5. Help on model parameters:                ModelHelp*  
+    6. Help on all SamSrf functions:            FuncHelp  
+    7. Projecting data to surface:              SurfaceProjection  
 
 (* These tools are also available as separate standalone apps)
 
@@ -42,6 +40,17 @@ Even if you used earlier versions for your analysis we recommend you use SamSrf 
 for your analysis *after* the model fitting (e.g. plotting, quantification & statistics). 
 Data files from SamSrf 6 should already be in the same format. You can also convert old 
 data files from older versions (at least 5.0 upwards) using samsrf_convert_old_srf.m   
+
+### Retired old delineation tools!
+
+Since version 10.4 we have officially retired our previousl suite of delineation functions, 
+specifically *AutoDelineation* and *DelineationTool*. The code is still available in 
+the toolbox but they are no longer supported. Both of these (esp. DelineationTool) 
+were a massive hackjob, but MathWorks have pretty much broken them with their more 
+recent Matlab versions. But they are also obsolete. We now have *FastDelineationTool*
+that allows you to quickly labelled retinotopic ROIs using the "Poor Man's Field Sign".
+Morever, for manual delineation we now highly recommend Fernanda Ribeiro's online 
+delineation tool available at: https://webapps.neurodesk.org/surfannotate/
 
 ------
 
@@ -62,6 +71,22 @@ This is not relevant for the SamSrf GUI because most data will simply be kept in
 GII or NII format & only few MAT files are saved containing anatomical data.  
 
 ## LATEST UPDATES 
+
+### Version 10.39 (23-09-2026) - FastDelinationTool Beta!  
+- Replaced samsrf_pred_rois with *FastDelineationTool*! (DSS)  
+- Template2NativeMap now supports negative ROI numbers for fast delineation (DSS)  
+- ROI names in template maps are now retained in Srf warped into native space (DSS)  
+- Added Poor Man's Field Sign algorithm to samsrf_fieldsign (DSS)  
+- Changed samsrf_fieldsign algorithm to boost speed but also use 3D anatomy (DSS)  
+- Added function to split bilateral labels into hemispheres (DSS)  
+- Fixed bug with bilateral Srf functions based on warped template brains (DSS)  
+- prf_contour now also supports micro-probing & vertex-wise HRFs (DSS)  
+- samsrf_surfcalcs now does 2nd pass of eccentricity filtering at the end (DSS)  
+- samsrf_fieldsign can now also output gradient angle instead, the new default (DSS)  
+- samsrf_export_giis now lets you specify which maps to export (DSS)  
+- Fixed issue with missing colour maps in backprojection functions (DSS)  
+- Smoothing functions now report more information (DSS)  
+- Added grid lines in samsrf_plot (DSS)  
 
 ### Version 10.36 (31-08-2026)  
 - Removed option to seed forward model fine-fit with file - now needs a matrix! (DSS)  

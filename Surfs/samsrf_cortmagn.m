@@ -57,7 +57,7 @@ parfor v = 1:length(mver)
         Cmf(v) = sqrt(Ctx(v)) / sqrt(Vis(v));
     end
 end
-samsrf_disp([' CMF computation completed in ' num2str(toc(t0)/60) ' minutes.']);
+samsrf_disp(['CMF computation completed in ' num2str(toc(t0)/60) ' minutes.']);
 
 % Store in structure
 Srf.Data = [Srf.Data; zeros(2,size(Srf.Data,2))];

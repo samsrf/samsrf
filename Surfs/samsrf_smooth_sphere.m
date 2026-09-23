@@ -31,6 +31,8 @@ function Srf = samsrf_smooth_sphere(InSrf, fwhm, roi, thrsh)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 26/09/2022 - Fixed bug with NaNs in coordinates (DSS) 
 % 04/05/2026 - Added option to provide vertex list as ROI (DSS)
+% 02/09/2026 - Inconsequential change (famouse last words...) (DSS)
+% 10/09/2026 - Now reports more information (DSS)
 %
 
 %% Default parameters
@@ -126,7 +128,7 @@ if isfield(Srf, 'Sphere')
 
     % Smoothing
     radius = stdev * 3;
-    samsrf_disp('Smoothing vertices...'); 
+    samsrf_disp(['Smoothing vertices along spherical mesh (FWHM = ' num2str(fwhm) ')...']);
     for j = 1:si
         if isempty(roi)
             if j == si
@@ -174,7 +176,7 @@ if isfield(Srf, 'Sphere')
         Srf.Functional = [Srf.Functional ' (Smoothed with spherical FWHM=' num2str(fwhm) roistr];
     end
     samsrf_disp(['Smoothing finished after ' num2str(toc(t0)/60) ' minutes.']);
-    samsrf_newline;
 else
     samsrf_disp('WARNING: Skipping smoothing: no sphere data in Srf');
 end    
+samsrf_newline;

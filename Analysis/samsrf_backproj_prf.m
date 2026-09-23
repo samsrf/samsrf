@@ -41,6 +41,8 @@ function [Visual_Space, Timecourses, Xysb] = samsrf_backproj_prf(Response, pRF_D
 % rows the X and Y coordinates, the Sigma and the Response for each vertex.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 16/09/2026 - Fixed bug with missing colour map functions (DSS)
+%              Cosmetic changes (DSS)
 %
 
 if nargin < 5
@@ -58,7 +60,7 @@ end
 
 if isempty(Threshold)
     Threshold = [0 1 0 Inf];
-elseif length(Threshold) == 1
+elseif isscalar(Threshold)
     Threshold = [Threshold 1 0 Inf];
 elseif length(Threshold) == 2
     Threshold = [Threshold 0 Inf];
@@ -128,7 +130,7 @@ if ColourMap(1) == '-'
 else
     InvCmap = false;
 end
-cm = colormap([ColourMap '(200)']);
+cm = samsrf_cmap(ColourMap, 200);
 if InvCmap
     cm = flipud(cm);
 end

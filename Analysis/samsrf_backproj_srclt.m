@@ -116,25 +116,22 @@ function [Backprojections, X, Y, Weights, Numbers, Good_Vertices, Used_pRFs, Src
 %
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 16/09/2026 - Cosmetic changes (DSS)
 %
 
 %% Default inputs
 if nargin == 3
     Threshold = [];
 end
-
 if nargin <= 4
     Resolution = [0.1 1];
 end
-
 if nargin <= 5
     Mode = 'Mean';
 end
-
 if nargin <= 6
     SkipVtxInSrcl = true;
 end
-
 if ~iscell(Mode)
     Mode = repmat({Mode}, 1, size(Response,1));
 end
