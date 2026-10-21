@@ -1,5 +1,10 @@
 function varargout = DelineationTool(varargin)
 % 
+% WARNING: THIS TOOL HAS BEEN DECOMMISSIONED & IS NO LONGER SUPPORTED!
+% Use FastDelineationTool instead for field-sign based semi-automated delineation.
+% For manual delineation, we recommend the SurfAnnotate webapp by Fernanda Ribeiro:
+% https://webapps.neurodesk.org/surfannotate
+%
 % ******* SamSrf Delineation tool ******* 
 %
 % Run this GUI to delineate regions of interest in retinotopic maps.
@@ -10,6 +15,8 @@ function varargout = DelineationTool(varargin)
 %
 % 19/09/2024 - Added autodelineation button (DSS)
 %              Various smaller bugfixes (DSS)
+% 26/09/2026 - This tool has now been decommissioned! (DSS)
+%
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -48,6 +55,12 @@ guidata(hObject, handles);
 % UIWAIT makes DelineationTool wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+%% WARNING!
+samsrf_disp('WARNING: THIS TOOL HAS BEEN DECOMMISSIONED & IS NO LONGER SUPPORTED!'); 
+samsrf_disp('Use FastDelineationTool instead for field-sign based semi-automated delineation.');
+samsrf_disp('For manual delineation, we recommend the SurfAnnotate webapp by Fernanda Ribeiro:'); 
+samsrf_disp('https://webapps.neurodesk.org/surfannotate');
+samsrf_newline;
 
 %% Global variables
 global SrfPath SrfName Roi Srf R2Thrsh EccThrsh Curv Vertices Points Paths RoiList RoiSeeds RoiColours PolRgb EccRgb FsRgb CfRgb hp he hf hc pp pe pf pc IsFsMap ActPrct 

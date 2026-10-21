@@ -11,12 +11,11 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Kernels, Method, Ge
 %   Roi:        ROI label to restrict analysis
 %   R2Thrsh:    R^2 threshold
 %   Eccens:     Eccentricity range (1x2 vector for minimum and maximum)
+%   Kernels:    Smoothing kernels / search light size (vector: 1: smoothing FWHM, 2:3: field sign radius)
 %   Method:     Smoothing method (only first letter needed) from
 %                'Sphere':      Distance determined on the spherical surface (SamSrf standard)
 %                'Geodeosic':   Distance determined by geodesic steps (FreeSurfer standard)
 %                'Dijkstra':    Distance determined by Dijkstra's geodesic distance (best method, but slow)
-%   Kernels:    Smoothing kernels / search light size (vector: 1: smoothing FWHM, 2:3: field sign radius)
-
 %   GenCmf:     Toggles whether cortical magnification factor is being calculated 
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
@@ -28,6 +27,7 @@ function Srf = samsrf_surfcalcs(InSrf, Roi, R2Thrsh, Eccens, Kernels, Method, Ge
 % 07/09/2026 - Second pass of eccentricity filtering after calculations (DSS)
 %              Changed order of input arguments (DSS)
 % 08/09/2026 - Now uses Sereno field sign & wider default kernel (DSS)
+% 28/09/2026 - Fixed error in help section (DSS)
 %
 
 if nargin < 2

@@ -25,10 +25,11 @@ are also various tools available for specific purposes:
     1. Making map figures:                      DisplayMaps*  
     2. Spatial normalisation/nativization:      Native2TemplateMap / Template2NativeMap  
     3. Viewing stimulus apertures:              ViewApertures*  
-    4. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
-	5. Help on model parameters:                ModelHelp*  
-    6. Help on all SamSrf functions:            FuncHelp  
-    7. Projecting data to surface:              SurfaceProjection  
+    4. New field sign based delineation:        FastDelineationTool*
+    5. Inspecting M/EEG scalp maps:             DisplayScalpMaps   
+	6. Help on model parameters:                ModelHelp*  
+    7. Help on all SamSrf functions:            FuncHelp  
+    8. Projecting data to surface:              SurfaceProjection  
 
 (* These tools are also available as separate standalone apps)
 
@@ -43,9 +44,9 @@ data files from older versions (at least 5.0 upwards) using samsrf_convert_old_s
 
 ### Retired old delineation tools!
 
-Since version 10.4 we have officially retired our previousl suite of delineation functions, 
+Since version 10.4 we have officially retired our previous suite of delineation functions, 
 specifically *AutoDelineation* and *DelineationTool*. The code is still available in 
-the toolbox but they are no longer supported. Both of these (esp. DelineationTool) 
+the toolbox but they are **no longer supported**. Both of these (esp. DelineationTool) 
 were a massive hackjob, but MathWorks have pretty much broken them with their more 
 recent Matlab versions. But they are also obsolete. We now have *FastDelineationTool*
 that allows you to quickly labelled retinotopic ROIs using the "Poor Man's Field Sign".
@@ -72,9 +73,14 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.39 (23-09-2026) - FastDelinationTool Beta!  
+### Version 10.4 (19-10-2026) - FastDelineationTool Official Release!
 - Replaced samsrf_pred_rois with *FastDelineationTool*! (DSS)  
+- This tool has now also been integrated into the SamSrfX GUI (DSS)  
+- Added options for adding new & duplicate ROIs in FastDelineationTool (DSS)  
+- Moreover you can now also plug holes in specific ROIs (DSS)  
+- When saving delineated ROIs, a log of postprocessing steps is saved (DSS)  
 - Template2NativeMap now supports negative ROI numbers for fast delineation (DSS)  
+- Fixed bug with how ROIs are saved when field sign is present in template (DSS)
 - ROI names in template maps are now retained in Srf warped into native space (DSS)  
 - Added Poor Man's Field Sign algorithm to samsrf_fieldsign (DSS)  
 - Changed samsrf_fieldsign algorithm to boost speed but also use 3D anatomy (DSS)  
@@ -86,6 +92,11 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 - samsrf_export_giis now lets you specify which maps to export (DSS)  
 - Fixed issue with missing colour maps in backprojection functions (DSS)  
 - Smoothing functions now report more information (DSS)  
+- No longer saves empty bilateral labels when neither hemisphere's label exist (DSS)  
+- Reverse correlation pRF with convex hull algorithm now saves summary stats also (DSS)  
+- You can now show ROI labels on surface with samsrf_showlabels & samsrf_hidelabels (DSS)  
+- Added warning about decommissioned DelineationTool and AutoDelineation (DSS)  
+- Bugfix for Template2NativeMap when no ROI names in template file (DSS)  
 - Added grid lines in samsrf_plot (DSS)  
 
 ### Version 10.36 (31-08-2026)  

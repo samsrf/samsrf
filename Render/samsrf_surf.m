@@ -33,8 +33,12 @@ function PatchHandle = samsrf_surf(Srf, Mesh, Thrsh, Paths, CamView, MapType, Pa
 %   If Thrsh(6) is negative, the same transparency level is used uniformly for the whole map.
 %   To turn off transparency, set Thrsh(6) to 0. This is the default.
 %
-% Paths is a cell array that defines the filenames of the paths to be displayed. If this is 
-%   undefined a dialog box opens allowing you to select the file (close it if none needed).
+% Paths is a cell array that defines the filenames of the paths to be displayed. 
+% The file name can be either a label file (extension mandatory!) 
+%  or a path stored as vector of vertices Vs inside a MAT file 
+%  or an ASCII file with the vector (mostly for backwards compatibility).
+% Instead of a filename you can also provide a vector of vertices for direct labelling.
+% If Paths is undefined a dialog box opens to select a file (close if none needed).
 %  If the last entry is NaN followed by a 1x3 vector, this defines the path colour.
 %  If the last entry is simply NaN, then a default path colour is used.
 %  If Paths is empty, or the last entry is a filename, then the path colour

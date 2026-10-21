@@ -99,8 +99,10 @@ GuiNat2Tmp = uimenu(GuiMiscMenu,'Text','Warp Native > Template'); % Native 2 Tem
 GuiNat2Tmp.MenuSelectedFcn = @FcnNat2Tmp;
 GuiDispMaps = uimenu(GuiMiscMenu,'Text','Map Display tool'); % Map display tool
 GuiDispMaps.MenuSelectedFcn = @DisplayMaps;
-GuiDelinTool = uimenu(GuiMiscMenu,'Text','Map Delineation Tool'); % Map delineation tool
-GuiDelinTool.MenuSelectedFcn = @DelineationTool;
+GuiSurfCalcs = uimenu(GuiMiscMenu,'Text','Smoothing + Field Sign'); % Surface map calculations 
+GuiSurfCalcs.MenuSelectedFcn = @SurfaceCalculations;
+GuiDelinTool = uimenu(GuiMiscMenu,'Text','Fast Delineation Tool'); % Fast delineation tool
+GuiDelinTool.MenuSelectedFcn = @(~,~) FastDelineationTool;
 GuiEccenPlot = uimenu(GuiMiscMenu,'Text','Eccentricity Plots'); % Plot data by eccentricity
 GuiEccenPlot.MenuSelectedFcn = @FcnPlotByEccen;
 GuiVisFldCov = uimenu(GuiMiscMenu,'Text','Visual Field Coverage'); % Plot visual field coverage
@@ -1283,7 +1285,7 @@ samsrf_disp('******************************************************************'
             end
             
             % Define R^2 threshold
-            Thrsh = inputdlg('R^2 threshold: ', 'Select R^2 threshold');
+            Thrsh = inputdlg([Srf.Values{1} ' threshold: '], 'Select goodness-of-fit threshold');
             Thrsh = str2double(cell2mat(Thrsh));
             if isnan(Thrsh)
                 samsrf_error('Invalid R^2 threshold entered!');
@@ -1359,7 +1361,7 @@ samsrf_disp('******************************************************************'
             Thrsh = inputdlg('R^2 threshold: ', 'Select R^2 threshold');
             Thrsh = str2double(cell2mat(Thrsh));
             if isnan(Thrsh)
-                samsrf_error('Invalid R^2 threshold entered!');
+                samsrf_error('Invalid R^2 threshold entered! Using 0...');
                 Thrsh = 0;
             end
             
@@ -1370,6 +1372,51 @@ samsrf_disp('******************************************************************'
                 axis([-1 1 -1 1] * Model.Scaling_Factor);
                 colormap(samsrf_cmap('batlow'));
             end
+        end
+    end
+
+    %% Surface map calculations
+    function SurfaceCalculations(src,event)
+        % Select map file
+        [fn, fp] = uigetfile('*.mat', 'Select map file');
+        if fn ~= 0
+            % Load map
+            Map = load([fp fn]);
+            Map.Srf = samsrf_expand_srf(Map.Srf);
+            
+            % Extract ROI label
+            Roi = GuiRoi.Value{3};
+            if strcmpi(Roi, '< None selected >')
+                Roi = '';
+            end
+    
+            % Define R^2 threshold
+            Thrsh = inputdlg([Map.Srf.Values{1} ' threshold: '], 'Define goodness-of-fit threshold');
+            Thrsh = str2double(cell2mat(Thrsh));
+            if isnan(Thrsh)
+                samsrf_error('Invalid R^2 threshold entered! Using 0...');
+                Thrsh = 0;
+            end
+
+            % Eccentricity range
+            Eccs = inputdlg('Eccentricity (min, max): ', 'Define eccentricity range');
+            try
+                Eccs = eval(['[' cell2mat(Eccs) ']']);
+            catch
+                samsrf_error('Invalid eccentricity range entered! Using [0 Inf]...');
+                Eccs = [0 Inf];
+            end
+            
+            % Run surface calculations
+            if contains(Roi, '.label')
+                Roi = Roi(1:end-6);
+            end
+            Map.Srf = samsrf_surfcalcs(Map.Srf, Roi, Thrsh, Eccs);
+            
+            % Save smoothed file
+            [fn, fp] = uiputfile('*.mat', 'Save smoothed map');
+            save([fp fn], '-struct', 'Map');
+            samsrf_done;
         end
     end
 

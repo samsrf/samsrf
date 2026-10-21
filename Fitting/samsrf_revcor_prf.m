@@ -60,6 +60,8 @@ function OutFile = samsrf_revcor_prf(Model, SrfFile, Roi)
 %              Added option to provide vertex-wise HRFs (DSS)
 %              Implemented micro-probing algorithm (DSS)
 %              Fixed bug with rescaling dimensions of pRF profiles (DSS)
+% 25/09/2026 - When using convex hull, summary stats now kept as raw data (DSS)
+%
 
 %% Load Model as JSON?
 if ischar(Model) || isstring(Model)
@@ -414,6 +416,8 @@ if strcmpi(class(Model.Prf_Function), 'function_handle')
 elseif Model.Prf_Function == 0
     % Using convex hull algorithm to determine pRF 
     samsrf_disp('Using convex hull algorithm to estimate parameters...');
+    Srf.Raw_Data = Srf.Data; % Store reverse correlations in raw data
+    Srf.Raw_Values = Srf.Values; % Also store value names cause they'll change
     % Loop through mask vertices 
     samsrf_progbar(0);
     for v = 1:length(mver)

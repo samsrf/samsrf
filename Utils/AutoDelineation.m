@@ -1,5 +1,10 @@
 function AutoDelFile = AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad)
 %
+% WARNING: THIS TOOL HAS BEEN DECOMMISSIONED & IS NO LONGER SUPPORTED!
+% Use FastDelineationTool instead for field-sign based semi-automated delineation.
+% For manual delineation, we recommend the SurfAnnotate webapp by Fernanda Ribeiro:
+% https://webapps.neurodesk.org/surfannotate
+%
 % AutoDelFile = AutoDelineation(Srf, NatMesh, TmpMesh, [Atlas, R2Thresh, MinEcc, MaxEcc, EccBw, Niter, InitRad])
 %
 % Simple algorithm to fits the borders of visual regions. It shows a movie 
@@ -71,7 +76,15 @@ function AutoDelFile = AutoDelineation(SrfName, NatMesh, TmpMesh, Atlas, R2Thres
 % 19/09/2024 - Now also takes Srf struct as input map (DSS)
 %              Returns file name of autodelineation (DSS)
 % 07/10/2025 - Fixed bugs that shouldn't be happening anyway (DSS)
+% 26/09/2026 - This tool has now been decommissioned! (DSS)
 %
+
+%% WARNING!
+samsrf_disp('WARNING: THIS TOOL HAS BEEN DECOMMISSIONED & IS NO LONGER SUPPORTED!'); 
+samsrf_disp('Use FastDelineationTool instead for field-sign based semi-automated delineation.');
+samsrf_disp('For manual delineation, we recommend the SurfAnnotate webapp by Fernanda Ribeiro:'); 
+samsrf_disp('https://webapps.neurodesk.org/surfannotate');
+samsrf_newline;
 
 global SamSrfXPath
 

@@ -10,6 +10,7 @@ function varargout = DisplayMaps(varargin)
 % 20/04/2022 - SamSrf 8 version (DSS)
 % 29/05/2026 - No longer requires Stats Toolbox for thresholding (DSS)
 % 28/08/2026 - Latest working version (DSS)
+% 18/10/2026 - Can now display ROI labels (DSS)
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -489,6 +490,11 @@ else
     set(FigHdl, 'Name', 'Map undefined for unsmoothed data!');
 end
 
+% Show labels?
+if get(handles.togglebutton5, 'Value') 
+    samsrf_showlabels(Srf, Mesh, Paths);
+end
+
 
 %% Clear global variables when figure is closed
 function SamSrfCloseReq(src, evnt)
@@ -524,6 +530,13 @@ else
 end
 % Draw paths
 RedrawMaps(handles, false);
+if isempty(Paths)
+    samsrf_hidelabels;
+end
+if get(handles.togglebutton5, 'Value')
+    samsrf_hidelabels;
+    RedrawMaps(handles, false);
+end
 
 
 %% Smoothed or raw maps?
@@ -747,4 +760,13 @@ RedrawMaps(handles, false);
 function popupmenu3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+%% Toggles ROI labels or not
+function togglebutton5_Callback(hObject, eventdata, handles)
+
+RedrawMaps(handles, false);
+if ~get(hObject, 'Value')
+    samsrf_hidelabels;
 end

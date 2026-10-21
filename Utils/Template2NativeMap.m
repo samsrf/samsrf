@@ -16,7 +16,7 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 % This procedure is a simple nearest neighbour transformation. It achieves
 % very similar but non-identical results to FreeSurfer's tool.
 %
-% Saves a new Srf called lh/rh/bi_temp_map_[TmpFolderName] with the same 
+% Saves a new Srf called lh/rh/bi_[TmpFolderName] with the same 
 % number of vertices as NatSrf but containing the map data from the group 
 % average template. Further, it saves the visual region labels from the 
 % average map in a separate folder called ROIs_temp_map_[TmpFolderName].
@@ -31,6 +31,9 @@ function Template2NativeMap(NatSrf, MeshFolder, TmpFolder)
 %              Includes name of template map in name now (DSS)
 % 11/09/2026 - Now supports negative ROI numbers to incorporate field sign (DSS)
 % 15/09/2026 - Always retains ROI names now for fast delineation (DSS)
+% 23/09/2026 - No longer uses 'temp_map' in name now as named after atlas (DSS)
+%              Fixed bug with how ROI labels are saved out (DSS)
+% 15/10/2026 - Bug fix when no ROI names in template (DSS)
 %
 
 % Load native map
@@ -148,20 +151,25 @@ for h = 1:length(Hemis)
     end
 
     %% Save Srf & ROIs        
-    Srf.Roi_Names = TmpSrf.Roi_Names; % Keep ROI names for fast delineation 
-    save([Srf.Hemisphere '_temp_map_' TmpName], 'Srf', '-v7.3');
+    if isfield(TmpSrf, 'Roi_Names')
+        Srf.Roi_Names = TmpSrf.Roi_Names; % Keep ROI names for fast delineation 
+    end
+    save([Srf.Hemisphere '_' TmpName], 'Srf', '-v7.3');
     if isfield(TmpSrf, 'Roi_Names')
         % Only save ROIs if names have been defined
         Rois = TmpSrf.Roi_Names; 
         if h == 1 
             % Only need to do once
-            mkdir(['ROIs_temp_map_' TmpName]);
+            mkdir(['ROIs_' TmpName]);
         end
         UniqueRoiNums = unique(Srf.Data(5,:)); % Unique ROI numbers (can be negative for negative field signs)
+        [~,sa] = sort(abs(UniqueRoiNums)); % Absolute ROI numbers in ascending sequence
+        UniqueRoiNums = UniqueRoiNums(sa); % Sorted unique ROI numbers based on absolute value
+        UniqueRoiNums(UniqueRoiNums == 0) = []; % Remove empty ROI label
         for r = 1:length(Rois)
             rvx = find(Srf.Data(5,:)==UniqueRoiNums(r));
             if ~isempty(rvx)
-                samsrf_srf2label(Srf, ['ROIs_temp_map_' TmpName filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
+                samsrf_srf2label(Srf, ['ROIs_' TmpName filesep Srf.Hemisphere '_' Rois{r}], 1, rvx);
             end
         end
         samsrf_disp(['Warping completed in ' num2str(toc(t0)/60) ' minutes.']);
@@ -172,14 +180,14 @@ end
 % Combine hemisphere maps?
 if length(Hemis) == 2
     samsrf_disp('Combining hemispheres...');
-    L = load(['lh_temp_map_' TmpName]);
-    R = load(['rh_temp_map_' TmpName]);
+    L = load(['lh_' TmpName]);
+    R = load(['rh_' TmpName]);
     Srf = samsrf_bilat_srf(L.Srf, R.Srf);
-    save(['bi_temp_map_' TmpName], 'Srf', '-v7.3');
-    delete(['lh_temp_map_' TmpName '.mat']);
-    delete(['rh_temp_map_' TmpName '.mat']);
+    save(['bi_' TmpName], 'Srf', '-v7.3');
+    delete(['lh_' TmpName '.mat']);
+    delete(['rh_' TmpName '.mat']);
     if isfield(TmpSrf, 'Roi_Names')
-        cd(['ROIs_temp_map_' TmpName]);
+        cd(['ROIs_' TmpName]);
         for r = 1:length(Rois)
             samsrf_bilat_label(Srf, Rois{r});
         end

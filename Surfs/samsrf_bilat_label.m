@@ -15,6 +15,7 @@ function samsrf_bilat_label(Srf, Roi)
 %  indicates that the Srf is not for combined hemispheres.
 %
 % 20/04/2022 - SamSrf 8 version (DSS)
+% 24/09/2026 - Now saves nothing when neither lh_[Roi] or rh_[Roi] exist (DSS)
 %
 
 if ~isfield(Srf, 'Nvert_Lhem')
@@ -48,4 +49,8 @@ Rvx = Rvx + Srf.Nvert_Lhem;
 Vx = [Lvx; Rvx];
 
 % Save new label
-samsrf_srf2label(Srf, Roi, 1, Vx);
+if isempty(Vx)
+    samsrf_disp('Neither hemisphere label exist, so saving nothing...');
+else
+    samsrf_srf2label(Srf, Roi, 1, Vx);   
+end

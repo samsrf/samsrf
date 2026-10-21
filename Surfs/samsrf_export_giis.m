@@ -22,6 +22,9 @@ function samsrf_export_giis(Srf, OutFile, Raw, Maps)
 % This is a modern equivalent of samsrf_export_labels which we kept in the
 % toolbox for backwards compatibility.
 %
+% Note this function is very similar to samsrf_srf2gii but that one is for
+% a more general use as it can save time series information. 
+%
 % 30/07/2024 - Created (DSS)
 % 10/06/2025 - Added check if SPM is on path for GII functionality (DSS)
 % 14/09/2026 - New option to only export some of the maps (DSS)
