@@ -73,7 +73,7 @@ GII or NII format & only few MAT files are saved containing anatomical data.
 
 ## LATEST UPDATES 
 
-### Version 10.4 (19-10-2026) - FastDelineationTool Official Release!
+### Version 10.4 (22-10-2026) - FastDelineationTool Official Release!
 - Replaced samsrf_pred_rois with *FastDelineationTool*! (DSS)  
 - This tool has now also been integrated into the SamSrfX GUI (DSS)  
 - Added options for adding new & duplicate ROIs in FastDelineationTool (DSS)  
